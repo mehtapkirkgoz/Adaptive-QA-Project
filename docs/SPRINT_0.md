@@ -1,23 +1,29 @@
-# Sprint 0 — Temel mimari ve GitHub düzeni
+# Sprint 0 — Architecture and GitHub Workflow
 
-Başlangıç: 18 Ekim 2026
-Durum: Devam ediyor
-GitHub takip issue'su: Henüz oluşturulmadı.
+Start date: October 18, 2026
+Status: In progress
+GitHub tracking issue: Not created yet.
 
-## Aşama 0.1 — Proje temeli
+## Phase 0.1 — Project Foundation
 
-- [x] Mimari karar ve bileşen sınırları.
-- [x] Kurulabilir Python paketi ve durum komutu.
-- [x] Ignore/editor ayarları ve GitHub issue/PR şablonları.
-- [x] Temel CI tanımı.
-- [x] Yerel kurulum ve çalıştırma doğrulaması.
-- [ ] GitHub üzerinde CI çalışmasının doğrulanması (kullanıcı push işleminden sonra).
+- [x] Document architecture decisions and component boundaries.
+- [x] Create an installable Python package and status command.
+- [x] Add ignore rules, editor settings, and GitHub issue/PR templates.
+- [x] Define the initial CI workflow.
+- [x] Verify local installation and execution.
+- [ ] Verify the GitHub Actions run after pushing.
 
-## Sonraki aşamalar
+## Phase 0.2 — Test Models and Validation
 
-- [ ] 0.2: Test case sözleşmesi, sonuç durumları, örnek case ve anlamlı doğrulamalar.
-- [ ] 0.3: Proje ayarları, hedef izinleri ve sır yönetimi sözleşmesi.
-- [ ] GitHub Project, milestone ve bağlı issue'lar.
-- [ ] Sprint kabul kontrolü ve kapanış.
+- [x] Implement the test case model and status enums.
+- [x] Verify eight test case validation tests locally.
+- [ ] Implement the execution result model.
+- [ ] Add a reusable example test case.
 
-Sprint tamamlanmadı. Commit ve push kullanıcı tarafından yapılır.
+## Remaining Work
+
+- [ ] Phase 0.3: Define project configuration, target permissions, and secret management.
+- [ ] Set up the GitHub Project, milestones, and related issues.
+- [ ] Verify sprint acceptance criteria and close the sprint.
+
+Sprint 0 is not complete. Commits and pushes are performed by the repository owner.

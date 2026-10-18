@@ -21,3 +21,5 @@ jobs:
         run: python -m compileall -q src
       - name: Check entry point
         run: adaptive-qa --status
+      - name: Run unit tests
+        run: python -m unittest discover -s tests -v
