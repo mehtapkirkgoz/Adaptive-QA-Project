@@ -31,3 +31,25 @@ and persist results and evidence.
 ## Completion Evidence
 
 To be recorded as implementation progresses.
+
+
+## Phase 1.1 Progress
+
+Implemented:
+
+- Scheme and effective port validation.
+- Public destination IP validation.
+- Exact project hostname authorization before DNS resolution.
+- Validation of every resolved destination address.
+- DNS failure handling and duplicate address removal.
+
+Verification: 61 unit tests pass locally across the project.
+
+Remaining before browser execution:
+
+- Define an explicit policy for the local sample application.
+- Apply destination policies to browser requests and redirects.
+- Enforce connection-level destination restrictions.
+- Bound DNS resolution time as part of the execution timeout.
+
+Phase 1.1 remains in progress.

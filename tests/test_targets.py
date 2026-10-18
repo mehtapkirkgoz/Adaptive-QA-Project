@@ -1,11 +1,12 @@
 """Tests for combined target authorization."""
 
+import socket
 import unittest
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 from adaptive_qa.config import ProjectConfig
 from adaptive_qa.policy import DestinationPolicy
-from adaptive_qa.targets import validate_target
+from adaptive_qa.targets import resolve_addresses, validate_target
 
 
 class TargetValidationTests(unittest.TestCase):
@@ -93,6 +94,65 @@ class TargetValidationTests(unittest.TestCase):
                 resolver=resolver,
             )
 
+
+class DNSResolutionTests(unittest.TestCase):
+    @patch("adaptive_qa.targets.socket.getaddrinfo")
+    def test_ipv4_and_ipv6_addresses_are_returned(self, lookup: Mock) -> None:
+        lookup.return_value = [
+            (
+                socket.AF_INET,
+                socket.SOCK_STREAM,
+                socket.IPPROTO_TCP,
+                "",
+                ("8.8.8.8", 443),
+            ),
+            (
+                socket.AF_INET6,
+                socket.SOCK_STREAM,
+                socket.IPPROTO_TCP,
+                "",
+                ("2606:4700:4700::1111", 443, 0, 0),
+            ),
+        ]
+
+        addresses = resolve_addresses("example.com", 443)
+
+        self.assertEqual(
+            set(addresses),
+            {"8.8.8.8", "2606:4700:4700::1111"},
+        )
+        lookup.assert_called_once_with(
+            "example.com",
+            443,
+            family=socket.AF_UNSPEC,
+            type=socket.SOCK_STREAM,
+        )
+
+    @patch("adaptive_qa.targets.socket.getaddrinfo")
+    def test_duplicate_addresses_are_removed(self, lookup: Mock) -> None:
+        record = (
+            socket.AF_INET,
+            socket.SOCK_STREAM,
+            socket.IPPROTO_TCP,
+            "",
+            ("8.8.8.8", 443),
+        )
+        lookup.return_value = [record, record]
+
+        self.assertEqual(
+            resolve_addresses("example.com", 443),
+            ("8.8.8.8",),
+        )
+
+    @patch("adaptive_qa.targets.socket.getaddrinfo")
+    def test_dns_failure_is_reported(self, lookup: Mock) -> None:
+        lookup.side_effect = socket.gaierror("Simulated DNS failure")
+
+        with self.assertRaisesRegex(
+            ValueError,
+            "Destination DNS resolution failed",
+        ):
+            resolve_addresses("example.com", 443)
 
 if __name__ == "__main__":
     unittest.main()
