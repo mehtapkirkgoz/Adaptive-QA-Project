@@ -2,6 +2,7 @@
 
 from dataclasses import dataclass
 from enum import StrEnum
+import math
 
 
 class TestType(StrEnum):
@@ -70,3 +71,32 @@ class TestCase:
 
         if not isinstance(self.changes_data, bool):
             raise ValueError("changes_data must be a bool.")
+
+@dataclass(frozen=True)
+class TestResult:
+    case_id: str
+    status: TestStatus
+    duration_seconds: float
+    message: str
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.case_id, str) or not self.case_id.strip():
+            raise ValueError("case_id must be a non-empty string.")
+
+        if not isinstance(self.status, TestStatus):
+            raise ValueError("status must be a TestStatus value.")
+
+        if (
+            isinstance(self.duration_seconds, bool)
+            or not isinstance(self.duration_seconds, (int, float))
+        ):
+            raise ValueError("duration_seconds must be a number.")
+
+        if not math.isfinite(self.duration_seconds):
+            raise ValueError("duration_seconds must be finite.")
+
+        if self.duration_seconds < 0:
+            raise ValueError("duration_seconds must not be negative.")
+
+        if not isinstance(self.message, str) or not self.message.strip():
+            raise ValueError("message must be a non-empty string.")
