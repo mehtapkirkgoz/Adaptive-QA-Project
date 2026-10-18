@@ -72,8 +72,10 @@ Implemented models include:
 - Execution statuses: passed, failed, skipped, blocked, and error.
 - Feature discovery statuses: present, absent, and unknown.
 - An immutable test case definition with input validation.
+- An immutable execution result model with status, duration, and message validation.
+- A reusable login form test definition.
 
-Eight unit tests cover valid definitions, required fields, collection validation, test types, and data modification flags.
+Sixteen unit tests cover test case and execution result validation.
 
 Run the tests locally:
 
@@ -81,6 +83,6 @@ Run the tests locally:
 python -m unittest discover -s tests -v
 ```
 
-Local verification: **8 tests passed**.
+Local verification: **16 tests passed**.
 
 GitHub Actions results must be verified after pushing the changes.

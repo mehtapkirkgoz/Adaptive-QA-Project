@@ -17,8 +17,8 @@ GitHub tracking issue: Not created yet.
 
 - [x] Implement the test case model and status enums.
 - [x] Verify eight test case validation tests locally.
-- [ ] Implement the execution result model.
-- [ ] Add a reusable example test case.
+- [x] Implement the execution result model.
+- [x] Add a reusable example test case.
 
 ## Remaining Work
 
