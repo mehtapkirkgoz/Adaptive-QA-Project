@@ -2,7 +2,8 @@
 
 Start date: October 18, 2026
 Status: In progress
-GitHub tracking issue: Not created yet.
+GitHub tracking issue: [#1](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/1)
+Milestone: [Sprint 0](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/1)
 
 ## Phase 0.1 — Project Foundation
 
@@ -26,7 +27,7 @@ GitHub tracking issue: Not created yet.
 - [x] Phase 0.3: Add environment-based secret references and masked output.
 - [x] Phase 0.3: Verify configuration and secret validation tests locally.
 - [x] Phase 0.3: Document the target authorization and secret management contract.
-- [ ] Set up the GitHub Project, milestones, and related issues.
+- [x] Set up the GitHub Project, milestones, and related issues.
 - [ ] Verify sprint acceptance criteria and close the sprint.
 
 Sprint 0 is not complete. Commits and pushes are performed by the repository owner.
