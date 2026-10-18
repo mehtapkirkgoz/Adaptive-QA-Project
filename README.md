@@ -75,7 +75,8 @@ Implemented models include:
 - An immutable execution result model with status, duration, and message validation.
 - A reusable login form test definition.
 
-Sixteen unit tests cover test case and execution result validation.
+Thirty-eight unit tests cover test case validation, execution results,
+project configuration, hostname authorization, and secret resolution.
 
 Run the tests locally:
 
@@ -83,6 +84,26 @@ Run the tests locally:
 python -m unittest discover -s tests -v
 ```
 
-Local verification: **16 tests passed**.
+Local verification: **38 tests passed**.
 
 GitHub Actions results must be verified after pushing the changes.
+
+## Project Configuration and Secrets
+
+Project configuration defines the target URL, explicitly allowed
+hostnames, and whether data-changing tests are permitted.
+
+Hostname authorization uses exact matching. Subdomains require explicit
+permission. This check is not a complete network security boundary:
+DNS resolution, private IP restrictions, and redirect validation
+remain pending before network execution is enabled.
+
+Secrets are referenced by environment variable name and resolved at
+runtime. Standard string and repr output hide resolved values.
+Direct value access and serialization must never be logged.
+
+Environment variables are the initial development mechanism.
+Production secret storage will require a dedicated provider.
+
+Project configuration and secret references are currently standalone
+components. They are not yet connected to a test runner.

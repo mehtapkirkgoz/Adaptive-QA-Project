@@ -22,7 +22,10 @@ GitHub tracking issue: Not created yet.
 
 ## Remaining Work
 
-- [ ] Phase 0.3: Define project configuration, target permissions, and secret management.
+- [x] Phase 0.3: Implement project configuration and exact hostname authorization.
+- [x] Phase 0.3: Add environment-based secret references and masked output.
+- [x] Phase 0.3: Verify configuration and secret validation tests locally.
+- [ ] Phase 0.3: Document the target authorization and secret management contract.
 - [ ] Set up the GitHub Project, milestones, and related issues.
 - [ ] Verify sprint acceptance criteria and close the sprint.
 
