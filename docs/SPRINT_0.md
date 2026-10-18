@@ -1,7 +1,7 @@
 # Sprint 0 — Architecture and GitHub Workflow
 
 Start date: October 18, 2026
-Status: In progress
+Status: Completed
 GitHub tracking issue: [#1](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/1)
 Milestone: [Sprint 0](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/1)
 
@@ -12,7 +12,7 @@ Milestone: [Sprint 0](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/miles
 - [x] Add ignore rules, editor settings, and GitHub issue/PR templates.
 - [x] Define the initial CI workflow.
 - [x] Verify local installation and execution.
-- [ ] Verify the GitHub Actions run after pushing.
+- [x] Verify the GitHub Actions run after pushing.
 
 ## Phase 0.2 — Test Models and Validation
 
@@ -28,6 +28,17 @@ Milestone: [Sprint 0](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/miles
 - [x] Phase 0.3: Verify configuration and secret validation tests locally.
 - [x] Phase 0.3: Document the target authorization and secret management contract.
 - [x] Set up the GitHub Project, milestones, and related issues.
-- [ ] Verify sprint acceptance criteria and close the sprint.
+- [x] Verify the GitHub Actions run after pushing.
 
-Sprint 0 is not complete. Commits and pushes are performed by the repository owner.
+## Completion Summary
+
+- The Python package installs and runs successfully.
+- All 38 unit tests pass locally and in GitHub Actions.
+- Architecture, configuration, authorization, and secret management contracts are documented.
+- The GitHub Project, milestone, and tracking issue are configured.
+
+The test execution engine and network destination controls remain
+planned work for Sprint 1.
+
+CI maintenance follow-up: update action versions and explicitly select
+the runner operating system.

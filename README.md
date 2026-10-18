@@ -2,7 +2,8 @@
 
 An AI-powered QA platform that discovers web application features and runs applicable UI, API, and database tests.
 
-**Status:** Sprint 0 in progress. The project scaffold and test case model are implemented. The test execution engine is not implemented yet.
+**Status:** Sprint 0 completed. The project foundation and 38 unit tests
+are verified. The test execution engine is planned for Sprint 1.
 
 ## Product Overview
 
@@ -28,7 +29,7 @@ Sprints target approximately two weeks of work. Dates will be determined accordi
 
 | Sprint | Goal | Status | Delivered |
 |---|---|---|---|
-| 0 | Architecture and GitHub workflow | In progress | Python scaffold, architecture record, CI configuration, issue and PR templates, validated test case model, eight passing unit tests |
+| 0 | Architecture and GitHub workflow | Completed | Python scaffold, architecture record, CI configuration, issue and PR templates, validated test case model, eight passing unit tests |
 | 1 | First end-to-end test execution | Planned | — |
 | 2 | Website discovery and feature detection | Planned | — |
 | 3 | UI test catalog and element matching | Planned | — |
@@ -86,7 +87,7 @@ python -m unittest discover -s tests -v
 
 Local verification: **38 tests passed**.
 
-GitHub Actions results must be verified after pushing the changes.
+GitHub Actions verification: **38 tests passed**.
 
 ## Project Configuration and Secrets
 
