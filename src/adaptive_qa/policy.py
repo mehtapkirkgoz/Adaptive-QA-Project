@@ -5,6 +5,8 @@ from urllib.parse import urlsplit
 
 from adaptive_qa.config import extract_hostname
 
+from ipaddress import IPv6Address, ip_address
+
 
 @dataclass(frozen=True)
 class DestinationPolicy:
@@ -59,3 +61,35 @@ class DestinationPolicy:
 
         if effective_port not in self.allowed_ports:
             raise ValueError("URL port is not allowed.")
+
+
+def validate_public_ip(address: str) -> None:
+    """Reject IP addresses that are not approved public destinations."""
+    if not isinstance(address, str) or not address:
+        raise ValueError("address must be a non-empty string.")
+
+    if "%" in address:
+        raise ValueError("Scoped IP addresses are not allowed.")
+
+    try:
+        parsed = ip_address(address)
+    except ValueError as error:
+        raise ValueError("address must be a valid IP address.") from error
+
+    if isinstance(parsed, IPv6Address):
+        if (
+            parsed.ipv4_mapped is not None
+            or parsed.sixtofour is not None
+            or parsed.teredo is not None
+        ):
+            raise ValueError("IPv6 transition addresses are not allowed.")
+
+    if (
+        not parsed.is_global
+        or parsed.is_multicast
+        or parsed.is_reserved
+        or parsed.is_unspecified
+        or parsed.is_loopback
+        or parsed.is_link_local
+    ):
+        raise ValueError("IP address is not an allowed public destination.")

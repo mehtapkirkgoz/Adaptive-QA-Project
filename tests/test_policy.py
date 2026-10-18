@@ -2,7 +2,7 @@
 
 import unittest
 
-from adaptive_qa.policy import DestinationPolicy
+from adaptive_qa.policy import DestinationPolicy, validate_public_ip
 
 
 class DestinationPolicyTests(unittest.TestCase):
@@ -74,6 +74,68 @@ class DestinationPolicyTests(unittest.TestCase):
             with self.subTest(url=url):
                 with self.assertRaises(ValueError):
                     DestinationPolicy().validate_url(url)
+
+
+class PublicIPAddressTests(unittest.TestCase):
+    def test_public_addresses_are_accepted(self) -> None:
+        for address in ("8.8.8.8", "2606:4700:4700::1111"):
+            with self.subTest(address=address):
+                validate_public_ip(address)
+
+    def test_non_public_destinations_are_rejected(self) -> None:
+        addresses = (
+            "127.0.0.1",
+            "10.0.0.1",
+            "172.16.0.1",
+            "192.168.1.1",
+            "169.254.169.254",
+            "100.64.0.1",
+            "0.0.0.0",
+            "224.0.0.1",
+            "::1",
+            "::",
+            "fc00::1",
+            "fe80::1",
+            "ff02::1",
+            "192.0.2.1",
+            "2001:db8::1",
+        )
+
+        for address in addresses:
+            with self.subTest(address=address):
+                with self.assertRaisesRegex(
+                    ValueError,
+                    "IP address is not an allowed public destination",
+                ):
+                    validate_public_ip(address)
+
+    def test_ipv6_transition_addresses_are_rejected(self) -> None:
+        addresses = (
+            "::ffff:8.8.8.8",
+            "2002:0808:0808::1",
+            "2001:0000:4136:e378:8000:63bf:3fff:fdd2",
+        )
+
+        for address in addresses:
+            with self.subTest(address=address):
+                with self.assertRaisesRegex(
+                    ValueError,
+                    "IPv6 transition addresses are not allowed",
+                ):
+                    validate_public_ip(address)
+
+    def test_scoped_addresses_are_rejected(self) -> None:
+        with self.assertRaisesRegex(
+            ValueError,
+            "Scoped IP addresses are not allowed",
+        ):
+            validate_public_ip("fe80::1%eth0")
+
+    def test_invalid_addresses_are_rejected(self) -> None:
+        for address in ("", None, "example.com", "999.1.1.1"):
+            with self.subTest(address=address):
+                with self.assertRaises(ValueError):
+                    validate_public_ip(address)
 
 
 if __name__ == "__main__":
