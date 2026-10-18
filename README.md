@@ -2,8 +2,9 @@
 
 An AI-powered QA platform that discovers web application features and runs applicable UI, API, and database tests.
 
-**Status:** Sprint 0 completed. The project foundation and 38 unit tests
-are verified. The test execution engine is planned for Sprint 1.
+**Status:** Sprint 1 in progress. Sprint 0 established the project
+foundation with 38 passing unit tests. Browser test execution
+is now under development.
 
 ## Product Overview
 
@@ -32,7 +33,7 @@ A sprint is completed only when its acceptance criteria are verified.
 | Sprint | Goal | Status | Delivered |
 |---|---|---|---|
 | 0 | Architecture and GitHub workflow | Completed | Python scaffold, architecture record, CI configuration, issue and PR templates, validated test case model, eight passing unit tests |
-| 1 | First end-to-end test execution | Planned | — |
+| 1 | First end-to-end test execution | In Progress | — |
 | 2 | Website discovery and feature detection | Planned | — |
 | 3 | UI test catalog and element matching | Planned | — |
 | 4 | API testing | Planned | — |
@@ -113,3 +114,5 @@ components. They are not yet connected to a test runner.
 
 See the [target authorization and secret management contract](docs/SECURITY_CONTRACT.md)
 for implemented controls, current limitations, and execution prerequisites.
+
+Sprint 1 implementation progress is tracked in [Sprint 1](docs/SPRINT_1.md).
