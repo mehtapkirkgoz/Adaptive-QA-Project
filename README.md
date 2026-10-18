@@ -107,3 +107,6 @@ Production secret storage will require a dedicated provider.
 
 Project configuration and secret references are currently standalone
 components. They are not yet connected to a test runner.
+
+See the [target authorization and secret management contract](docs/SECURITY_CONTRACT.md)
+for implemented controls, current limitations, and execution prerequisites.
