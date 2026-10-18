@@ -25,7 +25,9 @@ Technology decisions are documented in the [architecture record](docs/ARCHITECTU
 
 ## Sprint Tracking
 
-Sprints target approximately two weeks of work. Dates will be determined according to capacity and scope. A sprint is completed only when its acceptance criteria are verified.
+Sprints are organized around defined goals and acceptance criteria.
+Duration is estimated according to scope and capacity.
+A sprint is completed only when its acceptance criteria are verified.
 
 | Sprint | Goal | Status | Delivered |
 |---|---|---|---|

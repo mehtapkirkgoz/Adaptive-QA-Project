@@ -1,108 +1,231 @@
-# Sprint planı
+# Sprint Plan
 
-## Planlama çerçevesi
+## Planning Approach
 
-Sprint 0 için yaklaşık bir hafta, diğer sprintler için yaklaşık iki hafta hedeflenir. Bunlar teslim tarihi taahhüdü değildir. Takvim, ekip kapasitesi ve Sprint 0 kararlarıyla kesinleşir. İlk teknik gösterim Sprint 1'de, bütünleşik MVP Sprint 7 sonunda, pilot aday Sprint 9 sonunda hedeflenir.
+Sprint duration is estimated according to scope and capacity.
+There is no fixed two-week commitment.
+Each sprint is completed when its acceptance criteria are verified.
 
-Test case sayısı varyasyonlarla şişirilmez: her case'in kimliği, ön koşulları, adımları, beklenen sonucu ve risk seviyesi olur. Aşağıdaki sayılar hedef olup sprint kabulünün yerine geçmez.
+The first technical demonstration is targeted for Sprint 1,
+the integrated MVP for Sprint 7, and the pilot candidate for Sprint 9.
+These are scope targets, not delivery date commitments.
 
-## Sprint 0 — Temel mimari ve GitHub düzeni
+Each test case must have a unique identifier, prerequisites, steps,
+expected results, and a risk level.
 
-- UI/API/worker/veri depolama sınırları, teknoloji seçimleri ve mimari karar kayıtları.
-- GitHub Project, sprint milestone'ları, issue/PR şablonları ve CI temeli.
-- Test case şeması, sonuç durumları ve müşteri/proje yapılandırma modeli.
-- İzin verilen hedefler, sır yönetimi ve veri değiştiren test politikası.
+Test counts represent coverage goals. They do not replace acceptance
+criteria and must not be inflated by counting minor variations
+as independent scenarios.
 
-**Kabul:** Temiz ortamda kurulabilen proje iskeleti; geçen temel CI; örnek test tanımı; ilk sprint issue'ları ve mimari karar kaydı.
+## Sprint 0 — Architecture and GitHub Workflow
 
-## Sprint 1 — Çalışan ilk test akışı
+Scope:
 
-- URL ve proje ayarı alan ilk komut/API akışı.
-- Tarayıcı worker'ı, iş kuyruğu, timeout, iptal ve kaynak temizleme.
-- Kontrolümüzdeki örnek sitede 10 temel smoke testi ve kanıt üretimi.
-- Hedef URL doğrulama; dahili adreslere yetkisiz erişimin engellenmesi.
+- Define component boundaries and record technology decisions.
+- Establish the GitHub Project, milestones, issue templates, and PR template.
+- Create the Python package scaffold and initial CI workflow.
+- Define test case and execution result models.
+- Define project configuration and secret reference contracts.
+- Document target authorization and data-changing test policies.
 
-**Kabul:** Bir koşu başlatılır, sonuç saklanır ve tekrar okunur; iptal edilen işin tarayıcısı kapanır; yetkisiz hedef reddedilir.
+Acceptance criteria:
 
-## Sprint 2 — Keşif ve özellik tespiti
+- The package installs successfully in a clean environment.
+- The status command runs successfully.
+- Model and configuration validation tests pass.
+- GitHub Actions completes successfully.
+- Architecture and development documentation are available.
+- Sprint tracking is configured in GitHub.
 
-- Sınırlı sayfa keşfi, bağlantı/form/rol/etiket toplama.
-- Login, kayıt, arama, ürün ve sepet için ilk kural tabanlı tespit.
-- Mevcut, bulunamadı ve belirsiz ayrımı; koşullara göre test planı üretimi.
-- Keşif derinliği, istek hızı ve sayfa bütçesi.
+## Sprint 1 — First End-to-End Test Execution
 
-**Kabul:** Login olan ve olmayan örnek sitelerde doğru test planı; belirsizlik ve atlama nedenlerinin kaydı; keşif sınırlarına uyum.
+Scope:
 
-## Sprint 3 — UI test havuzu ve element eşleştirme
+- Accept a target URL and project configuration through an initial CLI or API.
+- Implement destination controls before enabling network execution.
+- Introduce Playwright and a browser worker.
+- Introduce a job queue, execution timeout, cancellation, and resource cleanup.
+- Implement 10 smoke test cases against a controlled sample application.
+- Persist execution results and generate test evidence.
 
-- Login, form, arama ve gezinme gruplarıyla toplam yaklaşık 40 case.
-- Rol, label ve alternatif adlarla element bulma; siteye özel eşleştirme.
-- Test verisi hazırlama/temizleme; testler arasında bağımsızlık.
-- Yanlış kimlik bilgileri, boş alanlar ve doğrulama mesajları gibi olumsuz senaryolar.
+Acceptance criteria:
 
-**Kabul:** Farklı buton adları kullanan örneklerde aynı testin çalışması; birden fazla eşleşmede kontrollü belirsizlik; tekrar koşularında açıklanabilir sonuçlar.
+- A test run can be started and its results retrieved.
+- Unauthorized destinations are rejected.
+- Redirects and outgoing requests are subject to destination policy.
+- Cancellation and timeout release browser resources.
+- Ten smoke test cases are verified against the sample application.
+- Execution failures are distinguished from assertion failures.
 
-## Sprint 4 — API testleri
+## Sprint 2 — Website Discovery and Feature Detection
 
-- Müşterinin sağladığı endpoint veya API sözleşmesi üzerinden yapılandırma.
-- Kimlik doğrulama, durum kodu, yanıt şeması ve iş kuralı doğrulamaları.
-- UI–API bağlantılı senaryolar; token maskeleme ve işlem sınırları.
-- Toplam yaklaşık 60 case.
+Scope:
 
-**Kabul:** Kontrollü örnek API'de başarılı/başarısız doğrulamalar; eksik API ayarında açıklamalı atlama; sırların raporlara sızmaması.
+- Discover pages within configured depth and request limits.
+- Collect links, forms, accessible roles, and field labels.
+- Detect login, registration, search, product, and cart features.
+- Distinguish present, absent, and unknown feature states.
+- Generate applicable test plans from discovered features.
 
-## Sprint 5 — Veritabanı doğrulamaları
+Acceptance criteria:
 
-- İlk desteklenen veritabanı türü için bağlantı adaptörü.
-- Parametreli sorgular, timeout, sınırlı sonuç ve varsayılan salt okunur yetki.
-- UI/API işleminin beklenen kaydı oluşturduğunu doğrulama; proje bazlı sorgu şablonları.
-- Toplam yaklaşık 75 case.
+- Sample applications with different features produce appropriate plans.
+- Missing and uncertain features are reported separately.
+- Skipped tests include explicit reasons.
+- Discovery respects page, depth, timeout, and request budgets.
 
-**Kabul:** Örnek kayıt üzerinde UI/API/veritabanı doğrulaması; bağlantı hatasının test assertion hatasından ayrılması; izinsiz yazma sorgusunun reddi.
+## Sprint 3 — UI Test Catalog and Element Matching
 
-## Sprint 6 — Yapay zekâ entegrasyonu
+Scope:
 
-- Sağlayıcıdan bağımsız adaptör ve doğrulanan yapılandırılmış yanıtlar.
-- Özellik/sayfa sınıflandırması, test seçimi önerisi ve element bulma desteği.
-- Güven eşiği, maliyet/çağrı bütçesi, önbellek ve AI olmadan devam yolu.
-- Sayfa içeriğindeki talimatların veri olarak işlenmesi; sır ve kişisel veri azaltımı.
-- Kontrolümüzdeki çeşitli örnek sitelerden ölçüm seti.
+- Expand the catalog to approximately 40 test cases.
+- Cover login, forms, search, and navigation.
+- Match elements using roles, labels, and alternative names.
+- Support project-specific element mappings.
+- Introduce test data preparation and cleanup.
+- Include negative scenarios and independent test execution.
 
-**Kabul:** Özellik tespiti ve element seçim doğruluğu ölçülür; yanlış kararlar raporlanır; geçersiz/erişilemeyen model yanıtı kontrollü yönetilir; AI test başarı koşulunu değiştiremez.
+Acceptance criteria:
 
-## Sprint 7 — Web paneli ve proje yönetimi
+- Shared tests work against sample pages with different element names.
+- Ambiguous element matches produce controlled outcomes.
+- Tests do not depend on execution order.
+- Data-changing tests respect project policy.
+- Repeated runs produce explainable results.
 
-- Oturum açma, proje oluşturma ve hedef/hesap/API/veritabanı ayarları.
-- Test planı inceleme, koşu başlatma/iptal, canlı durum ve koşu geçmişi.
-- İlk günden kullanıcı/proje sahipliği kontrolleri; sırların maskeli gösterimi.
+## Sprint 4 — API Testing
 
-**Kabul:** Bir kullanıcı panelden uçtan uca koşu tamamlar; başka kullanıcının proje, sır veya raporlarına erişemez. Bütünleşik MVP gösterimi yapılır.
+Scope:
 
-## Sprint 8 — Raporlama ve kapsam genişletme
+- Configure endpoints or API contracts supplied by the customer.
+- Support authentication, status code, response schema, and business rule checks.
+- Connect selected UI scenarios to API validations.
+- Mask tokens and apply operation limits.
+- Expand the catalog to approximately 60 test cases.
 
-- Filtrelenebilir sonuçlar, ekran görüntüleri, hata kanıtları ve dışa aktarım.
-- Tekrar koşma, geçmiş karşılaştırma ve kararsız testlerin izlenmesi.
-- Öncelikle toplam 100 anlamlı case; 200 case hedefi pilot bulgularına göre sonraki backlog'a bölünür.
-- Kanıt saklama süresi ve erişim kontrolleri.
+Acceptance criteria:
 
-**Kabul:** En az 100 tanımlı case'in uygun örnek ortamlarda doğrulanması; raporların gerçek assertion ve kanıtlarla tutarlı olması; toplam sayı ile koşulabilir sayıların ayrı gösterilmesi.
+- Positive and negative API scenarios run against a controlled API.
+- Missing API configuration produces an explicit non-execution reason.
+- Secrets do not appear in logs or reports.
+- API operations respect target and data modification policies.
 
-## Sprint 9 — Domain ve dağıtım
+## Sprint 5 — Database Validation
 
-- Staging/production ayrımı, container paketleme ve kontrollü CI/CD.
-- Domain/DNS, HTTPS, ortam sırları, migration ve geri dönüş akışı.
-- Worker izolasyonu; ağ/CPU/bellek/eşzamanlılık limitleri.
-- İzleme, loglar, yedekleme/geri yükleme ve operasyon kılavuzu.
+Scope:
 
-**Kabul:** Staging üzerinde uçtan uca koşu; geri dönüş ve yedekten dönüş denemesi; domain üzerinde HTTPS erişimi; üretim yayını için somut sürüm ve dağıtım planı. Domain satın alma ve ücretli hizmet seçimi kullanıcıya aittir.
+- Implement an adapter for the first supported database type.
+- Use parameterized queries and query timeouts.
+- Limit result sizes and default to read-only permissions.
+- Validate records created through UI or API operations.
+- Support project-specific query templates.
+- Expand the catalog to approximately 75 test cases.
 
-## Sprint 10 — Müşterili kullanım ve pilot
+Acceptance criteria:
 
-- Organizasyonlar, roller, kotalar ve müşteri bazında kaynak/maliyet takibi.
-- Eşzamanlı koşular ve müşteri verisi izolasyonunun güçlendirilmesi.
-- Özel ağlar için müşteride çalışan agent pilotu ve dışarı yönlü güvenli bağlantı modeli.
-- Pilot geri bildirimleri, kullanım rehberi ve destek süreçleri.
+- A sample scenario validates behavior across UI, API, and database layers.
+- Connection errors are distinguished from assertion failures.
+- Unauthorized write operations are rejected.
+- Database credentials are resolved through secret references.
 
-**Kabul:** En az iki örnek müşteri ortamında izolasyon ve kota doğrulaması; özel ağ agent gösterimi; pilot sorunlarının önceliklendirilmiş backlog'u.
+## Sprint 6 — AI Integration
 
-Ödeme/abonelik sistemi, kapsamlı yük testi ve otomatik güvenlik taraması ayrı ürün kararlarıdır; bu planın temel 100–200 fonksiyonel test hedefiyle aynı kapsamda sayılmaz.
+Scope:
+
+- Introduce a provider-independent AI adapter.
+- Validate structured model responses.
+- Assist feature classification, test selection, and element identification.
+- Define confidence thresholds and fallback behavior.
+- Apply request, time, and cost budgets.
+- Reduce sensitive data before sending model requests.
+- Treat website content as untrusted input.
+- Build an evaluation set from controlled sample applications.
+
+Acceptance criteria:
+
+- Feature detection and element selection accuracy are measured.
+- Incorrect decisions are recorded and reviewable.
+- Invalid responses and provider outages are handled predictably.
+- Core execution remains available without AI.
+- AI cannot change authorization policies or test success criteria.
+
+## Sprint 7 — Web Dashboard and Project Management
+
+Scope:
+
+- Implement authentication and project management.
+- Configure targets, test accounts, API access, and database references.
+- Provide test plan review, run start, cancellation, and progress views.
+- Display run history and masked configuration values.
+- Enforce user and project ownership checks.
+
+Acceptance criteria:
+
+- A user completes an end-to-end run through the dashboard.
+- Users cannot access another user's projects, secrets, or evidence.
+- Run progress and final results are visible.
+- The integrated MVP is demonstrated.
+
+## Sprint 8 — Reporting and Test Catalog Expansion
+
+Scope:
+
+- Provide filterable results, screenshots, and failure evidence.
+- Support report export, reruns, and historical comparisons.
+- Track flaky tests.
+- Reach at least 100 meaningful test cases.
+- Define evidence retention and access policies.
+- Plan expansion toward 200 cases using pilot findings.
+
+Acceptance criteria:
+
+- At least 100 defined cases are verified in suitable sample environments.
+- Reports agree with actual assertions and evidence.
+- Total catalog size and applicable test counts are shown separately.
+- Evidence access and retention rules are enforced.
+
+## Sprint 9 — Custom Domain and Deployment
+
+Scope:
+
+- Separate staging and production environments.
+- Package services for deployment and establish controlled CI/CD.
+- Configure domain, DNS, HTTPS, and environment secrets.
+- Define database migrations and rollback procedures.
+- Isolate workers and enforce network and resource limits.
+- Add monitoring, logs, backups, and an operations guide.
+
+Acceptance criteria:
+
+- An end-to-end run succeeds in staging.
+- Rollback and backup restoration are demonstrated.
+- The dashboard is accessible through HTTPS on the configured domain.
+- Production deployment has a concrete release and rollout plan.
+- Operational limitations are documented.
+
+Domain purchases and paid service selections are performed
+by the repository owner.
+
+## Sprint 10 — Customer Management and Pilot Testing
+
+Scope:
+
+- Introduce organizations, roles, quotas, and usage tracking.
+- Strengthen customer isolation and concurrent execution controls.
+- Pilot a customer-hosted agent for private network access.
+- Define an authenticated outbound connection model for the agent.
+- Collect pilot feedback and prepare user and support documentation.
+
+Acceptance criteria:
+
+- Isolation and quotas are verified using at least two sample organizations.
+- Private network execution is demonstrated through the agent.
+- Pilot findings are recorded in a prioritized backlog.
+- Customer onboarding and support procedures are documented.
+
+## Separate Product Decisions
+
+Billing, subscription management, comprehensive load testing,
+and automated security scanning require separate scope decisions.
+
+They are not included in the initial goal of 100–200 functional test cases.
