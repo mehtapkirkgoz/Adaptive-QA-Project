@@ -20,6 +20,26 @@ Kontrol:
 
 Beklenen durum mesajı Sprint 0 iskeletinin hazır olduğunu ve test motorunun henüz uygulanmadığını belirtir. Bu komut siteyi test etmez.
 
-Paketin çalışma zamanı bağımlılığı yoktur. Kurulum paketleme aracı setuptools'u yükleyebilir. Bağımlılık kilidi ilk harici çalışma zamanı paketi eklendiğinde hazırlanacak.
 
 Sonraki aşama: test case/veri sözleşmeleri ve proje politikası. Playwright ve Chromium kurulumu Sprint 1'de, API/veritabanı servisleri ilgili aşamada belgelenecek.
+
+
+## Browser Automation Dependencies
+
+Install the pinned runtime dependencies and project package:
+
+```powershell
+python -m pip install -r requirements.lock.txt
+python -m pip install --no-deps -e .
+```
+
+Install the Chromium browser used by Playwright:
+
+```powershell
+python -m playwright install chromium
+```
+
+The browser binary is installed separately and must not be committed.
+
+The runtime dependency snapshot was initially verified on Windows
+with Python 3.13. Other supported environments require CI verification.
