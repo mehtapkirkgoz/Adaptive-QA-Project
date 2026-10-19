@@ -6,7 +6,11 @@ from unittest.mock import Mock, patch
 
 from adaptive_qa.config import ProjectConfig
 from adaptive_qa.policy import DestinationPolicy
-from adaptive_qa.targets import resolve_addresses, validate_target
+from adaptive_qa.targets import (
+    resolve_addresses,
+    validate_local_sample_target,
+    validate_target,
+)
 
 
 class TargetValidationTests(unittest.TestCase):
@@ -153,6 +157,77 @@ class DNSResolutionTests(unittest.TestCase):
             "Destination DNS resolution failed",
         ):
             resolve_addresses("example.com", 443)
+
+
+
+class LocalSampleTargetTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.project = ProjectConfig(
+            project_id="local-demo",
+            name="Local Sample Application",
+            base_url="http://127.0.0.1:8000",
+            allowed_hosts=("127.0.0.1",),
+        )
+
+    def test_local_sample_path_is_accepted(self) -> None:
+        target = validate_local_sample_target(
+            "http://127.0.0.1:8000/login",
+            self.project,
+        )
+
+        self.assertEqual(target.hostname, "127.0.0.1")
+        self.assertEqual(target.port, 8000)
+        self.assertEqual(target.addresses, ("127.0.0.1",))
+
+    def test_other_hosts_are_rejected(self) -> None:
+        for hostname in ("localhost", "127.0.0.2", "example.com"):
+            with self.subTest(hostname=hostname):
+                with self.assertRaisesRegex(
+                    ValueError,
+                    "Local sample destination must use 127.0.0.1",
+                ):
+                    validate_local_sample_target(
+                        f"http://{hostname}:8000",
+                        self.project,
+                    )
+
+    def test_other_ports_are_rejected(self) -> None:
+        with self.assertRaisesRegex(
+            ValueError,
+            "URL port is not allowed",
+        ):
+            validate_local_sample_target(
+                "http://127.0.0.1:9000",
+                self.project,
+            )
+
+    def test_https_is_rejected(self) -> None:
+        with self.assertRaisesRegex(
+            ValueError,
+            "URL scheme is not allowed",
+        ):
+            validate_local_sample_target(
+                "https://127.0.0.1:8000",
+                self.project,
+            )
+
+    def test_project_authorization_is_required(self) -> None:
+        other_project = ProjectConfig(
+            project_id="public-demo",
+            name="Public Demo",
+            base_url="https://example.com",
+            allowed_hosts=("example.com",),
+        )
+
+        with self.assertRaisesRegex(
+            ValueError,
+            "Destination hostname is not authorized",
+        ):
+            validate_local_sample_target(
+                "http://127.0.0.1:8000",
+                other_project,
+            )
+
 
 if __name__ == "__main__":
     unittest.main()

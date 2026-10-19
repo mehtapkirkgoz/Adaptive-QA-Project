@@ -65,3 +65,31 @@ def validate_target(
         port=port,
         addresses=tuple(sorted(set(addresses))),
     )
+
+
+def validate_local_sample_target(
+    url: str,
+    project: ProjectConfig,
+) -> ValidatedTarget:
+    """Validate the fixed local sample destination for development only."""
+    policy = DestinationPolicy(
+        allowed_schemes=("http",),
+        allowed_ports=(8000,),
+    )
+    policy.validate_url(url)
+
+    hostname = extract_hostname(url)
+
+    if hostname != "127.0.0.1":
+        raise ValueError(
+            "Local sample destination must use 127.0.0.1."
+        )
+
+    if not project.is_url_allowed(url):
+        raise ValueError("Destination hostname is not authorized.")
+
+    return ValidatedTarget(
+        hostname=hostname,
+        port=8000,
+        addresses=("127.0.0.1",),
+    )
