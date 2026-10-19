@@ -62,7 +62,31 @@ def verify_sample_page() -> None:
                     )
                 ).to_be_visible()
 
-                print("Sample page verification passed.")
+                login_form = page.locator("#login-form")
+
+                username_field = login_form.get_by_label(
+                    "Username",
+                    exact=True,
+                )
+                password_field = login_form.get_by_label(
+                    "Password",
+                    exact=True,
+                )
+                submit_button = login_form.get_by_role(
+                    "button",
+                    name="Sign in",
+                    exact=True,
+                )
+
+                expect(username_field).to_be_visible()
+                expect(password_field).to_be_visible()
+                expect(password_field).to_have_attribute(
+                    "type",
+                    "password",
+                )
+                expect(submit_button).to_be_visible()
+
+                print("LOGIN-001 passed: login form fields and button are visible.")
             finally:
                 context.close()
         finally:
