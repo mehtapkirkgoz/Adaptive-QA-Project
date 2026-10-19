@@ -53,3 +53,14 @@ Remaining before browser execution:
 - Bound DNS resolution time as part of the execution timeout.
 
 Phase 1.1 remains in progress.
+
+
+## Phase 1.2 Progress
+
+- [x] Create the controlled sample page.
+- [x] Install Playwright 1.64.0 and Chromium locally.
+- [x] Verify Chromium startup and shutdown.
+- [x] Record pinned runtime dependencies.
+- [x] Configure CI to install pinned dependencies.
+- [ ] Verify pinned dependency installation in GitHub Actions.
+- [ ] Connect the sample application to browser execution.
