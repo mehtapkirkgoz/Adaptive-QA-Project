@@ -8,9 +8,11 @@ from adaptive_qa.config import ProjectConfig
 from adaptive_qa.models import TestResult, TestStatus
 from adaptive_qa.targets import validate_local_sample_target
 from adaptive_qa.storage import save_result
+from pathlib import Path
+from uuid import uuid4
 
 
-def _verify_sample_page() -> None:
+def _verify_sample_page(evidence_path: Path) -> None:
     project = ProjectConfig(
         project_id="local-demo",
         name="Local Sample Application",
@@ -89,6 +91,11 @@ def _verify_sample_page() -> None:
                     "password",
                 )
                 expect(submit_button).to_be_visible()
+                page.screenshot(
+                    path=str(evidence_path),
+                    full_page=True,
+                    timeout=5_000,
+                )
 
             finally:
                 context.close()
@@ -100,8 +107,12 @@ def run_login_form_test() -> TestResult:
     """Execute the local login form test and return a structured result."""
     started_at = perf_counter()
 
+    evidence_directory = Path("artifacts/screenshots")
+    evidence_directory.mkdir(parents=True, exist_ok=True)
+    evidence_path = evidence_directory / f"{uuid4().hex}.png"
+
     try:
-        _verify_sample_page()
+        _verify_sample_page(evidence_path)
     except AssertionError:
         status = TestStatus.FAILED
         message = "The sample page or login form did not meet expectations."

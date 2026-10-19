@@ -7,6 +7,8 @@ from playwright.sync_api import Error
 
 from adaptive_qa.local_browser import run_login_form_test
 from adaptive_qa.models import TestStatus
+from pathlib import Path
+from tempfile import TemporaryDirectory
 
 
 class LoginFormResultTests(unittest.TestCase):
@@ -17,7 +19,10 @@ class LoginFormResultTests(unittest.TestCase):
     ) -> None:
         result = run_login_form_test()
 
-        verify.assert_called_once_with()
+        verify.assert_called_once()
+        evidence_path = verify.call_args.args[0]
+        self.assertIsInstance(evidence_path, Path)
+        self.assertEqual(evidence_path.suffix, ".png")
         self.assertEqual(result.case_id, "LOGIN-001")
         self.assertEqual(result.status, TestStatus.PASSED)
         self.assertGreaterEqual(result.duration_seconds, 0)
@@ -67,8 +72,21 @@ class LoginFormResultTests(unittest.TestCase):
 
         result = run_login_form_test()
 
-        verify.assert_called_once_with()
+        verify.assert_called_once()
+        evidence_path = verify.call_args.args[0]
+        self.assertIsInstance(evidence_path, Path)
+        self.assertEqual(evidence_path.suffix, ".png")
         self.assertEqual(result.duration_seconds, 0.75)
+    def setUp(self) -> None:
+        temporary = TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+
+        directory_patch = patch(
+            "adaptive_qa.local_browser.Path",
+            return_value=Path(temporary.name),
+        )
+        directory_patch.start()
+        self.addCleanup(directory_patch.stop)
 
 
 if __name__ == "__main__":
