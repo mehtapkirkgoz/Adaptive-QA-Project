@@ -7,6 +7,7 @@ from playwright.sync_api import Error, Route, expect, sync_playwright
 from adaptive_qa.config import ProjectConfig
 from adaptive_qa.models import TestResult, TestStatus
 from adaptive_qa.targets import validate_local_sample_target
+from adaptive_qa.storage import save_result
 
 
 def _verify_sample_page() -> None:
@@ -122,6 +123,9 @@ def run_login_form_test() -> TestResult:
 if __name__ == "__main__":
     result = run_login_form_test()
     print(result)
+
+    result_path = save_result(result)
+    print(f"Result saved to: {result_path}")
 
     if result.status != TestStatus.PASSED:
         raise SystemExit(1)
