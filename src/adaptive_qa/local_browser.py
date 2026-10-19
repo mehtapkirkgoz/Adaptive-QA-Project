@@ -1,12 +1,15 @@
 """Browser verification for the controlled local sample application."""
 
-from playwright.sync_api import Route, expect, sync_playwright
+from time import perf_counter
+
+from playwright.sync_api import Error, Route, expect, sync_playwright
 
 from adaptive_qa.config import ProjectConfig
+from adaptive_qa.models import TestResult, TestStatus
 from adaptive_qa.targets import validate_local_sample_target
 
 
-def verify_sample_page() -> None:
+def _verify_sample_page() -> None:
     project = ProjectConfig(
         project_id="local-demo",
         name="Local Sample Application",
@@ -86,12 +89,39 @@ def verify_sample_page() -> None:
                 )
                 expect(submit_button).to_be_visible()
 
-                print("LOGIN-001 passed: login form fields and button are visible.")
             finally:
                 context.close()
         finally:
             browser.close()
 
 
+def run_login_form_test() -> TestResult:
+    """Execute the local login form test and return a structured result."""
+    started_at = perf_counter()
+
+    try:
+        _verify_sample_page()
+    except AssertionError:
+        status = TestStatus.FAILED
+        message = "The sample page or login form did not meet expectations."
+    except (Error, RuntimeError):
+        status = TestStatus.ERROR
+        message = "Browser execution or sample page loading failed."
+    else:
+        status = TestStatus.PASSED
+        message = "The sample page and login form checks passed."
+
+    return TestResult(
+        case_id="LOGIN-001",
+        status=status,
+        duration_seconds=perf_counter() - started_at,
+        message=message,
+    )
+
+
 if __name__ == "__main__":
-    verify_sample_page()
+    result = run_login_form_test()
+    print(result)
+
+    if result.status != TestStatus.PASSED:
+        raise SystemExit(1)
