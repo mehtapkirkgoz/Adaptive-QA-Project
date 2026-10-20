@@ -76,6 +76,8 @@ jobs:
         run: python scripts/check_network_security.py
       - name: Verify structural page collection
         run: python scripts/check_page_collector.py
+      - name: Verify deterministic element matching
+        run: python scripts/check_element_matching.py
       - name: Verify bounded local discovery
         run: python scripts/check_local_discovery.py
       - name: Verify contrasting discovery fixtures and test plans
@@ -93,5 +95,6 @@ jobs:
             artifacts/security/*.json
             artifacts/smoke/*.json
             artifacts/discovery/*.json
+            artifacts/matching/*.json
           retention-days: 7
           if-no-files-found: warn

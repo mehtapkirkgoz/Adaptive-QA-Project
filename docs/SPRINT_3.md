@@ -1,7 +1,7 @@
 # Sprint 3 — UI Test Catalog and Element Matching
 
 Start date: October 21, 2026 (Europe/Istanbul)
-Status: In progress — phase 3.1 completed locally.
+Status: In progress — phases 3.1 and 3.2 completed locally.
 Tracking issue: [#4](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/4).
 Milestone: [Sprint 3 — UI Test Catalog and Element Matching](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/4).
 
@@ -15,7 +15,7 @@ cosmetic variants or unimplemented definitions.
 ## Phases
 
 - [x] 3.1: Define validated element mapping and matching result contracts.
-- [ ] 3.2: Implement role/label/alternative-name matching with controlled missing and ambiguous outcomes.
+- [x] 3.2: Implement role/label/alternative-name matching with controlled missing and ambiguous outcomes.
 - [ ] 3.3: Bind reusable executors to discovered pages and contrasting fixture variants.
 - [ ] 3.4: Expand login, form, search, navigation, and negative UI coverage toward 40 runnable scenarios.
 - [ ] 3.5: Add isolated test data preparation/cleanup and data-change policy enforcement.
@@ -49,6 +49,21 @@ All 256 unit tests pass locally, including 13 new contract cases. Compilation
 and diff checks pass. Remote verification is pending after push. These models do
 not locate elements or execute actions yet; browser matching belongs to phase 3.2.
 The runnable smoke catalog remains at ten cases.
+
+## Phase 3.2 Deliverables
+
+Read-only Chromium matching unions all configured alternatives and deduplicates
+DOM identity. Hidden/inert/aria-hidden candidates are excluded. Exact role names
+and labels are required; project test-ID overrides replace defaults. Missing or
+duplicate scopes fail explicitly. Multiple visible candidates remain ambiguous.
+The matcher caps candidates at 200 and has a cooperative five-second operation
+budget; callers must still supply a hard process deadline. A matched static DOM
+handle cannot retarget silently after replacement and must be disposed by its caller.
+Visibility does not imply enabled/actionable state. No click or fill occurs here.
+
+All 256 unit tests and 18 real Chromium checks pass locally. CI runs the matching
+script and retains its report under `artifacts/matching/`. Runtime execution and
+fixture bindings belong to phase 3.3; the smoke catalog remains ten scenarios.
 
 ## Acceptance Criteria
 
