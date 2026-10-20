@@ -1,6 +1,7 @@
 """Tests for sample catalog registration and execution selection."""
 
 import unittest
+from dataclasses import replace
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
@@ -14,6 +15,7 @@ from adaptive_qa.smoke_checks import SMOKE_CHECKS
 class SmokeCatalogTests(unittest.TestCase):
     def test_catalog_and_executors_have_matching_unique_identifiers(self) -> None:
         identifiers = [case.case_id for case in TEST_CASES]
+        self.assertEqual(len(identifiers), 10)
         self.assertEqual(len(identifiers), len(set(identifiers)))
         self.assertEqual(set(identifiers), set(SMOKE_CHECKS))
 
@@ -31,6 +33,14 @@ class SmokeCatalogTests(unittest.TestCase):
         self.assertEqual(result.case_id, "SEARCH-002")
         self.assertEqual(result.status, TestStatus.PASSED)
         self.assertEqual(verify.call_args.kwargs["case_id"], "SEARCH-002")
+
+    @patch("adaptive_qa.local_browser._verify_sample_page")
+    def test_data_changing_case_is_blocked_before_browser(self, verify) -> None:
+        changed = replace(TEST_CASES[0], changes_data=True)
+        with patch("adaptive_qa.local_browser.TEST_CASES", (changed,)):
+            result = run_sample_test(changed.case_id)
+        self.assertEqual(result.status, TestStatus.BLOCKED)
+        verify.assert_not_called()
 
 
 if __name__ == "__main__":

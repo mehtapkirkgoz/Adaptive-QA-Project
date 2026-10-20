@@ -1,4 +1,4 @@
-"""Development entry point; test execution is introduced in Sprint 1."""
+"""Development entry point for platform status."""
 
 import argparse
 
@@ -10,7 +10,7 @@ def main() -> None:
     )
     args = parser.parse_args()
     if args.status:
-        print("Sprint 0: project scaffold ready; test execution is not implemented.")
+        print("Sprint 1: 10 local smoke scenarios available; general website execution is not enabled.")
     else:
         parser.print_help()
 

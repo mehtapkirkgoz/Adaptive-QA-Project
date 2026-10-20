@@ -5,7 +5,7 @@ from urllib.parse import urlsplit
 
 from adaptive_qa.config import extract_hostname
 
-from ipaddress import IPv6Address, ip_address
+from ipaddress import IPv6Address, IPv6Network, ip_address
 
 
 @dataclass(frozen=True)
@@ -81,6 +81,8 @@ def validate_public_ip(address: str) -> None:
             parsed.ipv4_mapped is not None
             or parsed.sixtofour is not None
             or parsed.teredo is not None
+            or parsed in IPv6Network("64:ff9b::/96")
+            or parsed in IPv6Network("64:ff9b:1::/48")
         ):
             raise ValueError("IPv6 transition addresses are not allowed.")
 

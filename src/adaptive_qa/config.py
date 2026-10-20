@@ -1,5 +1,7 @@
 """Project configuration and target authorization."""
 
+import re
+from ipaddress import ip_address
 from dataclasses import dataclass
 from urllib.parse import urlsplit
 
@@ -11,6 +13,9 @@ def extract_hostname(url: str) -> str:
 
     if any(character.isspace() for character in url):
         raise ValueError("url must not contain whitespace.")
+
+    if "\\" in url or any(ord(character) < 32 or ord(character) == 127 for character in url):
+        raise ValueError("url must not contain backslashes or control characters.")
 
     try:
         parsed = urlsplit(url)
@@ -28,6 +33,17 @@ def extract_hostname(url: str) -> str:
     if parsed.username is not None or parsed.password is not None:
         raise ValueError("url must not contain credentials.")
 
+    if not hostname.isascii() or "%" in hostname or hostname.endswith("."):
+        raise ValueError("url must use an unambiguous ASCII hostname.")
+    try:
+        ip_address(hostname)
+    except ValueError:
+        labels = hostname.split(".")
+        if len(hostname) > 253 or any(
+            not re.fullmatch(r"[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?", label)
+            for label in labels
+        ):
+            raise ValueError("url hostname is invalid.")
     return hostname.lower()
 
 

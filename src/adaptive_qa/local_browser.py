@@ -6,6 +6,8 @@ from time import perf_counter
 from playwright.sync_api import Error, Page, Route, expect, sync_playwright
 
 from adaptive_qa.config import ProjectConfig
+from adaptive_qa.catalog import TEST_CASES
+from adaptive_qa.egress import DestinationGuard, EgressProxy, chromium_proxy_options
 from adaptive_qa.models import TestResult, TestStatus
 from adaptive_qa.targets import validate_local_sample_target
 from adaptive_qa.storage import save_result
@@ -42,6 +44,8 @@ def _verify_sample_page(evidence_path: Path, case_id: str = "LOGIN-001") -> None
 
     def handle_request(route: Route) -> None:
         try:
+            if route.request.method not in ("GET", "HEAD"):
+                raise ValueError("Data-changing requests are disabled.")
             validate_local_sample_target(route.request.url, project)
         except ValueError:
             route.abort("blockedbyclient")
@@ -49,8 +53,12 @@ def _verify_sample_page(evidence_path: Path, case_id: str = "LOGIN-001") -> None
 
         route.continue_()
 
-    with sync_playwright() as playwright:
-        browser = playwright.chromium.launch(timeout=10_000)
+    guard = DestinationGuard(project, local_sample=True)
+    with EgressProxy(guard) as proxy, sync_playwright() as playwright:
+        browser = playwright.chromium.launch(
+            timeout=10_000,
+            **chromium_proxy_options(proxy.url),
+        )
 
         try:
             context = browser.new_context(
@@ -103,8 +111,11 @@ def _verify_sample_page(evidence_path: Path, case_id: str = "LOGIN-001") -> None
 
 def run_sample_test(case_id: str) -> TestResult:
     """Execute a registered sample check in a fresh browser context."""
-    if case_id not in SMOKE_CHECKS:
+    definition = next((case for case in TEST_CASES if case.case_id == case_id), None)
+    if case_id not in SMOKE_CHECKS or definition is None:
         return TestResult(case_id, TestStatus.BLOCKED, 0.0, "No sample executor is registered.")
+    if definition.changes_data:
+        return TestResult(case_id, TestStatus.BLOCKED, 0.0, "Data-changing sample tests are disabled.")
     started_at = perf_counter()
 
     evidence_directory = Path("artifacts/screenshots")

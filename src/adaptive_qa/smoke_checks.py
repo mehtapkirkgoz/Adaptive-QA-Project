@@ -29,8 +29,75 @@ def check_search_result(page: Page) -> None:
     )
 
 
+def check_login_required_username(page: Page) -> None:
+    form = page.locator("#login-form")
+    form.get_by_role("button", name="Sign in", exact=True).click()
+    missing = form.get_by_label("Username", exact=True).evaluate(
+        "element => element.validity.valueMissing"
+    )
+    assert missing, "Empty username must prevent submission."
+    expect(form.get_by_role("status")).to_have_text("")
+
+
+def check_login_required_password(page: Page) -> None:
+    form = page.locator("#login-form")
+    form.get_by_label("Username", exact=True).fill("demo-user")
+    form.get_by_role("button", name="Sign in", exact=True).click()
+    missing = form.get_by_label("Password", exact=True).evaluate(
+        "element => element.validity.valueMissing"
+    )
+    assert missing, "Empty password must prevent submission."
+    expect(form.get_by_role("status")).to_have_text("")
+
+
+def check_demo_login_submission(page: Page) -> None:
+    form = page.locator("#login-form")
+    form.get_by_label("Username", exact=True).fill("demo-user")
+    form.get_by_label("Password", exact=True).fill("fake-demo-password")
+    form.get_by_role("button", name="Sign in", exact=True).click()
+    expect(form.get_by_role("status")).to_have_text(
+        "Demo only: authentication is not connected."
+    )
+
+
+def check_search_required_query(page: Page) -> None:
+    form = page.get_by_role("search")
+    form.get_by_role("button", name="Search", exact=True).click()
+    missing = form.get_by_label("Search products", exact=True).evaluate(
+        "element => element.validity.valueMissing"
+    )
+    assert missing, "An empty query must prevent submission."
+    expect(form.get_by_role("status")).to_have_text("")
+
+
+def check_search_whitespace(page: Page) -> None:
+    form = page.get_by_role("search")
+    form.get_by_label("Search products", exact=True).fill("   ")
+    form.get_by_role("button", name="Search", exact=True).click()
+    expect(form.get_by_role("status")).to_have_text("Enter a search term.")
+
+
+def check_login_navigation(page: Page) -> None:
+    page.get_by_role("navigation").get_by_role("link", name="Sign in", exact=True).click()
+    expect(page).to_have_url("http://127.0.0.1:8000/#login")
+    expect(page.locator("#login")).to_be_in_viewport()
+
+
+def check_search_navigation(page: Page) -> None:
+    page.get_by_role("navigation").get_by_role("link", name="Search", exact=True).click()
+    expect(page).to_have_url("http://127.0.0.1:8000/#search")
+    expect(page.locator("#search")).to_be_in_viewport()
+
+
 SMOKE_CHECKS: dict[str, Callable[[Page], None]] = {
     "LOGIN-001": check_login_form,
+    "LOGIN-002": check_login_required_username,
+    "LOGIN-003": check_login_required_password,
+    "LOGIN-004": check_demo_login_submission,
     "SEARCH-001": check_search_form,
     "SEARCH-002": check_search_result,
+    "SEARCH-003": check_search_required_query,
+    "SEARCH-004": check_search_whitespace,
+    "NAV-001": check_login_navigation,
+    "NAV-002": check_search_navigation,
 }

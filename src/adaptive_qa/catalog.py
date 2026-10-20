@@ -39,8 +39,35 @@ SEARCH_NO_RESULTS = TestCase(
     expected_result='The status message is: No products found for "sample book".',
 )
 
+def _sample_case(
+    case_id: str, name: str, feature: str, steps: tuple[str, ...], expected: str
+) -> TestCase:
+    return TestCase(case_id, name, TestType.UI, (feature,), steps, expected)
+
+
 TEST_CASES: tuple[TestCase, ...] = (
     LOGIN_FORM_VISIBLE,
+    _sample_case("LOGIN-002", "Username is required", "login",
+                 ("Open the sample page", "Submit an empty login form"),
+                 "Username validation blocks submission and no result is displayed."),
+    _sample_case("LOGIN-003", "Password is required", "login",
+                 ("Enter a demo username", "Submit without a password"),
+                 "Password validation blocks submission and no result is displayed."),
+    _sample_case("LOGIN-004", "Demo login submission displays its status", "login",
+                 ("Fill fake demo credentials", "Submit the login form"),
+                 "The demo-only authentication status is displayed without network submission."),
     SEARCH_FORM_VISIBLE,
     SEARCH_NO_RESULTS,
+    _sample_case("SEARCH-003", "Search query is required", "search",
+                 ("Open the sample page", "Submit an empty search form"),
+                 "Query validation blocks submission and no result is displayed."),
+    _sample_case("SEARCH-004", "Whitespace search displays a prompt", "search",
+                 ("Enter whitespace into search", "Submit the search form"),
+                 "The result status asks the user to enter a search term."),
+    _sample_case("NAV-001", "Login link navigates to its section", "navigation",
+                 ("Open the sample page", "Click the Sign in navigation link"),
+                 "The URL ends with #login and the login section is in the viewport."),
+    _sample_case("NAV-002", "Search link navigates to its section", "navigation",
+                 ("Open the sample page", "Click the Search navigation link"),
+                 "The URL ends with #search and the search section is in the viewport."),
 )

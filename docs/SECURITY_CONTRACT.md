@@ -1,93 +1,97 @@
 # Target Authorization and Secret Management Contract
 
-Status: Initial contract — partially implemented.
+Status: Local sample controls implemented and verified. Production rollout remains gated.
 
-## 1. Authorized Targets
+## Authorized Targets
 
-Each project must explicitly define its allowed hostnames.
+Project hostnames are explicit; subdomains require separate permission. Only HTTP(S)
+URLs are accepted. Credentials in URLs, backslashes, control characters, ambiguous
+hostnames, and unsupported schemes/ports are rejected.
 
-Implemented:
+The supported sample execution policy is HTTP to literal 127.0.0.1:8000 only.
+No alternate loopback address, private subnet, hostname, or port is implicitly allowed.
 
-- Only HTTP and HTTPS target URLs are accepted.
-- The base URL must match an explicitly allowed hostname.
-- Hostname matching is case-insensitive for incoming URLs.
-- Subdomains require separate authorization.
-- Wildcards are not supported.
-- Credentials embedded in URLs are rejected.
+The separate public guard rejects non-public destinations, mixed public/private DNS
+answers, IPv6 transition mechanisms, and standard NAT64 translation prefixes.
+DNS resolution has a five-second subprocess deadline. An upstream connection uses a
+validated numeric IP directly and verifies its peer; it never re-resolves the original
+hostname at connection time. Each new proxy connection is independently authorized.
 
-Current authorization matches hostnames only. It does not restrict
-schemes or ports beyond URL validation.
+## Browser Egress and Redirects
 
-Required before network execution is enabled:
+The browser uses a fixed loopback proxy with implicit loopback bypass disabled.
+QUIC and HTTP/2 are disabled in the supported configuration; non-proxied WebRTC UDP
+is disabled. There is no direct proxy fallback. Browser-level URL checks remain as
+a second layer; they are not the sole redirect boundary.
 
-- Validate every navigation, redirect, and outgoing request.
-- Restrict destination ports according to project policy.
-- Validate resolved IPv4 and IPv6 addresses.
-- Block unauthorized private, loopback, link-local, and reserved addresses.
-- Prevent DNS changes from bypassing destination restrictions.
-- Enforce network restrictions at the worker infrastructure level.
-- Apply explicit policies for customer-hosted agents on private networks.
+HTTP redirect destinations are validated before forwarding. Relative redirects are
+resolved against the current URL. Subsequent requests and HTTPS CONNECT targets pass
+the same destination policy. HTTPS payloads are not decrypted: an HTTPS redirect
+inside a tunnel is enforced at the next destination connection, not by reading its body.
 
-Hostname matching alone is not sufficient to prevent server-side
-request forgery (SSRF).
+Limits per browser run: 200 authorizations, 10 forwarded HTTP redirects, five-second
+socket inactivity limits, 10 MiB HTTP response bodies, 20 MiB and 30 seconds per CONNECT
+tunnel. The isolated worker also applies a total 30-second default deadline.
 
-## 2. Data-Changing Tests
+Service workers and browser WebSockets are blocked. The sample proxy denies CONNECT,
+upgrades, write methods, and GET/HEAD request bodies. Public TLS method restrictions
+require browser enforcement because a tunnel cannot inspect encrypted HTTP methods.
 
-Implemented:
+## Data-Changing Tests
 
-- Project configuration defaults allow_data_changes to false.
-- Test definitions declare changes_data.
+Definitions declare changes_data. The current sample executor rejects definitions
+marked as data-changing before starting the browser, and outgoing sample requests
+are restricted to GET/HEAD. Demo form submissions change only the local DOM and use
+fake values; no real authentication or database writes occur.
 
-Required before test execution:
+Future customer execution requires explicit project policies, approved accounts,
+test data cleanup, and side-effect review before retries. Metadata alone does not
+prove a test has no side effects.
 
-- Reject data-changing tests when project policy disables them.
-- Record the reason as a blocked result.
-- Require approved test accounts and test data.
-- Define cleanup procedures for created or modified records.
+## Verification and Deployment Gate
 
-The configuration flag does not currently enforce execution behavior.
-Tests are responsible for declaring their side effects accurately.
+Local verification includes canaries for allowed/denied HTTP redirects, script
+navigation, forbidden resources, HTTPS CONNECT, WebSockets, write methods, redirect
+loops, and stopped-proxy fallback. No forbidden canary connection is accepted.
 
-## 3. Secret References
+Public guard and socket behavior are unit-tested offline. The CLI is not enabled
+for arbitrary public sites. Full public rollout additionally requires Linux testing,
+OS/container egress enforcement, private-network agent policies, deployment-specific
+NAT64/network rules, and independent isolation review. Proxy settings are not an OS
+sandbox and do not constrain arbitrary Python code running outside the browser path.
 
-Implemented:
+## Cancellation and Recovery
 
-- Secrets are referenced by environment variable name.
-- Values are resolved from the current process environment.
-- Missing and blank values are rejected.
-- Secret values are excluded from standard repr output.
-- Standard string output displays [REDACTED].
+Cancellation is requested through persistent state. A cancelled outcome is recorded
+only after the supervisor handles the request; termination failures remain errors.
+Finalization rejects late requests before they can contradict saved outcomes.
 
-Current limitations:
+Explicit recovery repairs unfinished queue records only when the supported executor
+lock is free. It does not stop orphan processes, undo operations, or automatically
+replay tests. Inspect process cleanup and prior effects before retrying.
 
-- Direct access through the value attribute exposes the secret.
-- Serialization is not automatically redacted.
-- Environment variables do not provide customer-level isolation.
+## Secrets and Evidence
 
-Required for integrated execution and production use:
+Secrets are referenced by environment variable name and resolved at runtime.
+Missing/blank values are rejected; standard string/repr output is masked.
 
-- Never log secret values or include them in reports.
-- Sanitize request headers, URLs, errors, screenshots, and other evidence.
-- Never send secrets to an AI provider.
-- Authorize secret access by organization, project, and worker job.
-- Use a dedicated production secret provider.
-- Support secret rotation and access auditing.
+Direct value access and serialization are not automatically safe. Never log secrets,
+put them in source control, or send them to AI providers. Screenshot masking, request
+sanitization, customer-level secret authorization, rotation/auditing, evidence access
+control, and a production secret provider remain required for customer use.
 
-## 4. AI Boundaries
+Proxy request logs are disabled to avoid exposing URLs and headers. Current screenshots
+contain only the controlled sample and fake demo values.
 
-Required when AI integration is introduced:
+## AI Boundaries
 
-- Treat website content as untrusted data.
-- Ignore instructions embedded in pages or retrieved content.
-- Validate model responses before using them.
-- Keep target permissions and execution policies outside model control.
-- Do not allow AI to modify test success criteria.
-- Apply explicit request, time, and cost budgets.
+When introduced, treat page content as untrusted data, validate structured responses,
+keep authorization and success criteria outside model control, and enforce time,
+request, and cost budgets.
 
-## 5. Implementation Gate
+## References
 
-Network test execution must remain disabled until the relevant
-destination controls are implemented and verified.
-
-This document describes implementation requirements. It does not claim
-that pending controls already exist.
+- [Chromium proxy bypass behavior](https://chromium.googlesource.com/chromium/src/+/HEAD/net/docs/proxy.md)
+- [Playwright browser routing](https://playwright.dev/python/docs/api/class-browsercontext)
+- [IPv4/IPv6 translation addressing](https://www.rfc-editor.org/rfc/rfc6052)
+- [Local-use translation prefix](https://www.rfc-editor.org/rfc/rfc8215)

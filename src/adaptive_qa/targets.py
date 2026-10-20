@@ -39,7 +39,7 @@ def validate_target(
     project: ProjectConfig,
     policy: DestinationPolicy,
     *,
-    resolver: Resolver = resolve_addresses,
+    resolver: Resolver | None = None,
 ) -> ValidatedTarget:
     """Authorize a URL and validate all resolved destination addresses."""
     policy.validate_url(url)
@@ -52,6 +52,9 @@ def validate_target(
     default_port = 443 if parsed.scheme == "https" else 80
     port = parsed.port if parsed.port is not None else default_port
 
+    if resolver is None:
+        from adaptive_qa.dns_resolver import resolve_with_deadline
+        resolver = resolve_with_deadline
     addresses = resolver(hostname, port)
 
     if not isinstance(addresses, tuple) or not addresses:

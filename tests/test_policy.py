@@ -112,6 +112,9 @@ class PublicIPAddressTests(unittest.TestCase):
     def test_ipv6_transition_addresses_are_rejected(self) -> None:
         addresses = (
             "::ffff:8.8.8.8",
+            "64:ff9b::7f00:1",
+            "64:ff9b::a9fe:a9fe",
+            "64:ff9b:1::a00:1",
             "2002:0808:0808::1",
             "2001:0000:4136:e378:8000:63bf:3fff:fdd2",
         )
