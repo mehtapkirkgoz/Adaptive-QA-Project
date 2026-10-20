@@ -131,3 +131,19 @@ page evidence is retained and the original exception is preserved.
 Local verification: 86 unit tests pass. No runtime dependency changes.
 This checkpoint does not complete process-level timeout/cancellation testing
 or confirm the pending GitHub browser CI run.
+
+## Phase 1.5 — Local Queue Foundation (October 20, 2026)
+
+- [x] Implement FIFO submission and atomic claims in a local in-memory queue.
+- [x] Cancel queued jobs and skip them during claiming.
+- [x] Attach matching results only to running jobs.
+- [x] Distinguish job completion from test success.
+- [x] Verify competing claims do not execute a job twice within one process.
+- [ ] Connect local queue jobs to browser execution.
+- [ ] Add durable queue dispatch and job persistence.
+- [ ] Implement active cancellation and worker recovery.
+
+Verification: 94 unit tests pass locally, including eight queue tests.
+No additional dependencies or services are required for this foundation.
+The local queue is an intermediate development component; it does not replace
+the planned Redis/Celery architecture. Pending CI verification remains open.

@@ -80,7 +80,7 @@ Implemented models include:
 - An immutable execution result model with status, duration, and message validation.
 - A reusable login form test definition.
 
-Eighty-six unit tests cover models, configuration, secrets, destination
+Ninety-four unit tests cover models, configuration, secrets, destination
 policies, result classification, and persistence. These are platform unit tests,
 not 78 website test scenarios.
 
@@ -90,7 +90,7 @@ Run the tests locally:
 python -m unittest discover -s tests -v
 ```
 
-Local verification: **86 tests passed**. The local browser scenario was also
+Local verification: **94 tests passed**. The local browser scenario was also
 executed successfully, and its saved JSON references an existing PNG screenshot.
 
 GitHub Actions: Sprint 0 verification passed with 38 tests.
@@ -170,3 +170,16 @@ Browser lifecycle unit tests verify cleanup after success, context creation
 failure, page creation failure, and a simulated navigation timeout. These tests
 verify exception handling; they do not demonstrate forced termination of a
 hung browser process or cancellation of a queued worker job.
+
+## Local Job Queue Foundation
+
+`LocalJobQueue` supports FIFO submission, atomic claiming, queued-job
+cancellation, result attachment, and immutable status snapshots. A completed
+job means execution finished; its test result can still be failed or error.
+Unknown job identifiers raise `KeyError`.
+
+This is an in-memory, single-process development component. It is not yet
+connected to the browser runner, has no persistence or customer authorization,
+and does not stop running jobs. State is lost when the process exits, and
+job history remains in memory until then. Redis/Celery dispatch, durable state,
+worker recovery, and active cancellation remain planned work.
