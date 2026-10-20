@@ -13,7 +13,8 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from time import perf_counter
 
-from adaptive_qa.local_browser import run_login_form_test
+from adaptive_qa.local_browser import run_sample_test
+from adaptive_qa.smoke_checks import SMOKE_CHECKS
 from adaptive_qa.models import TestResult, TestStatus
 
 
@@ -36,18 +37,18 @@ def _terminate_process_tree(process: subprocess.Popen) -> None:
     process.wait(timeout=5)
 
 
-def _read_result(path: Path) -> TestResult:
+def _read_result(path: Path, expected_case_id: str = "LOGIN-001") -> TestResult:
     payload = json.loads(path.read_text(encoding="utf-8"))
     payload["status"] = TestStatus(payload["status"])
     payload["evidence_paths"] = tuple(payload.get("evidence_paths", ()))
     result = TestResult(**payload)
-    if result.case_id != "LOGIN-001":
+    if result.case_id != expected_case_id:
         raise ValueError("Unexpected browser result case identifier.")
     return result
 
 
-def run_isolated_login_test(
-    timeout_seconds: float = 30, *, should_cancel: Callable[[], bool] | None = None
+def run_isolated_sample_test(
+    case_id: str, timeout_seconds: float = 30, *, should_cancel: Callable[[], bool] | None = None
 ) -> TestResult:
     """Return a result, terminating the child tree if its deadline expires."""
     if (
@@ -58,16 +59,19 @@ def run_isolated_login_test(
     ):
         raise ValueError("timeout_seconds must be a positive finite number.")
 
+    if case_id not in SMOKE_CHECKS:
+        return TestResult(case_id, TestStatus.BLOCKED, 0.0, "No sample executor is registered.")
+
     started = perf_counter()
     if should_cancel is not None and should_cancel():
-        return TestResult("LOGIN-001", TestStatus.CANCELLED, 0.0, "Execution was cancelled.")
+        return TestResult(case_id, TestStatus.CANCELLED, 0.0, "Execution was cancelled.")
     with TemporaryDirectory(prefix="adaptive-qa-browser-") as temporary:
         output = Path(temporary) / "result.json"
         options = {"start_new_session": True} if os.name != "nt" else {
             "creationflags": subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.CREATE_NO_WINDOW
         }
         process = subprocess.Popen(
-            [sys.executable, "-m", "adaptive_qa.browser_process", "--child-result", str(output)],
+            [sys.executable, "-m", "adaptive_qa.browser_process", "--child-result", str(output), "--case", case_id],
             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, **options,
         )
         try:
@@ -75,14 +79,14 @@ def run_isolated_login_test(
                 if should_cancel is not None and should_cancel():
                     _terminate_process_tree(process)
                     return TestResult(
-                        "LOGIN-001", TestStatus.CANCELLED, perf_counter() - started,
+                        case_id, TestStatus.CANCELLED, perf_counter() - started,
                         "Browser execution was cancelled by request.",
                     )
                 remaining = timeout_seconds - (perf_counter() - started)
                 if remaining <= 0:
                     _terminate_process_tree(process)
                     return TestResult(
-                        "LOGIN-001", TestStatus.ERROR, perf_counter() - started,
+                        case_id, TestStatus.ERROR, perf_counter() - started,
                         "Browser execution exceeded its total time limit.",
                     )
                 try:
@@ -92,14 +96,14 @@ def run_isolated_login_test(
                     continue
             if process.returncode != 0:
                 return TestResult(
-                    "LOGIN-001", TestStatus.ERROR, perf_counter() - started,
+                    case_id, TestStatus.ERROR, perf_counter() - started,
                     "The isolated browser process exited unexpectedly.",
                 )
             try:
-                return _read_result(output)
+                return _read_result(output, expected_case_id=case_id)
             except (OSError, ValueError, TypeError, KeyError):
                 return TestResult(
-                    "LOGIN-001", TestStatus.ERROR, perf_counter() - started,
+                    case_id, TestStatus.ERROR, perf_counter() - started,
                     "The isolated browser process returned an invalid result.",
                 )
         finally:
@@ -107,11 +111,21 @@ def run_isolated_login_test(
                 _terminate_process_tree(process)
 
 
+def run_isolated_login_test(
+    timeout_seconds: float = 30, *, should_cancel: Callable[[], bool] | None = None
+) -> TestResult:
+    """Compatibility wrapper for the original isolated login check."""
+    return run_isolated_sample_test(
+        "LOGIN-001", timeout_seconds, should_cancel=should_cancel
+    )
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Internal local browser child process.")
     parser.add_argument("--child-result", type=Path, required=True)
+    parser.add_argument("--case", choices=sorted(SMOKE_CHECKS), default="LOGIN-001")
     args = parser.parse_args()
-    result = run_login_form_test()
+    result = run_sample_test(args.case)
     args.child_result.write_text(json.dumps(asdict(result)), encoding="utf-8")
 
 

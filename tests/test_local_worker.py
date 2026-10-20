@@ -12,7 +12,7 @@ from adaptive_qa.models import TestResult, TestStatus
 class LocalWorkerTests(unittest.TestCase):
     def setUp(self) -> None:
         self.queue = LocalJobQueue()
-        runner_patch = patch("adaptive_qa.local_worker.run_login_form_test")
+        runner_patch = patch("adaptive_qa.local_worker.run_sample_test")
         self.runner = runner_patch.start()
         self.addCleanup(runner_patch.stop)
         self.runner.return_value = TestResult("LOGIN-001", TestStatus.PASSED, 0.1, "Passed.")
@@ -28,7 +28,7 @@ class LocalWorkerTests(unittest.TestCase):
     def test_claimed_job_is_executed_and_saved_with_job_id(self) -> None:
         job = self.queue.submit("LOGIN-001")
         processed = process_next(self.queue)
-        self.runner.assert_called_once_with()
+        self.runner.assert_called_once_with("LOGIN-001")
         self.save.assert_called_once_with(self.runner.return_value, job_id=job.job_id)
         self.assertEqual(processed.job.status, JobStatus.COMPLETED)
         self.assertEqual(processed.result_path, Path("result.json"))

@@ -3,7 +3,7 @@
 An AI-powered QA platform that discovers web application features and runs applicable UI, API, and database tests.
 
 **Status:** Sprint 1 in progress. Sprint 0 established the project
-foundation. Sprint 1 currently provides one local browser scenario,
+foundation. Sprint 1 currently provides three local browser scenarios,
 JSON result persistence, and linked screenshot evidence. Queueing and broader
 network execution remain under development.
 
@@ -80,7 +80,7 @@ Implemented models include:
 - An immutable execution result model with status, duration, and message validation.
 - A reusable login form test definition.
 
-One hundred and fifty unit tests cover models, configuration, secrets, destination
+One hundred and fifty-four unit tests cover models, configuration, secrets, destination
 policies, result classification, and persistence. These are platform unit tests,
 not 78 website test scenarios.
 
@@ -90,7 +90,7 @@ Run the tests locally:
 python -m unittest discover -s tests -v
 ```
 
-Local verification: **150 tests passed**. The local browser scenario was also
+Local verification: **154 tests passed**. The local browser scenario was also
 executed successfully, and its saved JSON references an existing PNG screenshot.
 
 GitHub Actions: Sprint 0 verification passed with 38 tests.
@@ -187,7 +187,7 @@ SQLite-backed supervisor, not this in-memory component.
 
 ## Queued Local Browser Execution
 
-The managed browser check now submits `LOGIN-001` to `SQLiteJobQueue` and invokes
+The managed browser check now submits the registered smoke catalog to `SQLiteJobQueue` and invokes
 `process_next` through `adaptive_qa.local_worker`. Each saved result includes
 its `job_id`. Pending cancelled jobs are skipped. Unsupported cases produce
 blocked results; unexpected executor failures produce error results.
@@ -395,7 +395,29 @@ JSON through this command, and attempts screenshot capture. Shared page title
 and heading assertions remain preconditions. These are controlled sample checks,
 not universal executors for arbitrary sites or automatic interpretation of text steps.
 
-The persistent worker and isolated child still dispatch LOGIN-001 only; wiring
-additional identifiers into that path is the next step. Direct local_browser
+The persistent worker and isolated child dispatch all three registered checks
+through the same execution path. Direct local_browser
 execution uses operation timeouts, not the supervisor's total process deadline.
 The 10-scenario Sprint 1 target is not complete.
+
+## Queued Smoke Catalog Execution
+
+With the sample server running, search cases use the same persistent worker:
+
+```powershell
+python -m adaptive_qa.local_worker submit SEARCH-001
+python -m adaptive_qa.local_worker submit SEARCH-002
+python -m adaptive_qa.local_worker run-next
+python -m adaptive_qa.local_worker run-next
+```
+
+Each job runs in an isolated browser process with a total timeout and cancellation
+polling. The child result identifier must match the submitted case. Unknown cases
+remain blocked without launching a browser. Login compatibility entry points remain
+available for existing callers.
+
+The managed script now submits every catalog case to a fresh temporary queue and
+processes each in turn. Ordinary failed checks do not prevent remaining checks
+from running; the script returns nonzero if any check failed. Its outer command
+timeout still aborts the overall check. Three real scenarios are currently present;
+seven more are needed to reach the Sprint 1 smoke target.

@@ -36,7 +36,7 @@ class WorkerCLITests(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertEqual(json.loads(output)["status"], "queued")
 
-    @patch("adaptive_qa.local_worker.run_login_form_test")
+    @patch("adaptive_qa.local_worker.run_sample_test")
     @patch("adaptive_qa.local_worker.save_result")
     def test_run_next_persists_completion_for_later_status(self, save, run) -> None:
         run.return_value = TestResult("LOGIN-001", TestStatus.PASSED, 0.1, "Passed.")
@@ -48,7 +48,7 @@ class WorkerCLITests(unittest.TestCase):
         self.assertEqual(job["status"], "completed")
         self.assertEqual(job["result"]["status"], "passed")
 
-    @patch("adaptive_qa.local_worker.run_login_form_test")
+    @patch("adaptive_qa.local_worker.run_sample_test")
     def test_cancelled_job_is_not_run(self, run) -> None:
         job_id = self.submit()
         self.assertEqual(self.command("cancel", job_id)[0], 0)
@@ -57,7 +57,7 @@ class WorkerCLITests(unittest.TestCase):
         _, output = self.command("status", job_id)
         self.assertEqual(json.loads(output)["status"], "cancelled")
 
-    @patch("adaptive_qa.local_worker.run_login_form_test")
+    @patch("adaptive_qa.local_worker.run_sample_test")
     @patch("adaptive_qa.local_worker.save_result")
     def test_failed_test_returns_nonzero(self, save, run) -> None:
         run.return_value = TestResult("LOGIN-001", TestStatus.FAILED, 0.1, "Failed.")
@@ -79,7 +79,7 @@ class WorkerCLITests(unittest.TestCase):
     def test_list_invalid_limit_returns_nonzero(self) -> None:
         self.assertEqual(self.command("list", "--limit", "0")[0], 1)
 
-    @patch("adaptive_qa.local_worker.run_login_form_test")
+    @patch("adaptive_qa.local_worker.run_sample_test")
     @patch("adaptive_qa.local_worker.save_result")
     def test_retry_command_returns_linked_pending_attempt(self, save, run) -> None:
         run.return_value = TestResult("LOGIN-001", TestStatus.FAILED, 0.1, "Failed.")
@@ -100,12 +100,12 @@ class WorkerCLITests(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertEqual(json.loads(output)["status"], "cancel_requested")
 
-    @patch("adaptive_qa.local_worker.run_login_form_test")
+    @patch("adaptive_qa.local_worker.run_sample_test")
     @patch("adaptive_qa.local_worker.save_result")
     def test_cancel_request_wins_before_result_persistence(self, save, run) -> None:
         job_id = self.submit()
         queue = SQLiteJobQueue(Path(self.args[1]))
-        def execute(*, should_cancel):
+        def execute(case_id, *, should_cancel):
             queue.request_cancel(job_id)
             self.assertTrue(should_cancel())
             return TestResult("LOGIN-001", TestStatus.PASSED, 0.1, "Passed.")
@@ -126,6 +126,19 @@ class WorkerCLITests(unittest.TestCase):
         self.assertEqual(recovered[0]["job_id"], job_id)
         self.assertEqual(recovered[0]["result"]["status"], "error")
         self.assertIsNone(queue.claim_next())
+
+    @patch("adaptive_qa.local_worker.run_sample_test")
+    @patch("adaptive_qa.local_worker.save_result")
+    def test_search_job_uses_selected_executor_and_persists_result(self, save, run) -> None:
+        code, output = self.command("submit", "SEARCH-002")
+        job_id = json.loads(output)["job_id"]
+        run.return_value = TestResult("SEARCH-002", TestStatus.PASSED, 0.1, "Passed.")
+        save.return_value = Path("result.json")
+        self.assertEqual(self.command("run-next")[0], 0)
+        self.assertEqual(run.call_args.args, ("SEARCH-002",))
+        self.assertTrue(callable(run.call_args.kwargs["should_cancel"]))
+        _, output = self.command("status", job_id)
+        self.assertEqual(json.loads(output)["result"]["case_id"], "SEARCH-002")
 
 
 if __name__ == "__main__":

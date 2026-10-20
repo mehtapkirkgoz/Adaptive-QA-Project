@@ -8,6 +8,8 @@ from pathlib import Path
 from threading import Thread
 from tempfile import TemporaryDirectory
 
+from adaptive_qa.catalog import TEST_CASES
+
 
 def main() -> int:
     root = Path(__file__).resolve().parents[1]
@@ -27,20 +29,25 @@ def main() -> int:
                     sys.executable, "-m", "adaptive_qa.local_worker",
                     "--database", str(Path(temporary) / "jobs.sqlite3"),
                 ]
-                submitted = subprocess.run(
-                    command + ["submit", "LOGIN-001"],
-                    cwd=root, timeout=10, check=False,
-                )
-                if submitted.returncode != 0:
-                    return submitted.returncode
-                completed = subprocess.run(
-                    command + ["run-next"],
-                    cwd=root, timeout=60, check=False,
-                )
+                for case in TEST_CASES:
+                    submitted = subprocess.run(
+                        command + ["submit", case.case_id],
+                        cwd=root, timeout=10, check=False,
+                    )
+                    if submitted.returncode != 0:
+                        return submitted.returncode
+                outcome = 0
+                for _ in TEST_CASES:
+                    completed = subprocess.run(
+                        command + ["run-next"],
+                        cwd=root, timeout=60, check=False,
+                    )
+                    if completed.returncode != 0:
+                        outcome = 1
         except subprocess.TimeoutExpired:
             print("Local browser check exceeded 60 seconds.", file=sys.stderr)
             return 1
-        return completed.returncode
+        return outcome
     finally:
         server.shutdown()
         server.server_close()

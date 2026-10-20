@@ -9,7 +9,8 @@ from pathlib import Path
 from time import perf_counter
 
 from adaptive_qa.jobs import Job, JobStatus, LocalJobQueue
-from adaptive_qa.browser_process import run_isolated_login_test as run_login_form_test
+from adaptive_qa.browser_process import run_isolated_sample_test as run_sample_test
+from adaptive_qa.smoke_checks import SMOKE_CHECKS
 from adaptive_qa.models import TestResult, TestStatus
 from adaptive_qa.storage import save_result
 from adaptive_qa.sqlite_queue import SQLiteJobQueue
@@ -37,18 +38,18 @@ def _process_claimed(queue: LocalJobQueue | SQLiteJobQueue) -> ProcessedJob | No
 
     started_at = perf_counter()
     try:
-        if job.case_id != "LOGIN-001":
+        if job.case_id not in SMOKE_CHECKS:
             result = TestResult(
                 job.case_id, TestStatus.BLOCKED, 0.0,
                 "No local executor is registered for this test case.",
             )
         else:
             if isinstance(queue, SQLiteJobQueue):
-                result = run_login_form_test(
-                    should_cancel=lambda: queue.get(job.job_id).status == JobStatus.CANCEL_REQUESTED
+                result = run_sample_test(
+                    job.case_id, should_cancel=lambda: queue.get(job.job_id).status == JobStatus.CANCEL_REQUESTED
                 )
             else:
-                result = run_login_form_test()
+                result = run_sample_test(job.case_id)
         if not isinstance(result, TestResult) or result.case_id != job.case_id:
             raise ValueError("Executor returned an invalid result.")
     except Exception:

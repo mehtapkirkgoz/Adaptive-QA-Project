@@ -7,7 +7,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.mock import Mock, patch
 
-from adaptive_qa.browser_process import _read_result, run_isolated_login_test
+from adaptive_qa.browser_process import _read_result, run_isolated_login_test, run_isolated_sample_test
 from adaptive_qa.models import TestResult, TestStatus
 
 
@@ -92,6 +92,34 @@ class BrowserProcessTests(unittest.TestCase):
         terminate.side_effect = RuntimeError("Termination failed")
         with self.assertRaises(RuntimeError):
             run_isolated_login_test(should_cancel=Mock(side_effect=[False, True]))
+
+    @patch("adaptive_qa.browser_process._read_result")
+    @patch("adaptive_qa.browser_process.subprocess.Popen")
+    def test_selected_case_is_sent_to_child_and_transport_validator(self, launch, read) -> None:
+        launch.return_value.returncode = 0
+        launch.return_value.poll.return_value = 0
+        read.return_value = TestResult("SEARCH-002", TestStatus.PASSED, 0.1, "Passed.")
+        result = run_isolated_sample_test("SEARCH-002")
+        command = launch.call_args.args[0]
+        self.assertEqual(command[command.index("--case") + 1], "SEARCH-002")
+        self.assertEqual(read.call_args.kwargs["expected_case_id"], "SEARCH-002")
+        self.assertEqual(result.case_id, "SEARCH-002")
+
+    @patch("adaptive_qa.browser_process.subprocess.Popen")
+    def test_unknown_case_is_blocked_before_launch(self, launch) -> None:
+        result = run_isolated_sample_test("UNKNOWN-001")
+        self.assertEqual(result.status, TestStatus.BLOCKED)
+        launch.assert_not_called()
+
+    def test_search_result_requires_matching_expected_identifier(self) -> None:
+        with TemporaryDirectory() as temporary:
+            path = Path(temporary) / "result.json"
+            payload = dict(case_id="SEARCH-002", status="passed", duration_seconds=0.1,
+                           message="Passed.", evidence_paths=[])
+            path.write_text(json.dumps(payload), encoding="utf-8")
+            self.assertEqual(_read_result(path, "SEARCH-002").case_id, "SEARCH-002")
+            with self.assertRaises(ValueError):
+                _read_result(path, "SEARCH-001")
 
 
 if __name__ == "__main__":

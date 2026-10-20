@@ -268,3 +268,15 @@ with screenshots. The managed queued LOGIN-001 run also passes after refactoring
 The new search checks are not yet dispatched through the persistent worker or
 isolated child. That integration and seven additional scenarios remain pending.
 Phase 1.6 is in progress. Phase 1.5 still requires its remaining platform/CI checks.
+
+## Phase 1.6 — Queued Smoke Dispatch (October 20, 2026)
+
+- Dispatch each registered case through the isolated child process.
+- Carry the case identifier through timeout/cancellation results and validate transport ownership.
+- Run login and search jobs through the persistent SQLite worker.
+- Exercise the entire current catalog through the managed CI script.
+
+Verification: 154 unit tests pass. LOGIN-001, SEARCH-001, and SEARCH-002 all pass
+as real queued Chromium jobs with persisted JSON and screenshots. The registered
+catalog contains three scenarios; seven remain to reach the sprint target.
+GitHub Actions verification of this expanded path requires the next push.
