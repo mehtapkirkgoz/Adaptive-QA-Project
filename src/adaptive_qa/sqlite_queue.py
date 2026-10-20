@@ -139,17 +139,57 @@ class SQLiteJobQueue:
             )
             return self._read(connection, job_id)
 
+    def request_cancel(self, job_id: str) -> Job:
+        """Cancel pending work or persist a request for the active supervisor."""
+        with self._transaction() as connection:
+            job = self._read(connection, job_id)
+            if job.status in (JobStatus.CANCELLED, JobStatus.CANCEL_REQUESTED):
+                return job
+            if job.status == JobStatus.QUEUED:
+                status = JobStatus.CANCELLED
+            elif job.status == JobStatus.RUNNING:
+                status = JobStatus.CANCEL_REQUESTED
+            else:
+                raise ValueError("Job has already entered finalization or completed.")
+            connection.execute(
+                "UPDATE jobs SET status = ? WHERE job_id = ?", (status, job_id)
+            )
+            return self._read(connection, job_id)
+
+    def begin_completion(self, job_id: str, result: TestResult) -> Job:
+        """Freeze the outcome before persistence, resolving a cancellation race."""
+        if not isinstance(result, TestResult):
+            raise ValueError("result must be a TestResult instance.")
+        with self._transaction() as connection:
+            job = self._read(connection, job_id)
+            if job.status not in (JobStatus.RUNNING, JobStatus.CANCEL_REQUESTED):
+                raise ValueError("Job is not ready for finalization.")
+            if result.case_id != job.case_id:
+                raise ValueError("Result case_id must match the job.")
+            if job.status == JobStatus.CANCEL_REQUESTED and result.status != TestStatus.ERROR:
+                result = TestResult(
+                    job.case_id, TestStatus.CANCELLED, result.duration_seconds,
+                    "Cancellation was requested before finalization.",
+                    evidence_paths=result.evidence_paths,
+                )
+            connection.execute(
+                "UPDATE jobs SET status = ?, result_json = ? WHERE job_id = ?",
+                (JobStatus.FINALIZING, json.dumps(asdict(result), allow_nan=False), job_id),
+            )
+            return self._read(connection, job_id)
+
     def complete(self, job_id: str, result: TestResult) -> Job:
         if not isinstance(result, TestResult):
             raise ValueError("result must be a TestResult instance.")
         with self._transaction() as connection:
             job = self._read(connection, job_id)
-            if job.status != JobStatus.RUNNING:
+            if job.status not in (JobStatus.RUNNING, JobStatus.FINALIZING):
                 raise ValueError("Only running jobs can be completed.")
             if result.case_id != job.case_id:
                 raise ValueError("Result case_id must match the job.")
             connection.execute(
                 "UPDATE jobs SET status = ?, result_json = ? WHERE job_id = ?",
-                (JobStatus.COMPLETED, json.dumps(asdict(result), allow_nan=False), job_id),
+                (JobStatus.CANCELLED if result.status == TestStatus.CANCELLED else JobStatus.COMPLETED,
+                 json.dumps(asdict(result), allow_nan=False), job_id),
             )
             return self._read(connection, job_id)

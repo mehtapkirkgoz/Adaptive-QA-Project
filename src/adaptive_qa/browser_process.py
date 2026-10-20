@@ -7,6 +7,7 @@ import os
 import signal
 import subprocess
 import sys
+from collections.abc import Callable
 from dataclasses import asdict
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -45,7 +46,9 @@ def _read_result(path: Path) -> TestResult:
     return result
 
 
-def run_isolated_login_test(timeout_seconds: float = 30) -> TestResult:
+def run_isolated_login_test(
+    timeout_seconds: float = 30, *, should_cancel: Callable[[], bool] | None = None
+) -> TestResult:
     """Return a result, terminating the child tree if its deadline expires."""
     if (
         isinstance(timeout_seconds, bool)
@@ -56,6 +59,8 @@ def run_isolated_login_test(timeout_seconds: float = 30) -> TestResult:
         raise ValueError("timeout_seconds must be a positive finite number.")
 
     started = perf_counter()
+    if should_cancel is not None and should_cancel():
+        return TestResult("LOGIN-001", TestStatus.CANCELLED, 0.0, "Execution was cancelled.")
     with TemporaryDirectory(prefix="adaptive-qa-browser-") as temporary:
         output = Path(temporary) / "result.json"
         options = {"start_new_session": True} if os.name != "nt" else {
@@ -66,14 +71,25 @@ def run_isolated_login_test(timeout_seconds: float = 30) -> TestResult:
             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, **options,
         )
         try:
-            try:
-                process.wait(timeout=timeout_seconds)
-            except subprocess.TimeoutExpired:
-                _terminate_process_tree(process)
-                return TestResult(
-                    "LOGIN-001", TestStatus.ERROR, perf_counter() - started,
-                    "Browser execution exceeded its total time limit.",
-                )
+            while True:
+                if should_cancel is not None and should_cancel():
+                    _terminate_process_tree(process)
+                    return TestResult(
+                        "LOGIN-001", TestStatus.CANCELLED, perf_counter() - started,
+                        "Browser execution was cancelled by request.",
+                    )
+                remaining = timeout_seconds - (perf_counter() - started)
+                if remaining <= 0:
+                    _terminate_process_tree(process)
+                    return TestResult(
+                        "LOGIN-001", TestStatus.ERROR, perf_counter() - started,
+                        "Browser execution exceeded its total time limit.",
+                    )
+                try:
+                    process.wait(timeout=min(0.2, remaining))
+                    break
+                except subprocess.TimeoutExpired:
+                    continue
             if process.returncode != 0:
                 return TestResult(
                     "LOGIN-001", TestStatus.ERROR, perf_counter() - started,

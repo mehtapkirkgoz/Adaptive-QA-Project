@@ -12,6 +12,8 @@ from adaptive_qa.models import TestResult
 class JobStatus(StrEnum):
     QUEUED = "queued"
     RUNNING = "running"
+    CANCEL_REQUESTED = "cancel_requested"
+    FINALIZING = "finalizing"
     COMPLETED = "completed"
     CANCELLED = "cancelled"
 

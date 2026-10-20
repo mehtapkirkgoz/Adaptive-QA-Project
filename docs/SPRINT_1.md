@@ -226,3 +226,18 @@ new subprocess boundary. A controlled Windows parent/descendant timeout check
 confirmed both processes stopped. POSIX tree termination needs Linux verification.
 User-requested active cancellation and interrupted-worker recovery remain pending.
 Phase 1.5 is still in progress.
+
+## Phase 1.5 — Active Cancellation (October 20, 2026)
+
+- Persist cancel_requested for running SQLite jobs via the cancel CLI command.
+- Poll requests in the isolated browser supervisor and terminate its child tree.
+- Record explicit cancelled test outcomes and cancelled terminal job states.
+- Freeze results in a finalizing state before JSON storage to resolve late requests.
+- Preserve execution/termination errors instead of claiming successful cancellation.
+
+Verification: 141 unit tests pass and the normal managed Chromium run passes.
+A real Windows test used a separate CLI process to request cancellation, confirmed
+parent/descendant termination, and checked matching cancelled SQLite/JSON outcomes.
+The POSIX branch requires Linux verification. Recovery from interrupted running,
+cancel_requested, or finalizing states and production dispatch remain pending.
+Phase 1.5 is still in progress.

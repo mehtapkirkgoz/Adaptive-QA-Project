@@ -35,7 +35,12 @@ def process_next(queue: LocalJobQueue | SQLiteJobQueue) -> ProcessedJob | None:
                 "No local executor is registered for this test case.",
             )
         else:
-            result = run_login_form_test()
+            if isinstance(queue, SQLiteJobQueue):
+                result = run_login_form_test(
+                    should_cancel=lambda: queue.get(job.job_id).status == JobStatus.CANCEL_REQUESTED
+                )
+            else:
+                result = run_login_form_test()
         if not isinstance(result, TestResult) or result.case_id != job.case_id:
             raise ValueError("Executor returned an invalid result.")
     except Exception:
@@ -44,12 +49,17 @@ def process_next(queue: LocalJobQueue | SQLiteJobQueue) -> ProcessedJob | None:
             "The local executor failed unexpectedly.",
         )
 
+    if isinstance(queue, SQLiteJobQueue):
+        result = queue.begin_completion(job.job_id, result).result
+
     try:
         result_path = save_result(result, job_id=job.job_id)
     except (OSError, ValueError, TypeError):
         result_path = None
         result = TestResult(
-            job.case_id, TestStatus.ERROR, perf_counter() - started_at,
+            job.case_id,
+            TestStatus.CANCELLED if result.status == TestStatus.CANCELLED else TestStatus.ERROR,
+            perf_counter() - started_at,
             "The execution result could not be persisted.",
             evidence_paths=result.evidence_paths,
         )
@@ -88,7 +98,7 @@ def main(argv: list[str] | None = None) -> int:
         elif args.command == "retry":
             print(json.dumps(asdict(queue.retry(args.job_id))))
         elif args.command == "cancel":
-            print(json.dumps(asdict(queue.cancel(args.job_id))))
+            print(json.dumps(asdict(queue.request_cancel(args.job_id))))
         else:
             processed = process_next(queue)
             if processed is None:

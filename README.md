@@ -74,13 +74,13 @@ This command displays the scaffold status. It does not execute website tests.
 Implemented models include:
 
 - Test types: UI, API, and database.
-- Execution statuses: passed, failed, skipped, blocked, and error.
+- Execution statuses: passed, failed, skipped, blocked, cancelled, and error.
 - Feature discovery statuses: present, absent, and unknown.
 - An immutable test case definition with input validation.
 - An immutable execution result model with status, duration, and message validation.
 - A reusable login form test definition.
 
-One hundred and thirty-two unit tests cover models, configuration, secrets, destination
+One hundred and forty-one unit tests cover models, configuration, secrets, destination
 policies, result classification, and persistence. These are platform unit tests,
 not 78 website test scenarios.
 
@@ -90,7 +90,7 @@ Run the tests locally:
 python -m unittest discover -s tests -v
 ```
 
-Local verification: **132 tests passed**. The local browser scenario was also
+Local verification: **141 tests passed**. The local browser scenario was also
 executed successfully, and its saved JSON references an existing PNG screenshot.
 
 GitHub Actions: Sprint 0 verification passed with 38 tests.
@@ -182,7 +182,8 @@ This is an in-memory, single-process development component. It has no durable
 queue state or customer authorization,
 and does not stop running jobs. State is lost when the process exits, and
 job history remains in memory until then. Redis/Celery dispatch, durable state,
-worker recovery, and active cancellation remain planned work.
+worker recovery remain planned work. Active cancellation is supported by the
+SQLite-backed supervisor, not this in-memory component.
 
 ## Queued Local Browser Execution
 
@@ -205,7 +206,8 @@ python -m adaptive_qa.local_worker run-next
 
 For automatic server management, continue using `python scripts/check_local_browser.py`.
 The script and CI now exercise the queued local path. This is synchronous local
-execution after claiming, not a persistent background service or active cancellation.
+execution after claiming, not a persistent background service. The SQLite-backed
+supervisor supports active cancellation as described below.
 
 ## Durable Local Queue Adapter
 
@@ -254,7 +256,8 @@ a successful no-op. Calling the worker without a subcommand displays usage.
 The managed CI script uses a fresh temporary queue for each check, submits in
 one process, and executes in another. The temporary database is removed afterward;
 JSON/PNG evidence remains under `artifacts/`. No live queue database is committed.
-Active cancellation and interrupted-job recovery remain pending.
+Active cancellation is supported by the SQLite-backed supervisor; interrupted-job
+recovery remains pending.
 
 ## Inspecting Persisted Jobs
 
@@ -268,9 +271,9 @@ python -m adaptive_qa.local_worker list --status cancelled --limit 20 --offset 0
 
 Results are JSON arrays ordered by submission. The default limit is 50, the
 maximum is 500, and offsets must be non-negative. Status values are queued,
-running, completed, and cancelled. Listing running jobs makes unfinished work
+running, cancel_requested, finalizing, completed, and cancelled. Listing running jobs makes unfinished work
 visible after restart; it neither proves a worker is dead nor retries the job.
-Heartbeat-based recovery and active cancellation remain pending.
+Heartbeat-based recovery remains pending.
 
 ## Explicit Retry Attempts
 
@@ -308,6 +311,33 @@ The child transports structured results through a temporary JSON file.
 
 Local verification includes a real successful Chromium run and a Windows timeout
 check with a parent and descendant process. The POSIX termination path still
-requires Linux CI verification. User-requested active cancellation, recovery after
-an abrupt supervisor crash, and production worker isolation remain pending.
+requires Linux CI verification. Recovery after an abrupt supervisor crash and
+production worker isolation remain pending.
 The managed script retains a separate 60-second outer command limit.
+
+## Active Local Cancellation
+
+In a second terminal, using the same database as the running worker:
+
+```powershell
+python -m adaptive_qa.local_worker cancel <job-id>
+python -m adaptive_qa.local_worker status <job-id>
+```
+
+Pending jobs become cancelled immediately. Running jobs become cancel_requested.
+The supervisor polls requests between bounded waits (normally every 0.2 seconds,
+plus database and process termination time), terminates the child tree, and records
+cancelled job/result states. A failed termination remains an execution error;
+a request alone never proves the process has stopped.
+
+Before saving the JSON, the worker transactionally moves the job to finalizing.
+Cancellation accepted before that boundary is resolved into the saved outcome;
+later requests are rejected. Finalization prevents JSON and queue outcomes from
+disagreeing due to a late cancellation request. Execution errors are preserved.
+If persistence fails, the result has no saved path; cancellation remains explicit.
+
+A process killed mid-execution/finalization may leave running, cancel_requested,
+or finalizing records behind. Recovery of these interrupted states is pending.
+Cancelled jobs are not retried automatically, and the retry command rejects them.
+Windows active cancellation was verified with a separate CLI requester and a real
+parent/descendant process tree. POSIX behavior requires Linux verification.

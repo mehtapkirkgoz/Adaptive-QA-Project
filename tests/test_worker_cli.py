@@ -10,6 +10,7 @@ from unittest.mock import patch
 
 from adaptive_qa.local_worker import main
 from adaptive_qa.models import TestResult, TestStatus
+from adaptive_qa.sqlite_queue import SQLiteJobQueue
 
 
 class WorkerCLITests(unittest.TestCase):
@@ -90,6 +91,30 @@ class WorkerCLITests(unittest.TestCase):
         retry = json.loads(output)
         self.assertEqual(retry["retry_of"], original)
         self.assertEqual(retry["status"], "queued")
+
+    def test_cancel_command_records_request_for_running_job(self) -> None:
+        job_id = self.submit()
+        queue = SQLiteJobQueue(Path(self.args[1]))
+        queue.claim_next()
+        code, output = self.command("cancel", job_id)
+        self.assertEqual(code, 0)
+        self.assertEqual(json.loads(output)["status"], "cancel_requested")
+
+    @patch("adaptive_qa.local_worker.run_login_form_test")
+    @patch("adaptive_qa.local_worker.save_result")
+    def test_cancel_request_wins_before_result_persistence(self, save, run) -> None:
+        job_id = self.submit()
+        queue = SQLiteJobQueue(Path(self.args[1]))
+        def execute(*, should_cancel):
+            queue.request_cancel(job_id)
+            self.assertTrue(should_cancel())
+            return TestResult("LOGIN-001", TestStatus.PASSED, 0.1, "Passed.")
+        run.side_effect = execute
+        save.return_value = Path("result.json")
+        self.assertEqual(self.command("run-next")[0], 1)
+        self.assertEqual(save.call_args.args[0].status, TestStatus.CANCELLED)
+        _, output = self.command("status", job_id)
+        self.assertEqual(json.loads(output)["status"], "cancelled")
 
 
 if __name__ == "__main__":

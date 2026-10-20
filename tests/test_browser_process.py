@@ -26,7 +26,8 @@ class BrowserProcessTests(unittest.TestCase):
         process = launch.return_value
         process.wait.side_effect = subprocess.TimeoutExpired("browser", 30)
         process.poll.return_value = -1
-        result = run_isolated_login_test()
+        with patch("adaptive_qa.browser_process.perf_counter", side_effect=[0, 31, 32]):
+            result = run_isolated_login_test()
         terminate.assert_called_once_with(process)
         self.assertEqual(result.status, TestStatus.ERROR)
         self.assertIn("time limit", result.message)
@@ -68,6 +69,29 @@ class BrowserProcessTests(unittest.TestCase):
             path.write_text(json.dumps(payload), encoding="utf-8")
             with self.assertRaises(ValueError):
                 _read_result(path)
+
+    @patch("adaptive_qa.browser_process.subprocess.Popen")
+    def test_cancellation_before_launch_does_not_start_browser(self, launch) -> None:
+        result = run_isolated_login_test(should_cancel=lambda: True)
+        self.assertEqual(result.status, TestStatus.CANCELLED)
+        launch.assert_not_called()
+
+    @patch("adaptive_qa.browser_process._terminate_process_tree")
+    @patch("adaptive_qa.browser_process.subprocess.Popen")
+    def test_active_cancellation_terminates_process_tree(self, launch, terminate) -> None:
+        launch.return_value.poll.return_value = -1
+        cancel = Mock(side_effect=[False, True])
+        result = run_isolated_login_test(should_cancel=cancel)
+        terminate.assert_called_once_with(launch.return_value)
+        self.assertEqual(result.status, TestStatus.CANCELLED)
+
+    @patch("adaptive_qa.browser_process._terminate_process_tree")
+    @patch("adaptive_qa.browser_process.subprocess.Popen")
+    def test_failed_termination_is_not_reported_as_cancelled(self, launch, terminate) -> None:
+        launch.return_value.poll.return_value = -1
+        terminate.side_effect = RuntimeError("Termination failed")
+        with self.assertRaises(RuntimeError):
+            run_isolated_login_test(should_cancel=Mock(side_effect=[False, True]))
 
 
 if __name__ == "__main__":

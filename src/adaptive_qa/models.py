@@ -16,6 +16,7 @@ class TestStatus(StrEnum):
     FAILED = "failed"
     SKIPPED = "skipped"
     BLOCKED = "blocked"
+    CANCELLED = "cancelled"
     ERROR = "error"
 
 

@@ -167,6 +167,42 @@ class SQLiteJobQueueTests(unittest.TestCase):
         self.assertIsNone(reopened.get("old-job").retry_of)
         self.assertEqual(reopened.claim_next().job_id, "old-job")
 
+    def test_running_cancel_request_survives_reopen(self) -> None:
+        job = self.queue.submit("LOGIN-001")
+        self.queue.claim_next()
+        self.queue.request_cancel(job.job_id)
+        reopened = SQLiteJobQueue(self.database)
+        self.assertEqual(reopened.get(job.job_id).status, JobStatus.CANCEL_REQUESTED)
+        self.assertEqual(reopened.request_cancel(job.job_id).status, JobStatus.CANCEL_REQUESTED)
+
+    def test_cancellation_race_freezes_cancelled_outcome_before_storage(self) -> None:
+        job = self.queue.submit("LOGIN-001")
+        self.queue.claim_next()
+        self.queue.request_cancel(job.job_id)
+        result = TestResult("LOGIN-001", TestStatus.PASSED, 0.1, "Passed.")
+        finalizing = self.queue.begin_completion(job.job_id, result)
+        self.assertEqual(finalizing.status, JobStatus.FINALIZING)
+        self.assertEqual(finalizing.result.status, TestStatus.CANCELLED)
+        final = self.queue.complete(job.job_id, finalizing.result)
+        self.assertEqual(final.status, JobStatus.CANCELLED)
+
+    def test_finalization_rejects_late_cancellation(self) -> None:
+        job = self.queue.submit("LOGIN-001")
+        self.queue.claim_next()
+        result = TestResult("LOGIN-001", TestStatus.PASSED, 0.1, "Passed.")
+        self.queue.begin_completion(job.job_id, result)
+        with self.assertRaisesRegex(ValueError, "finalization"):
+            self.queue.request_cancel(job.job_id)
+        self.assertEqual(self.queue.complete(job.job_id, result).result, result)
+
+    def test_execution_error_is_not_hidden_by_cancel_request(self) -> None:
+        job = self.queue.submit("LOGIN-001")
+        self.queue.claim_next()
+        self.queue.request_cancel(job.job_id)
+        result = TestResult("LOGIN-001", TestStatus.ERROR, 0.1, "Termination failed.")
+        prepared = self.queue.begin_completion(job.job_id, result)
+        self.assertEqual(prepared.result.status, TestStatus.ERROR)
+
 
 if __name__ == "__main__":
     unittest.main()
