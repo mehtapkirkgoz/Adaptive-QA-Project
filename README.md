@@ -144,3 +144,24 @@ after assertion or execution failures. Screenshot errors do not replace the test
 outcome. Only complete PNG files are published; missing evidence is not linked.
 Failures before page creation cannot produce a screenshot. Evidence retention
 and report access controls remain pending.
+
+## Automated Local Browser Check
+
+With port 8000 available, run:
+
+```powershell
+python scripts/check_local_browser.py
+```
+
+The script starts the sample server, runs the browser check in a child process,
+and stops the server afterward. It returns a nonzero exit code on failure or
+a 60-second browser command timeout. It refuses to reuse an existing server.
+
+GitHub Actions has separate unit and browser jobs. The browser job installs
+Chromium and its Linux system dependencies, runs the same script, and uploads
+JSON results and PNG screenshots as `local-browser-evidence` for seven days.
+Artifact upload is attempted even if the browser check fails. No screenshot
+is available if the browser fails before a page can be captured.
+
+Local verification passed. The new Linux CI job still requires verification
+after push. This runner is a development check, not the queued production worker.

@@ -64,7 +64,7 @@ Phase 1.1 remains in progress.
 - [x] Record pinned runtime dependencies.
 - [x] Configure CI to install pinned dependencies.
 - [ ] Verify pinned dependency installation in GitHub Actions.
-- [ ] Connect the sample application to browser execution.
+- [x] Connect the sample application to browser execution.
 
 
 ## Phase 1.3 Progress
@@ -76,7 +76,7 @@ Phase 1.1 remains in progress.
 - [x] Distinguish assertion failures from execution errors.
 - [x] Verify result classification with five isolated unit tests.
 - [ ] Verify browser cleanup and timeout behavior automatically.
-- [ ] Add automated browser execution to CI.
+- [x] Configure automated browser execution in CI (remote verification pending).
 
 Local verification: 71 unit tests pass.
 The local browser check has also been verified manually.
@@ -88,7 +88,7 @@ The local browser check has also been verified manually.
 - [x] Verify evidence serialization and omit missing screenshot references.
 - [x] Execute the real local browser scenario and verify its JSON references a PNG.
 - [x] Capture failure evidence without replacing the original test outcome.
-- [ ] Add automated browser execution to CI.
+- [x] Configure automated browser execution in CI (remote verification pending).
 
 Current local verification: 78 unit tests pass; one local browser scenario passes.
 Phases 1.1 and 1.3 still have pending controls and automated lifecycle checks.
@@ -107,3 +107,15 @@ intentionally failed assertions with valid PNG evidence. The sample source was
 not modified; the failure was served by a temporary local test server.
 Phase 1.4 remains in progress pending browser CI coverage. Current changes await
 GitHub Actions verification after push.
+
+## Browser CI Checkpoint — October 20, 2026
+
+- Add a local runner that owns the sample server lifecycle.
+- Run the browser command with a 60-second process timeout and propagate failures.
+- Add a separate Linux browser CI job and install Chromium system dependencies.
+- Upload sample JSON/PNG evidence on success or failure with seven-day retention.
+
+Local verification: the managed runner passes and all 82 unit tests pass.
+Remote verification pending: both `scaffold` and `Local browser check` jobs must
+pass after push; verify the downloadable `local-browser-evidence` artifact.
+Phase 1.4 remains in progress until that remote verification is complete.

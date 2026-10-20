@@ -28,3 +28,31 @@ jobs:
         run: adaptive-qa --status
       - name: Run unit tests
         run: python -m unittest discover -s tests -v
+
+  browser:
+    name: Local browser check
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - name: Install dependencies and package
+        run: |
+          python -m pip install -r requirements.lock.txt
+          python -m pip install --no-deps -e .
+      - name: Install Chromium and system dependencies
+        run: python -m playwright install --with-deps chromium
+      - name: Run controlled local browser check
+        run: python scripts/check_local_browser.py
+      - name: Upload browser results and screenshots
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: local-browser-evidence
+          path: |
+            artifacts/results/*.json
+            artifacts/screenshots/*.png
+          retention-days: 7
+          if-no-files-found: warn
