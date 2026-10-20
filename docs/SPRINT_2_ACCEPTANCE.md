@@ -1,7 +1,7 @@
 # Sprint 2 Acceptance Review
 
 Review date: October 20, 2026
-Status: Local checks passed; implementation CI and artifact verification pending.
+Status: Accepted. Implementation CI and downloaded artifact evidence verified.
 
 Tracking: [issue #3](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/3)
 and [milestone #3](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/3).
@@ -14,8 +14,8 @@ and [milestone #3](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/mileston
 | Separate absence and uncertainty | Complete information pages vs unresolved hints, incomplete collection, traversal failures | Passed |
 | Explain skipped/blocked cases | Every plan entry has a reason; selected entries include a page and evidence | Passed |
 | Honor discovery budgets | Five real guarded discovery scenarios for traversal, page/depth/request limits, and hard deadline | Passed |
-| Preserve destination controls | Existing proxy/browser canary checks, repeated runtime authorization | Passed in prior regression; required again in CI |
-| Preserve existing execution | Existing ten queued smoke cases, result JSON and PNG evidence | Passed in prior regression; required again in CI |
+| Preserve destination controls | Existing proxy/browser canary checks, repeated runtime authorization | Passed remotely |
+| Preserve existing execution | Existing ten queued smoke cases, result JSON and PNG evidence | Passed remotely |
 
 ## Reproducible Checks
 
@@ -46,6 +46,23 @@ on both Linux and Windows in CI.
 - Both OS lifecycle reports contain three successful checks.
 - Downloaded archive SHA-256 digests match GitHub artifact metadata.
 
+Verified implementation: `8bca37ca4852208d8a6efcaf11558693c79450b0`.
+[CI run](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/actions/runs/39496255283)
+passed all four jobs. The unit job log confirms 243 tests. Both OS lifecycle
+reports contain three successful checks. The browser archive contains the five
+discovery scenarios, four fixture matrices (20 acceptance-plan decisions), nine
+security checks, and ten smoke result JSON/PNG pairs. Each fixture HTML hash
+matched the committed Git blob. All selected decisions reference inspected pages
+and evidence; other decisions have reasons. Origin traffic is GET/HEAD only,
+and plans never authorize execution. All three archive SHA-256 digests matched
+GitHub metadata and reference the same implementation SHA. A sample screenshot
+was visually inspected.
+
+Downloaded evidence and the inspection script are retained locally under the
+ignored `artifacts/acceptance/sprint2/` directory and its parent. GitHub artifacts
+have a seven-day retention period; the committed fixtures and scripts reproduce
+the checks after those downloads expire.
+
 ## Scope and Next Work
 
 This sprint delivers discovery and non-executing plans for controlled local sites.
@@ -59,8 +76,11 @@ Page content and URL paths remain untrusted, potentially sensitive data.
 
 - [x] Four contrasting sites pass real guarded discovery and planning checks locally.
 - [x] All 243 unit tests pass locally.
-- [ ] Verify all implementation CI jobs and download artifacts.
-- [ ] Check fixture hashes, matrices, reasons, page evidence, and regression reports.
-- [ ] Record verified evidence and update sprint completion documents.
-- [ ] Close issue #3 as completed after acceptance.
+- [x] Verify all implementation CI jobs and download artifacts.
+- [x] Check fixture hashes, matrices, reasons, page evidence, and regression reports.
+- [x] Record verified evidence and update sprint completion documents.
+- [x] Close issue #3 as completed after acceptance.
 - [ ] Repository owner closes milestone #3.
+
+Issue #3 is closed as completed. The connected tool cannot close milestones;
+milestone #3 remains open for the repository owner. Technical acceptance is complete.

@@ -2,7 +2,7 @@
 
 An AI-assisted QA platform under development for website discovery and applicable UI, API, and database tests.
 
-**Status:** Sprint 2 in progress. Sprint 1 completed on October 20, 2026. The local prototype runs 10 smoke scenarios through a persistent queue with cancellation, deadlines, destination controls, JSON results, and screenshots. Page feature detection, guarded structural collection, bounded local crawling, and evidence-based test plans are implemented. AI, API/SQL execution, and the dashboard are not implemented yet.
+**Status:** Sprint 2 completed on October 20, 2026. The local prototype runs 10 smoke scenarios through a persistent queue with cancellation, deadlines, destination controls, JSON results, and screenshots. Page feature detection, guarded structural collection, bounded local crawling, and evidence-based test plans are implemented and verified against four contrasting controlled sites. AI, API/SQL execution, and the dashboard are not implemented yet.
 
 ## Project Plans
 
@@ -12,7 +12,7 @@ Sprints follow goals and acceptance criteria without a fixed two-week commitment
 |---|---|---|
 | 0 | Architecture, models, configuration, GitHub workflow | Completed |
 | 1 | First controlled end-to-end execution | Completed |
-| 2 | Website discovery | In progress |
+| 2 | Website discovery | Completed |
 | 3 | UI catalog and element matching | Planned |
 | 4 | API tests | Planned |
 | 5 | Database validation | Planned |
@@ -156,7 +156,13 @@ each OS, nine browser security checks, and ten queued smoke cases.
 All three downloaded artifact digests were verified; ten JSON records matched
 the smoke summary and their ten linked PNGs. A sample screenshot was visually inspected.
 
-Sprint 2 started on October 20, 2026; its current changes require remote verification. Production deployment and arbitrary-site execution remain outside this completed prototype.
+Sprint 2 implementation passed [all four CI jobs](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/actions/runs/39496255283)
+for commit `8bca37ca4852208d8a6efcaf11558693c79450b0`. Evidence includes 243 unit
+tests, five bounded discovery scenarios, four contrasting sites, and the retained
+security/smoke/lifecycle regressions. Three downloaded archive digests, fixture
+hashes and feature/decision matrices, and ten JSON/PNG pairs were verified.
+See the [Sprint 2 acceptance review](docs/SPRINT_2_ACCEPTANCE.md). Production
+deployment and arbitrary-site execution remain outside this completed prototype.
 
 ## Sprint 2 Discovery Foundation
 
@@ -180,4 +186,5 @@ plans select applicable UI definitions, skip cases lacking evidence within that
 scope, and block uncertain prerequisites or unsupported configurations. Each
 decision has a reason; selected cases reference their target page and evidence.
 Plans do not execute tests or authorize execution. Contrasting-site acceptance
-checks and remote verification remain before sprint closure.
+checks and remote verification are complete. Issue #3 is closed; milestone #3
+is ready for the repository owner to close.

@@ -1,10 +1,11 @@
 # Sprint 2 — Website Discovery and Feature Detection
 
 Start date: October 20, 2026
-Status: In progress — phases 2.1 through 2.5 completed locally.
+Status: Completed — implementation and acceptance evidence verified remotely on October 20, 2026.
 
 Tracking issue: [#3](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/3).
 Milestone: [Sprint 2 — Website Discovery and Feature Detection](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/3).
+Issue #3 is closed as completed. Milestone closure remains a repository-owner action.
 
 ## Goal
 
@@ -18,7 +19,7 @@ budgets, identify features, and generate appropriate test plans with explicit re
 - [x] 2.3: Discover links within page, depth, request, and time limits.
 - [x] 2.4: Add registration, product, and cart evidence rules.
 - [x] 2.5: Aggregate findings and generate applicable test plans.
-- [ ] 2.6: Verify contrasting sample sites, CI, and acceptance criteria.
+- [x] 2.6: Verify contrasting sample sites, CI, and acceptance criteria.
 
 ## Phase 2.1 Deliverables
 
@@ -140,8 +141,8 @@ decision, target page, evidence reference, request budget, and GET/HEAD-only
 origin traffic. The acceptance-only case definitions inspect prerequisites;
 they do not expand the runnable smoke catalog or execute commerce actions.
 
-Local acceptance and all 243 unit tests pass. Remote evidence review is pending;
-the sprint remains open until the implementation CI run and artifacts are checked.
+Local acceptance and all 243 unit tests pass. The implementation CI run passed
+all four jobs; downloaded evidence and committed fixture hashes were verified.
 See [acceptance review](SPRINT_2_ACCEPTANCE.md).
 
 ## Absence Semantics
@@ -159,17 +160,18 @@ actions, Turkish normalization, search semantics, hidden controls, mixed forms,
 registration/passwordless ambiguity, weak links, collection completeness, and
 snapshot validation. Compilation and diff checks pass.
 
-No new runtime dependencies. The phase 2.4 [CI run](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/actions/runs/39495120893)
-passed. Phase 2.5 requires remote verification after push. Prior local browser regression
-checks cover nine egress scenarios and the ten existing queued smoke cases.
-Phase 2.5 also passes the structural collector checks in real Chromium and all
-five bounded discovery scenarios. Commerce checks cover visible/hidden regions,
-separate/nested product ownership, Turkish actions, registration, and empty/populated carts.
+No new runtime dependencies. The accepted implementation commit is
+8bca37ca4852208d8a6efcaf11558693c79450b0, verified in [CI](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/actions/runs/39496255283).
+All four jobs passed: 243 unit tests, three lifecycle checks on each OS, collector
+checks, five bounded discovery scenarios, four contrasting sites, nine egress
+checks, and ten queued smoke cases. Three artifact archive digests matched GitHub
+metadata. Both lifecycle reports, fixture hashes/matrices, discovery reports,
+and ten JSON/PNG pairs were checked. A sample screenshot was visually reviewed.
 
-## Remaining Acceptance Criteria
+## Verified Acceptance Criteria
 
-- [x] Different controlled sites produce appropriate feature sets and plans (local Chromium checks).
-- [x] Absent and uncertain features remain distinguishable after aggregation (local tests).
-- [x] Skipped/blocked cases include explicit reasons (local tests).
-- [x] Discovery respects destination policies and configured budgets (local checks).
-- [ ] Remote checks pass and reports are reviewed before closing the sprint.
+- [x] Different controlled sites produce appropriate feature sets and plans.
+- [x] Absent and uncertain features remain distinguishable after aggregation.
+- [x] Skipped/blocked cases include explicit reasons.
+- [x] Discovery respects destination policies and configured budgets.
+- [x] Remote checks pass and reports are reviewed before closing the sprint.
