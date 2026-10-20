@@ -51,9 +51,19 @@ def main():
         assert len(urls) == len(result['pages']), result
         assert urls == {f'http://127.0.0.1:8000{path}' for path in ('/', '/login', '/search', '/deep')}, result
         assert 'excluded_link' in result['limitations']
+        plan = result['plan']
+        assert not plan['execution_authorized']
+        assert sum(case['decision'] == 'selected' for case in plan['cases']) == 8
+        assert sum(case['decision'] == 'blocked' for case in plan['cases']) == 2
+        for case in plan['cases']:
+            if case['decision'] == 'selected':
+                path = '/login' if case['case_id'].startswith('LOGIN') else '/search'
+                assert case['target_url'] == 'http://127.0.0.1:8000' + path
+                assert case['evidence']
         reports['pages'] = discover_local_sample(CrawlBudget(max_pages=1))
         assert reports['pages']['attempted_pages'] == 1
         assert 'page_limit' in reports['pages']['limitations']
+        assert all(case['decision'] == 'blocked' for case in reports['pages']['plan']['cases'])
         reports['depth'] = discover_local_sample(CrawlBudget(max_depth=0))
         assert len(reports['depth']['pages']) == 1
         assert 'depth_limit' in reports['depth']['limitations']
@@ -61,6 +71,7 @@ def main():
         assert 'request_limit' in reports['requests']['limitations']
         reports['time'] = discover_local_sample(CrawlBudget(timeout_seconds=0.01))
         assert reports['time']['limitations'] == ['time_limit']
+        assert all(case['decision'] == 'blocked' for case in reports['time']['plan']['cases'])
         directory = Path('artifacts/discovery')
         directory.mkdir(parents=True, exist_ok=True)
         (directory / 'report.json').write_text(json.dumps(reports, indent=2), encoding='utf-8')

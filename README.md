@@ -2,7 +2,7 @@
 
 An AI-assisted QA platform under development for website discovery and applicable UI, API, and database tests.
 
-**Status:** Sprint 2 in progress. Sprint 1 completed on October 20, 2026. The local prototype runs 10 smoke scenarios through a persistent queue with cancellation, deadlines, destination controls, JSON results, and screenshots. Page feature detection, guarded structural collection, and bounded local crawling are implemented. AI, API/SQL execution, and the dashboard are not implemented yet.
+**Status:** Sprint 2 in progress. Sprint 1 completed on October 20, 2026. The local prototype runs 10 smoke scenarios through a persistent queue with cancellation, deadlines, destination controls, JSON results, and screenshots. Page feature detection, guarded structural collection, bounded local crawling, and evidence-based test plans are implemented. AI, API/SQL execution, and the dashboard are not implemented yet.
 
 ## Project Plans
 
@@ -50,7 +50,7 @@ Keep port 8000 available and run these scripts sequentially. They manage local s
 
 Current local results:
 
-- **222 unit tests passed locally:** platform rules and adapters, not website scenarios.
+- **243 unit tests passed locally:** platform rules and adapters, not website scenarios.
 - **3 real OS lifecycle checks passed on Windows:** deadline, active cancellation, and crash lock release.
 - **9 real Chromium security checks passed:** forbidden canaries received no connections.
 - **10 queued smoke scenarios passed:** matching JSON results and PNG screenshots.
@@ -175,4 +175,9 @@ Real Chromium checks cover the guarded sample and contrasting offline documents.
 The local crawler applies page, depth, request, and total process deadlines with
 explicit coverage limitations. General customer URLs remain disabled. Commerce
 rules are conservative and do not execute registration or cart mutations.
-Aggregation and test-plan selection remain pending.
+Aggregation preserves discovery uncertainty and inspected-page scope. Generated
+plans select applicable UI definitions, skip cases lacking evidence within that
+scope, and block uncertain prerequisites or unsupported configurations. Each
+decision has a reason; selected cases reference their target page and evidence.
+Plans do not execute tests or authorize execution. Contrasting-site acceptance
+checks and remote verification remain before sprint closure.

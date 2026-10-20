@@ -1,7 +1,7 @@
 """Isolated discovery restricted to the controlled local sample target."""
 
 import argparse
-from dataclasses import asdict
+from dataclasses import asdict, replace
 import json
 import os
 from pathlib import Path
@@ -13,15 +13,27 @@ from playwright.sync_api import sync_playwright
 
 from adaptive_qa.browser_process import _terminate_process_tree
 from adaptive_qa.config import ProjectConfig
-from adaptive_qa.crawler import CrawlBudget, crawl_pages
+from adaptive_qa.crawler import CrawlBudget, CrawlResult, crawl_pages
 from adaptive_qa.egress import DestinationGuard, EgressProxy, chromium_proxy_options
 from adaptive_qa.page_collector import collect_page_snapshot
 from adaptive_qa.targets import validate_local_sample_target
+from adaptive_qa.catalog import TEST_CASES
+from adaptive_qa.planning import build_test_plan
+
+
+_LOCAL_PROJECT = ProjectConfig('local-discovery', 'Local Discovery',
+                               'http://127.0.0.1:8000', ('127.0.0.1',))
+
+
+def _failed_discovery(reason: str) -> dict:
+    crawl = CrawlResult((), 0, (reason,))
+    payload = {**asdict(crawl), 'plan': asdict(build_test_plan(crawl, TEST_CASES, _LOCAL_PROJECT)),
+               'scope': 'inspected_pages_only'}
+    return json.loads(json.dumps(payload))
 
 
 def _collect_sample(budget: CrawlBudget) -> dict:
-    project = ProjectConfig('local-discovery', 'Local Discovery',
-                            'http://127.0.0.1:8000', ('127.0.0.1',))
+    project = _LOCAL_PROJECT
     guard = DestinationGuard(project, local_sample=True, max_requests=budget.max_requests)
     def authorize(url):
         return validate_local_sample_target(url, project)
@@ -54,7 +66,8 @@ def _collect_sample(budget: CrawlBudget) -> dict:
                 limitations.add('request_limit')
             if guard.denied:
                 limitations.add('network_policy_denial')
-            return {**asdict(result), 'limitations': sorted(limitations),
+            plan = build_test_plan(replace(result, limitations=tuple(sorted(limitations))), TEST_CASES, project)
+            return {**asdict(result), 'limitations': sorted(limitations), 'plan': asdict(plan),
                     'requests': min(guard.requests, budget.max_requests),
                     'request_authorization_attempts': guard.requests,
                     'scope': 'inspected_pages_only'}
@@ -66,8 +79,7 @@ def discover_local_sample(budget: CrawlBudget = CrawlBudget()) -> dict:
     """Run with a hard process deadline; return explicit failure limitations."""
     if not isinstance(budget, CrawlBudget):
         raise ValueError('budget must be a CrawlBudget.')
-    failure = {'pages': [], 'attempted_pages': 0, 'limitations': ['discovery_process_error'],
-               'scope': 'inspected_pages_only'}
+    failure = _failed_discovery('discovery_process_error')
     with TemporaryDirectory(prefix='adaptive-qa-discovery-') as directory:
         output = Path(directory) / 'result.json'
         options = {'start_new_session': True} if os.name != 'nt' else {
@@ -81,7 +93,7 @@ def discover_local_sample(budget: CrawlBudget = CrawlBudget()) -> dict:
                 process.wait(timeout=budget.timeout_seconds)
             except subprocess.TimeoutExpired:
                 _terminate_process_tree(process)
-                return {**failure, 'limitations': ['time_limit'], 'partial_results_discarded': True}
+                return {**_failed_discovery('time_limit'), 'partial_results_discarded': True}
             if process.returncode != 0:
                 return failure
             try:

@@ -1,7 +1,7 @@
 # Sprint 2 — Website Discovery and Feature Detection
 
 Start date: October 20, 2026
-Status: In progress — phases 2.1 through 2.4 completed locally.
+Status: In progress — phases 2.1 through 2.5 completed locally.
 
 Tracking issue: [#3](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/3).
 Milestone: [Sprint 2 — Website Discovery and Feature Detection](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/3).
@@ -17,7 +17,7 @@ budgets, identify features, and generate appropriate test plans with explicit re
 - [x] 2.2: Collect snapshots from the guarded browser.
 - [x] 2.3: Discover links within page, depth, request, and time limits.
 - [x] 2.4: Add registration, product, and cart evidence rules.
-- [ ] 2.5: Aggregate findings and generate applicable test plans.
+- [x] 2.5: Aggregate findings and generate applicable test plans.
 - [ ] 2.6: Verify contrasting sample sites, CI, and acceptance criteria.
 
 ## Phase 2.1 Deliverables
@@ -104,34 +104,58 @@ python -m adaptive_qa.local_discovery
 These are conservative initial rules, not universal storefront support. JSON-LD,
 nested Offer schemas, metadata-only prices, custom carts, and passwordless signup
 require later adapters or additional evidence. No registration, purchase, or cart
-mutation is executed. Site classification and plan selection remain pending.
+mutation is executed. General site classification remains pending.
+
+## Phase 2.5 Deliverables
+
+- Feature summaries retain the inspected-pages scope and all page-level findings.
+  Positive evidence wins over absence elsewhere. Missing evidence remains unknown
+  if any page is incomplete, any traversal limitation exists, or a hint is unresolved.
+- Absence means no matching evidence on the inspected pages only, never across
+  the entire site. An empty or failed discovery leaves every feature unknown.
+- Plans contain selected, skipped, or blocked decisions with explicit reasons.
+  Selected cases include a page URL and structural evidence references.
+- All prerequisites must be present on the same inspected page. Features found
+  on different pages require a future explicit multi-page workflow binding.
+- Data-changing cases respect project policy. API/database definitions remain
+  blocked until their adapter/configuration contracts exist. Unknown feature names,
+  including navigation in the current catalog, are blocked rather than guessed.
+- Plans do not modify test definitions or expected outcomes, dispatch workers,
+  or authorize execution. Selected means applicable prerequisites; a compatible
+  executor and runtime destination checks are still required.
+- Local discovery JSON includes a plan, including blocked decisions on hard
+  timeout or process failure. Controlled-fixture reports retain this evidence in CI.
+
+The multi-page integration fixture selects eight login/search definitions against
+their discovered pages and blocks two navigation cases. This does not make the
+existing root-only sample executor compatible with those discovered routes.
 
 ## Absence Semantics
 
 Positive evidence can establish present even during incomplete collection. Missing
 evidence stays unknown until the page snapshot is complete. An absent result then
 means no visible matching evidence on that page, never absence across the entire site.
-Site-level aggregation remains pending; traversal limitations must inform it.
+Aggregation retains this limited scope and propagates traversal uncertainty.
 
 ## Verification
 
-222 unit tests pass locally, including 14 initial discovery, four collector,
-14 traversal, and 15 registration/commerce cases. Tests cover matching
+243 unit tests pass locally, including 14 initial discovery, four collector,
+14 traversal, 15 registration/commerce, and 21 planning cases. Tests cover matching
 actions, Turkish normalization, search semantics, hidden controls, mixed forms,
 registration/passwordless ambiguity, weak links, collection completeness, and
 snapshot validation. Compilation and diff checks pass.
 
-No new runtime dependencies. The phase 2.3 [CI run](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/actions/runs/39494579510)
-passed. Phase 2.4 requires remote verification after push. Local browser regression
+No new runtime dependencies. The phase 2.4 [CI run](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/actions/runs/39495120893)
+passed. Phase 2.5 requires remote verification after push. Prior local browser regression
 checks cover nine egress scenarios and the ten existing queued smoke cases.
-Phase 2.4 also passes the structural collector checks in real Chromium and all
+Phase 2.5 also passes the structural collector checks in real Chromium and all
 five bounded discovery scenarios. Commerce checks cover visible/hidden regions,
 separate/nested product ownership, Turkish actions, registration, and empty/populated carts.
 
 ## Remaining Acceptance Criteria
 
 - [ ] Different controlled sites produce appropriate feature sets and plans.
-- [ ] Absent and uncertain features remain distinguishable after aggregation.
-- [ ] Skipped/blocked cases include explicit reasons.
+- [x] Absent and uncertain features remain distinguishable after aggregation (local tests).
+- [x] Skipped/blocked cases include explicit reasons (local tests).
 - [ ] Discovery respects destination policies and configured budgets.
 - [ ] Remote checks pass and reports are reviewed before closing the sprint.
