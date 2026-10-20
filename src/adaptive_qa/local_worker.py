@@ -13,6 +13,7 @@ from adaptive_qa.browser_process import run_isolated_login_test as run_login_for
 from adaptive_qa.models import TestResult, TestStatus
 from adaptive_qa.storage import save_result
 from adaptive_qa.sqlite_queue import SQLiteJobQueue
+from adaptive_qa.worker_lock import worker_lock
 
 
 @dataclass(frozen=True)
@@ -23,6 +24,13 @@ class ProcessedJob:
 
 def process_next(queue: LocalJobQueue | SQLiteJobQueue) -> ProcessedJob | None:
     """Execute at most one pending job and persist its correlated result."""
+    if isinstance(queue, SQLiteJobQueue):
+        with worker_lock(queue.database):
+            return _process_claimed(queue)
+    return _process_claimed(queue)
+
+
+def _process_claimed(queue: LocalJobQueue | SQLiteJobQueue) -> ProcessedJob | None:
     job = queue.claim_next()
     if job is None:
         return None
@@ -77,6 +85,7 @@ def main(argv: list[str] | None = None) -> int:
     submit = commands.add_parser("submit", help="Queue a test case without executing it")
     submit.add_argument("case_id")
     commands.add_parser("run-next", help="Execute at most one queued job")
+    commands.add_parser("recover-interrupted", help="Mark unfinished local jobs as errors")
     listing = commands.add_parser("list", help="List persisted jobs in submission order")
     listing.add_argument("--status", type=JobStatus, choices=list(JobStatus))
     listing.add_argument("--limit", type=int, default=50)
@@ -90,6 +99,8 @@ def main(argv: list[str] | None = None) -> int:
         queue = SQLiteJobQueue(args.database)
         if args.command == "submit":
             print(json.dumps(asdict(queue.submit(args.case_id))))
+        elif args.command == "recover-interrupted":
+            print(json.dumps([asdict(job) for job in queue.recover_interrupted()]))
         elif args.command == "list":
             jobs = queue.list_jobs(status=args.status, limit=args.limit, offset=args.offset)
             print(json.dumps([asdict(job) for job in jobs]))

@@ -116,6 +116,17 @@ class WorkerCLITests(unittest.TestCase):
         _, output = self.command("status", job_id)
         self.assertEqual(json.loads(output)["status"], "cancelled")
 
+    def test_recover_command_repairs_interrupted_job_without_requeue(self) -> None:
+        job_id = self.submit()
+        queue = SQLiteJobQueue(Path(self.args[1]))
+        queue.claim_next()
+        code, output = self.command("recover-interrupted")
+        self.assertEqual(code, 0)
+        recovered = json.loads(output)
+        self.assertEqual(recovered[0]["job_id"], job_id)
+        self.assertEqual(recovered[0]["result"]["status"], "error")
+        self.assertIsNone(queue.claim_next())
+
 
 if __name__ == "__main__":
     unittest.main()

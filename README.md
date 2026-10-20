@@ -80,7 +80,7 @@ Implemented models include:
 - An immutable execution result model with status, duration, and message validation.
 - A reusable login form test definition.
 
-One hundred and forty-one unit tests cover models, configuration, secrets, destination
+One hundred and forty-seven unit tests cover models, configuration, secrets, destination
 policies, result classification, and persistence. These are platform unit tests,
 not 78 website test scenarios.
 
@@ -90,7 +90,7 @@ Run the tests locally:
 python -m unittest discover -s tests -v
 ```
 
-Local verification: **141 tests passed**. The local browser scenario was also
+Local verification: **147 tests passed**. The local browser scenario was also
 executed successfully, and its saved JSON references an existing PNG screenshot.
 
 GitHub Actions: Sprint 0 verification passed with 38 tests.
@@ -257,7 +257,7 @@ The managed CI script uses a fresh temporary queue for each check, submits in
 one process, and executes in another. The temporary database is removed afterward;
 JSON/PNG evidence remains under `artifacts/`. No live queue database is committed.
 Active cancellation is supported by the SQLite-backed supervisor; interrupted-job
-recovery remains pending.
+automatic recovery remains pending; explicit local recovery is available below.
 
 ## Inspecting Persisted Jobs
 
@@ -273,7 +273,7 @@ Results are JSON arrays ordered by submission. The default limit is 50, the
 maximum is 500, and offsets must be non-negative. Status values are queued,
 running, cancel_requested, finalizing, completed, and cancelled. Listing running jobs makes unfinished work
 visible after restart; it neither proves a worker is dead nor retries the job.
-Heartbeat-based recovery remains pending.
+Heartbeat-based automatic recovery remains pending; explicit local recovery is available below.
 
 ## Explicit Retry Attempts
 
@@ -337,7 +337,39 @@ disagreeing due to a late cancellation request. Execution errors are preserved.
 If persistence fails, the result has no saved path; cancellation remains explicit.
 
 A process killed mid-execution/finalization may leave running, cancel_requested,
-or finalizing records behind. Recovery of these interrupted states is pending.
+or finalizing records behind. Explicit repair of these states is available through recover-interrupted; automatic recovery remains pending.
 Cancelled jobs are not retried automatically, and the retry command rejects them.
 Windows active cancellation was verified with a separate CLI requester and a real
 parent/descendant process tree. POSIX behavior requires Linux verification.
+
+## Explicit Interrupted-Job Recovery
+
+After an interrupted local worker, inspect and repair the queue:
+
+```powershell
+python -m adaptive_qa.local_worker list --status running
+python -m adaptive_qa.local_worker recover-interrupted
+```
+
+Execution and recovery use the same OS process lock. The supported local CLI now
+allows one executor or recovery operation per database at a time. Status, submit,
+and cancellation commands remain available during execution. A second run-next
+or recovery attempt fails while the worker owns the lock. Lock files remain on
+disk; their existence does not mean the OS lock is held. Never delete the lock
+file to bypass this check.
+
+Once the supervisor lock is released, recovery transactionally marks running,
+cancel_requested, and finalizing records as completed with error results. Pending
+and terminal jobs remain unchanged. Repeated recovery is a no-op. No job is
+replayed automatically. This protects supported CLI workers, not callers that
+bypass the lock and directly manipulate adapter methods.
+
+Recovery repairs SQLite records only. It does not prove orphan browser processes
+have stopped or roll back side effects. Review process cleanup and previous
+operations before explicitly retrying. Previous JSON files remain historical
+snapshots; use status to read the recovered queue result. If no duration was
+recorded before interruption, the recovery result uses 0 seconds as unknown.
+
+The OS lock release after abrupt process exit was verified on Windows. POSIX
+locking and process cleanup still require Linux verification. Automatic recovery,
+production multi-worker coordination, and orphan cleanup remain future work.

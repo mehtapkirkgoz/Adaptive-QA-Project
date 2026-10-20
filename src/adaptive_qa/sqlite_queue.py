@@ -9,6 +9,7 @@ from uuid import uuid4
 
 from adaptive_qa.jobs import Job, JobStatus
 from adaptive_qa.models import TestResult, TestStatus
+from adaptive_qa.worker_lock import worker_lock
 
 
 class SQLiteJobQueue:
@@ -177,6 +178,29 @@ class SQLiteJobQueue:
                 (JobStatus.FINALIZING, json.dumps(asdict(result), allow_nan=False), job_id),
             )
             return self._read(connection, job_id)
+
+    def recover_interrupted(self) -> tuple[Job, ...]:
+        """Mark unfinished jobs as errors only while no local executor owns the lock."""
+        with worker_lock(self.database), self._transaction() as connection:
+            rows = connection.execute(
+                "SELECT job_id FROM jobs WHERE status IN (?, ?, ?) ORDER BY sequence",
+                (JobStatus.RUNNING, JobStatus.CANCEL_REQUESTED, JobStatus.FINALIZING),
+            ).fetchall()
+            recovered = []
+            for row in rows:
+                job = self._read(connection, row["job_id"])
+                result = TestResult(
+                    job.case_id, TestStatus.ERROR,
+                    job.result.duration_seconds if job.result else 0.0,
+                    "Worker execution was interrupted; side effects and process cleanup require review.",
+                    evidence_paths=job.result.evidence_paths if job.result else (),
+                )
+                connection.execute(
+                    "UPDATE jobs SET status = ?, result_json = ? WHERE job_id = ?",
+                    (JobStatus.COMPLETED, json.dumps(asdict(result), allow_nan=False), job.job_id),
+                )
+                recovered.append(self._read(connection, job.job_id))
+            return tuple(recovered)
 
     def complete(self, job_id: str, result: TestResult) -> Job:
         if not isinstance(result, TestResult):

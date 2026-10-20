@@ -241,3 +241,17 @@ parent/descendant termination, and checked matching cancelled SQLite/JSON outcom
 The POSIX branch requires Linux verification. Recovery from interrupted running,
 cancel_requested, or finalizing states and production dispatch remain pending.
 Phase 1.5 is still in progress.
+
+## Phase 1.5 — Explicit Interrupted-Job Recovery (October 20, 2026)
+
+- Add recover-interrupted for unfinished running/cancel_requested/finalizing records.
+- Coordinate supported execution and recovery through one OS lock per database.
+- Mark interrupted records as errors without replaying operations.
+- Preserve pending and terminal records; make repeated recovery a no-op.
+
+Verification: 147 unit tests pass and the managed Chromium run passes. A real
+Windows subprocess test confirmed that recovery is blocked by a live owner,
+abrupt owner termination releases the lock, and recovery persists an error.
+Recovery repairs queue state only; it does not prove orphan browser termination.
+The local CLI now supports one executor per database. Automated/multi-worker
+recovery, orphan cleanup, and Linux-specific verification remain pending.
