@@ -19,9 +19,12 @@ class DestinationGuard:
     """Separate explicit sample access from public destination validation."""
 
     def __init__(self, project: ProjectConfig, *, local_sample: bool = False,
-                 policy: DestinationPolicy | None = None) -> None:
+                 policy: DestinationPolicy | None = None, max_requests: int = 200) -> None:
         if not isinstance(local_sample, bool):
             raise ValueError("local_sample must be a bool.")
+        if type(max_requests) is not int or not 1 <= max_requests <= 200:
+            raise ValueError("max_requests must be an integer between 1 and 200.")
+        self.max_requests = max_requests
         self.project = project
         self.local_sample = local_sample
         self.policy = policy or DestinationPolicy()
@@ -33,7 +36,7 @@ class DestinationGuard:
     def authorize(self, url: str) -> ValidatedTarget:
         with self._lock:
             self.requests += 1
-            if self.requests > 200:
+            if self.requests > self.max_requests:
                 raise ValueError("Destination request budget exceeded.")
         if self.local_sample:
             return validate_local_sample_target(url, self.project)

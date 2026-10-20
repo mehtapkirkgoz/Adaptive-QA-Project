@@ -76,6 +76,8 @@ jobs:
         run: python scripts/check_network_security.py
       - name: Verify structural page collection
         run: python scripts/check_page_collector.py
+      - name: Verify bounded local discovery
+        run: python scripts/check_local_discovery.py
       - name: Run controlled local browser check
         run: python scripts/check_local_browser.py
       - name: Upload browser results and screenshots
@@ -88,5 +90,6 @@ jobs:
             artifacts/screenshots/*.png
             artifacts/security/*.json
             artifacts/smoke/*.json
+            artifacts/discovery/*.json
           retention-days: 7
           if-no-files-found: warn
