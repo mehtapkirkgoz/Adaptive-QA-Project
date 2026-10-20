@@ -4,7 +4,7 @@ Start date: October 20, 2026
 Status: In progress — phase 2.1 completed locally.
 
 Tracking issue: [#3](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/3).
-Milestone: Pending creation and association in GitHub.
+Milestone: [Sprint 2 — Website Discovery and Feature Detection](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/3).
 
 ## Goal
 
