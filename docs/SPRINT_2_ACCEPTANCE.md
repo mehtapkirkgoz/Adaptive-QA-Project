@@ -80,7 +80,7 @@ Page content and URL paths remain untrusted, potentially sensitive data.
 - [x] Check fixture hashes, matrices, reasons, page evidence, and regression reports.
 - [x] Record verified evidence and update sprint completion documents.
 - [x] Close issue #3 as completed after acceptance.
-- [ ] Repository owner closes milestone #3.
+- [x] Repository owner closes milestone #3.
 
-Issue #3 is closed as completed. The connected tool cannot close milestones;
-milestone #3 remains open for the repository owner. Technical acceptance is complete.
+Issue #3 is closed as completed. The repository owner confirmed milestone #3 is
+closed. Technical acceptance and milestone tracking are complete.

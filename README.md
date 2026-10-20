@@ -2,7 +2,7 @@
 
 An AI-assisted QA platform under development for website discovery and applicable UI, API, and database tests.
 
-**Status:** Sprint 2 completed on October 20, 2026. The local prototype runs 10 smoke scenarios through a persistent queue with cancellation, deadlines, destination controls, JSON results, and screenshots. Page feature detection, guarded structural collection, bounded local crawling, and evidence-based test plans are implemented and verified against four contrasting controlled sites. AI, API/SQL execution, and the dashboard are not implemented yet.
+**Status:** Sprint 3 started on October 21, 2026 (Europe/Istanbul): UI catalog and element matching. Sprint 2 is complete. The local prototype runs 10 smoke scenarios through a persistent queue with cancellation, deadlines, destination controls, JSON results, and screenshots. Page feature detection, guarded structural collection, bounded local crawling, and evidence-based test plans are implemented and verified against four contrasting controlled sites. AI, API/SQL execution, and the dashboard are not implemented yet.
 
 ## Project Plans
 
@@ -13,7 +13,7 @@ Sprints follow goals and acceptance criteria without a fixed two-week commitment
 | 0 | Architecture, models, configuration, GitHub workflow | Completed |
 | 1 | First controlled end-to-end execution | Completed |
 | 2 | Website discovery | Completed |
-| 3 | UI catalog and element matching | Planned |
+| 3 | UI catalog and element matching | In progress |
 | 4 | API tests | Planned |
 | 5 | Database validation | Planned |
 | 6 | AI integration | Planned |
@@ -187,4 +187,13 @@ scope, and block uncertain prerequisites or unsupported configurations. Each
 decision has a reason; selected cases reference their target page and evidence.
 Plans do not execute tests or authorize execution. Contrasting-site acceptance
 checks and remote verification are complete. Issue #3 is closed; milestone #3
-is ready for the repository owner to close.
+was closed by the repository owner.
+
+## Sprint 3
+
+[Sprint 3](docs/SPRINT_3.md) and [issue #4](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/4)
+track deterministic role/label/alternative-name matching, project mappings,
+reusable executors, independent test data, and expansion toward 40 meaningful
+runnable UI scenarios. Planning/tracking are initialized; implementation starts
+with the mapping and matching result contracts. The existing hourly follow-up
+has been reactivated for this sprint.

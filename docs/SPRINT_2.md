@@ -5,7 +5,7 @@ Status: Completed — implementation and acceptance evidence verified remotely o
 
 Tracking issue: [#3](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/3).
 Milestone: [Sprint 2 — Website Discovery and Feature Detection](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/3).
-Issue #3 is closed as completed. Milestone closure remains a repository-owner action.
+Issue #3 is closed as completed. The repository owner confirmed milestone #3 is closed.
 
 ## Goal
 
