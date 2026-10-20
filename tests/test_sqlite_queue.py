@@ -77,6 +77,40 @@ class SQLiteJobQueueTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     self.queue.submit(case_id)
 
+    def test_list_returns_empty_history(self) -> None:
+        self.assertEqual(self.queue.list_jobs(), ())
+
+    def test_list_survives_reopen_and_preserves_order(self) -> None:
+        jobs = [self.queue.submit("LOGIN-001") for _ in range(3)]
+        reopened = SQLiteJobQueue(self.database)
+        self.assertEqual(reopened.list_jobs(), tuple(jobs))
+
+    def test_list_filters_without_claiming_jobs(self) -> None:
+        running = self.queue.submit("LOGIN-001")
+        self.queue.claim_next()
+        pending = self.queue.submit("LOGIN-001")
+        self.assertEqual(
+            [job.job_id for job in self.queue.list_jobs(status=JobStatus.RUNNING)],
+            [running.job_id],
+        )
+        self.assertEqual(self.queue.get(pending.job_id).status, JobStatus.QUEUED)
+
+    def test_list_pagination_has_no_duplicates(self) -> None:
+        jobs = [self.queue.submit("LOGIN-001") for _ in range(4)]
+        first = self.queue.list_jobs(limit=2)
+        second = self.queue.list_jobs(limit=2, offset=2)
+        self.assertEqual(first + second, tuple(jobs))
+
+    def test_invalid_list_parameters_are_rejected(self) -> None:
+        parameters = (
+            {"limit": 0}, {"limit": 501}, {"limit": True},
+            {"offset": -1}, {"offset": False}, {"status": "running"},
+        )
+        for values in parameters:
+            with self.subTest(values=values):
+                with self.assertRaises(ValueError):
+                    self.queue.list_jobs(**values)
+
 
 if __name__ == "__main__":
     unittest.main()

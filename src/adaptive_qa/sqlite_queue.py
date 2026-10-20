@@ -63,6 +63,30 @@ class SQLiteJobQueue:
         with self._transaction() as connection:
             return self._read(connection, job_id)
 
+    def list_jobs(
+        self, *, status: JobStatus | None = None, limit: int = 50, offset: int = 0
+    ) -> tuple[Job, ...]:
+        """Read bounded history in submission order without changing job state."""
+        if status is not None and not isinstance(status, JobStatus):
+            raise ValueError("status must be a JobStatus value when provided.")
+        if isinstance(limit, bool) or not isinstance(limit, int) or not 1 <= limit <= 500:
+            raise ValueError("limit must be an integer from 1 to 500.")
+        if isinstance(offset, bool) or not isinstance(offset, int) or offset < 0:
+            raise ValueError("offset must be a non-negative integer.")
+        with self._transaction() as connection:
+            if status is None:
+                rows = connection.execute(
+                    "SELECT job_id FROM jobs ORDER BY sequence LIMIT ? OFFSET ?",
+                    (limit, offset),
+                ).fetchall()
+            else:
+                rows = connection.execute(
+                    "SELECT job_id FROM jobs WHERE status = ? "
+                    "ORDER BY sequence LIMIT ? OFFSET ?",
+                    (status, limit, offset),
+                ).fetchall()
+            return tuple(self._read(connection, row["job_id"]) for row in rows)
+
     def claim_next(self) -> Job | None:
         with self._transaction() as connection:
             row = connection.execute(

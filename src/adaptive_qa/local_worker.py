@@ -8,7 +8,7 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from time import perf_counter
 
-from adaptive_qa.jobs import Job, LocalJobQueue
+from adaptive_qa.jobs import Job, JobStatus, LocalJobQueue
 from adaptive_qa.local_browser import run_login_form_test
 from adaptive_qa.models import TestResult, TestStatus
 from adaptive_qa.storage import save_result
@@ -67,6 +67,10 @@ def main(argv: list[str] | None = None) -> int:
     submit = commands.add_parser("submit", help="Queue a test case without executing it")
     submit.add_argument("case_id")
     commands.add_parser("run-next", help="Execute at most one queued job")
+    listing = commands.add_parser("list", help="List persisted jobs in submission order")
+    listing.add_argument("--status", type=JobStatus, choices=list(JobStatus))
+    listing.add_argument("--limit", type=int, default=50)
+    listing.add_argument("--offset", type=int, default=0)
     for name in ("status", "cancel"):
         command = commands.add_parser(name)
         command.add_argument("job_id")
@@ -76,6 +80,9 @@ def main(argv: list[str] | None = None) -> int:
         queue = SQLiteJobQueue(args.database)
         if args.command == "submit":
             print(json.dumps(asdict(queue.submit(args.case_id))))
+        elif args.command == "list":
+            jobs = queue.list_jobs(status=args.status, limit=args.limit, offset=args.offset)
+            print(json.dumps([asdict(job) for job in jobs]))
         elif args.command == "status":
             print(json.dumps(asdict(queue.get(args.job_id))))
         elif args.command == "cancel":

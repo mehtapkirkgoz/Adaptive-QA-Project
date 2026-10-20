@@ -190,3 +190,14 @@ persistent queue shared between submission and execution processes.
 No additional installation is required. Active cancellation, crash recovery,
 and production queue dispatch remain pending; Phase 1.5 is not complete.
 GitHub verification requires the next push.
+
+## Phase 1.5 — Persisted Job Inspection (October 20, 2026)
+
+- Add bounded job listing with status filters and offset pagination.
+- Preserve submission order and avoid claiming jobs during inspection.
+- Expose persisted running jobs after reopening the queue.
+- Verify list validation and CLI filters across invocations.
+
+Verification: 121 unit tests pass. No additional dependencies are required.
+Running status alone is not evidence that a process is dead; automatic recovery
+and active cancellation remain unimplemented. Phase 1.5 is still in progress.

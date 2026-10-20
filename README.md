@@ -80,7 +80,7 @@ Implemented models include:
 - An immutable execution result model with status, duration, and message validation.
 - A reusable login form test definition.
 
-One hundred and fourteen unit tests cover models, configuration, secrets, destination
+One hundred and twenty-one unit tests cover models, configuration, secrets, destination
 policies, result classification, and persistence. These are platform unit tests,
 not 78 website test scenarios.
 
@@ -90,7 +90,7 @@ Run the tests locally:
 python -m unittest discover -s tests -v
 ```
 
-Local verification: **114 tests passed**. The local browser scenario was also
+Local verification: **121 tests passed**. The local browser scenario was also
 executed successfully, and its saved JSON references an existing PNG screenshot.
 
 GitHub Actions: Sprint 0 verification passed with 38 tests.
@@ -255,3 +255,19 @@ The managed CI script uses a fresh temporary queue for each check, submits in
 one process, and executes in another. The temporary database is removed afterward;
 JSON/PNG evidence remains under `artifacts/`. No live queue database is committed.
 Active cancellation and interrupted-job recovery remain pending.
+
+## Inspecting Persisted Jobs
+
+List jobs without claiming or running them:
+
+```powershell
+python -m adaptive_qa.local_worker list
+python -m adaptive_qa.local_worker list --status running
+python -m adaptive_qa.local_worker list --status cancelled --limit 20 --offset 0
+```
+
+Results are JSON arrays ordered by submission. The default limit is 50, the
+maximum is 500, and offsets must be non-negative. Status values are queued,
+running, completed, and cancelled. Listing running jobs makes unfinished work
+visible after restart; it neither proves a worker is dead nor retries the job.
+Heartbeat-based recovery and active cancellation remain pending.

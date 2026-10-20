@@ -67,6 +67,17 @@ class WorkerCLITests(unittest.TestCase):
     def test_unknown_job_returns_nonzero(self) -> None:
         self.assertEqual(self.command("status", "missing")[0], 1)
 
+    def test_list_filters_cancelled_jobs_across_invocations(self) -> None:
+        cancelled = self.submit()
+        self.submit()
+        self.command("cancel", cancelled)
+        code, output = self.command("list", "--status", "cancelled")
+        self.assertEqual(code, 0)
+        self.assertEqual([job["job_id"] for job in json.loads(output)], [cancelled])
+
+    def test_list_invalid_limit_returns_nonzero(self) -> None:
+        self.assertEqual(self.command("list", "--limit", "0")[0], 1)
+
 
 if __name__ == "__main__":
     unittest.main()
