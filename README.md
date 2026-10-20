@@ -80,7 +80,7 @@ Implemented models include:
 - An immutable execution result model with status, duration, and message validation.
 - A reusable login form test definition.
 
-One hundred and twenty-one unit tests cover models, configuration, secrets, destination
+One hundred and twenty-six unit tests cover models, configuration, secrets, destination
 policies, result classification, and persistence. These are platform unit tests,
 not 78 website test scenarios.
 
@@ -90,7 +90,7 @@ Run the tests locally:
 python -m unittest discover -s tests -v
 ```
 
-Local verification: **121 tests passed**. The local browser scenario was also
+Local verification: **126 tests passed**. The local browser scenario was also
 executed successfully, and its saved JSON references an existing PNG screenshot.
 
 GitHub Actions: Sprint 0 verification passed with 38 tests.
@@ -271,3 +271,24 @@ maximum is 500, and offsets must be non-negative. Status values are queued,
 running, completed, and cancelled. Listing running jobs makes unfinished work
 visible after restart; it neither proves a worker is dead nor retries the job.
 Heartbeat-based recovery and active cancellation remain pending.
+
+## Explicit Retry Attempts
+
+Create a new queued attempt for a completed failed or error result:
+
+```powershell
+python -m adaptive_qa.local_worker retry <job-id>
+```
+
+The original job and result stay unchanged. The new job has a different identifier,
+no result, and a persisted `retry_of` reference to the previous attempt. It is
+not executed until claimed by `run-next`. Successful, skipped, blocked, queued,
+running, and cancelled jobs cannot be retried through this command.
+
+Retries are explicit and are not deduplicated: each command creates a new attempt.
+This command does not recover or replay interrupted running jobs. Before retrying
+data-changing tests, callers must account for previous side effects; the current
+local executor only checks the login form and does not submit credentials.
+
+Existing SQLite queue files gain a nullable `retry_of` column on opening, without
+removing existing records. No manual database reset is required.

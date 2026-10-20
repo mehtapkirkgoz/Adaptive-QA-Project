@@ -22,6 +22,7 @@ class Job:
     case_id: str
     status: JobStatus = JobStatus.QUEUED
     result: TestResult | None = None
+    retry_of: str | None = None
 
 
 class LocalJobQueue:

@@ -201,3 +201,15 @@ GitHub verification requires the next push.
 Verification: 121 unit tests pass. No additional dependencies are required.
 Running status alone is not evidence that a process is dead; automatic recovery
 and active cancellation remain unimplemented. Phase 1.5 is still in progress.
+
+## Phase 1.5 — Explicit Retry Attempts (October 20, 2026)
+
+- Add explicit retry for completed failed/error results.
+- Preserve original attempts and persist retry_of lineage for new queued jobs.
+- Reject retries of active, cancelled, successful, skipped, or blocked jobs.
+- Migrate older queue databases without deleting jobs.
+
+Verification: 126 unit tests pass, including retry and old-schema migration checks.
+The managed real Chromium run also passes after the schema change.
+Retries are manual, do not execute immediately, and do not implement interrupted
+worker recovery. Active cancellation and production dispatch remain pending.

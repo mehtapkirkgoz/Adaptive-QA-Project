@@ -24,6 +24,11 @@ class SQLiteJobQueue:
                 "job_id TEXT NOT NULL UNIQUE, case_id TEXT NOT NULL, "
                 "status TEXT NOT NULL, result_json TEXT)"
             )
+            columns = {
+                row["name"] for row in connection.execute("PRAGMA table_info(jobs)")
+            }
+            if "retry_of" not in columns:
+                connection.execute("ALTER TABLE jobs ADD COLUMN retry_of TEXT")
 
     @contextmanager
     def _transaction(self):
@@ -46,7 +51,10 @@ class SQLiteJobQueue:
             data["status"] = TestStatus(data["status"])
             data["evidence_paths"] = tuple(data.get("evidence_paths", ()))
             result = TestResult(**data)
-        return Job(row["job_id"], row["case_id"], JobStatus(row["status"]), result)
+        return Job(
+            row["job_id"], row["case_id"], JobStatus(row["status"]), result,
+            retry_of=row["retry_of"],
+        )
 
     def submit(self, case_id: str) -> Job:
         if not isinstance(case_id, str) or not case_id.strip():
@@ -58,6 +66,23 @@ class SQLiteJobQueue:
                 (job.job_id, job.case_id, job.status),
             )
         return job
+
+    def retry(self, job_id: str) -> Job:
+        """Explicitly create a new attempt while preserving the failed attempt."""
+        with self._transaction() as connection:
+            previous = self._read(connection, job_id)
+            if (
+                previous.status != JobStatus.COMPLETED
+                or previous.result is None
+                or previous.result.status not in (TestStatus.FAILED, TestStatus.ERROR)
+            ):
+                raise ValueError("Only completed failed or error jobs can be retried.")
+            job = Job(job_id=uuid4().hex, case_id=previous.case_id, retry_of=job_id)
+            connection.execute(
+                "INSERT INTO jobs (job_id, case_id, status, retry_of) VALUES (?, ?, ?, ?)",
+                (job.job_id, job.case_id, job.status, job.retry_of),
+            )
+            return job
 
     def get(self, job_id: str) -> Job:
         with self._transaction() as connection:

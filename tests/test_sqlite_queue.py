@@ -1,5 +1,6 @@
 """Tests for persistence and transactional SQLite job claims."""
 
+import sqlite3
 import unittest
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -110,6 +111,61 @@ class SQLiteJobQueueTests(unittest.TestCase):
             with self.subTest(values=values):
                 with self.assertRaises(ValueError):
                     self.queue.list_jobs(**values)
+
+    def test_retry_preserves_original_and_links_new_attempt(self) -> None:
+        for status in (TestStatus.FAILED, TestStatus.ERROR):
+            with self.subTest(status=status):
+                original = self.queue.submit("LOGIN-001")
+                self.queue.claim_next()
+                result = TestResult("LOGIN-001", status, 0.1, "Original outcome.")
+                completed = self.queue.complete(original.job_id, result)
+                retry = self.queue.retry(original.job_id)
+                self.assertNotEqual(retry.job_id, original.job_id)
+                self.assertEqual(retry.status, JobStatus.QUEUED)
+                self.assertIsNone(retry.result)
+                reopened = SQLiteJobQueue(self.database)
+                self.assertEqual(reopened.get(retry.job_id).retry_of, original.job_id)
+                self.assertEqual(reopened.get(original.job_id), completed)
+                self.assertEqual(reopened.claim_next().job_id, retry.job_id)
+                reopened.complete(retry.job_id, result)
+
+    def test_retry_rejects_pending_running_and_cancelled_jobs(self) -> None:
+        job = self.queue.submit("LOGIN-001")
+        with self.assertRaises(ValueError):
+            self.queue.retry(job.job_id)
+        self.queue.cancel(job.job_id)
+        with self.assertRaises(ValueError):
+            self.queue.retry(job.job_id)
+        running = self.queue.submit("LOGIN-001")
+        self.queue.claim_next()
+        with self.assertRaises(ValueError):
+            self.queue.retry(running.job_id)
+
+    def test_retry_rejects_successful_and_non_executed_results(self) -> None:
+        for status in (TestStatus.PASSED, TestStatus.SKIPPED, TestStatus.BLOCKED):
+            with self.subTest(status=status):
+                job = self.queue.submit("LOGIN-001")
+                self.queue.claim_next()
+                self.queue.complete(job.job_id, TestResult("LOGIN-001", status, 0, "Outcome."))
+                with self.assertRaises(ValueError):
+                    self.queue.retry(job.job_id)
+
+    def test_old_schema_is_migrated_without_losing_jobs(self) -> None:
+        old_database = self.database.with_name("old.sqlite3")
+        with sqlite3.connect(old_database) as connection:
+            connection.execute(
+                "CREATE TABLE jobs (sequence INTEGER PRIMARY KEY AUTOINCREMENT, "
+                "job_id TEXT NOT NULL UNIQUE, case_id TEXT NOT NULL, "
+                "status TEXT NOT NULL, result_json TEXT)"
+            )
+            connection.execute(
+                "INSERT INTO jobs (job_id, case_id, status) VALUES (?, ?, ?)",
+                ("old-job", "LOGIN-001", "queued"),
+            )
+        connection.close()
+        reopened = SQLiteJobQueue(old_database)
+        self.assertIsNone(reopened.get("old-job").retry_of)
+        self.assertEqual(reopened.claim_next().job_id, "old-job")
 
 
 if __name__ == "__main__":

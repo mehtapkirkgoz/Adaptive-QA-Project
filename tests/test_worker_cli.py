@@ -78,6 +78,19 @@ class WorkerCLITests(unittest.TestCase):
     def test_list_invalid_limit_returns_nonzero(self) -> None:
         self.assertEqual(self.command("list", "--limit", "0")[0], 1)
 
+    @patch("adaptive_qa.local_worker.run_login_form_test")
+    @patch("adaptive_qa.local_worker.save_result")
+    def test_retry_command_returns_linked_pending_attempt(self, save, run) -> None:
+        run.return_value = TestResult("LOGIN-001", TestStatus.FAILED, 0.1, "Failed.")
+        save.return_value = Path("result.json")
+        original = self.submit()
+        self.command("run-next")
+        code, output = self.command("retry", original)
+        self.assertEqual(code, 0)
+        retry = json.loads(output)
+        self.assertEqual(retry["retry_of"], original)
+        self.assertEqual(retry["status"], "queued")
+
 
 if __name__ == "__main__":
     unittest.main()

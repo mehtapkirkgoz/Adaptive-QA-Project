@@ -71,7 +71,7 @@ def main(argv: list[str] | None = None) -> int:
     listing.add_argument("--status", type=JobStatus, choices=list(JobStatus))
     listing.add_argument("--limit", type=int, default=50)
     listing.add_argument("--offset", type=int, default=0)
-    for name in ("status", "cancel"):
+    for name in ("status", "cancel", "retry"):
         command = commands.add_parser(name)
         command.add_argument("job_id")
     args = parser.parse_args(argv)
@@ -85,6 +85,8 @@ def main(argv: list[str] | None = None) -> int:
             print(json.dumps([asdict(job) for job in jobs]))
         elif args.command == "status":
             print(json.dumps(asdict(queue.get(args.job_id))))
+        elif args.command == "retry":
+            print(json.dumps(asdict(queue.retry(args.job_id))))
         elif args.command == "cancel":
             print(json.dumps(asdict(queue.cancel(args.job_id))))
         else:
