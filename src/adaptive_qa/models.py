@@ -78,6 +78,7 @@ class TestResult:
     status: TestStatus
     duration_seconds: float
     message: str
+    evidence_paths: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
         if not isinstance(self.case_id, str) or not self.case_id.strip():
@@ -100,3 +101,13 @@ class TestResult:
 
         if not isinstance(self.message, str) or not self.message.strip():
             raise ValueError("message must be a non-empty string.")
+        if not isinstance(self.evidence_paths, tuple):
+            raise ValueError("evidence_paths must be a tuple.")
+
+        if any(
+            not isinstance(path, str) or not path.strip()
+            for path in self.evidence_paths
+        ):
+            raise ValueError(
+                "evidence_paths must contain only non-empty strings."
+            )

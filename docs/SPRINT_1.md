@@ -22,7 +22,8 @@ and persist results and evidence.
 
 ## Execution Boundaries
 
-- Network execution remains disabled until destination controls are verified.
+- General network execution remains disabled until destination controls are verified.
+- The controlled local sample uses the explicit 127.0.0.1:8000 development policy.
 - Local development requires an explicit policy for the sample application.
 - Production workers must enforce destination restrictions independently
   of application-level URL checks.
@@ -47,7 +48,7 @@ Verification: 61 unit tests pass locally across the project.
 
 Remaining before browser execution:
 
-- Define an explicit policy for the local sample application.
+- Explicit local sample policy is implemented; complete redirect enforcement remains pending.
 - Apply destination policies to browser requests and redirects.
 - Enforce connection-level destination restrictions.
 - Bound DNS resolution time as part of the execution timeout.
@@ -79,3 +80,17 @@ Phase 1.1 remains in progress.
 
 Local verification: 71 unit tests pass.
 The local browser check has also been verified manually.
+## Current Checkpoint — Phase 1.4 (October 20, 2026)
+
+- [x] Persist structured test results as JSON.
+- [x] Capture screenshots after successful local checks.
+- [x] Link existing screenshots through the optional evidence_paths result field.
+- [x] Verify evidence serialization and omit missing screenshot references.
+- [x] Execute the real local browser scenario and verify its JSON references a PNG.
+- [ ] Capture failure evidence without replacing the original test outcome.
+- [ ] Add automated browser execution to CI.
+
+Current local verification: 78 unit tests pass; one local browser scenario passes.
+Phases 1.1 and 1.3 still have pending controls and automated lifecycle checks.
+Phase 1.4 remains in progress. Queueing, cancellation, and the 10-case catalog
+have not been implemented. Current changes await GitHub CI verification after push.

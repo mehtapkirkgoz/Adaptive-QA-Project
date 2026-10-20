@@ -128,6 +128,7 @@ def run_login_form_test() -> TestResult:
         status=status,
         duration_seconds=perf_counter() - started_at,
         message=message,
+        evidence_paths=(evidence_path.as_posix(),) if evidence_path.is_file() else (),
     )
 
 

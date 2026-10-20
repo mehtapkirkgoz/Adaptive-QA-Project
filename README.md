@@ -3,8 +3,9 @@
 An AI-powered QA platform that discovers web application features and runs applicable UI, API, and database tests.
 
 **Status:** Sprint 1 in progress. Sprint 0 established the project
-foundation with 38 passing unit tests. Browser test execution
-is now under development.
+foundation. Sprint 1 currently provides one local browser scenario,
+JSON result persistence, and linked screenshot evidence. Queueing and broader
+network execution remain under development.
 
 ## Product Overview
 
@@ -33,7 +34,7 @@ A sprint is completed only when its acceptance criteria are verified.
 | Sprint | Goal | Status | Delivered |
 |---|---|---|---|
 | 0 | Architecture and GitHub workflow | Completed | Python scaffold, architecture record, CI configuration, issue and PR templates, validated test case model, eight passing unit tests |
-| 1 | First end-to-end test execution | In Progress | — |
+| 1 | First end-to-end test execution | In progress | Local login form check, JSON results, linked screenshots |
 | 2 | Website discovery and feature detection | Planned | — |
 | 3 | UI test catalog and element matching | Planned | — |
 | 4 | API testing | Planned | — |
@@ -79,8 +80,9 @@ Implemented models include:
 - An immutable execution result model with status, duration, and message validation.
 - A reusable login form test definition.
 
-Thirty-eight unit tests cover test case validation, execution results,
-project configuration, hostname authorization, and secret resolution.
+Seventy-eight unit tests cover models, configuration, secrets, destination
+policies, result classification, and persistence. These are platform unit tests,
+not 78 website test scenarios.
 
 Run the tests locally:
 
@@ -88,9 +90,11 @@ Run the tests locally:
 python -m unittest discover -s tests -v
 ```
 
-Local verification: **38 tests passed**.
+Local verification: **78 tests passed**. The local browser scenario was also
+executed successfully, and its saved JSON references an existing PNG screenshot.
 
-GitHub Actions verification: **38 tests passed**.
+GitHub Actions: Sprint 0 verification passed with 38 tests.
+The current changes require verification after the next push.
 
 ## Project Configuration and Secrets
 
@@ -99,8 +103,10 @@ hostnames, and whether data-changing tests are permitted.
 
 Hostname authorization uses exact matching. Subdomains require explicit
 permission. This check is not a complete network security boundary:
-DNS resolution, private IP restrictions, and redirect validation
-remain pending before network execution is enabled.
+DNS and public IP validation helpers are implemented. Connection-level
+restrictions and complete redirect enforcement remain pending before general
+network execution is enabled. The current browser flow is for the controlled
+local sample only.
 
 Secrets are referenced by environment variable name and resolved at
 runtime. Standard string and repr output hide resolved values.
@@ -116,3 +122,22 @@ See the [target authorization and secret management contract](docs/SECURITY_CONT
 for implemented controls, current limitations, and execution prerequisites.
 
 Sprint 1 implementation progress is tracked in [Sprint 1](docs/SPRINT_1.md).
+## Local Browser Evidence
+
+Run the sample server and browser check in separate terminals from the repository root:
+
+```powershell
+python -m http.server 8000 --bind 127.0.0.1 --directory samples/web
+```
+
+```powershell
+python -m adaptive_qa.local_browser
+```
+
+Results are written to `artifacts/results/`. The `result.evidence_paths` array
+references screenshots that exist at result creation time. Paths are relative
+to the repository root for this local workflow. Older records without this
+optional field remain unchanged. Generated evidence is ignored by Git.
+
+Only successful-check screenshots are currently captured. Failure screenshots,
+evidence retention, and report access controls remain pending.

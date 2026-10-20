@@ -77,6 +77,23 @@ class LoginFormResultTests(unittest.TestCase):
         self.assertIsInstance(evidence_path, Path)
         self.assertEqual(evidence_path.suffix, ".png")
         self.assertEqual(result.duration_seconds, 0.75)
+    @patch("adaptive_qa.local_browser._verify_sample_page")
+    def test_existing_screenshot_is_linked(self, verify: Mock) -> None:
+        verify.side_effect = lambda path: path.write_bytes(b"sample-evidence")
+
+        result = run_login_form_test()
+
+        evidence_path = verify.call_args.args[0]
+        self.assertEqual(result.evidence_paths, (evidence_path.as_posix(),))
+
+    @patch("adaptive_qa.local_browser._verify_sample_page")
+    def test_missing_screenshot_is_not_linked(self, verify: Mock) -> None:
+        verify.side_effect = Error("Simulated browser failure")
+
+        result = run_login_form_test()
+
+        self.assertEqual(result.evidence_paths, ())
+
     def setUp(self) -> None:
         temporary = TemporaryDirectory()
         self.addCleanup(temporary.cleanup)

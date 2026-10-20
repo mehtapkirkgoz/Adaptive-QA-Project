@@ -16,6 +16,7 @@ class ResultStorageTests(unittest.TestCase):
             status=TestStatus.PASSED,
             duration_seconds=0.25,
             message="Login form checks passed.",
+            evidence_paths=("artifacts/screenshots/example.png",),
         )
 
     def test_result_is_saved_as_json(self) -> None:
@@ -25,6 +26,7 @@ class ResultStorageTests(unittest.TestCase):
 
             payload = json.loads(path.read_text(encoding="utf-8"))
 
+            self.assertEqual(payload["result"]["evidence_paths"], ["artifacts/screenshots/example.png"])
             self.assertEqual(payload["schema_version"], 1)
             self.assertEqual(payload["result_id"], path.stem)
             self.assertIn("recorded_at", payload)

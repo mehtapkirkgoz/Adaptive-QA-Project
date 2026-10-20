@@ -77,6 +77,15 @@ class TestResultValidationTests(unittest.TestCase):
         ):
             self.make_result(duration_seconds=-0.1)
 
+    def test_evidence_paths_default_to_empty(self) -> None:
+        self.assertEqual(self.make_result().evidence_paths, ())
+
+    def test_invalid_evidence_paths_are_rejected(self) -> None:
+        for paths in (["example.png"], ("",), (None,), ("   ",)):
+            with self.subTest(paths=paths):
+                with self.assertRaises(ValueError):
+                    self.make_result(evidence_paths=paths)
+
 
 if __name__ == "__main__":
     unittest.main()
