@@ -80,7 +80,7 @@ Implemented models include:
 - An immutable execution result model with status, duration, and message validation.
 - A reusable login form test definition.
 
-Ninety-four unit tests cover models, configuration, secrets, destination
+One hundred and two unit tests cover models, configuration, secrets, destination
 policies, result classification, and persistence. These are platform unit tests,
 not 78 website test scenarios.
 
@@ -90,7 +90,7 @@ Run the tests locally:
 python -m unittest discover -s tests -v
 ```
 
-Local verification: **94 tests passed**. The local browser scenario was also
+Local verification: **102 tests passed**. The local browser scenario was also
 executed successfully, and its saved JSON references an existing PNG screenshot.
 
 GitHub Actions: Sprint 0 verification passed with 38 tests.
@@ -178,8 +178,30 @@ cancellation, result attachment, and immutable status snapshots. A completed
 job means execution finished; its test result can still be failed or error.
 Unknown job identifiers raise `KeyError`.
 
-This is an in-memory, single-process development component. It is not yet
-connected to the browser runner, has no persistence or customer authorization,
+This is an in-memory, single-process development component. It has no durable
+queue state or customer authorization,
 and does not stop running jobs. State is lost when the process exits, and
 job history remains in memory until then. Redis/Celery dispatch, durable state,
 worker recovery, and active cancellation remain planned work.
+
+## Queued Local Browser Execution
+
+The managed browser check now submits `LOGIN-001` to `LocalJobQueue` and invokes
+`process_next` through `adaptive_qa.local_worker`. Each saved result includes
+its `job_id`. Pending cancelled jobs are skipped. Unsupported cases produce
+blocked results; unexpected executor failures produce error results.
+
+A persistence failure returns an error result in memory and no result path;
+it is never reported as successfully saved. Job completion still means that
+processing finished, not that the test passed or that persistence succeeded.
+The CLI returns nonzero for any outcome other than passed.
+
+To run with the sample server already started:
+
+```powershell
+python -m adaptive_qa.local_worker
+```
+
+For automatic server management, continue using `python scripts/check_local_browser.py`.
+The script and CI now exercise the queued local path. This is synchronous local
+execution after claiming, not a persistent background service or active cancellation.

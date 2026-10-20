@@ -22,7 +22,7 @@ def main() -> int:
     try:
         try:
             completed = subprocess.run(
-                [sys.executable, "-m", "adaptive_qa.local_browser"],
+                [sys.executable, "-m", "adaptive_qa.local_worker"],
                 cwd=root,
                 timeout=60,
                 check=False,

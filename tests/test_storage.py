@@ -57,6 +57,19 @@ class ResultStorageTests(unittest.TestCase):
             ):
                 save_result(None, Path(temporary))
 
+    def test_job_identifier_is_persisted(self) -> None:
+        with TemporaryDirectory() as temporary:
+            path = save_result(self.result, Path(temporary), job_id="job-123")
+            payload = json.loads(path.read_text(encoding="utf-8"))
+            self.assertEqual(payload["job_id"], "job-123")
+
+    def test_invalid_job_identifier_is_rejected(self) -> None:
+        with TemporaryDirectory() as temporary:
+            for job_id in ("", "   ", 123):
+                with self.subTest(job_id=job_id):
+                    with self.assertRaises(ValueError):
+                        save_result(self.result, Path(temporary), job_id=job_id)
+
 
 if __name__ == "__main__":
     unittest.main()

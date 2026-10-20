@@ -139,7 +139,7 @@ or confirm the pending GitHub browser CI run.
 - [x] Attach matching results only to running jobs.
 - [x] Distinguish job completion from test success.
 - [x] Verify competing claims do not execute a job twice within one process.
-- [ ] Connect local queue jobs to browser execution.
+- [x] Connect local queue jobs to browser execution.
 - [ ] Add durable queue dispatch and job persistence.
 - [ ] Implement active cancellation and worker recovery.
 
@@ -147,3 +147,16 @@ Verification: 94 unit tests pass locally, including eight queue tests.
 No additional dependencies or services are required for this foundation.
 The local queue is an intermediate development component; it does not replace
 the planned Redis/Celery architecture. Pending CI verification remains open.
+
+## Phase 1.5 — Browser Worker Connection (October 20, 2026)
+
+- Execute one claimed local job and attach its result.
+- Persist the job identifier with the JSON result.
+- Skip cancelled pending jobs; block unsupported test identifiers.
+- Convert unexpected executor/storage failures into explicit error outcomes.
+- Run the queued path through the managed sample script and browser CI job.
+
+Verification: 102 unit tests pass. The managed script executed a real queued
+Chromium run successfully and saved its result and screenshot.
+Durable dispatch, restart recovery, and active cancellation remain pending.
+GitHub Actions verification of the updated worker path requires a push.
