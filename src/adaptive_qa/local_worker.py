@@ -9,7 +9,7 @@ from pathlib import Path
 from time import perf_counter
 
 from adaptive_qa.jobs import Job, JobStatus, LocalJobQueue
-from adaptive_qa.local_browser import run_login_form_test
+from adaptive_qa.browser_process import run_isolated_login_test as run_login_form_test
 from adaptive_qa.models import TestResult, TestStatus
 from adaptive_qa.storage import save_result
 from adaptive_qa.sqlite_queue import SQLiteJobQueue

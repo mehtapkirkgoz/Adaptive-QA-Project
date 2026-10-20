@@ -80,7 +80,7 @@ Implemented models include:
 - An immutable execution result model with status, duration, and message validation.
 - A reusable login form test definition.
 
-One hundred and twenty-six unit tests cover models, configuration, secrets, destination
+One hundred and thirty-two unit tests cover models, configuration, secrets, destination
 policies, result classification, and persistence. These are platform unit tests,
 not 78 website test scenarios.
 
@@ -90,7 +90,7 @@ Run the tests locally:
 python -m unittest discover -s tests -v
 ```
 
-Local verification: **126 tests passed**. The local browser scenario was also
+Local verification: **132 tests passed**. The local browser scenario was also
 executed successfully, and its saved JSON references an existing PNG screenshot.
 
 GitHub Actions: Sprint 0 verification passed with 38 tests.
@@ -292,3 +292,22 @@ local executor only checks the login form and does not submit credentials.
 
 Existing SQLite queue files gain a nullable `retry_of` column on opening, without
 removing existing records. No manual database reset is required.
+
+## Isolated Browser Deadline
+
+The local worker now runs the browser executor in a separate Python process.
+Its default total execution limit is 30 seconds, in addition to individual
+Playwright operation timeouts. The internal Python API accepts a positive finite
+timeout; the CLI currently uses the default.
+
+A timeout terminates the child process tree and returns an error result. Windows
+uses taskkill with tree termination; POSIX uses a dedicated process group.
+Termination errors propagate to the worker as execution errors. Invalid or missing
+child output and abnormal exits are also reported as errors, not passed checks.
+The child transports structured results through a temporary JSON file.
+
+Local verification includes a real successful Chromium run and a Windows timeout
+check with a parent and descendant process. The POSIX termination path still
+requires Linux CI verification. User-requested active cancellation, recovery after
+an abrupt supervisor crash, and production worker isolation remain pending.
+The managed script retains a separate 60-second outer command limit.

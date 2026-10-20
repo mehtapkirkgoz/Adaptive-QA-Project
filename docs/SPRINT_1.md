@@ -213,3 +213,16 @@ Verification: 126 unit tests pass, including retry and old-schema migration chec
 The managed real Chromium run also passes after the schema change.
 Retries are manual, do not execute immediately, and do not implement interrupted
 worker recovery. Active cancellation and production dispatch remain pending.
+
+## Phase 1.5 — Isolated Browser Deadline (October 20, 2026)
+
+- Execute local browser jobs in a dedicated child process with a 30-second default limit.
+- Terminate the process tree on timeout, then report an execution error.
+- Validate child result transport and report abnormal exits or missing/invalid output.
+- Keep per-operation Playwright timeouts and the managed script's outer deadline.
+
+Verification: 132 unit tests pass. A real queued Chromium run passes through the
+new subprocess boundary. A controlled Windows parent/descendant timeout check
+confirmed both processes stopped. POSIX tree termination needs Linux verification.
+User-requested active cancellation and interrupted-worker recovery remain pending.
+Phase 1.5 is still in progress.
