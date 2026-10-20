@@ -6,6 +6,7 @@ from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from threading import Thread
+from tempfile import TemporaryDirectory
 
 
 def main() -> int:
@@ -21,12 +22,21 @@ def main() -> int:
     thread.start()
     try:
         try:
-            completed = subprocess.run(
-                [sys.executable, "-m", "adaptive_qa.local_worker"],
-                cwd=root,
-                timeout=60,
-                check=False,
-            )
+            with TemporaryDirectory(prefix="adaptive-qa-check-") as temporary:
+                command = [
+                    sys.executable, "-m", "adaptive_qa.local_worker",
+                    "--database", str(Path(temporary) / "jobs.sqlite3"),
+                ]
+                submitted = subprocess.run(
+                    command + ["submit", "LOGIN-001"],
+                    cwd=root, timeout=10, check=False,
+                )
+                if submitted.returncode != 0:
+                    return submitted.returncode
+                completed = subprocess.run(
+                    command + ["run-next"],
+                    cwd=root, timeout=60, check=False,
+                )
         except subprocess.TimeoutExpired:
             print("Local browser check exceeded 60 seconds.", file=sys.stderr)
             return 1

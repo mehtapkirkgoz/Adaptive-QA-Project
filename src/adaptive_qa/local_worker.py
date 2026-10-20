@@ -1,6 +1,10 @@
-"""Execute claimed jobs locally; no durable or distributed dispatch yet."""
+"""Execute local jobs through a persistent SQLite queue."""
 
-from dataclasses import dataclass
+import argparse
+import json
+import sqlite3
+import sys
+from dataclasses import asdict, dataclass
 from pathlib import Path
 from time import perf_counter
 
@@ -8,6 +12,7 @@ from adaptive_qa.jobs import Job, LocalJobQueue
 from adaptive_qa.local_browser import run_login_form_test
 from adaptive_qa.models import TestResult, TestStatus
 from adaptive_qa.storage import save_result
+from adaptive_qa.sqlite_queue import SQLiteJobQueue
 
 
 @dataclass(frozen=True)
@@ -16,7 +21,7 @@ class ProcessedJob:
     result_path: Path | None
 
 
-def process_next(queue: LocalJobQueue) -> ProcessedJob | None:
+def process_next(queue: LocalJobQueue | SQLiteJobQueue) -> ProcessedJob | None:
     """Execute at most one pending job and persist its correlated result."""
     job = queue.claim_next()
     if job is None:
@@ -52,19 +57,50 @@ def process_next(queue: LocalJobQueue) -> ProcessedJob | None:
     return ProcessedJob(queue.complete(job.job_id, result), result_path)
 
 
-def main() -> int:
-    queue = LocalJobQueue()
-    submitted = queue.submit("LOGIN-001")
-    print(f"Job queued: {submitted.job_id}")
-    processed = process_next(queue)
-    if processed is None:
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="Manage local SQLite browser jobs.")
+    parser.add_argument(
+        "--database", type=Path, default=Path("artifacts/jobs.sqlite3"),
+        help="Local SQLite queue file (default: artifacts/jobs.sqlite3)",
+    )
+    commands = parser.add_subparsers(dest="command", required=True)
+    submit = commands.add_parser("submit", help="Queue a test case without executing it")
+    submit.add_argument("case_id")
+    commands.add_parser("run-next", help="Execute at most one queued job")
+    for name in ("status", "cancel"):
+        command = commands.add_parser(name)
+        command.add_argument("job_id")
+    args = parser.parse_args(argv)
+
+    try:
+        queue = SQLiteJobQueue(args.database)
+        if args.command == "submit":
+            print(json.dumps(asdict(queue.submit(args.case_id))))
+        elif args.command == "status":
+            print(json.dumps(asdict(queue.get(args.job_id))))
+        elif args.command == "cancel":
+            print(json.dumps(asdict(queue.cancel(args.job_id))))
+        else:
+            processed = process_next(queue)
+            if processed is None:
+                print("No queued jobs available.")
+                return 0
+            print(json.dumps(asdict(processed.job)))
+            if processed.result_path is not None:
+                print(f"Result saved to: {processed.result_path}")
+            else:
+                print("Result was not saved.")
+            return 0 if processed.job.result.status == TestStatus.PASSED else 1
+    except KeyError:
+        print("Job was not found in this database.", file=sys.stderr)
         return 1
-    print(processed.job.result)
-    if processed.result_path is not None:
-        print(f"Result saved to: {processed.result_path}")
-    else:
-        print("Result was not saved.")
-    return 0 if processed.job.result.status == TestStatus.PASSED else 1
+    except ValueError as error:
+        print(str(error), file=sys.stderr)
+        return 1
+    except (OSError, sqlite3.Error):
+        print("Local queue or result storage is unavailable.", file=sys.stderr)
+        return 1
+    return 0
 
 
 if __name__ == "__main__":

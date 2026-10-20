@@ -176,3 +176,17 @@ broker integration remain incomplete; Phase 1.5 stays in progress.
 
 Architecture note: SQLite is a local incremental adapter. Redis/Celery and
 PostgreSQL remain the production direction described in the architecture plan.
+
+## Phase 1.5 — Persistent CLI Integration (October 20, 2026)
+
+- Use SQLite by default in the local worker CLI.
+- Add submit, status, run-next, and pending cancel commands.
+- Reopen the same queue across commands and persist completed result snapshots.
+- Exercise submission and execution in separate processes in the managed CI script.
+- Isolate automated checks with a temporary queue database.
+
+Verification: 114 unit tests pass. The managed Chromium check passed with a
+persistent queue shared between submission and execution processes.
+No additional installation is required. Active cancellation, crash recovery,
+and production queue dispatch remain pending; Phase 1.5 is not complete.
+GitHub verification requires the next push.

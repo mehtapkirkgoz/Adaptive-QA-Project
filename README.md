@@ -80,7 +80,7 @@ Implemented models include:
 - An immutable execution result model with status, duration, and message validation.
 - A reusable login form test definition.
 
-One hundred and nine unit tests cover models, configuration, secrets, destination
+One hundred and fourteen unit tests cover models, configuration, secrets, destination
 policies, result classification, and persistence. These are platform unit tests,
 not 78 website test scenarios.
 
@@ -90,7 +90,7 @@ Run the tests locally:
 python -m unittest discover -s tests -v
 ```
 
-Local verification: **109 tests passed**. The local browser scenario was also
+Local verification: **114 tests passed**. The local browser scenario was also
 executed successfully, and its saved JSON references an existing PNG screenshot.
 
 GitHub Actions: Sprint 0 verification passed with 38 tests.
@@ -186,7 +186,7 @@ worker recovery, and active cancellation remain planned work.
 
 ## Queued Local Browser Execution
 
-The managed browser check now submits `LOGIN-001` to `LocalJobQueue` and invokes
+The managed browser check now submits `LOGIN-001` to `SQLiteJobQueue` and invokes
 `process_next` through `adaptive_qa.local_worker`. Each saved result includes
 its `job_id`. Pending cancelled jobs are skipped. Unsupported cases produce
 blocked results; unexpected executor failures produce error results.
@@ -199,7 +199,8 @@ The CLI returns nonzero for any outcome other than passed.
 To run with the sample server already started:
 
 ```powershell
-python -m adaptive_qa.local_worker
+python -m adaptive_qa.local_worker submit LOGIN-001
+python -m adaptive_qa.local_worker run-next
 ```
 
 For automatic server management, continue using `python scripts/check_local_browser.py`.
@@ -213,8 +214,8 @@ cancellation, and completion operations with persisted job state and results.
 Transactional claims prevent competing connections from claiming the same job.
 Reopening an adapter preserves pending, cancelled, running, and completed jobs.
 
-This adapter is tested independently and is not yet the CLI default. The current
-CLI still uses `LocalJobQueue`. Wiring and restart commands are the next step.
+This adapter is now the CLI default. The in-memory queue remains available
+for isolated development and tests.
 A running job interrupted by process termination stays running and is not
 silently replayed; recovery policy is still pending.
 
@@ -223,3 +224,34 @@ planned Redis/Celery dispatch and PostgreSQL production storage. It targets a
 single machine and does not provide customer isolation or distributed locking.
 Do not share a live database through synchronized folders or network storage
 between workers on different machines.
+
+## Persistent Worker Commands
+
+Run from the repository root. The default queue is `artifacts/jobs.sqlite3`:
+
+```powershell
+python -m adaptive_qa.local_worker submit LOGIN-001
+python -m adaptive_qa.local_worker status <job-id>
+python -m adaptive_qa.local_worker run-next
+python -m adaptive_qa.local_worker status <job-id>
+```
+
+Start the sample server separately before `run-next`. Each command opens the same
+database, so pending jobs and completed results survive between CLI processes.
+`run-next` claims the oldest queued job, not necessarily the most recently submitted
+job. It processes one job and exits; it is not a background worker loop.
+
+Cancel a pending job:
+
+```powershell
+python -m adaptive_qa.local_worker cancel <job-id>
+```
+
+Use `--database <path>` before the subcommand to select a different local database.
+Unknown jobs and failed execution return a nonzero exit code. An empty queue is
+a successful no-op. Calling the worker without a subcommand displays usage.
+
+The managed CI script uses a fresh temporary queue for each check, submits in
+one process, and executes in another. The temporary database is removed afterward;
+JSON/PNG evidence remains under `artifacts/`. No live queue database is committed.
+Active cancellation and interrupted-job recovery remain pending.
