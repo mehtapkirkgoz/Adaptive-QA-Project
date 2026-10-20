@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Adaptive QA Sample</title>
+    </head>
+    <body>
+        <header>
+            <h1>Adaptive QA Sample</h1>
+            <nav aria-label="Main navigation">
+                <a href="#login">Sign in</a>
+                <a href="#search">Search</a>
+            </nav>
+        </header>
+
+        <main>
+            <section id="login" aria-labelledby="login-heading">
+                <h2 id="login-heading">Sign in</h2>
+
+                <form id="login-form" data-testid="login-form">
+                    <div>
+                        <label for="username">Username</label>
+                        <input
+                            id="username" data-testid="mapped-login-username"
+                            name="username"
+                            type="text"
+                            autocomplete="username"
+                            required
+                        />
+                    </div>
+
+                    <div>
+                        <label for="password">Password</label>
+                        <input
+                            id="password" data-testid="mapped-login-password"
+                            name="password"
+                            type="password"
+                            autocomplete="current-password"
+                            required
+                        />
+                    </div>
+
+                    <button data-testid="mapped-login-submit" type="submit">Sign in</button>
+                    <p id="login-result" role="status"></p>
+                </form>
+            </section>
+
+            <section id="search" aria-labelledby="search-heading">
+                <h2 id="search-heading">Search</h2>
+
+                <form id="search-form" data-testid="search-form" role="search">
+                    <label for="query">Search products</label>
+                    <input id="query" data-testid="mapped-search-query" name="query" type="search" required />
+                    <button data-testid="mapped-search-submit" type="submit">Search</button>
+                    <p id="search-result" role="status"></p>
+                </form>
+            </section>
+        </main>
+
+        <script>
+            document
+                .getElementById("login-form")
+                .addEventListener("submit", (event) => {
+                    event.preventDefault();
+                    document.getElementById("login-result").textContent =
+                        "Demo only: authentication is not connected.";
+                });
+
+            document
+                .getElementById("search-form")
+                .addEventListener("submit", (event) => {
+                    event.preventDefault();
+                    const query = document.getElementById("query").value.trim();
+
+                    document.getElementById("search-result").textContent = query
+                        ? `No products found for "${query}".`
+                        : "Enter a search term.";
+                });
+        </script>
+    </body>
+</html>

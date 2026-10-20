@@ -12,6 +12,8 @@ from adaptive_qa.models import TestResult, TestStatus
 from adaptive_qa.targets import validate_local_sample_target
 from adaptive_qa.storage import save_result
 from adaptive_qa.smoke_checks import SMOKE_CHECKS
+from adaptive_qa.ui_bindings import ElementBindingError, REUSABLE_CHECKS, SITE_PATHS
+from adaptive_qa.element_models import MatchStatus
 from pathlib import Path
 from uuid import uuid4
 
@@ -33,7 +35,7 @@ def _capture_evidence(page: Page, evidence_path: Path) -> None:
             pass
 
 
-def _verify_sample_page(evidence_path: Path, case_id: str = "LOGIN-001") -> None:
+def _verify_sample_page(evidence_path: Path, case_id: str = "LOGIN-001", *, site: str = "root") -> None:
     project = ProjectConfig(
         project_id="local-demo",
         name="Local Sample Application",
@@ -78,7 +80,7 @@ def _verify_sample_page(evidence_path: Path, case_id: str = "LOGIN-001") -> None
                 page = context.new_page()
                 try:
                     response = page.goto(
-                        project.base_url,
+                        project.base_url + SITE_PATHS[site],
                         wait_until="domcontentloaded",
                     )
 
@@ -96,7 +98,18 @@ def _verify_sample_page(evidence_path: Path, case_id: str = "LOGIN-001") -> None
                         )
                     ).to_be_visible()
 
-                    SMOKE_CHECKS[case_id](page)
+                    if site != 'root':
+                        from adaptive_qa.crawler import CrawlResult
+                        from adaptive_qa.page_collector import collect_page_snapshot
+                        from adaptive_qa.planning import PlanDecision, build_test_plan
+                        definition = next(case for case in TEST_CASES if case.case_id == case_id)
+                        snapshot = collect_page_snapshot(page)
+                        plan = build_test_plan(CrawlResult((snapshot,), 1, ()), (definition,), project)
+                        if plan.cases[0].decision != PlanDecision.SELECTED or plan.cases[0].target_url != snapshot.url:
+                            raise RuntimeError('Fixture prerequisites do not support the selected case.')
+                        REUSABLE_CHECKS[case_id](page)
+                    else:
+                        SMOKE_CHECKS[case_id](page)
                 except (AssertionError, Error, RuntimeError):
                     _capture_evidence(page, evidence_path)
                     raise
@@ -109,9 +122,11 @@ def _verify_sample_page(evidence_path: Path, case_id: str = "LOGIN-001") -> None
             browser.close()
 
 
-def run_sample_test(case_id: str) -> TestResult:
+def run_sample_test(case_id: str, *, site: str = "root") -> TestResult:
     """Execute a registered sample check in a fresh browser context."""
     definition = next((case for case in TEST_CASES if case.case_id == case_id), None)
+    if site not in SITE_PATHS or (site != 'root' and case_id not in REUSABLE_CHECKS):
+        return TestResult(case_id, TestStatus.BLOCKED, 0.0, 'No controlled fixture executor binding is registered.')
     if case_id not in SMOKE_CHECKS or definition is None:
         return TestResult(case_id, TestStatus.BLOCKED, 0.0, "No sample executor is registered.")
     if definition.changes_data:
@@ -123,13 +138,18 @@ def run_sample_test(case_id: str) -> TestResult:
     evidence_path = evidence_directory / f"{uuid4().hex}.png"
 
     try:
-        if case_id == "LOGIN-001":
+        if site != 'root':
+            _verify_sample_page(evidence_path, case_id=case_id, site=site)
+        elif case_id == "LOGIN-001":
             _verify_sample_page(evidence_path)
         else:
             _verify_sample_page(evidence_path, case_id=case_id)
     except AssertionError:
         status = TestStatus.FAILED
         message = "The sample page or selected check did not meet expectations."
+    except ElementBindingError as error:
+        status = TestStatus.BLOCKED if error.result.status in (MatchStatus.MISSING, MatchStatus.AMBIGUOUS) else TestStatus.ERROR
+        message = f'Element binding {error.result.status.value}: {error.result.logical_name}.'
     except (Error, RuntimeError):
         status = TestStatus.ERROR
         message = "Browser execution or sample page loading failed."

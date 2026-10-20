@@ -1,7 +1,7 @@
 # Sprint 3 — UI Test Catalog and Element Matching
 
 Start date: October 21, 2026 (Europe/Istanbul)
-Status: In progress — phases 3.1 and 3.2 completed locally.
+Status: In progress — phases 3.1 through 3.3 completed locally.
 Tracking issue: [#4](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/4).
 Milestone: [Sprint 3 — UI Test Catalog and Element Matching](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/4).
 
@@ -16,7 +16,7 @@ cosmetic variants or unimplemented definitions.
 
 - [x] 3.1: Define validated element mapping and matching result contracts.
 - [x] 3.2: Implement role/label/alternative-name matching with controlled missing and ambiguous outcomes.
-- [ ] 3.3: Bind reusable executors to discovered pages and contrasting fixture variants.
+- [x] 3.3: Bind reusable executors to discovered pages and contrasting fixture variants.
 - [ ] 3.4: Expand login, form, search, navigation, and negative UI coverage toward 40 runnable scenarios.
 - [ ] 3.5: Add isolated test data preparation/cleanup and data-change policy enforcement.
 - [ ] 3.6: Verify independent/repeated execution, remote CI, artifacts, and acceptance.
@@ -64,6 +64,22 @@ Visibility does not imply enabled/actionable state. No click or fill occurs here
 All 256 unit tests and 18 real Chromium checks pass locally. CI runs the matching
 script and retains its report under `artifacts/matching/`. Runtime execution and
 fixture bindings belong to phase 3.3; the smoke catalog remains ten scenarios.
+
+## Phase 3.3 Deliverables
+
+Existing LOGIN-001 and SEARCH-001 definitions now have reusable fixture adapters
+for English/Turkish labels and explicit test-ID project overrides. Each isolated
+variant run validates its destination, collects structural evidence, checks the
+non-executing plan prerequisites, and dispatches only the registered controlled
+executor. Six runs pass across three fixtures with fresh browser processes and
+screenshots; this does not increase the ten-case catalog count. Root smoke
+behavior is preserved. Missing/ambiguous bindings produce blocked outcomes,
+while browser matching errors remain execution errors. Four new unit cases cover
+dispatch rejection and classification; all 260 unit tests pass locally.
+
+The mapped fixture changes input labels while retaining recognizable submit
+semantics for discovery. Universal custom action-name discovery is not claimed.
+AI, arbitrary customer URLs, and automatic plan execution remain disabled.
 
 ## Acceptance Criteria
 

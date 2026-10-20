@@ -113,7 +113,8 @@ def _read_result(path: Path, expected_case_id: str = "LOGIN-001") -> TestResult:
 
 
 def run_isolated_sample_test(
-    case_id: str, timeout_seconds: float = 30, *, should_cancel: Callable[[], bool] | None = None
+    case_id: str, timeout_seconds: float = 30, *, should_cancel: Callable[[], bool] | None = None,
+    site: str = 'root'
 ) -> TestResult:
     """Return a result, terminating the child tree if its deadline expires."""
     if (
@@ -135,8 +136,14 @@ def run_isolated_sample_test(
         options = {"start_new_session": True} if os.name != "nt" else {
             "creationflags": subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.CREATE_NO_WINDOW
         }
+        from adaptive_qa.ui_bindings import SITE_PATHS
+        if site not in SITE_PATHS:
+            raise ValueError('Unknown controlled fixture site.')
+        command = [sys.executable, "-m", "adaptive_qa.browser_process", "--child-result", str(output), "--case", case_id]
+        if site != 'root':
+            command += ['--site', site]
         process = subprocess.Popen(
-            [sys.executable, "-m", "adaptive_qa.browser_process", "--child-result", str(output), "--case", case_id],
+            command,
             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, **options,
         )
         try:
@@ -189,8 +196,9 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Internal local browser child process.")
     parser.add_argument("--child-result", type=Path, required=True)
     parser.add_argument("--case", choices=sorted(SMOKE_CHECKS), default="LOGIN-001")
+    parser.add_argument('--site', choices=('root', 'english', 'turkish', 'mapped'), default='root')
     args = parser.parse_args()
-    result = run_sample_test(args.case)
+    result = run_sample_test(args.case, site=args.site) if args.site != 'root' else run_sample_test(args.case)
     args.child_result.write_text(json.dumps(asdict(result)), encoding="utf-8")
 
 

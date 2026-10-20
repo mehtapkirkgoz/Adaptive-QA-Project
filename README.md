@@ -50,7 +50,7 @@ Keep port 8000 available and run these scripts sequentially. They manage local s
 
 Current local results:
 
-- **256 unit tests passed locally:** platform rules and adapters, not website scenarios.
+- **260 unit tests passed locally:** platform rules and adapters, not website scenarios.
 - **3 real OS lifecycle checks passed on Windows:** deadline, active cancellation, and crash lock release.
 - **9 real Chromium security checks passed:** forbidden canaries received no connections.
 - **10 queued smoke scenarios passed:** matching JSON results and PNG screenshots.
@@ -194,7 +194,8 @@ was closed by the repository owner.
 [Sprint 3](docs/SPRINT_3.md) and [issue #4](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/4)
 track deterministic role/label/alternative-name matching, project mappings,
 reusable executors, independent test data, and expansion toward 40 meaningful
-runnable UI scenarios. Phase 3.1 adds validated immutable locator, project mapping,
-and match result contracts, covered by 13 new unit tests. Browser matching and
-extra runnable coverage remain pending. The existing hourly follow-up is active
-for this sprint.
+runnable UI scenarios. Validated mappings and deterministic browser matching are
+implemented. Existing login/search checks pass across three controlled fixture
+variants in isolated processes, including explicit project overrides. The catalog
+still has ten scenarios; variants do not inflate its count. The hourly follow-up
+is active for this sprint.
