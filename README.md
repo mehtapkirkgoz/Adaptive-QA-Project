@@ -2,7 +2,7 @@
 
 An AI-assisted QA platform under development for website discovery and applicable UI, API, and database tests.
 
-**Status:** Sprint 1 completed on October 20, 2026. The local prototype runs 10 smoke scenarios through a persistent queue with cancellation, deadlines, destination controls, JSON results, and screenshots. Website discovery, AI, API/SQL execution, and the dashboard are not implemented yet.
+**Status:** Sprint 2 in progress. Sprint 1 completed on October 20, 2026. The local prototype runs 10 smoke scenarios through a persistent queue with cancellation, deadlines, destination controls, JSON results, and screenshots. Offline page feature detection is under development. Live discovery/crawling, AI, API/SQL execution, and the dashboard are not implemented yet.
 
 ## Project Plans
 
@@ -12,7 +12,7 @@ Sprints follow goals and acceptance criteria without a fixed two-week commitment
 |---|---|---|
 | 0 | Architecture, models, configuration, GitHub workflow | Completed |
 | 1 | First controlled end-to-end execution | Completed |
-| 2 | Website discovery | Planned |
+| 2 | Website discovery | In progress |
 | 3 | UI catalog and element matching | Planned |
 | 4 | API tests | Planned |
 | 5 | Database validation | Planned |
@@ -50,7 +50,7 @@ Keep port 8000 available and run these scripts sequentially. They manage local s
 
 Current local results:
 
-- **175 unit tests passed:** platform rules and adapters, not 175 website scenarios.
+- **189 unit tests passed locally:** platform rules and adapters, not 175 website scenarios.
 - **3 real OS lifecycle checks passed on Windows:** deadline, active cancellation, and crash lock release.
 - **9 real Chromium security checks passed:** forbidden canaries received no connections.
 - **10 queued smoke scenarios passed:** matching JSON results and PNG screenshots.
@@ -156,4 +156,16 @@ each OS, nine browser security checks, and ten queued smoke cases.
 All three downloaded artifact digests were verified; ten JSON records matched
 the smoke summary and their ten linked PNGs. A sample screenshot was visually inspected.
 
-Sprint 2 has not started. Production deployment and arbitrary-site execution remain outside this completed prototype.
+Sprint 2 started on October 20, 2026; its current changes require remote verification. Production deployment and arbitrary-site execution remain outside this completed prototype.
+
+## Sprint 2 Discovery Foundation
+
+[Progress](docs/SPRINT_2.md) and [tracking issue #3](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/3).
+Immutable snapshots describe fields, forms, and links without capturing input values.
+Initial rules detect login/search using visible controls and English/Turkish action names.
+Findings include present/absent/unknown states, reasons, and page-scoped evidence.
+A link or partial form is a hint, not proof. Missing evidence on an incomplete page
+stays unknown. Even a complete page cannot establish site-wide absence.
+
+This first checkpoint is offline only. Guarded browser collection, bounded crawling,
+additional features, aggregation, and test-plan selection are still pending.

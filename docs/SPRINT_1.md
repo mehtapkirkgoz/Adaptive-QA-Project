@@ -64,7 +64,7 @@ numeric-IP pinning, connected peer validation, ambiguous URLs, and resolver dead
 - [x] Verify real process-tree termination and OS locks on Linux and Windows.
 - [x] Review issue #2 acceptance criteria and document prototype boundaries.
 - [x] Complete README and sprint acceptance records.
-- [ ] Close the remote milestone after issue #2 is completed.
+- [x] Repository owner closed the remote milestone after issue #2 was completed.
 
 ## Boundaries
 

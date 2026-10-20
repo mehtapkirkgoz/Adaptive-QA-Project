@@ -71,6 +71,6 @@ GitHub metadata. The 10 result JSON records matched the smoke summary, and all
 - [x] Check all result JSON and linked PNGs; visually inspect a sample screenshot.
 - [x] Record accepted prototype scope and verified evidence in issue #2.
 - [x] Update README/Sprint 1 completion status and close issue #2 as completed.
-- [ ] Close milestone #2 in GitHub after issue closure.
+- [x] Repository owner closed milestone #2 after issue closure.
 
-Issue #2 was closed as completed. Milestone closure remains pending: the connected tool does not support closing milestones and the available browser is not signed in.
+Issue #2 was closed as completed. The repository owner subsequently closed milestone #2 and confirmed the tracking display was corrected.
