@@ -255,3 +255,16 @@ abrupt owner termination releases the lock, and recovery persists an error.
 Recovery repairs queue state only; it does not prove orphan browser termination.
 The local CLI now supports one executor per database. Automated/multi-worker
 recovery, orphan cleanup, and Linux-specific verification remain pending.
+
+## Phase 1.6 — Initial Smoke Catalog Expansion (October 20, 2026)
+
+- Extract explicit assertions into a shared sample check registry.
+- Preserve LOGIN-001 and add SEARCH-001/SEARCH-002 definitions and executors.
+- Select a direct check with local_browser --case and isolate each browser context.
+- Verify catalog identifiers match registered executors without duplicates.
+
+Verification: 150 unit tests pass. All three scenarios pass in real Chromium
+with screenshots. The managed queued LOGIN-001 run also passes after refactoring.
+The new search checks are not yet dispatched through the persistent worker or
+isolated child. That integration and seven additional scenarios remain pending.
+Phase 1.6 is in progress. Phase 1.5 still requires its remaining platform/CI checks.

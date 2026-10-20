@@ -179,6 +179,9 @@ class BrowserLifecycleTests(unittest.TestCase):
         expect_patch = patch("adaptive_qa.local_browser.expect")
         expect_patch.start()
         self.addCleanup(expect_patch.stop)
+        smoke_expect_patch = patch("adaptive_qa.smoke_checks.expect")
+        smoke_expect_patch.start()
+        self.addCleanup(smoke_expect_patch.stop)
 
         self.browser = (
             self.playwright_mock.return_value.__enter__.return_value

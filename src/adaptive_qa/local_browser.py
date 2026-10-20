@@ -1,5 +1,6 @@
 """Browser verification for the controlled local sample application."""
 
+import argparse
 from time import perf_counter
 
 from playwright.sync_api import Error, Page, Route, expect, sync_playwright
@@ -8,6 +9,7 @@ from adaptive_qa.config import ProjectConfig
 from adaptive_qa.models import TestResult, TestStatus
 from adaptive_qa.targets import validate_local_sample_target
 from adaptive_qa.storage import save_result
+from adaptive_qa.smoke_checks import SMOKE_CHECKS
 from pathlib import Path
 from uuid import uuid4
 
@@ -29,7 +31,7 @@ def _capture_evidence(page: Page, evidence_path: Path) -> None:
             pass
 
 
-def _verify_sample_page(evidence_path: Path) -> None:
+def _verify_sample_page(evidence_path: Path, case_id: str = "LOGIN-001") -> None:
     project = ProjectConfig(
         project_id="local-demo",
         name="Local Sample Application",
@@ -86,29 +88,7 @@ def _verify_sample_page(evidence_path: Path) -> None:
                         )
                     ).to_be_visible()
 
-                    login_form = page.locator("#login-form")
-
-                    username_field = login_form.get_by_label(
-                        "Username",
-                        exact=True,
-                    )
-                    password_field = login_form.get_by_label(
-                        "Password",
-                        exact=True,
-                    )
-                    submit_button = login_form.get_by_role(
-                        "button",
-                        name="Sign in",
-                        exact=True,
-                    )
-
-                    expect(username_field).to_be_visible()
-                    expect(password_field).to_be_visible()
-                    expect(password_field).to_have_attribute(
-                        "type",
-                        "password",
-                    )
-                    expect(submit_button).to_be_visible()
+                    SMOKE_CHECKS[case_id](page)
                 except (AssertionError, Error, RuntimeError):
                     _capture_evidence(page, evidence_path)
                     raise
@@ -121,8 +101,10 @@ def _verify_sample_page(evidence_path: Path) -> None:
             browser.close()
 
 
-def run_login_form_test() -> TestResult:
-    """Execute the local login form test and return a structured result."""
+def run_sample_test(case_id: str) -> TestResult:
+    """Execute a registered sample check in a fresh browser context."""
+    if case_id not in SMOKE_CHECKS:
+        return TestResult(case_id, TestStatus.BLOCKED, 0.0, "No sample executor is registered.")
     started_at = perf_counter()
 
     evidence_directory = Path("artifacts/screenshots")
@@ -130,19 +112,22 @@ def run_login_form_test() -> TestResult:
     evidence_path = evidence_directory / f"{uuid4().hex}.png"
 
     try:
-        _verify_sample_page(evidence_path)
+        if case_id == "LOGIN-001":
+            _verify_sample_page(evidence_path)
+        else:
+            _verify_sample_page(evidence_path, case_id=case_id)
     except AssertionError:
         status = TestStatus.FAILED
-        message = "The sample page or login form did not meet expectations."
+        message = "The sample page or selected check did not meet expectations."
     except (Error, RuntimeError):
         status = TestStatus.ERROR
         message = "Browser execution or sample page loading failed."
     else:
         status = TestStatus.PASSED
-        message = "The sample page and login form checks passed."
+        message = "The sample page and selected check passed."
 
     return TestResult(
-        case_id="LOGIN-001",
+        case_id=case_id,
         status=status,
         duration_seconds=perf_counter() - started_at,
         message=message,
@@ -150,8 +135,16 @@ def run_login_form_test() -> TestResult:
     )
 
 
+def run_login_form_test() -> TestResult:
+    """Compatibility entry point for the existing login worker."""
+    return run_sample_test("LOGIN-001")
+
+
 if __name__ == "__main__":
-    result = run_login_form_test()
+    parser = argparse.ArgumentParser(description="Run a controlled sample smoke check.")
+    parser.add_argument("--case", choices=sorted(SMOKE_CHECKS), default="LOGIN-001")
+    args = parser.parse_args()
+    result = run_sample_test(args.case)
     print(result)
 
     result_path = save_result(result)

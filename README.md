@@ -80,7 +80,7 @@ Implemented models include:
 - An immutable execution result model with status, duration, and message validation.
 - A reusable login form test definition.
 
-One hundred and forty-seven unit tests cover models, configuration, secrets, destination
+One hundred and fifty unit tests cover models, configuration, secrets, destination
 policies, result classification, and persistence. These are platform unit tests,
 not 78 website test scenarios.
 
@@ -90,7 +90,7 @@ Run the tests locally:
 python -m unittest discover -s tests -v
 ```
 
-Local verification: **147 tests passed**. The local browser scenario was also
+Local verification: **150 tests passed**. The local browser scenario was also
 executed successfully, and its saved JSON references an existing PNG screenshot.
 
 GitHub Actions: Sprint 0 verification passed with 38 tests.
@@ -373,3 +373,29 @@ recorded before interruption, the recovery result uses 0 seconds as unknown.
 The OS lock release after abrupt process exit was verified on Windows. POSIX
 locking and process cleanup still require Linux verification. Automatic recovery,
 production multi-worker coordination, and orphan cleanup remain future work.
+
+## Sample Smoke Catalog — Initial Expansion
+
+Three explicit sample scenarios are now available:
+
+| Case | Behavior |
+|---|---|
+| LOGIN-001 | Login fields and submit button are visible; password input is masked |
+| SEARCH-001 | Search field is visible and its submit button is enabled |
+| SEARCH-002 | Submitting a query displays the expected no-results message |
+
+With the sample server running, select a direct browser check:
+
+```powershell
+python -m adaptive_qa.local_browser --case SEARCH-002
+```
+
+Each check opens a fresh browser context, produces a structured result, saves
+JSON through this command, and attempts screenshot capture. Shared page title
+and heading assertions remain preconditions. These are controlled sample checks,
+not universal executors for arbitrary sites or automatic interpretation of text steps.
+
+The persistent worker and isolated child still dispatch LOGIN-001 only; wiring
+additional identifiers into that path is the next step. Direct local_browser
+execution uses operation timeouts, not the supervisor's total process deadline.
+The 10-scenario Sprint 1 target is not complete.
