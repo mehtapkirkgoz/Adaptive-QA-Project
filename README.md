@@ -41,6 +41,7 @@ Subsequent commands assume an active environment. See [setup](docs/SETUP.md). SQ
 
 ```powershell
 python -m unittest discover -s tests -v
+python scripts/check_process_lifecycle.py
 python scripts/check_network_security.py
 python scripts/check_local_browser.py
 ```
@@ -49,7 +50,8 @@ Keep port 8000 available and run these scripts sequentially. They manage local s
 
 Current local results:
 
-- **172 unit tests passed:** platform rules and adapters, not 172 website scenarios.
+- **175 unit tests passed:** platform rules and adapters, not 175 website scenarios.
+- **3 real OS lifecycle checks passed on Windows:** deadline, active cancellation, and crash lock release.
 - **9 real Chromium security checks passed:** forbidden canaries received no connections.
 - **10 queued smoke scenarios passed:** matching JSON results and PNG screenshots.
 - Dependency compatibility and compilation checks passed.
@@ -134,3 +136,14 @@ Generated files are ignored by Git:
 Missing images are not linked; screenshot errors do not replace test outcomes. Persistence failures are never reported as saved. Recovery updates queue records without rewriting historical JSON snapshots; zero duration indicates unknown timing if no duration was recorded.
 
 Secrets are environment references with masked standard output. Never log direct values or send them to AI providers. Production secret storage, evidence access control, and retention remain planned.
+
+## Platform Acceptance
+
+CI now runs real process lifecycle checks on Ubuntu 24.04 and Windows 2025.
+Reports are uploaded as process-lifecycle-ubuntu-24.04 and process-lifecycle-windows-2025.
+Linux termination also discovers detached descendants through /proc and checks
+process start identities before signaling them. The Linux path has offline unit
+coverage; its real execution remains pending until the next CI run.
+
+See the [Sprint 1 acceptance review](docs/SPRINT_1_ACCEPTANCE.md) for the evidence
+map and exact closure checklist. Sprint 1 remains open until remote verification.

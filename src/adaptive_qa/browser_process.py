@@ -18,6 +18,69 @@ from adaptive_qa.smoke_checks import SMOKE_CHECKS
 from adaptive_qa.models import TestResult, TestStatus
 
 
+def _linux_identity(pid: int) -> str | None:
+    try:
+        return Path(f"/proc/{pid}/stat").read_text().rpartition(")")[2].split()[19]
+    except (OSError, IndexError):
+        return None
+
+
+def _linux_descendants(parent: int) -> dict[int, str]:
+    children: dict[int, list[tuple[int, str]]] = {}
+    for entry in Path("/proc").iterdir():
+        if not entry.name.isdigit():
+            continue
+        try:
+            fields = (entry / "stat").read_text().rpartition(")")[2].split()
+            children.setdefault(int(fields[1]), []).append((int(entry.name), fields[19]))
+        except (OSError, ValueError, IndexError):
+            continue
+    found = {}
+    pending = [parent]
+    while pending:
+        for pid, identity in children.get(pending.pop(), []):
+            if pid not in found:
+                found[pid] = identity
+                pending.append(pid)
+    return found
+
+
+def _signal_linux_process(pid: int, identity: str, signal_number: int) -> None:
+    # Check the start time so a reused PID is not treated as the old descendant.
+    if _linux_identity(pid) == identity:
+        try:
+            os.kill(pid, signal_number)
+        except ProcessLookupError:
+            pass
+
+
+def _terminate_linux_tree(parent: int) -> None:
+    known: dict[int, str] = {}
+    try:
+        try:
+            os.killpg(parent, signal.SIGSTOP)
+        except ProcessLookupError:
+            pass
+        # Chromium may create a separate session. A group kill alone misses it.
+        for _ in range(5):
+            current = _linux_descendants(parent)
+            added = set(current) - set(known)
+            known.update(current)
+            for pid, identity in current.items():
+                _signal_linux_process(pid, identity, signal.SIGSTOP)
+            if not added:
+                break
+        else:
+            raise RuntimeError("The browser descendant tree did not stabilize.")
+    finally:
+        for pid, identity in reversed(list(known.items())):
+            _signal_linux_process(pid, identity, signal.SIGKILL)
+        try:
+            os.killpg(parent, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+
+
 def _terminate_process_tree(process: subprocess.Popen) -> None:
     """Stop the child and its browser descendants after a timeout."""
     if os.name == "nt":
@@ -29,6 +92,8 @@ def _terminate_process_tree(process: subprocess.Popen) -> None:
         )
         if stopped.returncode != 0 and process.poll() is None:
             raise RuntimeError("Browser process tree termination failed.")
+    elif sys.platform.startswith("linux"):
+        _terminate_linux_tree(process.pid)
     else:
         try:
             os.killpg(process.pid, signal.SIGKILL)

@@ -40,7 +40,7 @@ It does not test real authentication. Each case uses explicit Python assertions.
 
 ## Verification — October 20, 2026
 
-- 172 unit tests pass.
+- 175 unit tests pass.
 - 9 real Chromium egress checks pass using local canaries.
 - All 10 queued smoke scenarios pass through the isolated worker/proxy path.
 - The managed runner verifies JSON/queue consistency and valid PNG evidence.
@@ -79,3 +79,15 @@ Sprint 1 progressed through browser execution, evidence, persistent queueing,
 active cancellation/recovery, and catalog expansion. This checkpoint combines
 the seven remaining scenarios and destination/redirect hardening into one commit
 as requested. Earlier checkpoint details remain available in Git history.
+
+## Phase 1.7 — Platform Acceptance Preparation
+
+- Add three repeatable real-process lifecycle checks without requiring Chromium.
+- Add Linux detached-descendant cleanup with process-start identity checks.
+- Configure Linux and Windows lifecycle CI jobs and separate report artifacts.
+- Verify 175 unit tests and all three process checks on Windows locally.
+- Read issue #2 and map acceptance requirements in [the acceptance review](SPRINT_1_ACCEPTANCE.md).
+
+The last reviewed remote CI run passed but predates the current checkpoint.
+The current Linux/Windows matrix and expanded browser checks require a push.
+No completion checkbox or remote issue/milestone was closed.
