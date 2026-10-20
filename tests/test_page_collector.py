@@ -31,6 +31,15 @@ class PageCollectorTests(unittest.TestCase):
         with self.assertRaises(Error):
             collect_page_snapshot(page)
 
+    def test_commerce_actions_are_converted_to_immutable_tuple(self):
+        page = Mock()
+        page.evaluate.return_value = {'url': 'https://example.com/', 'forms': [], 'links': [],
+            'collection_complete': True, 'commerce': [
+                {'kind': 'product', 'name': 'Demo', 'has_price': True,
+                 'has_currency': True, 'actions': ['Add to cart']}]}
+        result = collect_page_snapshot(page)
+        self.assertEqual(result.commerce[0].actions, ('Add to cart',))
+
     def test_invalid_page_url_is_rejected(self):
         page = Mock()
         page.evaluate.return_value = {'url': None, 'forms': [], 'links': [],

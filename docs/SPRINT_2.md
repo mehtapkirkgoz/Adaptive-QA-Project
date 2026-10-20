@@ -1,7 +1,7 @@
 # Sprint 2 — Website Discovery and Feature Detection
 
 Start date: October 20, 2026
-Status: In progress — phases 2.1 through 2.3 completed locally.
+Status: In progress — phases 2.1 through 2.4 completed locally.
 
 Tracking issue: [#3](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/3).
 Milestone: [Sprint 2 — Website Discovery and Feature Detection](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/3).
@@ -16,7 +16,7 @@ budgets, identify features, and generate appropriate test plans with explicit re
 - [x] 2.1: Define snapshots and conservative page-scoped login/search detection.
 - [x] 2.2: Collect snapshots from the guarded browser.
 - [x] 2.3: Discover links within page, depth, request, and time limits.
-- [ ] 2.4: Add registration, product, and cart evidence rules.
+- [x] 2.4: Add registration, product, and cart evidence rules.
 - [ ] 2.5: Aggregate findings and generate applicable test plans.
 - [ ] 2.6: Verify contrasting sample sites, CI, and acceptance criteria.
 
@@ -85,6 +85,27 @@ With the controlled sample server running, inspect discovery output using:
 python -m adaptive_qa.local_discovery
 ```
 
+## Phase 2.4 Deliverables
+
+- Registration requires an identity field, a new-password field, and a recognized
+  registration action in the same visible form. Reset-password actions remain uncertain.
+- Product evidence uses a visible schema.org Product microdata region with a
+  name, price, three-letter currency text, and an English/Turkish add-to-cart action.
+  Properties/actions from separate or nested products cannot be combined.
+- Cart evidence uses a named semantic region with an explicit empty-cart message,
+  or item markers, a quantity control, and a checkout action. Contradictory empty
+  and populated evidence remains unknown.
+- Product, cart, and registration links are hints only. Adding to a cart is not
+  evidence that a cart page has been inspected. All five features retain explicit
+  status, reasons, and page-scoped references.
+- Immutable commerce snapshots store structural flags and action labels, without
+  price amounts, quantity values, or input values. Collection remains read-only.
+
+These are conservative initial rules, not universal storefront support. JSON-LD,
+nested Offer schemas, metadata-only prices, custom carts, and passwordless signup
+require later adapters or additional evidence. No registration, purchase, or cart
+mutation is executed. Site classification and plan selection remain pending.
+
 ## Absence Semantics
 
 Positive evidence can establish present even during incomplete collection. Missing
@@ -94,14 +115,18 @@ Site-level aggregation remains pending; traversal limitations must inform it.
 
 ## Verification
 
-206 unit tests pass locally, including 14 discovery, three collector, and 14 traversal cases. Tests cover matching
+222 unit tests pass locally, including 14 initial discovery, four collector,
+14 traversal, and 15 registration/commerce cases. Tests cover matching
 actions, Turkish normalization, search semantics, hidden controls, mixed forms,
 registration/passwordless ambiguity, weak links, collection completeness, and
 snapshot validation. Compilation and diff checks pass.
 
-No new runtime dependencies. The phase 2.2 [CI run](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/actions/runs/39494076177)
-passed. Phase 2.3 requires remote verification after push. Local browser regression
+No new runtime dependencies. The phase 2.3 [CI run](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/actions/runs/39494579510)
+passed. Phase 2.4 requires remote verification after push. Local browser regression
 checks cover nine egress scenarios and the ten existing queued smoke cases.
+Phase 2.4 also passes the structural collector checks in real Chromium and all
+five bounded discovery scenarios. Commerce checks cover visible/hidden regions,
+separate/nested product ownership, Turkish actions, registration, and empty/populated carts.
 
 ## Remaining Acceptance Criteria
 

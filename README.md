@@ -50,7 +50,7 @@ Keep port 8000 available and run these scripts sequentially. They manage local s
 
 Current local results:
 
-- **206 unit tests passed locally:** platform rules and adapters, not website scenarios.
+- **222 unit tests passed locally:** platform rules and adapters, not website scenarios.
 - **3 real OS lifecycle checks passed on Windows:** deadline, active cancellation, and crash lock release.
 - **9 real Chromium security checks passed:** forbidden canaries received no connections.
 - **10 queued smoke scenarios passed:** matching JSON results and PNG screenshots.
@@ -162,7 +162,8 @@ Sprint 2 started on October 20, 2026; its current changes require remote verific
 
 [Progress](docs/SPRINT_2.md) and [tracking issue #3](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/3).
 Immutable snapshots describe fields, forms, and links without capturing input values.
-Initial rules detect login/search using visible controls and English/Turkish action names.
+Initial rules detect login, search, registration, product, and cart evidence using
+visible controls, semantic regions, and English/Turkish action names.
 Findings include present/absent/unknown states, reasons, and page-scoped evidence.
 A link or partial form is a hint, not proof. Missing evidence on an incomplete page
 stays unknown. Even a complete page cannot establish site-wide absence.
@@ -172,5 +173,6 @@ without reading input values or following links. URL queries and fragments are
 removed. Collection limits and unsupported structures preserve uncertainty.
 Real Chromium checks cover the guarded sample and contrasting offline documents.
 The local crawler applies page, depth, request, and total process deadlines with
-explicit coverage limitations. General customer URLs remain disabled. Additional
-features, aggregation, and test-plan selection remain pending.
+explicit coverage limitations. General customer URLs remain disabled. Commerce
+rules are conservative and do not execute registration or cart mutations.
+Aggregation and test-plan selection remain pending.

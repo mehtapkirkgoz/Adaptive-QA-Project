@@ -57,16 +57,41 @@ class LinkSnapshot:
 
 
 @dataclass(frozen=True)
+class CommerceSnapshot:
+    kind: str
+    name: str = ""
+    has_price: bool = False
+    has_currency: bool = False
+    has_items: bool = False
+    has_quantity: bool = False
+    empty: bool = False
+    actions: tuple[str, ...] = ()
+    visible: bool = True
+
+    def __post_init__(self) -> None:
+        if self.kind not in ("product", "cart"):
+            raise ValueError("kind must be product or cart.")
+        _text_fields(name=self.name)
+        _typed_tuple(self.actions, str, "actions")
+        for value in (self.has_price, self.has_currency, self.has_items,
+                      self.has_quantity, self.empty, self.visible):
+            if not isinstance(value, bool):
+                raise ValueError("Commerce flags must be bool values.")
+
+
+@dataclass(frozen=True)
 class PageSnapshot:
     url: str
     forms: tuple[FormSnapshot, ...] = ()
     links: tuple[LinkSnapshot, ...] = ()
     collection_complete: bool = False
+    commerce: tuple[CommerceSnapshot, ...] = ()
 
     def __post_init__(self) -> None:
         extract_hostname(self.url)
         _typed_tuple(self.forms, FormSnapshot, "forms")
         _typed_tuple(self.links, LinkSnapshot, "links")
+        _typed_tuple(self.commerce, CommerceSnapshot, "commerce")
         if not isinstance(self.collection_complete, bool):
             raise ValueError("collection_complete must be a bool.")
 
@@ -91,14 +116,20 @@ def _normalize(value: str) -> str:
 
 _LOGIN_NAMES = {"login", "log in", "sign in", "giris yap", "oturum ac"}
 _SEARCH_NAMES = {"search", "search products", "ara", "urun ara"}
+_REGISTER_NAMES = {"register", "sign up", "create account", "create an account", "kayit ol", "uye ol"}
+_PRODUCT_NAMES = {"product", "products", "urun", "urunler"}
+_CART_NAMES = {"cart", "shopping cart", "basket", "sepet", "sepetim", "alisveris sepeti"}
+_ADD_NAMES = {"add to cart", "add to basket", "sepete ekle"}
+_CHECKOUT_NAMES = {"checkout", "proceed to checkout", "odemeye gec", "siparisi tamamla"}
 
 
 def detect_page_features(snapshot: PageSnapshot) -> tuple[FeatureFinding, ...]:
-    """Detect visible login/search features; absence applies only to this page."""
+    """Detect supported visible features; absence applies only to this page."""
     if not isinstance(snapshot, PageSnapshot):
         raise ValueError("snapshot must be a PageSnapshot instance.")
     present: dict[str, str] = {}
-    hints: dict[str, list[str]] = {"login": [], "search": []}
+    hints: dict[str, list[str]] = {name: [] for name in
+                                  ("login", "search", "registration", "product", "cart")}
     for index, form in enumerate(snapshot.forms):
         if not form.visible:
             continue
@@ -110,6 +141,15 @@ def detect_page_features(snapshot: PageSnapshot) -> tuple[FeatureFinding, ...]:
             hints["login"].append(reference + ": login action")
         if buttons & _SEARCH_NAMES:
             hints["search"].append(reference + ": search action")
+        if buttons & _REGISTER_NAMES:
+            hints["registration"].append(reference + ": registration action")
+            if types & {"email", "text", "tel"} and any(
+                item.input_type.casefold() == "password"
+                and "new-password" in item.autocomplete.casefold().split() for item in fields
+            ):
+                present.setdefault("registration", reference)
+        if any("new-password" in item.autocomplete.casefold().split() for item in fields):
+            hints["registration"].append(reference + ": new password field")
         if "password" in types:
             hints["login"].append(reference + ": password field")
             current_password = any(
@@ -137,12 +177,32 @@ def detect_page_features(snapshot: PageSnapshot) -> tuple[FeatureFinding, ...]:
             hints["login"].append(f"link[{index}]: login hint")
         if labels & _SEARCH_NAMES:
             hints["search"].append(f"link[{index}]: search hint")
+        for feature, names in (("registration", _REGISTER_NAMES | {"signup", "register"}),
+                               ("product", _PRODUCT_NAMES), ("cart", _CART_NAMES)):
+            if labels & names:
+                hints[feature].append(f"link[{index}]: {feature} hint")
+
+    for index, region in enumerate(snapshot.commerce):
+        if not region.visible:
+            continue
+        reference = f"commerce[{index}]"
+        actions = {_normalize(action) for action in region.actions}
+        hints[region.kind].append(reference + ": structured region")
+        if region.kind == "product":
+            if region.name.strip() and region.has_price and region.has_currency and actions & _ADD_NAMES:
+                present.setdefault("product", reference)
+            if actions & _ADD_NAMES:
+                hints["cart"].append(reference + ": add-to-cart action")
+        elif _normalize(region.name) in _CART_NAMES:
+            if ((region.empty and not region.has_items)
+                    or (not region.empty and region.has_items and region.has_quantity and actions & _CHECKOUT_NAMES)):
+                present.setdefault("cart", reference)
 
     findings = []
-    for feature in ("login", "search"):
+    for feature in hints:
         if feature in present:
             status = FeatureStatus.PRESENT
-            reason = "Visible form fields and action semantics match the feature."
+            reason = "Visible structural evidence and action semantics match the feature."
             evidence = (present[feature],)
         elif hints[feature]:
             status = FeatureStatus.UNKNOWN

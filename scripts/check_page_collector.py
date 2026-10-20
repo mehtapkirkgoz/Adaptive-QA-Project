@@ -47,7 +47,7 @@ def check_guarded_sample(playwright):
                 snapshot = collect_page_snapshot(page)
                 assert snapshot.collection_complete
                 assert all(item.status == FeatureStatus.PRESENT
-                           for item in detect_page_features(snapshot))
+                           for item in detect_page_features(snapshot)[:2])
             finally:
                 browser.close()
     finally:
@@ -101,6 +101,38 @@ def main():
             page.set_content('<div id="host"></div>')
             page.evaluate("document.querySelector('#host').attachShadow({mode:'open'}).innerHTML = '<input>'")
             assert not collect_page_snapshot(page).collection_complete
+            page.set_content('''<form><input type="email"><input type="password" autocomplete="new-password">
+                <button>Create account</button></form>
+                <article itemscope itemtype="https://schema.org/Product">
+                  <h2 itemprop="name">Demo product</h2><span itemprop="price">10.00</span>
+                  <span itemprop="priceCurrency">USD</span><button>Sepete ekle</button>
+                </article><main aria-label="Shopping cart"><p role="status">Your cart is empty</p></main>''')
+            result = {item.feature: item for item in detect_page_features(collect_page_snapshot(page))}
+            assert all(result[name].status == FeatureStatus.PRESENT
+                       for name in ('registration', 'product', 'cart'))
+            page.set_content('''<main aria-label="Sepetim"><div itemprop="itemListElement">Demo item</div>
+                <input type="number" aria-label="Quantity" value="2"><button>Ödemeye geç</button></main>''')
+            result = {item.feature: item for item in detect_page_features(collect_page_snapshot(page))}
+            assert result['cart'].status == FeatureStatus.PRESENT
+            page.set_content('''<article itemscope itemtype="https://schema.org/Product">
+                <h2 itemprop="name">Demo</h2><span itemprop="price">10</span></article>
+                <article itemscope itemtype="https://schema.org/Product">
+                <span itemprop="priceCurrency">USD</span><button>Add to cart</button></article>''')
+            result = {item.feature: item for item in detect_page_features(collect_page_snapshot(page))}
+            assert result['product'].status == FeatureStatus.UNKNOWN
+            page.set_content('''<article itemscope itemtype="https://schema.org/Product">
+                <h2 itemprop="name">Demo</h2><span itemprop="price">10</span>
+                <span itemprop="priceCurrency">USD</span>
+                <article itemscope itemtype="https://schema.org/Product">
+                <button>Add to cart</button></article></article>''')
+            result = {item.feature: item for item in detect_page_features(collect_page_snapshot(page))}
+            assert result['product'].status == FeatureStatus.UNKNOWN
+            page.set_content('''<main aria-label="Cart" hidden><p>Your cart is empty</p></main>
+                <article itemscope itemtype="https://schema.org/Product" hidden>
+                <h2 itemprop="name">Demo</h2><span itemprop="price">10</span>
+                <span itemprop="priceCurrency">USD</span><button>Add to cart</button></article>''')
+            snapshot = collect_page_snapshot(page)
+            assert snapshot.commerce == ()
             print('Page collector browser checks passed.')
         finally:
             browser.close()
