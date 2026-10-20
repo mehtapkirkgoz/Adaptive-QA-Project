@@ -1,9 +1,9 @@
 # Sprint 3 — UI Test Catalog and Element Matching
 
 Start date: October 21, 2026 (Europe/Istanbul)
-Status: In progress — planning and tracking initialized.
+Status: In progress — phase 3.1 completed locally.
 Tracking issue: [#4](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/4).
-Milestone: Pending creation and association by the repository owner.
+Milestone: [Sprint 3 — UI Test Catalog and Element Matching](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/4).
 
 ## Goal
 
@@ -14,7 +14,7 @@ cosmetic variants or unimplemented definitions.
 
 ## Phases
 
-- [ ] 3.1: Define validated element mapping and matching result contracts.
+- [x] 3.1: Define validated element mapping and matching result contracts.
 - [ ] 3.2: Implement role/label/alternative-name matching with controlled missing and ambiguous outcomes.
 - [ ] 3.3: Bind reusable executors to discovered pages and contrasting fixture variants.
 - [ ] 3.4: Expand login, form, search, navigation, and negative UI coverage toward 40 runnable scenarios.
@@ -32,6 +32,23 @@ The first implementation remains deterministic; AI support belongs to Sprint 6.
 Every executor must retain destination authorization and operation/total deadlines.
 Selected plans remain non-executing until a compatible executor and runtime checks
 are applied. Multi-page workflows require explicit bindings.
+
+## Phase 3.1 Deliverables
+
+- Immutable locator specs for accessible role/name, label, and test ID.
+- Logical control names, up to 20 alternative locators, and optional form/region
+  scoping through an explicit test ID. Raw CSS/XPath is not part of the contract.
+- Project-specific overrides replace defaults for the same logical control;
+  they do not silently merge with fallback alternatives. Project identity is checked.
+- Match results distinguish matched, missing, ambiguous, and error, with explicit
+  reasons and rule indexes. Counts and indexes must agree with the result status.
+- Bounds, typed tuples/enums, duplicate alternatives, duplicate logical names,
+  invalid roles, and malformed text are rejected before browser use.
+
+All 256 unit tests pass locally, including 13 new contract cases. Compilation
+and diff checks pass. Remote verification is pending after push. These models do
+not locate elements or execute actions yet; browser matching belongs to phase 3.2.
+The runnable smoke catalog remains at ten cases.
 
 ## Acceptance Criteria
 
@@ -54,5 +71,5 @@ Sprint 4, deployment, and customer-site execution are outside its scope.
 
 Sprint 2 was accepted with 243 unit tests, four contrasting discovery sites, and
 verified CI/artifacts. The repository owner confirmed milestone #3 is closed.
-The runnable smoke catalog still contains ten cases; no Sprint 3 implementation
-or extra executable coverage is claimed at kickoff.
+The runnable smoke catalog still contains ten cases. Phase 3.1 adds configuration
+and result contracts, without claiming extra executable scenario coverage.
