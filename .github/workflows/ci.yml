@@ -78,6 +78,8 @@ jobs:
         run: python scripts/check_page_collector.py
       - name: Verify bounded local discovery
         run: python scripts/check_local_discovery.py
+      - name: Verify contrasting discovery fixtures and test plans
+        run: python scripts/check_discovery_acceptance.py
       - name: Run controlled local browser check
         run: python scripts/check_local_browser.py
       - name: Upload browser results and screenshots

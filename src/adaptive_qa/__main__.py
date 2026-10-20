@@ -10,7 +10,8 @@ def main() -> None:
     )
     args = parser.parse_args()
     if args.status:
-        print("Sprint 1: 10 local smoke scenarios available; general website execution is not enabled.")
+        print("Local prototype: 10 smoke scenarios, bounded discovery, and scoped test planning available; "
+              "general website execution is not enabled.")
     else:
         parser.print_help()
 

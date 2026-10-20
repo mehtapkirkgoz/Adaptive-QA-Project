@@ -130,6 +130,20 @@ The multi-page integration fixture selects eight login/search definitions agains
 their discovered pages and blocks two navigation cases. This does not make the
 existing root-only sample executor compatible with those discovered routes.
 
+## Phase 2.6 Acceptance Fixtures
+
+Four controlled sites under `samples/discovery/` cover information-only pages,
+account/search forms, a four-page store, and ambiguous structural evidence.
+The fixture guide documents the expected five-feature matrix. Real isolated
+Chromium discovery verifies each feature state and selected/skipped/blocked
+decision, target page, evidence reference, request budget, and GET/HEAD-only
+origin traffic. The acceptance-only case definitions inspect prerequisites;
+they do not expand the runnable smoke catalog or execute commerce actions.
+
+Local acceptance and all 243 unit tests pass. Remote evidence review is pending;
+the sprint remains open until the implementation CI run and artifacts are checked.
+See [acceptance review](SPRINT_2_ACCEPTANCE.md).
+
 ## Absence Semantics
 
 Positive evidence can establish present even during incomplete collection. Missing
@@ -154,8 +168,8 @@ separate/nested product ownership, Turkish actions, registration, and empty/popu
 
 ## Remaining Acceptance Criteria
 
-- [ ] Different controlled sites produce appropriate feature sets and plans.
+- [x] Different controlled sites produce appropriate feature sets and plans (local Chromium checks).
 - [x] Absent and uncertain features remain distinguishable after aggregation (local tests).
 - [x] Skipped/blocked cases include explicit reasons (local tests).
-- [ ] Discovery respects destination policies and configured budgets.
+- [x] Discovery respects destination policies and configured budgets (local checks).
 - [ ] Remote checks pass and reports are reviewed before closing the sprint.
