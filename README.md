@@ -80,7 +80,7 @@ Implemented models include:
 - An immutable execution result model with status, duration, and message validation.
 - A reusable login form test definition.
 
-Seventy-eight unit tests cover models, configuration, secrets, destination
+Eighty-two unit tests cover models, configuration, secrets, destination
 policies, result classification, and persistence. These are platform unit tests,
 not 78 website test scenarios.
 
@@ -90,7 +90,7 @@ Run the tests locally:
 python -m unittest discover -s tests -v
 ```
 
-Local verification: **78 tests passed**. The local browser scenario was also
+Local verification: **82 tests passed**. The local browser scenario was also
 executed successfully, and its saved JSON references an existing PNG screenshot.
 
 GitHub Actions: Sprint 0 verification passed with 38 tests.
@@ -139,5 +139,8 @@ references screenshots that exist at result creation time. Paths are relative
 to the repository root for this local workflow. Older records without this
 optional field remain unchanged. Generated evidence is ignored by Git.
 
-Only successful-check screenshots are currently captured. Failure screenshots,
-evidence retention, and report access controls remain pending.
+Screenshots are captured after successful checks and, when the page is available,
+after assertion or execution failures. Screenshot errors do not replace the test
+outcome. Only complete PNG files are published; missing evidence is not linked.
+Failures before page creation cannot produce a screenshot. Evidence retention
+and report access controls remain pending.

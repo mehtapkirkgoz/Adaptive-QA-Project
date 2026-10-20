@@ -5,7 +5,7 @@ from unittest.mock import Mock, patch
 
 from playwright.sync_api import Error
 
-from adaptive_qa.local_browser import run_login_form_test
+from adaptive_qa.local_browser import _capture_evidence, _verify_sample_page, run_login_form_test
 from adaptive_qa.models import TestStatus
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -104,6 +104,67 @@ class LoginFormResultTests(unittest.TestCase):
         )
         directory_patch.start()
         self.addCleanup(directory_patch.stop)
+
+
+class EvidenceCaptureTests(unittest.TestCase):
+    def test_screenshot_error_does_not_escape(self) -> None:
+        page = Mock()
+        page.screenshot.side_effect = Error("Screenshot unavailable")
+        with TemporaryDirectory() as temporary:
+            path = Path(temporary) / "evidence.png"
+            _capture_evidence(page, path)
+            self.assertFalse(path.exists())
+
+    def test_write_error_removes_partial_evidence(self) -> None:
+        page = Mock()
+        page.screenshot.return_value = b"image"
+        path = Mock(spec=Path)
+        temporary_path = path.with_suffix.return_value
+        temporary_path.write_bytes.side_effect = OSError("Disk unavailable")
+        _capture_evidence(page, path)
+        temporary_path.unlink.assert_called_once_with(missing_ok=True)
+        temporary_path.replace.assert_not_called()
+
+    @patch("adaptive_qa.local_browser.sync_playwright")
+    @patch("adaptive_qa.local_browser.expect")
+    def test_assertion_failure_keeps_original_error_and_captures_evidence(
+        self, expect_mock: Mock, playwright_mock: Mock
+    ) -> None:
+        browser = playwright_mock.return_value.__enter__.return_value.chromium.launch.return_value
+        context = browser.new_context.return_value
+        page = context.new_page.return_value
+        page.goto.return_value.status = 200
+        original = AssertionError("Original assertion failure")
+        expect_mock.return_value.to_have_title.side_effect = original
+        page.screenshot.return_value = b"image"
+
+        with TemporaryDirectory() as temporary:
+            path = Path(temporary) / "evidence.png"
+            with self.assertRaises(AssertionError) as raised:
+                _verify_sample_page(path)
+            self.assertIs(raised.exception, original)
+            self.assertEqual(path.read_bytes(), b"image")
+        context.close.assert_called_once()
+        browser.close.assert_called_once()
+
+    @patch("adaptive_qa.local_browser.sync_playwright")
+    @patch("adaptive_qa.local_browser.expect")
+    def test_screenshot_failure_does_not_replace_assertion(
+        self, expect_mock: Mock, playwright_mock: Mock
+    ) -> None:
+        browser = playwright_mock.return_value.__enter__.return_value.chromium.launch.return_value
+        page = browser.new_context.return_value.new_page.return_value
+        page.goto.return_value.status = 200
+        original = AssertionError("Original assertion failure")
+        expect_mock.return_value.to_have_title.side_effect = original
+        page.screenshot.side_effect = Error("Screenshot unavailable")
+
+        with TemporaryDirectory() as temporary:
+            path = Path(temporary) / "evidence.png"
+            with self.assertRaises(AssertionError) as raised:
+                _verify_sample_page(path)
+            self.assertIs(raised.exception, original)
+            self.assertFalse(path.exists())
 
 
 if __name__ == "__main__":

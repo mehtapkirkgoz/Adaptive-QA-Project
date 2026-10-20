@@ -2,7 +2,7 @@
 
 from time import perf_counter
 
-from playwright.sync_api import Error, Route, expect, sync_playwright
+from playwright.sync_api import Error, Page, Route, expect, sync_playwright
 
 from adaptive_qa.config import ProjectConfig
 from adaptive_qa.models import TestResult, TestStatus
@@ -10,6 +10,23 @@ from adaptive_qa.targets import validate_local_sample_target
 from adaptive_qa.storage import save_result
 from pathlib import Path
 from uuid import uuid4
+
+
+def _capture_evidence(page: Page, evidence_path: Path) -> None:
+    """Capture optional evidence without changing the test outcome."""
+    temporary_path = evidence_path.with_suffix(".tmp")
+    try:
+        image = page.screenshot(type="png", full_page=True, timeout=5_000)
+        temporary_path.write_bytes(image)
+        temporary_path.replace(evidence_path)
+    except (Error, OSError):
+        pass
+    finally:
+        # Publish only complete files; partial writes remain unlinked.
+        try:
+            temporary_path.unlink(missing_ok=True)
+        except OSError:
+            pass
 
 
 def _verify_sample_page(evidence_path: Path) -> None:
@@ -49,53 +66,54 @@ def _verify_sample_page(evidence_path: Path) -> None:
                 )
 
                 page = context.new_page()
-                response = page.goto(
-                    project.base_url,
-                    wait_until="domcontentloaded",
-                )
-
-                if response is None or response.status != 200:
-                    raise RuntimeError(
-                        "Sample page did not return HTTP 200."
+                try:
+                    response = page.goto(
+                        project.base_url,
+                        wait_until="domcontentloaded",
                     )
 
-                expect(page).to_have_title("Adaptive QA Sample")
-                expect(
-                    page.get_by_role(
-                        "heading",
-                        name="Adaptive QA Sample",
+                    if response is None or response.status != 200:
+                        raise RuntimeError(
+                            "Sample page did not return HTTP 200."
+                        )
+
+                    expect(page).to_have_title("Adaptive QA Sample")
+                    expect(
+                        page.get_by_role(
+                            "heading",
+                            name="Adaptive QA Sample",
+                            exact=True,
+                        )
+                    ).to_be_visible()
+
+                    login_form = page.locator("#login-form")
+
+                    username_field = login_form.get_by_label(
+                        "Username",
                         exact=True,
                     )
-                ).to_be_visible()
+                    password_field = login_form.get_by_label(
+                        "Password",
+                        exact=True,
+                    )
+                    submit_button = login_form.get_by_role(
+                        "button",
+                        name="Sign in",
+                        exact=True,
+                    )
 
-                login_form = page.locator("#login-form")
-
-                username_field = login_form.get_by_label(
-                    "Username",
-                    exact=True,
-                )
-                password_field = login_form.get_by_label(
-                    "Password",
-                    exact=True,
-                )
-                submit_button = login_form.get_by_role(
-                    "button",
-                    name="Sign in",
-                    exact=True,
-                )
-
-                expect(username_field).to_be_visible()
-                expect(password_field).to_be_visible()
-                expect(password_field).to_have_attribute(
-                    "type",
-                    "password",
-                )
-                expect(submit_button).to_be_visible()
-                page.screenshot(
-                    path=str(evidence_path),
-                    full_page=True,
-                    timeout=5_000,
-                )
+                    expect(username_field).to_be_visible()
+                    expect(password_field).to_be_visible()
+                    expect(password_field).to_have_attribute(
+                        "type",
+                        "password",
+                    )
+                    expect(submit_button).to_be_visible()
+                except (AssertionError, Error, RuntimeError):
+                    _capture_evidence(page, evidence_path)
+                    raise
+                else:
+                    _capture_evidence(page, evidence_path)
 
             finally:
                 context.close()

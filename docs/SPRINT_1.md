@@ -87,10 +87,23 @@ The local browser check has also been verified manually.
 - [x] Link existing screenshots through the optional evidence_paths result field.
 - [x] Verify evidence serialization and omit missing screenshot references.
 - [x] Execute the real local browser scenario and verify its JSON references a PNG.
-- [ ] Capture failure evidence without replacing the original test outcome.
+- [x] Capture failure evidence without replacing the original test outcome.
 - [ ] Add automated browser execution to CI.
 
 Current local verification: 78 unit tests pass; one local browser scenario passes.
 Phases 1.1 and 1.3 still have pending controls and automated lifecycle checks.
 Phase 1.4 remains in progress. Queueing, cancellation, and the 10-case catalog
 have not been implemented. Current changes await GitHub CI verification after push.
+
+## Failure Evidence Checkpoint — October 20, 2026
+
+- Capture screenshots before closing the page after assertion or execution errors.
+- Preserve the original test outcome if screenshot capture or storage fails.
+- Publish screenshot files only after a complete write.
+- Verify assertion preservation and screenshot/storage error handling in unit tests.
+
+Verification: 82 unit tests pass. Real Chromium runs verified both passed and
+intentionally failed assertions with valid PNG evidence. The sample source was
+not modified; the failure was served by a temporary local test server.
+Phase 1.4 remains in progress pending browser CI coverage. Current changes await
+GitHub Actions verification after push.
