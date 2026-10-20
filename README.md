@@ -80,7 +80,7 @@ Implemented models include:
 - An immutable execution result model with status, duration, and message validation.
 - A reusable login form test definition.
 
-Eighty-two unit tests cover models, configuration, secrets, destination
+Eighty-six unit tests cover models, configuration, secrets, destination
 policies, result classification, and persistence. These are platform unit tests,
 not 78 website test scenarios.
 
@@ -90,7 +90,7 @@ Run the tests locally:
 python -m unittest discover -s tests -v
 ```
 
-Local verification: **82 tests passed**. The local browser scenario was also
+Local verification: **86 tests passed**. The local browser scenario was also
 executed successfully, and its saved JSON references an existing PNG screenshot.
 
 GitHub Actions: Sprint 0 verification passed with 38 tests.
@@ -165,3 +165,8 @@ is available if the browser fails before a page can be captured.
 
 Local verification passed. The new Linux CI job still requires verification
 after push. This runner is a development check, not the queued production worker.
+
+Browser lifecycle unit tests verify cleanup after success, context creation
+failure, page creation failure, and a simulated navigation timeout. These tests
+verify exception handling; they do not demonstrate forced termination of a
+hung browser process or cancellation of a queued worker job.

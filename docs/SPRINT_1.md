@@ -75,7 +75,8 @@ Phase 1.1 remains in progress.
 - [x] Return a structured result with elapsed duration.
 - [x] Distinguish assertion failures from execution errors.
 - [x] Verify result classification with five isolated unit tests.
-- [ ] Verify browser cleanup and timeout behavior automatically.
+- [x] Verify resource cleanup on success, setup errors, and simulated navigation timeout.
+- [ ] Verify process-level timeout and queued worker cancellation separately.
 - [x] Configure automated browser execution in CI (remote verification pending).
 
 Local verification: 71 unit tests pass.
@@ -119,3 +120,14 @@ Local verification: the managed runner passes and all 82 unit tests pass.
 Remote verification pending: both `scaffold` and `Local browser check` jobs must
 pass after push; verify the downloadable `local-browser-evidence` artifact.
 Phase 1.4 remains in progress until that remote verification is complete.
+
+## Browser Lifecycle Checkpoint — October 20, 2026
+
+Four additional unit tests verify context/browser cleanup after successful
+execution, context creation failure, page creation failure, and a simulated
+Playwright navigation timeout. The timeout test also checks that available
+page evidence is retained and the original exception is preserved.
+
+Local verification: 86 unit tests pass. No runtime dependency changes.
+This checkpoint does not complete process-level timeout/cancellation testing
+or confirm the pending GitHub browser CI run.

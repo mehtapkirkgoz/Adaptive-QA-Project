@@ -3,7 +3,7 @@
 import unittest
 from unittest.mock import Mock, patch
 
-from playwright.sync_api import Error
+from playwright.sync_api import Error, TimeoutError as PlaywrightTimeoutError
 
 from adaptive_qa.local_browser import _capture_evidence, _verify_sample_page, run_login_form_test
 from adaptive_qa.models import TestStatus
@@ -165,6 +165,71 @@ class EvidenceCaptureTests(unittest.TestCase):
                 _verify_sample_page(path)
             self.assertIs(raised.exception, original)
             self.assertFalse(path.exists())
+
+
+class BrowserLifecycleTests(unittest.TestCase):
+    def setUp(self) -> None:
+        temporary = TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        self.evidence_path = Path(temporary.name) / "evidence.png"
+
+        playwright_patch = patch("adaptive_qa.local_browser.sync_playwright")
+        self.playwright_mock = playwright_patch.start()
+        self.addCleanup(playwright_patch.stop)
+        expect_patch = patch("adaptive_qa.local_browser.expect")
+        expect_patch.start()
+        self.addCleanup(expect_patch.stop)
+
+        self.browser = (
+            self.playwright_mock.return_value.__enter__.return_value
+            .chromium.launch.return_value
+        )
+        self.context = self.browser.new_context.return_value
+        self.page = self.context.new_page.return_value
+        self.page.goto.return_value.status = 200
+        self.page.screenshot.return_value = b"sample-image"
+
+    def test_success_closes_context_and_browser(self) -> None:
+        _verify_sample_page(self.evidence_path)
+
+        self.context.close.assert_called_once_with()
+        self.browser.close.assert_called_once_with()
+        self.playwright_mock.return_value.__exit__.assert_called_once()
+
+    def test_context_creation_failure_closes_browser(self) -> None:
+        original = Error("Context creation failed")
+        self.browser.new_context.side_effect = original
+
+        with self.assertRaises(Error) as raised:
+            _verify_sample_page(self.evidence_path)
+
+        self.assertIs(raised.exception, original)
+        self.browser.close.assert_called_once_with()
+        self.context.close.assert_not_called()
+
+    def test_page_creation_failure_closes_context_and_browser(self) -> None:
+        original = Error("Page creation failed")
+        self.context.new_page.side_effect = original
+
+        with self.assertRaises(Error) as raised:
+            _verify_sample_page(self.evidence_path)
+
+        self.assertIs(raised.exception, original)
+        self.context.close.assert_called_once_with()
+        self.browser.close.assert_called_once_with()
+        self.page.screenshot.assert_not_called()
+
+    def test_navigation_timeout_captures_evidence_and_closes_resources(self) -> None:
+        original = PlaywrightTimeoutError("Navigation timed out")
+        self.page.goto.side_effect = original
+
+        with self.assertRaises(PlaywrightTimeoutError) as raised:
+            _verify_sample_page(self.evidence_path)
+
+        self.assertIs(raised.exception, original)
+        self.assertEqual(self.evidence_path.read_bytes(), b"sample-image")
+        self.context.close.assert_called_once_with()
+        self.browser.close.assert_called_once_with()
 
 
 if __name__ == "__main__":
