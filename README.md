@@ -80,7 +80,7 @@ Implemented models include:
 - An immutable execution result model with status, duration, and message validation.
 - A reusable login form test definition.
 
-One hundred and two unit tests cover models, configuration, secrets, destination
+One hundred and nine unit tests cover models, configuration, secrets, destination
 policies, result classification, and persistence. These are platform unit tests,
 not 78 website test scenarios.
 
@@ -90,7 +90,7 @@ Run the tests locally:
 python -m unittest discover -s tests -v
 ```
 
-Local verification: **102 tests passed**. The local browser scenario was also
+Local verification: **109 tests passed**. The local browser scenario was also
 executed successfully, and its saved JSON references an existing PNG screenshot.
 
 GitHub Actions: Sprint 0 verification passed with 38 tests.
@@ -205,3 +205,21 @@ python -m adaptive_qa.local_worker
 For automatic server management, continue using `python scripts/check_local_browser.py`.
 The script and CI now exercise the queued local path. This is synchronous local
 execution after claiming, not a persistent background service or active cancellation.
+
+## Durable Local Queue Adapter
+
+`SQLiteJobQueue` provides the same submission, lookup, claiming, queued
+cancellation, and completion operations with persisted job state and results.
+Transactional claims prevent competing connections from claiming the same job.
+Reopening an adapter preserves pending, cancelled, running, and completed jobs.
+
+This adapter is tested independently and is not yet the CLI default. The current
+CLI still uses `LocalJobQueue`. Wiring and restart commands are the next step.
+A running job interrupted by process termination stays running and is not
+silently replayed; recovery policy is still pending.
+
+SQLite is an incremental local development adapter, not a replacement for
+planned Redis/Celery dispatch and PostgreSQL production storage. It targets a
+single machine and does not provide customer isolation or distributed locking.
+Do not share a live database through synchronized folders or network storage
+between workers on different machines.

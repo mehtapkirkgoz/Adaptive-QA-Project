@@ -160,3 +160,19 @@ Verification: 102 unit tests pass. The managed script executed a real queued
 Chromium run successfully and saved its result and screenshot.
 Durable dispatch, restart recovery, and active cancellation remain pending.
 GitHub Actions verification of the updated worker path requires a push.
+
+## Phase 1.5 — Durable Local Queue Adapter (October 20, 2026)
+
+- Add SQLite persistence using Python's standard library; no dependency install.
+- Preserve queued/cancelled/running/completed snapshots and test results on reopen.
+- Claim jobs transactionally across competing database connections.
+- Verify invalid transitions roll back without changing job state.
+- Keep interrupted running jobs visible instead of automatically replaying them.
+
+Verification: 109 unit tests pass, including seven SQLite adapter tests.
+The browser CLI is still backed by the in-memory queue. SQLite integration and
+restart commands are pending. Active cancellation, recovery, and production
+broker integration remain incomplete; Phase 1.5 stays in progress.
+
+Architecture note: SQLite is a local incremental adapter. Redis/Celery and
+PostgreSQL remain the production direction described in the architecture plan.
