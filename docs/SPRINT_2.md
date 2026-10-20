@@ -1,7 +1,7 @@
 # Sprint 2 — Website Discovery and Feature Detection
 
 Start date: October 20, 2026
-Status: In progress — phase 2.1 completed locally.
+Status: In progress — phases 2.1 and 2.2 completed locally.
 
 Tracking issue: [#3](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/3).
 Milestone: [Sprint 2 — Website Discovery and Feature Detection](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/3).
@@ -14,7 +14,7 @@ budgets, identify features, and generate appropriate test plans with explicit re
 ## Phases
 
 - [x] 2.1: Define snapshots and conservative page-scoped login/search detection.
-- [ ] 2.2: Collect snapshots from the guarded browser.
+- [x] 2.2: Collect snapshots from the guarded browser.
 - [ ] 2.3: Discover links within page, depth, request, and time limits.
 - [ ] 2.4: Add registration, product, and cart evidence rules.
 - [ ] 2.5: Aggregate findings and generate applicable test plans.
@@ -31,9 +31,28 @@ budgets, identify features, and generate appropriate test plans with explicit re
 - Links and incomplete forms are hints, yielding unknown instead of false certainty.
 - Every finding includes its page URL, reason, evidence references, and page scope.
 
-Snapshots describe visible controls. A future collector must include only visible
-button labels in each form and set collection_complete only after a successful read.
-The detector does not navigate links, execute steps, or make network requests.
+Snapshots describe visible controls. The detector does not navigate links, execute
+steps, or make network requests.
+
+## Phase 2.2 Deliverables
+
+- Read-only light-DOM collection from an already guarded Playwright page.
+- Visible native forms, associated fields (including external form controls),
+  labels, buttons, and HTTP(S) links converted into immutable snapshots.
+- Input values are never read; URL queries/fragments and credential URLs are excluded.
+- Limits: 50 forms, 100 controls per form, 200 links, 5,000 inspected elements,
+  160 characters per text field, and 2,048 characters per URL.
+- Truncation, embedded documents, shadow/custom elements, and unsupported form
+  structures leave collection incomplete. Collection errors propagate.
+- Real Chromium checks include the sample server through the destination guard
+  and egress proxy, plus offline documents for hidden controls, values, limits,
+  link sanitization, ambiguity, and feature detection.
+
+Completeness refers only to the current supported DOM view. It does not establish
+that delayed UI, closed shadow roots, or other routes have been inspected. The
+caller owns navigation authorization and total execution deadlines. Labels and
+URL paths are untrusted site content and may contain sensitive text; these
+snapshots are currently held in memory, not published as sanitized reports.
 
 ## Absence Semantics
 
@@ -44,7 +63,7 @@ Site-level aggregation and traversal coverage are separate pending work.
 
 ## Verification
 
-189 unit tests pass locally, including 14 discovery cases. Tests cover matching
+192 unit tests pass locally, including 14 discovery and three collector cases. Tests cover matching
 actions, Turkish normalization, search semantics, hidden controls, mixed forms,
 registration/passwordless ambiguity, weak links, collection completeness, and
 snapshot validation. Compilation and diff checks pass.

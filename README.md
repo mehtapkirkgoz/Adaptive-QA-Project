@@ -2,7 +2,7 @@
 
 An AI-assisted QA platform under development for website discovery and applicable UI, API, and database tests.
 
-**Status:** Sprint 2 in progress. Sprint 1 completed on October 20, 2026. The local prototype runs 10 smoke scenarios through a persistent queue with cancellation, deadlines, destination controls, JSON results, and screenshots. Offline page feature detection is under development. Live discovery/crawling, AI, API/SQL execution, and the dashboard are not implemented yet.
+**Status:** Sprint 2 in progress. Sprint 1 completed on October 20, 2026. The local prototype runs 10 smoke scenarios through a persistent queue with cancellation, deadlines, destination controls, JSON results, and screenshots. Page feature detection and guarded structural collection are implemented. Bounded crawling, AI, API/SQL execution, and the dashboard are not implemented yet.
 
 ## Project Plans
 
@@ -50,7 +50,7 @@ Keep port 8000 available and run these scripts sequentially. They manage local s
 
 Current local results:
 
-- **189 unit tests passed locally:** platform rules and adapters, not 175 website scenarios.
+- **192 unit tests passed locally:** platform rules and adapters, not website scenarios.
 - **3 real OS lifecycle checks passed on Windows:** deadline, active cancellation, and crash lock release.
 - **9 real Chromium security checks passed:** forbidden canaries received no connections.
 - **10 queued smoke scenarios passed:** matching JSON results and PNG screenshots.
@@ -167,5 +167,8 @@ Findings include present/absent/unknown states, reasons, and page-scoped evidenc
 A link or partial form is a hint, not proof. Missing evidence on an incomplete page
 stays unknown. Even a complete page cannot establish site-wide absence.
 
-This first checkpoint is offline only. Guarded browser collection, bounded crawling,
-additional features, aggregation, and test-plan selection are still pending.
+The collector reads visible native controls from an already guarded browser page,
+without reading input values or following links. URL queries and fragments are
+removed. Collection limits and unsupported structures preserve uncertainty.
+Real Chromium checks cover the guarded sample and contrasting offline documents.
+Bounded crawling, additional features, aggregation, and test-plan selection remain pending.
