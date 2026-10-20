@@ -2,7 +2,7 @@
 
 An AI-assisted QA platform under development for website discovery and applicable UI, API, and database tests.
 
-**Status:** Sprint 1 in progress. The local prototype runs 10 smoke scenarios through a persistent queue with cancellation, deadlines, destination controls, JSON results, and screenshots. Website discovery, AI, API/SQL execution, and the dashboard are not implemented yet.
+**Status:** Sprint 1 completed on October 20, 2026. The local prototype runs 10 smoke scenarios through a persistent queue with cancellation, deadlines, destination controls, JSON results, and screenshots. Website discovery, AI, API/SQL execution, and the dashboard are not implemented yet.
 
 ## Project Plans
 
@@ -11,7 +11,7 @@ Sprints follow goals and acceptance criteria without a fixed two-week commitment
 | Sprint | Goal | Status |
 |---|---|---|
 | 0 | Architecture, models, configuration, GitHub workflow | Completed |
-| 1 | First controlled end-to-end execution | In progress |
+| 1 | First controlled end-to-end execution | Completed |
 | 2 | Website discovery | Planned |
 | 3 | UI catalog and element matching | Planned |
 | 4 | API tests | Planned |
@@ -56,7 +56,7 @@ Current local results:
 - **10 queued smoke scenarios passed:** matching JSON results and PNG screenshots.
 - Dependency compatibility and compilation checks passed.
 
-Remote verification requires a push. Linux process termination and OS locking require platform verification. CI installs Chromium/system dependencies, runs security and smoke checks, and uploads `local-browser-evidence` with seven-day retention.
+Remote verification passed for the implementation commit on Linux and Windows. CI installs Chromium/system dependencies, runs security and smoke checks, and uploads `local-browser-evidence` with seven-day retention.
 
 ## Smoke Catalog
 
@@ -143,7 +143,17 @@ CI now runs real process lifecycle checks on Ubuntu 24.04 and Windows 2025.
 Reports are uploaded as process-lifecycle-ubuntu-24.04 and process-lifecycle-windows-2025.
 Linux termination also discovers detached descendants through /proc and checks
 process start identities before signaling them. The Linux path has offline unit
-coverage; its real execution remains pending until the next CI run.
+coverage; its real execution passed in the Linux CI job.
 
 See the [Sprint 1 acceptance review](docs/SPRINT_1_ACCEPTANCE.md) for the evidence
-map and exact closure checklist. Sprint 1 remains open until remote verification.
+map and exact closure checklist. Sprint 1 acceptance is complete for the documented local prototype.
+
+## Sprint 1 Completion Evidence
+
+[Verified CI run](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/actions/runs/39465390109):
+all four jobs passed, including 175 unit tests, three process lifecycle checks on
+each OS, nine browser security checks, and ten queued smoke cases.
+All three downloaded artifact digests were verified; ten JSON records matched
+the smoke summary and their ten linked PNGs. A sample screenshot was visually inspected.
+
+Sprint 2 has not started. Production deployment and arbitrary-site execution remain outside this completed prototype.

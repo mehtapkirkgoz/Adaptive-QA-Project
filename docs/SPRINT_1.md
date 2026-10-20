@@ -1,6 +1,6 @@
 # Sprint 1 — First End-to-End Test Execution
 
-Status: In progress. Local sample implementation is ready for remote verification and acceptance review.
+Status: Completed on October 20, 2026 for the controlled local prototype.
 
 Tracking issue: [#2](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/2)
 Milestone: [Sprint 1](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/2)
@@ -13,7 +13,7 @@ Milestone: [Sprint 1](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/miles
 - [x] 1.4: Persist results and linked screenshots.
 - [x] 1.5: Implement local persistent queueing, cancellation, deadlines, retry, and explicit recovery.
 - [x] 1.6: Implement and execute 10 smoke scenarios.
-- [ ] 1.7: Verify the latest GitHub jobs, downloadable evidence, and sprint acceptance criteria.
+- [x] 1.7: Verify the latest GitHub jobs, downloadable evidence, and sprint acceptance criteria.
 
 Completed marks describe the local sample implementation, not production readiness.
 Production Redis/Celery, PostgreSQL, customer isolation, and OS network sandboxing remain planned deployment/scale work.
@@ -59,11 +59,12 @@ numeric-IP pinning, connected peer validation, ambiguous URLs, and resolver dead
 
 ## Remaining Acceptance Work
 
-- [ ] Push this checkpoint and verify scaffold and browser jobs.
-- [ ] Inspect security/smoke reports and JSON/PNG artifacts in GitHub Actions.
-- [ ] Verify Linux process-tree termination and OS lock behavior separately.
-- [ ] Review issue #2 acceptance criteria and explicitly record any deferred scope.
-- [ ] Close README status, issue, and milestone only after acceptance.
+- [x] Push implementation and verify all four CI jobs.
+- [x] Download and inspect security/smoke reports and JSON/PNG artifacts.
+- [x] Verify real process-tree termination and OS locks on Linux and Windows.
+- [x] Review issue #2 acceptance criteria and document prototype boundaries.
+- [x] Complete README and sprint acceptance records.
+- [ ] Close the remote milestone after issue #2 is completed.
 
 ## Boundaries
 
@@ -91,3 +92,13 @@ as requested. Earlier checkpoint details remain available in Git history.
 The last reviewed remote CI run passed but predates the current checkpoint.
 The current Linux/Windows matrix and expanded browser checks require a push.
 No completion checkbox or remote issue/milestone was closed.
+
+## Verified Completion
+
+[Workflow run](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/actions/runs/39465390109)
+passed for implementation commit 811cc2adb1110f26f57aba4472013f92d83bdb9e.
+All four jobs succeeded. Downloaded artifacts show 3 lifecycle checks on each OS,
+9 security checks, and 10 passed smoke cases. Artifact SHA-256 digests, all JSON
+records, and linked PNGs were verified. See [acceptance review](SPRINT_1_ACCEPTANCE.md).
+
+Earlier pending-verification notes above describe preparation history; this section records the final result.
