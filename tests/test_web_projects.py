@@ -88,3 +88,45 @@ class WebProjectTests(unittest.TestCase):
             self.assertNotIn('private', response.text)
             self.assertEqual(response.headers['cache-control'], 'no-store')
         self.assertEqual(self.projects.list(self.alice), ())
+
+    def settings(self):
+        project = self.projects.create(self.alice, 'Configured project')
+        path = '/api/projects/' + project.project_id + '/configuration'
+        data = {'base_url': 'http://127.0.0.1:8000/', 'allowed_hosts': ['127.0.0.1'],
+                'allow_data_changes': False, 'secret_references': {}}
+        return project, path, data
+
+    def test_settings_can_save_read_and_remove_scoped_references(self):
+        project, path, data = self.settings()
+        empty = self.client.get(path).json()
+        self.assertFalse(empty['configured'])
+        name = empty['available_secret_references']['api_token']
+        data['secret_references'] = {'api_token': name}
+        result = self.client.put(path, headers=self.headers, json=data)
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(result.json()['secret_references']['api_token']['value'], '[REDACTED]')
+        self.assertEqual(self.client.get(path).json(), result.json())
+        data['secret_references'] = {}
+        self.assertEqual(self.client.put(path, headers=self.headers, json=data).json()['secret_references'], {})
+
+    def test_settings_cannot_be_read_or_changed_by_another_owner(self):
+        project, _, data = self.settings()
+        other = self.projects.create(self.bob, 'Private')
+        for pid in (other.project_id, '0' * 32):
+            path = '/api/projects/' + pid + '/configuration'
+            self.assertEqual(self.client.get(path).status_code, 404)
+            self.assertEqual(self.client.put(path, headers=self.headers, json=data).status_code, 404)
+        self.assertFalse(self.projects.configuration(self.bob, other.project_id)['configured'])
+
+    def test_settings_requires_csrf_and_masks_invalid_configuration(self):
+        _, path, data = self.settings()
+        headers = {k: v for k, v in self.headers.items() if k != 'x-csrf-token'}
+        self.assertEqual(self.client.put(path, headers=headers, json=data).status_code, 401)
+        for changes in ({'base_url': 'http://private:password@127.0.0.1:8000/'},
+                        {'secret_references': {'api_token': 'PRIVATE_TOKEN'}},
+                        {'owner_id': self.bob.user_id}):
+            response = self.client.put(path, headers=self.headers, json=dict(data, **changes))
+            self.assertEqual(response.status_code, 400)
+            self.assertNotIn('private', response.text)
+            self.assertNotIn('PRIVATE_TOKEN', response.text)
+        self.assertFalse(self.client.get(path).json()['configured'])

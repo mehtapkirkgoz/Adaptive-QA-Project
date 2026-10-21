@@ -37,6 +37,42 @@ IDs return 400; missing and other-owner valid IDs both return the same 404.
 Lists contain only the signed-in owner's projects, newest first. Duplicate or
 unknown pagination keys are rejected. Query strings on other endpoints are denied.
 
-These endpoints manage display names only. Target configuration, secret
-references, plan review and run execution endpoints are not implemented yet.
-Creating or renaming a project never starts a test or connects to a target.
+## Project Configuration and Secret References
+
+`GET /api/projects/{project_id}/configuration` returns `configured: false` until
+settings are saved, plus `available_secret_references` for the four supported
+slots: `login_username`, `login_password`, `api_token`, and `database_path`.
+Reference names are generated from the authenticated owner ID, project ID, and
+slot. Use these exact names; arbitrary environment variables and references from
+another project, owner, or slot are rejected.
+
+`PUT` on the same path replaces the entire configuration. It requires a session,
+CSRF header, exact Origin and JSON content type. The exact input fields are:
+
+```json
+{
+  "base_url": "http://127.0.0.1:8000/",
+  "allowed_hosts": ["127.0.0.1"],
+  "allow_data_changes": false,
+  "secret_references": {}
+}
+```
+
+The target URL is bounded to 512 characters and cannot contain credentials,
+query parameters or fragments. One to ten distinct normalized exact hostnames
+are required; the base URL must match one. Wildcards and ports in host entries
+are rejected. The data-change policy must be a JSON boolean. References are an
+optional subset of the supported slots inside the required `secret_references`
+object; replacing that object with `{}` removes the saved references.
+
+Saved responses include the target settings and reference names with each value
+shown as `[REDACTED]`. This API neither resolves environment variables nor reports
+whether they exist. It never accepts raw passwords, tokens or connection paths.
+Reference binding authorizes no execution or secret read by itself; future workers
+must enforce the same owner/project binding when resolving them.
+
+Missing and other-owner configurations have the same 404 response. Invalid
+configuration returns a masked 400 and leaves the previous saved settings intact.
+Saving performs no DNS lookup, target connection, SQL validation, AI call or job
+submission. General target execution remains disabled. Plan review and run
+execution endpoints are not implemented yet.

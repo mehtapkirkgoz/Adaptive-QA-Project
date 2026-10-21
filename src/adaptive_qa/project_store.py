@@ -4,8 +4,11 @@ from contextlib import closing, contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 import re
+import json
 import sqlite3
 from uuid import uuid4
+
+from adaptive_qa.project_settings import validate_settings, public_settings
 
 def _id(value):
     if not isinstance(value, str) or not re.fullmatch(r'[0-9a-f]{32}', value):
@@ -54,6 +57,8 @@ class ProjectStore:
                 'owner_id TEXT NOT NULL, name TEXT NOT NULL)')
             connection.execute('CREATE INDEX IF NOT EXISTS dashboard_projects_owner '
                                'ON dashboard_projects(owner_id, sequence)')
+            connection.execute('CREATE TABLE IF NOT EXISTS dashboard_project_settings ('
+                               'project_id TEXT PRIMARY KEY, settings_json TEXT NOT NULL)')
 
     @contextmanager
     def _connection(self):
@@ -111,3 +116,25 @@ class ProjectStore:
             if cursor.rowcount != 1:
                 raise ProjectNotFound('Project not found.')
         return OwnedProject(project_id, actor.user_id, name)
+
+    def configuration(self, actor, project_id):
+        self._actor(actor)
+        _id(project_id)
+        with self._connection() as connection:
+            row = connection.execute('SELECT p.project_id, p.owner_id, p.name, s.settings_json '
+                'FROM dashboard_projects p LEFT JOIN dashboard_project_settings s ON p.project_id=s.project_id '
+                'WHERE p.project_id=? AND p.owner_id=?', (project_id, actor.user_id)).fetchone()
+        if row is None:
+            raise ProjectNotFound('Project not found.')
+        data = json.loads(row['settings_json']) if row['settings_json'] is not None else None
+        return public_settings(self._project(row), data)
+
+    def save_configuration(self, actor, project_id, data):
+        project = self.get(actor, project_id)
+        validated = validate_settings(project, data)
+        with self._connection() as connection:
+            connection.execute('INSERT INTO dashboard_project_settings (project_id, settings_json) '
+                'SELECT project_id, ? FROM dashboard_projects WHERE project_id=? AND owner_id=? '
+                'ON CONFLICT(project_id) DO UPDATE SET settings_json=excluded.settings_json',
+                (json.dumps(validated, allow_nan=False), project_id, actor.user_id))
+        return public_settings(project, validated)

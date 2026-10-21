@@ -9,7 +9,7 @@ Milestone: [#8](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/8
 
 - [x] 7.1: Persist owner-scoped projects and verify cross-owner access boundaries.
 - [x] 7.2: Add credential/session authentication and local web security controls.
-- [ ] 7.3: Expose authenticated project/configuration APIs with secret references.
+- [x] 7.3: Expose authenticated project/configuration APIs with secret references.
 - [ ] 7.4: Build the React/TypeScript dashboard for project and plan review.
 - [ ] 7.5: Bridge authorized run start/cancel/progress to separate worker execution.
 - [ ] 7.6: Display owner-scoped history/results/evidence and test cross-owner denial.
@@ -135,3 +135,30 @@ All 436 unit tests passed locally. The final body-buffer allocation adjustment
 was then rechecked with all four raw boundary tests. The real Chromium project
 and authentication check also passed. Exact-commit CI is pending after push;
 this is phase progress, not integrated sprint acceptance.
+
+### Phase 7.3 configuration delivery
+
+Owner-scoped GET/PUT configuration endpoints now persist the bounded target URL,
+one to ten distinct normalized exact hosts, an explicit boolean data-change
+policy, and optional secret references. The existing ProjectConfig contract
+validates target membership. Credentials, URL query/fragment values, extra fields,
+wildcards and malformed hosts are rejected. Full replacement removes omitted
+references; invalid input preserves the previous saved configuration.
+
+Each secret slot has a generated owner/project/slot-specific environment variable
+name. Arbitrary names and references from another owner, project or slot are
+rejected. API responses mask values and never resolve references or reveal
+environment presence. The database contains reference names only. No target
+connections, DNS lookups, SQL, AI or job creation occurs on save. Future worker
+resolution must retain these ownership constraints.
+
+Six persistence tests and three additional HTTP tests verify settings persistence,
+rename independence, atomic rejection, policy reset, reference removal,
+cross-owner isolation, CSRF denial and environment non-resolution. A real Chromium
+check saves and reads target settings and a masked login-password reference.
+Prior commit `2f4c4147ad9b59366645f312db54eddd469cd02e` passed GitHub CI run
+39650505615; the current increment requires its own CI result. React dashboard
+implementation is the next unfinished phase. See DASHBOARD_API.md for contracts.
+
+All 445 local unit tests and the real Chromium authentication/project/settings
+check passed for this increment. Current-commit CI remains pending after push.

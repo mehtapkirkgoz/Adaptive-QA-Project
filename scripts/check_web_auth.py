@@ -54,11 +54,22 @@ def main():
                         const rename = await fetch('/api/projects/'+project.project_id, {method:'PATCH',headers,body:JSON.stringify({name:'Renamed project'})});
                         const listed = await (await fetch('/api/projects?limit=1&offset=0')).json();
                         const fetched = await (await fetch('/api/projects/'+project.project_id)).json();
-                        return {created:create.status,renamed:rename.status,listed:listed.projects,fetched};
+                        const path = '/api/projects/'+project.project_id+'/configuration';
+                        const empty = await (await fetch(path)).json();
+                        const settings = {base_url:'http://127.0.0.1:8000/',allowed_hosts:['127.0.0.1'],
+                          allow_data_changes:false,secret_references:{login_password:empty.available_secret_references.login_password}};
+                        const saved = await fetch(path, {method:'PUT',headers,body:JSON.stringify(settings)});
+                        const configuration = await (await fetch(path)).json();
+                        return {created:create.status,renamed:rename.status,listed:listed.projects,fetched,
+                          settings_status:saved.status,configuration};
                     }''')
                     assert projects['created'] == 201 and projects['renamed'] == 200
                     assert projects['listed'] == [projects['fetched']]
                     assert projects['fetched']['name'] == 'Renamed project'
+                    assert projects['settings_status'] == 200
+                    assert projects['configuration']['configured']
+                    assert projects['configuration']['secret_references']['login_password']['value'] == '[REDACTED]'
+                    assert not projects['configuration']['allow_data_changes']
                     assert page.evaluate("async () => (await fetch('/api/auth/logout', {method:'POST',headers:{'Content-Type':'application/json'},body:'{}'})).status") == 401
                     assert page.evaluate('''async () => {
                         const csrf = document.cookie.split('; ').find(c=>c.startsWith('adaptive_csrf=')).split('=')[1];
@@ -77,7 +88,8 @@ def main():
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps({'browser_auth': 'passed', 'checks': [
         'login identity', 'HttpOnly session', 'Strict SameSite', 'readable CSRF only',
-        'project create rename list read', 'missing CSRF denied', 'logout',
+        'project create rename list read', 'project settings and masked references',
+        'missing CSRF denied', 'logout',
         'revoked identity', 'cookies removed']}), encoding='utf-8')
     print('Local dashboard browser authentication passed.')
 

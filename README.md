@@ -6,7 +6,7 @@ An AI-assisted QA platform under development for website discovery and applicabl
 
 All 397 unit tests and seven CI jobs passed for `5e51be96a0c8e63ab30217ee7d4860372fd85f9e`. Six artifact digests and retained regression evidence were reviewed. Nine actual local-model fixtures scored 8/9 website kinds overall and 4/5 on the separate holdout; errors and abstentions remain recorded. Browser guards prevented unsafe handles on incomplete and duplicate controls. These small-fixture measurements do not establish arbitrary-site accuracy.
 
-See [Sprint 6 acceptance](docs/SPRINT_6_ACCEPTANCE.md), [Ollama setup](docs/OLLAMA.md), and [Sprint 5 acceptance](docs/SPRINT_5_ACCEPTANCE.md). The dashboard, customer-site execution, and deployment remain future work.
+See [Sprint 6 acceptance](docs/SPRINT_6_ACCEPTANCE.md), [Ollama setup](docs/OLLAMA.md), and [Sprint 5 acceptance](docs/SPRINT_5_ACCEPTANCE.md). Sprint 7 now includes local session authentication, owner-scoped project/configuration APIs and masked, scoped secret references. The React interface, integrated dashboard execution, customer-site execution, and deployment remain unfinished. See [Sprint 7](docs/SPRINT_7.md) and [dashboard API contracts](docs/DASHBOARD_API.md).
 
 ## Project Plans
 
@@ -21,7 +21,7 @@ Sprints follow goals and acceptance criteria without a fixed two-week commitment
 | 4 | API tests | Completed |
 | 5 | Database validation | Accepted; issue closed |
 | 6 | AI integration | Accepted; issue closed |
-| 7 | Web dashboard | In progress; owner-scoped project persistence implemented |
+| 7 | Web dashboard | In progress; local authentication and owner-scoped project/configuration APIs implemented |
 | 8 | Reporting and catalog expansion | Planned |
 | 9 | Domain and deployment | Planned |
 | 10 | Customer management and pilot | Planned |
@@ -54,7 +54,8 @@ Keep port 8000 available and run these scripts sequentially. They manage local s
 
 Current local results:
 
-- **307 unit tests passed locally:** platform rules and adapters, not website scenarios.
+- **445 unit tests passed locally:** platform rules, adapters, authentication and project/settings ownership, not website scenarios.
+- Real Chromium login/logout, project management and masked configuration checks passed (`scripts/check_web_auth.py`, owned port 8765).
 - **3 real OS lifecycle checks passed on Windows:** deadline, active cancellation, and crash lock release.
 - **9 real Chromium security checks passed:** forbidden canaries received no connections.
 - **40 queued UI scenarios passed:** matching JSON results and PNG screenshots.

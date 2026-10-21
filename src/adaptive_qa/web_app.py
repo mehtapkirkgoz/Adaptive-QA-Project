@@ -97,6 +97,17 @@ def create_app(store: AuthStore, *, port=8765, projects=None):
     def get_project(project_id: str, request: Request):
         return public_project(projects.get(actor(request), project_id))
 
+    @app.get('/api/projects/{project_id}/configuration')
+    def get_configuration(project_id: str, request: Request):
+        return projects.configuration(actor(request), project_id)
+
+    @app.put('/api/projects/{project_id}/configuration')
+    async def put_configuration(project_id: str, request: Request):
+        owner = await run_in_threadpool(actor, request, mutation=True)
+        data = _object(await request.body(), ('base_url', 'allowed_hosts',
+                                            'allow_data_changes', 'secret_references'))
+        return await run_in_threadpool(projects.save_configuration, owner, project_id, data)
+
     @app.patch('/api/projects/{project_id}')
     async def rename_project(project_id: str, request: Request):
         owner = await run_in_threadpool(actor, request, mutation=True)
