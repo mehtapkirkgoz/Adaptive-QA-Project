@@ -1,7 +1,7 @@
 # Sprint 4 — API Testing
 
 Start date: October 21, 2026 (Europe/Istanbul)
-Status: In progress — phases 4.1 and 4.2 completed locally.
+Status: In progress — phases 4.1 through 4.3 completed locally.
 Tracking: [issue #5](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/5).
 Milestone: Pending creation and association by the repository owner.
 
@@ -15,7 +15,7 @@ and enforced destination, mutation, response-size, and execution limits.
 
 - [x] 4.1: Define API configuration, request, and assertion contracts.
 - [x] 4.2: Implement bounded pinned-destination transport and safe reporting.
-- [ ] 4.3: Add controlled positive/negative API coverage toward 60 combined cases.
+- [x] 4.3: Add controlled positive/negative API coverage toward 60 combined cases.
 - [ ] 4.4: Add explicit UI/API validation bindings.
 - [ ] 4.5: Verify missing configuration, secrets, mutation policy, redirects, and deadlines.
 - [ ] 4.6: Verify same-commit CI/artifacts and close after acceptance.
@@ -52,6 +52,21 @@ indexes. Payloads, headers, tokens, and expected operands are never serialized.
 Missing configuration/authentication produces blocked outcomes; assertion and
 transport failures remain distinct. All 290 unit tests and a real pinned local
 health request pass. Customer execution and public API transport remain disabled.
+
+## Phase 4.3 Deliverables
+
+The stateless local API fixture supports health, items/search, authentication,
+scope rejection, HEAD, payload validation, and quantity business rules. Twenty
+distinct API definitions pass against real HTTP, bringing combined coverage to
+60 cases without changing the forty-case UI registry. See [API catalog](API_CATALOG.md).
+The fixture generates no persistent backend data. Non-read methods still declare
+data changes and require explicit project authorization. The harness generates
+its bearer token in memory/environment and checks it is absent from safe reports.
+
+All 292 unit tests and 20 API scenarios pass locally. A separate CI API job writes
+outcome-only result records and a report under `local-api-evidence`. Hard total
+API isolation and hostile-response boundaries remain phase 4.5 work; execution
+is still restricted to the controlled loopback origin.
 
 ## Acceptance Criteria
 
