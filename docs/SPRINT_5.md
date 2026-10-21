@@ -16,7 +16,7 @@ scenarios, subject to implemented behavior and verified acceptance.
 
 - [x] 5.0: Establish sprint tracking and owner-controlled continuation rules.
 - [x] 5.1: Define database configuration, query templates, parameters, assertions, and secret references.
-- [ ] 5.2: Implement the first bounded adapter with enforced read-only execution, row limits, deadlines, and safe outcomes.
+- [x] 5.2: Implement the first bounded adapter with enforced read-only execution, row limits, deadlines, and safe outcomes.
 - [ ] 5.3: Implement controlled fixture preparation and approximately 15 distinct database scenarios.
 - [ ] 5.4: Validate a record created through a controlled UI/API operation without combining independent layer outcomes.
 - [ ] 5.5: Verify write rejection, malformed queries, connection failures, timeout/cancellation, redaction, and cleanup.
@@ -65,8 +65,18 @@ messages remain private. All connections close on success and failure.
 Eight tests exercise real disposable SQLite files, including bound injection
 input, write rejection, resource limits, recursive-query interruption, cleanup,
 and safe outcome classification. The full local suite passes 324 tests.
-Phase 5.2 remains incomplete until an isolated child enforces a hard total
-deadline. No database CLI or catalog execution is enabled in this increment.
+An isolated child now enforces a hard total deadline and active cancellation,
+using the established process-tree termination mechanism. Private temporary
+inputs carry templates and operands but not resolved database paths; they are
+removed after execution and never used as report artifacts. Child stdout and
+stderr are suppressed. Parent output validation requires the expected case ID,
+typed result, bounded output, and no evidence paths. No database CLI or catalog
+execution is enabled in this increment.
+
+Eight additional process tests cover real child passes/failures, write rejection,
+total timeout, active cancellation, released database locks, private roundtrips,
+prestart non-execution, invalid deadlines, and missing output. The full local
+suite passes 332 tests. Same-commit remote acceptance remains pending.
 
 ## Acceptance
 
