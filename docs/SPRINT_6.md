@@ -53,3 +53,22 @@ matching a reference does not establish visibility/uniqueness at execution time.
 
 Eight new tests pass; all 353 local unit tests pass. No provider call, execution
 integration, runtime budget enforcement, or measured model evaluation is claimed.
+
+## Phase 6.3 Progress
+
+An optional offline scripted adapter now exercises a real isolated child, shared
+session request admission, total-time deadlines, byte limits, and safe fallback.
+Concurrent calls share one thread-safe budget; failed/time-limited attempts are
+not refunded. Cost admission reserves a trusted upper bound before execution;
+the only registered adapter is guaranteed-free scripted transport. Model output
+cannot report its own charge or increase a budget. No paid/remote provider is
+registered and no real-model accuracy is implied by these tests.
+
+Private scripted response fixtures are temporary inputs, excluded from repr and
+reports. Child output is validated against collected references before advice
+is accepted; disabled providers, failures, malformed/oversized responses, and
+timeouts yield explicit fallback outcomes. Existing deterministic execution is
+untouched. Eight new runtime tests pass, including actual child termination,
+concurrent admission, failed-attempt accounting, and output rejection; the full
+local suite passes 361 tests. Phase 6.3 remains open for the actual optional
+model adapter, trusted pricing limits, and its provider-specific validation.
