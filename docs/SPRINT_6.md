@@ -141,10 +141,21 @@ uniqueness using the existing matcher. It never narrows ambiguous results,
 overrides explicit project mappings, accepts model-generated locators, or performs
 an action. Runtime policy and deadlines remain caller responsibilities.
 
-Six integration unit tests and 17 real-child/browser controls verify these rules,
+Six integration unit tests and 18 real-child/browser controls verify these rules,
 plain/commerce scripted fixtures, hidden/duplicate elements, outages, timeouts,
 injected instructions, and rejected references/authorization fields. Reports state
 `mode=offline_scripted`, `remote_calls=0`, `real_model_accuracy=null`. Scripted
 fixture consistency is not evidence of model intelligence or accuracy.
-All 384 local unit tests pass. CI now repeats local AI acceptance and retains
+All 388 local unit tests pass. CI now repeats local AI acceptance and retains
 metadata-only evidence. Exact-commit CI review for this increment is pending.
+
+The offline evaluator records explicit denominators, website-kind confusion,
+present-feature precision/recall, element correctness, abstentions, and
+high-confidence errors. Undefined precision remains null when nothing positive
+was predicted. An intentional incorrect commerce classification is retained as
+an error in the four-item scoring self-check (3/4 correct); it does not make the
+18 boundary controls fail or become a model-accuracy claim. Four scoring unit
+tests cover false positives, abstentions, alignment, and duplicate label rejection.
+The two added runtime contract tests also prevent malformed advice envelopes
+and negative/boolean cost reservation. Oversized numeric model output is rejected
+without conversion overflow. See [validation and enablement](AI_VALIDATION.md).

@@ -7,14 +7,15 @@ from pathlib import Path
 from playwright.sync_api import sync_playwright
 
 from adaptive_qa.ai_integration import AiElementCandidate, match_with_ai_fallback, review_plan_with_ai
-from adaptive_qa.ai_models import AiBudget
+from adaptive_qa.ai_evaluation import AiEvaluationCase, evaluate_ai_decisions
+from adaptive_qa.ai_models import AiBudget, WebsiteKind
 from adaptive_qa.ai_runtime import AiSession, OfflineAiProvider
 from adaptive_qa.ai_validation import reduce_ai_input
 from adaptive_qa.config import ProjectConfig
 from adaptive_qa.crawler import CrawlResult
 from adaptive_qa.discovery import CommerceSnapshot, FieldSnapshot, FormSnapshot, PageSnapshot
 from adaptive_qa.element_models import ElementMapping, LocatorSpec, LocatorStrategy, MatchStatus
-from adaptive_qa.models import TestCase, TestType
+from adaptive_qa.models import FeatureStatus, TestCase, TestType
 from adaptive_qa.planning import build_test_plan
 
 
@@ -31,6 +32,9 @@ def main():
     accepted = AiSession(budget).suggest(page, ('login.submit',), OfflineAiProvider(json.dumps(raw)))
     assert accepted.status == 'accepted' and not accepted.advice.execution_authorized
     results.append({'name': 'scripted_advice_acceptance', 'passed': True})
+    labels = [AiEvaluationCase('login', WebsiteKind.GENERAL,
+        (('login', FeatureStatus.PRESENT),), (('login.submit', 'button_0_0'),))]
+    predictions = [accepted]
     for name, transform in (
         ('uncollected_reference', lambda value: value['elements'][0].update(candidate_id='button_999')),
         ('authorization_injection', lambda value: value.update(execution_authorized=True)),
@@ -72,7 +76,16 @@ def main():
         response = {'website_kind': kind, 'confidence': 0.99, 'features': [], 'elements': []}
         outcome = AiSession(budget).suggest(fixture, (), OfflineAiProvider(json.dumps(response)))
         assert outcome.status == 'accepted' and outcome.advice.website_kind == kind
+        labels.append(AiEvaluationCase(kind, WebsiteKind(kind)))
+        predictions.append(outcome)
         results.append({'name': 'scripted_' + kind + '_fixture', 'passed': True})
+    # Intentional incorrect high-confidence control verifies honest scoring.
+    labels.append(AiEvaluationCase('wrong_control', WebsiteKind.GENERAL))
+    predictions.append(outcome)
+    metrics = evaluate_ai_decisions(tuple(labels), tuple(predictions), mode='offline_scripted')
+    assert metrics['kind_correct'] == 3 and metrics['kind_total'] == 4
+    assert metrics['high_confidence_errors'] == 1 and metrics['real_model_accuracy'] is None
+    results.append({'name': 'scorer_detects_intentional_high_confidence_error', 'passed': True})
     default = ElementMapping('login.submit', (LocatorSpec(LocatorStrategy.ROLE, 'Sign in', 'button'),))
     candidate = AiElementCandidate('button_0_0', ElementMapping('login.submit',
         (LocatorSpec(LocatorStrategy.ROLE, 'Continue securely', 'button'),)))
@@ -106,7 +119,7 @@ def main():
         finally:
             browser.close()
     report = {'mode': 'offline_scripted', 'real_model_accuracy': None, 'remote_calls': 0,
-              'checks': len(results), 'passed': True, 'results': results}
+              'checks': len(results), 'passed': True, 'results': results, 'scoring_self_check': metrics}
     destination = Path('artifacts/ai/report.json')
     destination.parent.mkdir(parents=True, exist_ok=True)
     destination.write_text(json.dumps(report, indent=2), encoding='utf-8')

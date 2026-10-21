@@ -8,9 +8,14 @@ paid request, model credential requirement, or measured real-model accuracy.
 The unregistered OpenAI primitive is preparation, not an enabled model backend.
 
 Local reports explicitly retain `mode=offline_scripted`, `remote_calls=0`, and
-`real_model_accuracy=null`. Seventeen real-child/browser controls test the host
+`real_model_accuracy=null`. Eighteen real-child/browser controls test the host
 pipeline; replaying supplied answers is not a model evaluation. Existing unit
 tests separately cover strict schema rejection and mocked provider boundaries.
+Aggregate scoring has explicit denominators, classification confusion, feature
+precision/recall, element correctness, abstentions, and high-confidence mistakes.
+The offline scoring self-check includes a deliberate wrong high-confidence
+answer and reports 3/4 kind predictions correct and one error. This verifies
+the scorer, not the quality of any real model.
 
 ## Enforced Local Rules
 
