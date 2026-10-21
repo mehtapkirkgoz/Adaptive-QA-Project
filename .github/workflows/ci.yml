@@ -138,6 +138,8 @@ jobs:
         run: python scripts/check_reusable_ui.py
       - name: Verify fixture cleanup and reverse-order independence
         run: python scripts/check_ui_isolation.py
+      - name: Verify UI API database record creation and readback
+        run: python scripts/check_database_bridge.py
       - name: Verify explicit UI and API validation binding
         run: python scripts/check_ui_api_bridge.py
       - name: Verify bounded local discovery
@@ -159,5 +161,6 @@ jobs:
             artifacts/discovery/*.json
             artifacts/matching/*.json
             artifacts/bridge/*.json
+            artifacts/database/bridge.json
           retention-days: 7
           if-no-files-found: warn

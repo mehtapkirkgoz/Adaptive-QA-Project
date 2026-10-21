@@ -18,7 +18,7 @@ scenarios, subject to implemented behavior and verified acceptance.
 - [x] 5.1: Define database configuration, query templates, parameters, assertions, and secret references.
 - [x] 5.2: Implement the first bounded adapter with enforced read-only execution, row limits, deadlines, and safe outcomes.
 - [x] 5.3: Implement controlled fixture preparation and approximately 15 distinct database scenarios.
-- [ ] 5.4: Validate a record created through a controlled UI/API operation without combining independent layer outcomes.
+- [x] 5.4: Validate a record created through a controlled UI/API operation without combining independent layer outcomes.
 - [ ] 5.5: Verify write rejection, malformed queries, connection failures, timeout/cancellation, redaction, and cleanup.
 - [ ] 5.6: Review exact-commit CI and artifacts; report technical acceptance to the owner.
 
@@ -95,6 +95,24 @@ scenarios; 334 unit tests pass. Dedicated Ubuntu and Windows CI jobs now repeat
 the scenario and boundary checks and retain safe JSON evidence. Remote results
 and cross-layer creation validation remain pending; seeded fixtures alone do
 not satisfy phase 5.4.
+
+## Phase 5.4 Delivered
+
+A real guarded UI search prerequisite is followed by an explicitly authorized,
+authenticated API fixture operation that creates a fixed fake order. SQLite
+independently reads its customer and status through bound parameters. The
+integration proves the record absent before creation. UI search is a prerequisite,
+not a claim that the UI created the order. The database adapter itself remains
+read-only; fixture provisioning and API writes use separate owned connections.
+
+Explicit project and case bindings require both trusted UI/API results to pass.
+Missing/foreign configuration and failed prerequisites prevent database execution.
+The four local integration controls verify successful creation/readback, denied
+API mutation, blocked follow-up, and intentional database assertion failure while
+upstream results stay passed. Five unit tests cover gating, identity mismatches,
+foreign configuration, adapter errors, and independent outcomes. Local validation:
+339 unit tests and the real four-control bridge pass. The bridge is an integration
+control, not an extra catalog case. CI browser acceptance now repeats it.
 
 ## Acceptance
 
