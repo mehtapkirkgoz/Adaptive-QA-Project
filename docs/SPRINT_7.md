@@ -33,3 +33,30 @@ non-enumerating errors, pagination, identity preservation, bound SQL-looking nam
 and invalid inputs. All 405 local unit tests pass. HTTP authentication, the web
 panel and integrated run flow remain unfinished. No domain/deployment or customer
 site execution is authorized by this sprint start.
+
+## Phase 7.2 Progress
+
+The internal authentication core provisions local accounts with unique random
+salts and scrypt N=2^17, r=8, p=1 hashes. Passwords require at least 12 characters
+and at most 256 UTF-8 bytes; no plaintext password is stored. Two KDF slots bound
+concurrent expensive hashing. This is a local prototype, not open registration,
+email verification, password reset, MFA, or a production identity service.
+
+Successful login issues independent random session/CSRF tokens. Only their SHA-256
+digests are persisted. Public grant representations omit tokens. Session lookup
+derives the trusted project actor; expiry and logout revoke access. CSRF comparison
+is session-bound, and at most ten sessions per account remain valid. Per-identity
+admission permits five attempts per 60-second window with a bounded persistent
+identity table; failed attempts consume admission before hashing, and unknown
+accounts perform a dummy KDF. Missing/wrong/throttled credentials share one error.
+
+Nine real-storage/KDF tests pass; all 414 local unit tests pass. HTTP authentication
+routes, cookie flags, Origin/CSRF enforcement, request size/global admission,
+response masking, and actual browser login tests are still required before
+phase 7.2 is complete. No authentication endpoint is exposed yet. Credentials
+and tokens must never be accepted as frontend-supplied owner identities.
+
+Reviewed implementation references:
+
+- [OWASP password storage](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html)
+- [Python 3.13 password KDF functions](https://docs.python.org/3.13/library/hashlib.html#key-derivation)
