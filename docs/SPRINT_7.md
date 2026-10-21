@@ -88,3 +88,19 @@ provisioning/server launch commands and additional request-boundary integration
 coverage remain before phase 7.2 is accepted. Prior increment CI passed at
 `692d2eca918f5ad1dc2f3f461e5927ea36089dc4` (run 39648849144); this increment
 requires its own CI result after push.
+
+### Trusted local operator commands
+
+`python -m adaptive_qa dashboard create-user` now provisions an account through
+interactive, hidden password entry and confirmation. Redirected input is refused;
+there are no password arguments, default credentials, or public registration.
+`dashboard serve` binds only to numeric loopback, with one process, no proxy-header
+trust or access logging, and a 32-connection concurrency limit. Both commands use
+the same ignored dashboard database by default. No persistent account has been
+created by development checks. The interface and project endpoints remain pending.
+
+Six CLI tests verify real provisioning/login, absent credential output,
+noninteractive and mismatched-password rejection, invalid-port rejection before
+database creation, unavailable hidden input, and safe server options. The full
+425-test suite passed before the final hidden-input regression test was added;
+all six CLI tests then passed. Operator instructions are in SETUP.md.

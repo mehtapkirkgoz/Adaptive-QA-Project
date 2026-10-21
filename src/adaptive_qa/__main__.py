@@ -8,8 +8,16 @@ def main() -> None:
     parser.add_argument(
         "--status", action="store_true", help="Show the implementation status"
     )
+    from adaptive_qa.dashboard_cli import configure_parser
+    configure_parser(parser.add_subparsers(dest='command'))
     args = parser.parse_args()
-    if args.status:
+    if args.command == 'dashboard':
+        from adaptive_qa.dashboard_cli import run
+        try:
+            run(args)
+        except ValueError as error:
+            parser.exit(2, f'{error}\n')
+    elif args.status:
         from adaptive_qa.catalog import TEST_CASES
         from adaptive_qa.api_catalog import API_CASES
         from adaptive_qa.database_catalog import DATABASE_CASES
