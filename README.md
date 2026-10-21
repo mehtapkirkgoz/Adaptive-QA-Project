@@ -2,7 +2,7 @@
 
 An AI-assisted QA platform under development for website discovery and applicable UI, API, and database tests.
 
-**Status:** Sprint 6 technical acceptance is complete for the controlled local prototype; owner closure is pending. The catalog has 40 UI, 20 API, and 15 database scenarios. Ollama/qwen3:4b inference requires no API key or paid cloud service. Existing destination, data-change, deadline, and non-executing plan policies remain authoritative.
+**Status:** Sprint 7 is in progress: dashboard and project management. Sprint 6 technical acceptance is complete and its issue is closed. The catalog has 40 UI, 20 API, and 15 database scenarios. Ollama/qwen3:4b inference requires no API key or paid cloud service. Existing destination, data-change, deadline, and non-executing plan policies remain authoritative.
 
 All 397 unit tests and seven CI jobs passed for `5e51be96a0c8e63ab30217ee7d4860372fd85f9e`. Six artifact digests and retained regression evidence were reviewed. Nine actual local-model fixtures scored 8/9 website kinds overall and 4/5 on the separate holdout; errors and abstentions remain recorded. Browser guards prevented unsafe handles on incomplete and duplicate controls. These small-fixture measurements do not establish arbitrary-site accuracy.
 
@@ -20,8 +20,8 @@ Sprints follow goals and acceptance criteria without a fixed two-week commitment
 | 3 | UI catalog and element matching | Completed |
 | 4 | API tests | Completed |
 | 5 | Database validation | Accepted; issue closed |
-| 6 | AI integration | Technical acceptance complete; owner closure pending |
-| 7 | Web dashboard | Planned |
+| 6 | AI integration | Accepted; issue closed |
+| 7 | Web dashboard | In progress; owner-scoped project persistence implemented |
 | 8 | Reporting and catalog expansion | Planned |
 | 9 | Domain and deployment | Planned |
 | 10 | Customer management and pilot | Planned |
