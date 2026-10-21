@@ -98,3 +98,25 @@ Official contract references reviewed on 2026-10-21:
 
 - [Structured outputs](https://developers.openai.com/api/docs/guides/structured-outputs)
 - [Responses migration and storage controls](https://developers.openai.com/api/docs/guides/migrate-to-responses)
+
+## Fixed-Origin Transport Preparation
+
+An internal HTTPS primitive targets only `api.openai.com:443/v1/responses`, uses
+certificate verification, ignores environment proxy routing, and never follows
+redirects or retries automatically. It resolves an environment key only after
+explicit remote enablement and a positive claimed cost reservation within the
+configured cap. Invalid/header-injected keys prevent connection. Response media,
+encoding, body bytes, envelope and advice references are validated; errors omit
+keys, headers, provider bodies, and OS details. Connections close on all outcomes.
+
+This primitive is intentionally not registered with AiSession or any CLI. Its
+reservation argument is a caller contract, not verified billing or a price quote.
+DNS/slow-stream hard deadlines still require an isolated parent before live use.
+The shared session currently admits only the guaranteed-free offline adapter.
+Trusted model/pricing configuration, paid-usage authorization, isolated remote
+runtime wiring, and live compatibility/evaluation remain unfinished. No production
+spend-control claim is made for this unregistered primitive.
+
+Eight mocked transport tests pass; all 376 local unit tests pass. Tests use fake
+keys and mocked HTTPS only. No real environment credentials were read, no model
+was contacted, and no paid request was made.
