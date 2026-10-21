@@ -2,8 +2,13 @@
 
 ## Current Mode
 
-The owner chose free local validation first on 2026-10-21. AiSession accepts only
-the offline scripted adapter. There is no default model, active remote provider,
+Update: the owner subsequently selected local Ollama. AiSession now also accepts
+the registered local qwen3:4b adapter. It uses no key and no paid cloud model.
+Real model evaluation is separate from the previously accepted scripted evidence;
+see [Ollama setup](OLLAMA.md) and docs/SPRINT_6.md for measured status.
+
+The owner chose free scripted validation first on 2026-10-21. That accepted stage
+used only the offline scripted adapter. There was no default model, active remote provider,
 paid request, model credential requirement, or measured real-model accuracy.
 The unregistered OpenAI primitive is preparation, not an enabled model backend.
 

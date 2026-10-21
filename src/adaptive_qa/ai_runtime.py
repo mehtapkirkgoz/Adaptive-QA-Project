@@ -1,4 +1,4 @@
-"""Bounded offline AI adapter and session admission; no remote model calls."""
+"""Bounded scripted/local Ollama AI admission; no cloud model calls."""
 
 from dataclasses import dataclass, field
 import json
@@ -13,6 +13,7 @@ from time import monotonic
 
 from adaptive_qa.ai_models import AiAdvice, AiBudget
 from adaptive_qa.ai_validation import decode_ai_advice, reduce_ai_input
+from adaptive_qa.ollama_provider import OllamaProvider
 from adaptive_qa.browser_process import _terminate_process_tree
 
 
@@ -69,11 +70,11 @@ class AiSession:
             self._reserved_cost += upper_cost
             return True
 
-    def suggest(self, page, logical_names, provider: OfflineAiProvider | None):
+    def suggest(self, page, logical_names, provider: OfflineAiProvider | OllamaProvider | None):
         if provider is None:
             return AiOutcome('unavailable', 'AI provider is disabled; deterministic behavior remains available.')
-        if not isinstance(provider, OfflineAiProvider):
-            raise ValueError('Only the registered offline provider is currently supported.')
+        if not isinstance(provider, (OfflineAiProvider, OllamaProvider)):
+            raise ValueError('Only registered offline or local Ollama providers are supported.')
         if (not isinstance(logical_names, tuple) or len(logical_names) > 50
                 or any(not isinstance(name, str) for name in logical_names)
                 or len(set(logical_names)) != len(logical_names)):
@@ -82,7 +83,7 @@ class AiSession:
             reduced = reduce_ai_input(page, self.budget)
         except ValueError:
             return AiOutcome('rejected', 'AI input did not satisfy the reduction budget.')
-        # Offline transport is guaranteed free. Future remote adapters must
+        # Scripted/local model transport has no API charge. Future remote adapters must
         # supply a trusted worst-case charge before admission, never model claims.
         if not self._reserve(0):
             return AiOutcome('budget_exhausted', 'AI session request, cost, or time budget is exhausted.')
@@ -91,8 +92,14 @@ class AiSession:
             with TemporaryDirectory(prefix='adaptive-qa-ai-') as temporary:
                 source = Path(temporary) / 'private.json'
                 destination = Path(temporary) / 'response.json'
-                source.write_text(json.dumps({'response': provider.response,
-                    'delay': provider.delay_seconds, 'fail': provider.fail}), encoding='utf-8')
+                if isinstance(provider, OllamaProvider):
+                    from dataclasses import asdict
+                    private_input = {'kind': 'ollama', 'provider': asdict(provider),
+                        'reduced': asdict(reduced), 'logical_names': logical_names, 'budget': asdict(self.budget)}
+                else:
+                    private_input = {'kind': 'offline', 'response': provider.response,
+                                     'delay': provider.delay_seconds, 'fail': provider.fail}
+                source.write_text(json.dumps(private_input), encoding='utf-8')
                 options = {'start_new_session': True} if os.name != 'nt' else {
                     'creationflags': subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.CREATE_NO_WINDOW}
                 process = subprocess.Popen([sys.executable, '-m', 'adaptive_qa.ai_runtime',
@@ -119,17 +126,27 @@ class AiSession:
 
 
 def main():
-    """Private scripted child. No network, credentials, or arbitrary plugins."""
+    """Private child for scripted or fixed-loopback Ollama; no cloud plugins."""
     import time
     source, destination = map(Path, sys.argv[1:])
     if source.stat().st_size > 262144:
         raise ValueError('Private scripted input exceeds the transport limit.')
     raw = json.loads(source.read_text(encoding='utf-8'))
-    provider = OfflineAiProvider(raw['response'], raw['delay'], raw['fail'])
-    time.sleep(provider.delay_seconds)
-    if provider.fail:
-        raise RuntimeError('Scripted failure.')
-    destination.write_text(provider.response, encoding='utf-8')
+    if raw.get('kind', 'offline') == 'ollama':
+        from adaptive_qa.ai_validation import ReducedAiInput
+        from adaptive_qa.ollama_provider import request_ollama
+        reduced = raw['reduced']
+        reduced['evidence_ids'] = tuple(reduced['evidence_ids'])
+        reduced['candidate_ids'] = tuple(reduced['candidate_ids'])
+        content = request_ollama(OllamaProvider(**raw['provider']), ReducedAiInput(**reduced),
+            tuple(raw['logical_names']), AiBudget(**raw['budget']))
+    else:
+        provider = OfflineAiProvider(raw['response'], raw['delay'], raw['fail'])
+        time.sleep(provider.delay_seconds)
+        if provider.fail:
+            raise RuntimeError('Scripted failure.')
+        content = provider.response
+    destination.write_text(content, encoding='utf-8')
 
 
 if __name__ == '__main__':

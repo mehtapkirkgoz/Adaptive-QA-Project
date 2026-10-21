@@ -2,8 +2,8 @@
 
 Started: 2026-10-21, explicitly authorized by the owner in this chat.
 Status: In progress
-Free local implementation and exact-commit CI review are complete. Waiting for
-the owner's later live-model/spend decision; no additional paid work is authorized.
+Scripted validation is complete. The owner subsequently selected Ollama for
+real local-model validation; no paid cloud service is authorized.
 Issue: [#7](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/7)
 Milestone: [#7](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/7)
 
@@ -164,3 +164,19 @@ tests cover false positives, abstentions, alignment, and duplicate label rejecti
 The two added runtime contract tests also prevent malformed advice envelopes
 and negative/boolean cost reservation. Oversized numeric model output is rejected
 without conversion overflow. See [validation and enablement](AI_VALIDATION.md).
+
+## Owner-Selected Ollama Integration
+
+The owner selected Ollama instead of a paid cloud API. A registered `qwen3:4b`
+adapter now participates in the existing isolated AiSession using a fixed numeric
+loopback endpoint, the shared provider-independent schema, strict response
+validation, request/time/output bounds, and zero API cost. No cloud URL or model
+alias is accepted by configuration. The host service is configured local-only;
+its model registry is a trusted host component. The OpenAI primitive stays dormant.
+
+Seven mocked Ollama transport tests pass; all 395 local tests pass. The evaluation
+script now measures actual local-model predictions on four independently labeled
+fixtures and reports errors/abstention/latency without hiding failures. Installation,
+model download and real predictions remain pending until measured. See
+[Ollama setup and limitations](OLLAMA.md). No automatic model download occurs
+during test execution; setup is separate from inference.
