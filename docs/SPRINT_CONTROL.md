@@ -3,6 +3,9 @@
 Updated: 2026-10-21
 
 Active sprint: 6 — AI Integration.
+Free local scope and exact-commit CI/artifact review are complete. The owner
+explicitly deferred live model/spend selection. Wait quietly for that decision;
+do not enable remote calls, repeat unchanged tests, or start Sprint 7.
 Sprint 5 technical acceptance is complete and issue #6 was closed at the owner's request.
 Owner authorization: explicitly started in this chat on 2026-10-21.
 Sprint 0–4 technical acceptance and owner closure are complete.

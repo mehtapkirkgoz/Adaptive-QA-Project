@@ -1,5 +1,12 @@
 # Adaptive-QA-Project
 
+Sprint 6 free local AI validation is verified: 388 unit tests, 18 scripted
+integration/browser controls, and seven successful CI jobs for
+`54ece45bee3a628d260e321f3ff7587d43691837`. Original test policy, plan decisions,
+assertions, and element ambiguity remain authoritative. No live model or paid
+provider is enabled; model selection and spending are deferred by the owner.
+Sprint 6 remains open. See [local AI acceptance](docs/SPRINT_6_LOCAL_ACCEPTANCE.md).
+
 Sprint 5 technical acceptance is complete and awaits owner closure. The local
 catalog has 40 UI, 20 API, and 15 database scenarios. All seven jobs passed in
 [verified CI](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/actions/runs/39563143665)
