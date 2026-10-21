@@ -83,7 +83,7 @@ is weakened to accommodate a failed match or a fixture variation.
 - [x] Record explicit scope and reproduction commands.
 - [x] Verify final same-commit CI and downloaded evidence.
 - [x] Update completion documents and close issue #4 after acceptance.
-- [ ] Repository owner closes milestone #4.
+- [x] Repository owner closes milestone #4.
 
-Issue #4 is closed as completed. The connected tool cannot close milestones;
-milestone #4 remains an owner action. Technical acceptance is complete.
+Issue #4 is closed as completed. The repository owner confirmed milestone #4 is
+closed. Technical acceptance and milestone tracking are complete.

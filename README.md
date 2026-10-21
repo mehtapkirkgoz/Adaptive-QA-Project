@@ -2,7 +2,7 @@
 
 An AI-assisted QA platform under development for website discovery and applicable UI, API, and database tests.
 
-**Status:** Sprint 3 completed on October 21, 2026 (Europe/Istanbul): UI catalog and element matching. Sprint 2 is complete. The local prototype runs 40 UI scenarios through a persistent queue with cancellation, deadlines, destination controls, JSON results, and screenshots. Page feature detection, guarded structural collection, bounded local crawling, and evidence-based test plans are implemented and verified against four contrasting controlled sites. AI, API/SQL execution, and the dashboard are not implemented yet.
+**Status:** Sprint 4 started on October 21, 2026 (Europe/Istanbul): API testing. Sprint 3 is complete. Sprint 2 is complete. The local prototype runs 40 UI scenarios through a persistent queue with cancellation, deadlines, destination controls, JSON results, and screenshots. Page feature detection, guarded structural collection, bounded local crawling, and evidence-based test plans are implemented and verified against four contrasting controlled sites. AI, API/SQL execution, and the dashboard are not implemented yet.
 
 ## Project Plans
 
@@ -14,7 +14,7 @@ Sprints follow goals and acceptance criteria without a fixed two-week commitment
 | 1 | First controlled end-to-end execution | Completed |
 | 2 | Website discovery | Completed |
 | 3 | UI catalog and element matching | Completed |
-| 4 | API tests | Planned |
+| 4 | API tests | In progress |
 | 5 | Database validation | Planned |
 | 6 | AI integration | Planned |
 | 7 | Web dashboard | Planned |
@@ -209,5 +209,14 @@ for `eb95e96696d148133747ee4f290cb727f9fc4bb1` passed all four jobs: 268 unit te
 and discovery/security/lifecycle regressions. Three archive digests, all result
 records, and 176 PNG references were verified. A pre-cleanup form screenshot was
 visually inspected. See [acceptance evidence](docs/SPRINT_3_ACCEPTANCE.md).
-Issue #4 is closed; milestone #4 is ready for the owner to close. The Sprint 3
+Issue #4 is closed; milestone #4 was closed by the owner. The Sprint 3
 hourly follow-up is paused after acceptance.
+
+
+
+## Sprint 4
+
+[Plan](docs/SPRINT_4.md) and [issue #5](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/5)
+track configured API transport, authentication references, structured assertions,
+explicit UI/API bindings, and controlled positive/negative coverage. Customer API
+execution remains disabled until its authorization and adapter contracts are verified.

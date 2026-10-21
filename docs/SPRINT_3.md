@@ -4,7 +4,7 @@ Start date: October 21, 2026 (Europe/Istanbul)
 Status: Completed — implementation CI and downloaded evidence verified on October 21, 2026.
 Tracking issue: [#4](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/4).
 Milestone: [Sprint 3 — UI Test Catalog and Element Matching](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/4).
-Issue #4 is closed as completed. Milestone #4 is ready for the repository owner to close.
+Issue #4 is closed as completed. The repository owner confirmed milestone #4 is closed.
 
 ## Goal
 
