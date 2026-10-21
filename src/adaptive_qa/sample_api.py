@@ -134,10 +134,12 @@ class SampleApiHandler(BaseHTTPRequestHandler):
             self._respond(405, {'error': 'method_not_allowed'})
 
 
-def create_sample_api(token: str, *, redirect_target='http://127.0.0.1:8001/forbidden'):
+def create_sample_api(token: str, *, redirect_target='http://127.0.0.1:8001/forbidden', handler=SampleApiHandler):
     if not isinstance(token, str) or not token or not token.isascii() or any(ord(c) <= 32 for c in token):
         raise ValueError('A generated ASCII fixture token is required.')
-    server = ThreadingHTTPServer(('127.0.0.1', 8000), SampleApiHandler)
+    if not isinstance(handler, type) or not issubclass(handler, SampleApiHandler):
+        raise ValueError('A controlled API handler class is required.')
+    server = ThreadingHTTPServer(('127.0.0.1', 8000), handler)
     server.token = token
     server.redirect_target = redirect_target
     server.operations = []
