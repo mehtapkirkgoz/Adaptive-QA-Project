@@ -19,7 +19,7 @@ scenarios, subject to implemented behavior and verified acceptance.
 - [x] 5.2: Implement the first bounded adapter with enforced read-only execution, row limits, deadlines, and safe outcomes.
 - [x] 5.3: Implement controlled fixture preparation and approximately 15 distinct database scenarios.
 - [x] 5.4: Validate a record created through a controlled UI/API operation without combining independent layer outcomes.
-- [ ] 5.5: Verify write rejection, malformed queries, connection failures, timeout/cancellation, redaction, and cleanup.
+- [x] 5.5: Verify write rejection, malformed queries, connection failures, timeout/cancellation, redaction, and cleanup.
 - [ ] 5.6: Review exact-commit CI and artifacts; report technical acceptance to the owner.
 
 ## Adapter Decision Gate
@@ -113,6 +113,22 @@ upstream results stay passed. Five unit tests cover gating, identity mismatches,
 foreign configuration, adapter errors, and independent outcomes. Local validation:
 339 unit tests and the real four-control bridge pass. The bridge is an integration
 control, not an extra catalog case. CI browser acceptance now repeats it.
+
+## Phase 5.5 Delivered
+
+Nineteen real isolated boundaries cover missing/foreign configuration, missing
+environment references and files, out-of-root files, destructive/schema/temp
+writes, query-only overrides, attachments, extension loading, multiple statements,
+row/byte limits, binary values, corrupt databases, total deadlines, and active
+and prestart cancellation. Fixture and outside-file bytes remain unchanged;
+no unexpected files appear. All 15 scenarios also pass in reverse order after
+the boundary probes, and exclusive database locking confirms connection release.
+
+A generated private sentinel, paths, SQL, and fake customer values are excluded
+from retained metadata. Process spawn failures now produce a safe execution error
+instead of leaking OS exceptions. The local suite passes 340 tests; the boundary
+script and reverse-order checks pass. Ubuntu and Windows CI retain outcome-only
+boundary evidence. Exact-commit CI and artifact review remain phase 5.6 work.
 
 ## Acceptance
 

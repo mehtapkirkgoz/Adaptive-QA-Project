@@ -105,6 +105,13 @@ class DatabaseProcessTests(unittest.TestCase):
             popen.return_value.poll.return_value = 0
             self.assertEqual(self.run_child().status, TestStatus.ERROR)
 
+    def test_spawn_failure_returns_safe_error_without_private_details(self):
+        with patch('adaptive_qa.database_process.subprocess.Popen',
+                   side_effect=OSError('private executable path')):
+            result = self.run_child()
+        self.assertEqual(result.status, TestStatus.ERROR)
+        self.assertNotIn('private', result.message)
+
 
 if __name__ == '__main__':
     unittest.main()

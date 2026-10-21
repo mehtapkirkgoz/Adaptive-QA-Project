@@ -72,9 +72,12 @@ def run_isolated_database_case(case: DatabaseCase, configuration: DatabaseConfig
         source.write_text(encoded, encoding='utf-8')
         options = {'start_new_session': True} if os.name != 'nt' else {
             'creationflags': subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.CREATE_NO_WINDOW}
-        process = subprocess.Popen([sys.executable, '-m', 'adaptive_qa.database_process',
-            '--child-input', str(source), '--child-output', str(destination)],
-            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, **options)
+        try:
+            process = subprocess.Popen([sys.executable, '-m', 'adaptive_qa.database_process',
+                '--child-input', str(source), '--child-output', str(destination)],
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, **options)
+        except OSError:
+            return outcome(TestStatus.ERROR, 'The database process could not be started.')
         try:
             while True:
                 if should_cancel is not None and should_cancel():

@@ -77,13 +77,15 @@ jobs:
       - name: Verify isolated database scenarios
         run: python scripts/check_local_database.py
       - name: Verify database policy and process boundaries
-        run: python -m unittest discover -s tests -p "test_database*.py" -v
+        run: |
+          python -m unittest discover -s tests -p "test_database*.py" -v
+          python scripts/check_database_boundaries.py
       - name: Upload safe database evidence
         if: always()
         uses: actions/upload-artifact@v7
         with:
           name: local-database-evidence-${{ matrix.os }}
-          path: artifacts/database/report.json
+          path: artifacts/database/*.json
           retention-days: 7
           if-no-files-found: error
 
