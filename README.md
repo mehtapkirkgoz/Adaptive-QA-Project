@@ -229,4 +229,5 @@ for `5db716ced9576e878611e5579a3ebe0f64ddb873` passed five jobs with 307 unit te
 and retained UI/discovery/security/lifecycle coverage. Four artifact digests,
 60 case results, boundary/bridge reports, and 177 PNG references were verified.
 See [acceptance review](docs/SPRINT_4_ACCEPTANCE.md). Issue #5 is closed; the
-Sprint 4 milestone still requires owner creation/association/closure.
+[Sprint 4 milestone #5](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/5)
+is associated with issue #5 and was closed by the owner. Sprint tracking is complete.

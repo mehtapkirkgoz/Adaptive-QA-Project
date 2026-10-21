@@ -3,8 +3,8 @@
 Start date: October 21, 2026 (Europe/Istanbul)
 Status: Completed — implementation CI and downloaded evidence verified on October 21, 2026.
 Tracking: [issue #5](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/5).
-Milestone: Pending creation and association by the repository owner.
-Issue #5 is closed as completed. Technical acceptance is complete; milestone tracking remains an owner action.
+Milestone: [Sprint 4 — API Testing](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/5), closed by the repository owner.
+Issue #5 is associated with milestone #5 and closed as completed. Technical acceptance and milestone tracking are complete.
 
 ## Goal
 

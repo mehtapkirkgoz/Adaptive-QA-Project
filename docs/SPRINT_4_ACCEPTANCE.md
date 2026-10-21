@@ -60,8 +60,9 @@ SHA. A bridge screenshot was visually inspected: the sample book input and
 literal no-results status match the fixed UI assertion. Downloads, metadata,
 and inspection tooling are retained under ignored `artifacts/acceptance/`.
 GitHub artifacts have seven-day retention; committed scripts/fixtures reproduce
-these checks. Issue #5 is closed. The tool exposes no milestone write operations,
-so Sprint 4 milestone creation/association/closure remains an owner action.
+these checks. Issue #5 is closed and associated with
+[milestone #5](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/5),
+which was closed by the repository owner. Sprint tracking is complete.
 
 ## Explicit Scope
 
@@ -80,4 +81,4 @@ environment references and values are resolved only during execution.
 - [x] Record scope and reproduction commands.
 - [x] Verify final CI jobs and downloaded artifacts.
 - [x] Update sprint completion documents and close issue #5 after acceptance.
-- [ ] Create/associate/close the Sprint 4 milestone through the repository owner.
+- [x] Associate issue #5 with milestone #5 and verify the owner's milestone closure.
