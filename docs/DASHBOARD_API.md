@@ -74,5 +74,21 @@ must enforce the same owner/project binding when resolving them.
 Missing and other-owner configurations have the same 404 response. Invalid
 configuration returns a masked 400 and leaves the previous saved settings intact.
 Saving performs no DNS lookup, target connection, SQL validation, AI call or job
-submission. General target execution remains disabled. Plan review and run
+submission. General target execution remains disabled. Run
 execution endpoints are not implemented yet.
+
+## Saved-configuration Plan Preview
+
+`GET /api/projects/{project_id}/plan` requires the owner's session and returns
+409 until target settings are saved. It uses only stored settings, not unsaved
+form edits. It does not perform discovery, resolve secrets, enqueue jobs or visit
+the target. Cross-owner and missing projects share 404; anonymous access is 401.
+
+The response separates total catalog size (75 definitions) from selected,
+skipped and blocked decisions, includes per-case reasons and seven feature
+statuses, and always has `execution_authorized: false`. Current discovery status
+is `not_run`, with zero inspected pages and unknown feature states. Consequently
+all cases remain blocked: UI prerequisites lack evidence, while API/database
+cases also need explicit adapter bindings. Enabling data changes or adding secret
+references does not create such evidence or authorize execution. This is a
+conservative preview; worker-backed discovery and execution remain unfinished.

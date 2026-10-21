@@ -71,6 +71,11 @@ def main():
                     expect(page.get_by_label('Allow tests that change data')).not_to_be_checked()
                     expect(page.get_by_label('login password', exact=False)).to_be_checked()
                     expect(page.get_by_text('[REDACTED]', exact=True)).to_be_visible()
+                    page.get_by_role('button', name='Review saved plan', exact=True).click()
+                    review = page.get_by_label('Plan review results')
+                    expect(review).to_contain_text('Catalog: 75 · Selected: 0 · Skipped: 0 · Blocked: 75')
+                    expect(review).to_contain_text('Execution authorized: No.')
+                    expect(review.locator('details')).to_have_count(75)
                     page.screenshot(path=str(output / 'workspace-desktop.png'), full_page=True)
                     page.set_viewport_size({'width': 390, 'height': 844})
                     assert page.evaluate('document.documentElement.scrollWidth <= window.innerWidth')
@@ -91,7 +96,8 @@ def main():
     (output / 'ui.json').write_text(json.dumps({'status': 'passed', 'checks': [
         'invalid login', 'password cleared', 'login', 'owner-filtered list', 'create',
         'rename', 'save settings', 'reload persistence', 'masked reference',
-        'mobile width', 'logout persistence', 'no script errors or external requests']}), encoding='utf-8')
+        'conservative non-executing plan review', 'mobile width', 'logout persistence',
+        'no script errors or external requests']}), encoding='utf-8')
     print('Built React dashboard browser checks passed.')
 
 

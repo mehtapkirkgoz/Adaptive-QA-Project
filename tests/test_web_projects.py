@@ -130,3 +130,17 @@ class WebProjectTests(unittest.TestCase):
             self.assertNotIn('private', response.text)
             self.assertNotIn('PRIVATE_TOKEN', response.text)
         self.assertFalse(self.client.get(path).json()['configured'])
+
+    def test_plan_review_is_owner_scoped_and_requires_saved_settings(self):
+        project, path, data = self.settings()
+        plan_path = '/api/projects/' + project.project_id + '/plan'
+        self.assertEqual(self.client.get(plan_path).status_code, 409)
+        self.client.put(path, headers=self.headers, json=data)
+        response = self.client.get(plan_path)
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.json()['execution_authorized'])
+        self.assertEqual(response.json()['counts']['selected'], 0)
+        other = self.projects.create(self.bob, 'Private plan')
+        self.assertEqual(self.client.get('/api/projects/' + other.project_id + '/plan').status_code, 404)
+        self.client.cookies.clear()
+        self.assertEqual(self.client.get(plan_path).status_code, 401)

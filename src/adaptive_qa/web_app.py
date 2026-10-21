@@ -15,6 +15,7 @@ from starlette.staticfiles import StaticFiles
 
 from adaptive_qa.auth_store import AuthenticationError, AuthStore
 from adaptive_qa.project_store import ProjectStore, ProjectNotFound
+from adaptive_qa.dashboard_plan import review_project_plan, ConfigurationRequired
 
 
 SESSION_COOKIE = 'adaptive_session'
@@ -68,6 +69,10 @@ def create_app(store: AuthStore, *, port=8765, projects=None, ui_directory=None)
     async def missing_project(request, error):
         return JSONResponse({'detail': 'Project not found.'}, status_code=404)
 
+    @app.exception_handler(ConfigurationRequired)
+    async def configuration_required(request, error):
+        return JSONResponse({'detail': 'Save project configuration before reviewing a plan.'}, status_code=409)
+
     @app.exception_handler(ValueError)
     @app.exception_handler(RequestValidationError)
     async def invalid_request(request, error):
@@ -111,6 +116,10 @@ def create_app(store: AuthStore, *, port=8765, projects=None, ui_directory=None)
     @app.get('/api/projects/{project_id}/configuration')
     def get_configuration(project_id: str, request: Request):
         return projects.configuration(actor(request), project_id)
+
+    @app.get('/api/projects/{project_id}/plan')
+    def review_plan(project_id: str, request: Request):
+        return review_project_plan(projects, actor(request), project_id)
 
     @app.put('/api/projects/{project_id}/configuration')
     async def put_configuration(project_id: str, request: Request):

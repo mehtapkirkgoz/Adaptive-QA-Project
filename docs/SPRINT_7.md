@@ -189,3 +189,24 @@ cc8216f passed CI run 39652672378; this increment needs its own CI result.
 
 All 447 unit tests, the TypeScript/Vite build, the built dashboard browser check,
 and the existing authentication/project/settings browser check passed locally.
+
+### Phase 7.4 partial: conservative saved-plan review
+
+The owner-scoped plan endpoint and React review section now display catalog and
+decision counts, per-case reasons, and explicit non-execution status. Previewing
+uses the existing planner with an empty, explicitly limited crawl: no discovery
+job exists yet, so zero inspected pages and unknown features are retained. All
+75 catalog definitions remain blocked; configured references are not API/database
+adapter bindings. Data-change permission never authorizes execution. No target
+connection or secret resolution occurs. Unsaved form changes are excluded, and
+the preview clears on configuration save, project switch or logout.
+
+Three service tests and one HTTP test verify no fabricated findings, no network
+or secret resolution, owner isolation, missing configuration, and no authorization
+when data changes are enabled. Chromium checks review counts, all 75 decisions,
+and the explicit lack of execution permission. Phase 7.4 remains partial until
+worker-backed discovery can supply evidence. Prior UI implementation fdd17e1
+passed CI run 39688525407; this increment requires current-commit CI.
+
+All 451 local unit tests, strict TypeScript/Vite build and the actual built React
+browser check passed. Current implementation CI will be checked after push.

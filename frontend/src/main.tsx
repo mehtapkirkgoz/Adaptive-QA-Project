@@ -2,8 +2,12 @@ import {useEffect, useState} from 'react';
 import type {FormEvent} from 'react';
 import {createRoot} from 'react-dom/client';
 import './style.css';
+import './plan.css';
 
 type Project = {project_id: string; name: string};
+type Plan = {execution_authorized: false; inspected_pages: number; discovery_status: string;
+  counts: {catalog: number; selected: number; skipped: number; blocked: number};
+  cases: {case_id: string; name: string; test_type: string; decision: string; reason: string}[]};
 type Settings = {configured: boolean; base_url?: string; allowed_hosts?: string[];
   allow_data_changes?: boolean; available_secret_references: Record<string, string>;
   secret_references?: Record<string, {environment_variable: string; value: string}>};
@@ -30,7 +34,8 @@ function App() {
   const [selected, setSelected] = useState<Project | null>(null), [settings, setSettings] = useState<Settings | null>(null);
   const [target, setTarget] = useState(''), [hosts, setHosts] = useState(''), [changes, setChanges] = useState(false);
   const [slots, setSlots] = useState<string[]>([]);
-  function clear() {setSignedIn(false); setProjects([]); setSelected(null); setSettings(null); setTarget(''); setHosts(''); setSlots([]); setChanges(false); setOffset(0);}
+  const [plan, setPlan] = useState<Plan | null>(null);
+  function clear() {setSignedIn(false); setProjects([]); setSelected(null); setSettings(null); setPlan(null); setTarget(''); setHosts(''); setSlots([]); setChanges(false); setOffset(0);}
   function fail(e: unknown) {if (e instanceof ApiError && e.status === 401) clear(); setError(e instanceof Error ? e.message : 'Request failed.');}
   async function perform(task: () => Promise<void>) {
     setBusy(true); setError(''); setNotice('');
@@ -50,7 +55,7 @@ function App() {
   }, []);
   async function choose(project: Project) {
     await perform(async () => {
-      setSelected(null); setSettings(null);
+      setSelected(null); setSettings(null); setPlan(null);
       const data = await api<Settings>(`/api/projects/${project.project_id}/configuration`);
       setSelected(project); setSettings(data); setTarget(data.base_url ?? '');
       setHosts(data.allowed_hosts?.join('\n') ?? ''); setChanges(data.allow_data_changes ?? false);
@@ -79,7 +84,7 @@ function App() {
     const secret_references = Object.fromEntries(slots.map(slot => [slot, settings.available_secret_references[slot]]));
     void perform(async () => {const data = await api<Settings>(`/api/projects/${selected.project_id}/configuration`, 'PUT', {
       base_url: target, allowed_hosts: hosts.split('\n').map(h => h.trim()).filter(Boolean), allow_data_changes: changes, secret_references});
-      setSettings(data); setNotice('Configuration saved. No tests were started.');});
+      setSettings(data); setPlan(null); setNotice('Configuration saved. No tests were started.');});
   }
   return <div className="shell">
     <aside><a className="brand" href="/" aria-label="Adaptive QA home"><span className="mark">AQ</span> Adaptive QA</a>
@@ -112,8 +117,19 @@ function App() {
                 {Object.keys(settings.available_secret_references).map(slot => <label className="check" key={slot}><input type="checkbox" checked={slots.includes(slot)} onChange={e => setSlots(e.target.checked ? [...slots, slot] : slots.filter(s => s !== slot))}/><span>{slot.replaceAll('_', ' ')}{slots.includes(slot) && <small className="masked">[REDACTED]</small>}</span></label>)}
                 {slots.length > 0 && <details><summary>Environment variable names</summary>{slots.map(slot => <code key={slot}>{settings.available_secret_references[slot]}</code>)}</details>}
                 <div className="save-bar"><p className="hint">Saving configuration does not start a test.</p><button className="primary" type="submit">{busy ? 'Saving…' : 'Save configuration'}</button></div>
-              </fieldset></form></>}
-            </section></div><div className="roadmap"><span className="dot"/><p>Project setup is available. Plan review and run controls are coming next.</p></div></>}
+              </fieldset></form>
+              <section className="plan-review"><h3>Test plan review</h3><p className="hint">Review the saved configuration. Unsaved edits are not included. Reviewing never starts tests or visits your target.</p>
+                <button disabled={busy || !settings.configured} onClick={() => void perform(async () => {
+                  setPlan(null); setPlan(await api<Plan>(`/api/projects/${selected.project_id}/plan`));
+                })}>Review saved plan</button>
+                {!settings.configured && <p className="hint">Save a target configuration first.</p>}
+                {plan && <div aria-label="Plan review results"><p className="message">Discovery has not run. No pages have been inspected. Features remain unknown.</p>
+                  <p className="hint">Catalog: {plan.counts.catalog} · Selected: {plan.counts.selected} · Skipped: {plan.counts.skipped} · Blocked: {plan.counts.blocked}</p>
+                  <p className="hint">Execution authorized: No. Configured references do not establish API or database bindings.</p>
+                  <div className="plan-cases">{plan.cases.map(item => <details key={item.case_id}><summary>{item.case_id} · {item.name} · {item.decision}</summary><p>{item.test_type} — {item.reason}</p></details>)}</div>
+                </div>}
+              </section></>}
+            </section></div><div className="roadmap"><span className="dot"/><p>Saved-plan preview is available. Discovery and run controls are coming next.</p></div></>}
       </main><footer>ADAPTIVE QA <span>Controlled scope. Clear evidence.</span></footer>
     </div></div>;
 }

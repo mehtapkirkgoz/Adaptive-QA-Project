@@ -6,7 +6,7 @@ An AI-assisted QA platform under development for website discovery and applicabl
 
 All 397 unit tests and seven CI jobs passed for `5e51be96a0c8e63ab30217ee7d4860372fd85f9e`. Six artifact digests and retained regression evidence were reviewed. Nine actual local-model fixtures scored 8/9 website kinds overall and 4/5 on the separate holdout; errors and abstentions remain recorded. Browser guards prevented unsafe handles on incomplete and duplicate controls. These small-fixture measurements do not establish arbitrary-site accuracy.
 
-See [Sprint 6 acceptance](docs/SPRINT_6_ACCEPTANCE.md), [Ollama setup](docs/OLLAMA.md), and [Sprint 5 acceptance](docs/SPRINT_5_ACCEPTANCE.md). Sprint 7 now includes local session authentication, owner-scoped project/configuration APIs and masked, scoped secret references. The React project/settings interface is available. Plan review, integrated dashboard execution, customer-site execution, and deployment remain unfinished. See [Sprint 7](docs/SPRINT_7.md) and [dashboard API contracts](docs/DASHBOARD_API.md).
+See [Sprint 6 acceptance](docs/SPRINT_6_ACCEPTANCE.md), [Ollama setup](docs/OLLAMA.md), and [Sprint 5 acceptance](docs/SPRINT_5_ACCEPTANCE.md). Sprint 7 now includes local session authentication, owner-scoped project/configuration APIs and masked, scoped secret references. The React project/settings interface is available. Discovery-backed plan review, integrated dashboard execution, customer-site execution, and deployment remain unfinished. See [Sprint 7](docs/SPRINT_7.md) and [dashboard API contracts](docs/DASHBOARD_API.md).
 
 ## Project Plans
 
@@ -54,7 +54,7 @@ Keep port 8000 available and run these scripts sequentially. They manage local s
 
 Current local results:
 
-- **447 unit tests passed locally:** platform rules, adapters, authentication and project/settings ownership, not website scenarios.
+- **451 unit tests passed locally:** platform rules, adapters, authentication and project/settings ownership, not website scenarios.
 - Real Chromium login/logout, project management and masked configuration checks passed (`scripts/check_web_auth.py`, owned port 8765).
 - **3 real OS lifecycle checks passed on Windows:** deadline, active cancellation, and crash lock release.
 - **9 real Chromium security checks passed:** forbidden canaries received no connections.
