@@ -46,6 +46,19 @@ def main():
                     assert not cookies[CSRF_COOKIE]['httpOnly']
                     visible = page.evaluate('document.cookie')
                     assert SESSION_COOKIE not in visible and CSRF_COOKIE in visible
+                    projects = page.evaluate('''async () => {
+                        const csrf = document.cookie.split('; ').find(c=>c.startsWith('adaptive_csrf=')).split('=')[1];
+                        const headers = {'Content-Type':'application/json','X-CSRF-Token':csrf};
+                        const create = await fetch('/api/projects', {method:'POST',headers,body:JSON.stringify({name:'Browser project'})});
+                        const project = await create.json();
+                        const rename = await fetch('/api/projects/'+project.project_id, {method:'PATCH',headers,body:JSON.stringify({name:'Renamed project'})});
+                        const listed = await (await fetch('/api/projects?limit=1&offset=0')).json();
+                        const fetched = await (await fetch('/api/projects/'+project.project_id)).json();
+                        return {created:create.status,renamed:rename.status,listed:listed.projects,fetched};
+                    }''')
+                    assert projects['created'] == 201 and projects['renamed'] == 200
+                    assert projects['listed'] == [projects['fetched']]
+                    assert projects['fetched']['name'] == 'Renamed project'
                     assert page.evaluate("async () => (await fetch('/api/auth/logout', {method:'POST',headers:{'Content-Type':'application/json'},body:'{}'})).status") == 401
                     assert page.evaluate('''async () => {
                         const csrf = document.cookie.split('; ').find(c=>c.startsWith('adaptive_csrf=')).split('=')[1];
@@ -64,7 +77,8 @@ def main():
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps({'browser_auth': 'passed', 'checks': [
         'login identity', 'HttpOnly session', 'Strict SameSite', 'readable CSRF only',
-        'missing CSRF denied', 'logout', 'revoked identity', 'cookies removed']}), encoding='utf-8')
+        'project create rename list read', 'missing CSRF denied', 'logout',
+        'revoked identity', 'cookies removed']}), encoding='utf-8')
     print('Local dashboard browser authentication passed.')
 
 

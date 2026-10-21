@@ -8,7 +8,7 @@ Milestone: [#8](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/8
 ## Delivery Phases
 
 - [x] 7.1: Persist owner-scoped projects and verify cross-owner access boundaries.
-- [ ] 7.2: Add credential/session authentication and local web security controls.
+- [x] 7.2: Add credential/session authentication and local web security controls.
 - [ ] 7.3: Expose authenticated project/configuration APIs with secret references.
 - [ ] 7.4: Build the React/TypeScript dashboard for project and plan review.
 - [ ] 7.5: Bridge authorized run start/cancel/progress to separate worker execution.
@@ -52,7 +52,8 @@ accounts perform a dummy KDF. Missing/wrong/throttled credentials share one erro
 
 The initial core increment passed nine real-storage/KDF tests and 414 total unit
 tests. The HTTP increment below extends that baseline to 420 passing unit tests
-and a successful real Chromium authentication check. Phase 7.2 remains in progress.
+and a successful real Chromium authentication check. Subsequent increments below
+complete the local phase; integrated sprint acceptance still requires current CI.
 Credentials
 and tokens must never be accepted as frontend-supplied owner identities.
 
@@ -65,7 +66,7 @@ Reviewed implementation references:
 
 The FastAPI composition root now provides login, current identity, and logout.
 Only the fixed numeric loopback Host is accepted; forwarded headers and query
-strings are rejected. Mutations require the exact configured Origin and JSON
+strings are rejected except bounded project-list pagination. Mutations require the exact configured Origin and JSON
 content type. Actual body bytes are capped at 2 KiB, including chunked requests,
 with a five-second receive deadline. Login has an additional process-local global
 limit of twenty attempts per minute, including malformed credentials; the
@@ -78,14 +79,15 @@ Cookies intentionally lack Secure only for this numeric-loopback HTTP prototype;
 this app is not a production HTTPS deployment configuration. Responses forbid
 caching and framing, restrict content loading, and do not echo passwords or raw
 session tokens. OpenAPI and interactive documentation endpoints are disabled.
-There is no registration, run execution, or project mutation endpoint yet.
+There is no registration or run execution endpoint. Project mutations were added
+in the subsequent increment below.
 
 Six HTTP tests exercise real persisted accounts and sessions. A real Chromium
 check verifies login identity, cookie attributes and JavaScript visibility,
 missing-CSRF denial, logout, revocation and cookie removal. The browser check is
-included in CI and writes a value-free local evidence report. Local account
-provisioning/server launch commands and additional request-boundary integration
-coverage remain before phase 7.2 is accepted. Prior increment CI passed at
+included in CI and writes a value-free local evidence report. The subsequent
+increments add local operator commands and raw request-boundary coverage.
+Prior increment CI passed at
 `692d2eca918f5ad1dc2f3f461e5927ea36089dc4` (run 39648849144); this increment
 requires its own CI result after push.
 
@@ -104,3 +106,32 @@ noninteractive and mismatched-password rejection, invalid-port rejection before
 database creation, unavailable hidden input, and safe server options. The full
 425-test suite passed before the final hidden-input regression test was added;
 all six CLI tests then passed. Operator instructions are in SETUP.md.
+
+### Phase 7.2 local delivery and phase 7.3 project API increment
+
+Raw ASGI tests now exercise actual chunked bytes with absent/false Content-Length,
+disconnects, a real five-second stalled-body deadline, duplicate security headers,
+duplicate session cookie names, and unsupported body encoding. Denials retain
+no-store response headers. Strict JSON parsing rejects duplicate keys, non-finite
+constants and invalid encodings without echoing input. Local authentication
+delivery is complete; production identity features remain outside this prototype.
+
+Session-authenticated project APIs now support create, list, read and rename.
+Mutations require the session-bound CSRF header as well as the existing Origin
+check. Only project ID and display name are returned. Owner fields in JSON are
+rejected; owner headers cannot change the session-derived actor. Other-owner and
+missing projects return identical 404 responses. Pagination accepts only unique,
+bounded limit/offset values on the project list; other query parameters are denied.
+
+Six HTTP project tests verify persistence, cross-owner read/update denial,
+non-enumerating errors, forged ownership, CSRF/anonymous denial, stable filtered
+pagination, and masked invalid inputs. The Chromium check additionally creates,
+renames, lists and reads a project using the actual cookie/CSRF flow. Project
+target configuration, secret-reference APIs, React views, worker integration and
+owner-scoped evidence delivery remain unfinished. Project APIs do not enqueue jobs
+or execute plans, target requests, API calls, SQL, or AI calls.
+
+All 436 unit tests passed locally. The final body-buffer allocation adjustment
+was then rechecked with all four raw boundary tests. The real Chromium project
+and authentication check also passed. Exact-commit CI is pending after push;
+this is phase progress, not integrated sprint acceptance.
