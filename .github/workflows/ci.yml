@@ -132,6 +132,8 @@ jobs:
         run: python -m playwright install --with-deps chromium
       - name: Verify browser egress and redirect protection
         run: python scripts/check_network_security.py
+      - name: Verify dashboard browser authentication
+        run: python scripts/check_web_auth.py
       - name: Verify structural page collection
         run: python scripts/check_page_collector.py
       - name: Verify deterministic element matching
@@ -167,5 +169,6 @@ jobs:
             artifacts/bridge/*.json
             artifacts/database/bridge.json
             artifacts/ai/*.json
+            artifacts/dashboard/*.json
           retention-days: 7
           if-no-files-found: warn

@@ -50,13 +50,41 @@ admission permits five attempts per 60-second window with a bounded persistent
 identity table; failed attempts consume admission before hashing, and unknown
 accounts perform a dummy KDF. Missing/wrong/throttled credentials share one error.
 
-Nine real-storage/KDF tests pass; all 414 local unit tests pass. HTTP authentication
-routes, cookie flags, Origin/CSRF enforcement, request size/global admission,
-response masking, and actual browser login tests are still required before
-phase 7.2 is complete. No authentication endpoint is exposed yet. Credentials
+The initial core increment passed nine real-storage/KDF tests and 414 total unit
+tests. The HTTP increment below extends that baseline to 420 passing unit tests
+and a successful real Chromium authentication check. Phase 7.2 remains in progress.
+Credentials
 and tokens must never be accepted as frontend-supplied owner identities.
 
 Reviewed implementation references:
 
 - [OWASP password storage](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html)
 - [Python 3.13 password KDF functions](https://docs.python.org/3.13/library/hashlib.html#key-derivation)
+
+### Local HTTP authentication increment
+
+The FastAPI composition root now provides login, current identity, and logout.
+Only the fixed numeric loopback Host is accepted; forwarded headers and query
+strings are rejected. Mutations require the exact configured Origin and JSON
+content type. Actual body bytes are capped at 2 KiB, including chunked requests,
+with a five-second receive deadline. Login has an additional process-local global
+limit of twenty attempts per minute, including malformed credentials; the
+persistent per-identity limit remains in force. This global limit assumes one
+local server process and resets on restart.
+
+Session cookies are host-only, HttpOnly, Path=/ and SameSite=Strict. The separate
+readable CSRF cookie supplies the session-bound header required for logout.
+Cookies intentionally lack Secure only for this numeric-loopback HTTP prototype;
+this app is not a production HTTPS deployment configuration. Responses forbid
+caching and framing, restrict content loading, and do not echo passwords or raw
+session tokens. OpenAPI and interactive documentation endpoints are disabled.
+There is no registration, run execution, or project mutation endpoint yet.
+
+Six HTTP tests exercise real persisted accounts and sessions. A real Chromium
+check verifies login identity, cookie attributes and JavaScript visibility,
+missing-CSRF denial, logout, revocation and cookie removal. The browser check is
+included in CI and writes a value-free local evidence report. Local account
+provisioning/server launch commands and additional request-boundary integration
+coverage remain before phase 7.2 is accepted. Prior increment CI passed at
+`692d2eca918f5ad1dc2f3f461e5927ea36089dc4` (run 39648849144); this increment
+requires its own CI result after push.
