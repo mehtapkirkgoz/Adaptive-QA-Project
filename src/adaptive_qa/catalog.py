@@ -1,6 +1,7 @@
 """Reusable test case definitions."""
 
 from adaptive_qa.models import TestCase, TestType
+from adaptive_qa.extra_ui_checks import EXTRA_CASES
 
 
 LOGIN_FORM_VISIBLE = TestCase(
@@ -71,3 +72,5 @@ TEST_CASES: tuple[TestCase, ...] = (
                  ("Open the sample page", "Click the Search navigation link"),
                  "The URL ends with #search and the search section is in the viewport."),
 )
+
+TEST_CASES += EXTRA_CASES

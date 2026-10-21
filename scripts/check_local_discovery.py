@@ -7,6 +7,7 @@ from threading import Thread
 
 from adaptive_qa.crawler import CrawlBudget
 from adaptive_qa.local_discovery import discover_local_sample
+from adaptive_qa.catalog import TEST_CASES
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -53,17 +54,18 @@ def main():
         assert 'excluded_link' in result['limitations']
         plan = result['plan']
         assert not plan['execution_authorized']
-        assert sum(case['decision'] == 'selected' for case in plan['cases']) == 8
-        assert sum(case['decision'] == 'blocked' for case in plan['cases']) == 2
+        assert sum(case['decision'] == 'selected' for case in plan['cases']) == len(TEST_CASES)
         for case in plan['cases']:
             if case['decision'] == 'selected':
-                path = '/login' if case['case_id'].startswith('LOGIN') else '/search'
+                path = ('/login' if case['case_id'].startswith(('LOGIN', 'FORM')) else
+                        '/search' if case['case_id'].startswith('SEARCH') else '/')
                 assert case['target_url'] == 'http://127.0.0.1:8000' + path
                 assert case['evidence']
         reports['pages'] = discover_local_sample(CrawlBudget(max_pages=1))
         assert reports['pages']['attempted_pages'] == 1
         assert 'page_limit' in reports['pages']['limitations']
-        assert all(case['decision'] == 'blocked' for case in reports['pages']['plan']['cases'])
+        assert all(case['decision'] == 'blocked' for case in reports['pages']['plan']['cases']
+                   if not case['case_id'].startswith('NAV'))
         reports['depth'] = discover_local_sample(CrawlBudget(max_depth=0))
         assert len(reports['depth']['pages']) == 1
         assert 'depth_limit' in reports['depth']['limitations']

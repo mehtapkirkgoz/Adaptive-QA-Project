@@ -1,7 +1,7 @@
 # Sprint 3 — UI Test Catalog and Element Matching
 
 Start date: October 21, 2026 (Europe/Istanbul)
-Status: In progress — phases 3.1 through 3.3 completed locally.
+Status: In progress — phases 3.1 through 3.4 completed locally.
 Tracking issue: [#4](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/4).
 Milestone: [Sprint 3 — UI Test Catalog and Element Matching](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/4).
 
@@ -17,7 +17,7 @@ cosmetic variants or unimplemented definitions.
 - [x] 3.1: Define validated element mapping and matching result contracts.
 - [x] 3.2: Implement role/label/alternative-name matching with controlled missing and ambiguous outcomes.
 - [x] 3.3: Bind reusable executors to discovered pages and contrasting fixture variants.
-- [ ] 3.4: Expand login, form, search, navigation, and negative UI coverage toward 40 runnable scenarios.
+- [x] 3.4: Expand login, form, search, navigation, and negative UI coverage toward 40 runnable scenarios.
 - [ ] 3.5: Add isolated test data preparation/cleanup and data-change policy enforcement.
 - [ ] 3.6: Verify independent/repeated execution, remote CI, artifacts, and acceptance.
 
@@ -80,6 +80,26 @@ dispatch rejection and classification; all 260 unit tests pass locally.
 The mapped fixture changes input labels while retaining recognizable submit
 semantics for discovery. Universal custom action-name discovery is not claimed.
 AI, arbitrary customer URLs, and automatic plan execution remain disabled.
+
+## Phase 3.4 Deliverables
+
+The catalog now contains 40 registered scenarios: 10 login, 8 search, 16 native
+form, and 6 navigation behaviors. Thirty added executors assert keyboard/reset
+behavior, validation constraints, selection states, protected inputs, literal
+markup rendering, and history/state preservation. See [catalog guide](UI_CATALOG.md).
+Every added definition has an explicit expected outcome; variants do not inflate
+the count. A browser-invalid username regex was corrected in the fixtures after
+the negative case exposed it.
+
+Visible native fields and supported links now provide general forms/navigation
+prerequisites. These are structural prerequisites, not universal executor bindings.
+Existing discovery acceptance still checks its original five-feature matrix;
+the planner additionally carries forms/navigation evidence and limitations.
+
+All 262 unit tests pass locally. The 40-case queue run verifies registered
+executors, saved results, and screenshots. The 32 currently reusable cases pass
+96 isolated runs across English, Turkish, and mapped fixtures. Discovery budget
+and contrasting-site regressions also pass. CI verification remains pending.
 
 ## Acceptance Criteria
 

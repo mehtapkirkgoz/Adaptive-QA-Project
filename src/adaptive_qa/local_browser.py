@@ -14,8 +14,11 @@ from adaptive_qa.storage import save_result
 from adaptive_qa.smoke_checks import SMOKE_CHECKS
 from adaptive_qa.ui_bindings import ElementBindingError, REUSABLE_CHECKS, SITE_PATHS
 from adaptive_qa.element_models import MatchStatus
+from adaptive_qa.extra_ui_checks import EXTRA_CHECKS
 from pathlib import Path
 from uuid import uuid4
+
+VARIANT_CHECKS = {**REUSABLE_CHECKS, **EXTRA_CHECKS}
 
 
 def _capture_evidence(page: Page, evidence_path: Path) -> None:
@@ -107,7 +110,7 @@ def _verify_sample_page(evidence_path: Path, case_id: str = "LOGIN-001", *, site
                         plan = build_test_plan(CrawlResult((snapshot,), 1, ()), (definition,), project)
                         if plan.cases[0].decision != PlanDecision.SELECTED or plan.cases[0].target_url != snapshot.url:
                             raise RuntimeError('Fixture prerequisites do not support the selected case.')
-                        REUSABLE_CHECKS[case_id](page)
+                        VARIANT_CHECKS[case_id](page)
                     else:
                         SMOKE_CHECKS[case_id](page)
                 except (AssertionError, Error, RuntimeError):
@@ -125,7 +128,7 @@ def _verify_sample_page(evidence_path: Path, case_id: str = "LOGIN-001", *, site
 def run_sample_test(case_id: str, *, site: str = "root") -> TestResult:
     """Execute a registered sample check in a fresh browser context."""
     definition = next((case for case in TEST_CASES if case.case_id == case_id), None)
-    if site not in SITE_PATHS or (site != 'root' and case_id not in REUSABLE_CHECKS):
+    if site not in SITE_PATHS or (site != 'root' and case_id not in VARIANT_CHECKS):
         return TestResult(case_id, TestStatus.BLOCKED, 0.0, 'No controlled fixture executor binding is registered.')
     if case_id not in SMOKE_CHECKS or definition is None:
         return TestResult(case_id, TestStatus.BLOCKED, 0.0, "No sample executor is registered.")

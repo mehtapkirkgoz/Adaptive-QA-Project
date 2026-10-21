@@ -10,7 +10,8 @@ def main() -> None:
     )
     args = parser.parse_args()
     if args.status:
-        print("Local prototype: 10 smoke scenarios, bounded discovery, and scoped test planning available; "
+        from adaptive_qa.catalog import TEST_CASES
+        print(f"Local prototype: {len(TEST_CASES)} UI scenarios, bounded discovery, and scoped test planning available; "
               "general website execution is not enabled.")
     else:
         parser.print_help()

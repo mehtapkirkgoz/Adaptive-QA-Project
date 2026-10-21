@@ -87,6 +87,19 @@ class PageDiscoveryTests(unittest.TestCase):
                             buttons=("Sign in",))
         self.assertEqual(self.findings(forms=(form,))["login"].status, FeatureStatus.UNKNOWN)
 
+    def test_native_form_fields_supply_general_form_evidence(self):
+        result = self.findings(forms=(FormSnapshot(fields=(FieldSnapshot('email'),)),))
+        self.assertEqual(result['forms'].status, FeatureStatus.PRESENT)
+        self.assertEqual(result['forms'].evidence, ('form[0]',))
+
+    def test_navigation_requires_a_supported_link_target(self):
+        for href, expected in (('/account', FeatureStatus.PRESENT),
+                               ('#login', FeatureStatus.PRESENT),
+                               ('javascript:alert(1)', FeatureStatus.ABSENT)):
+            with self.subTest(href=href):
+                result = self.findings(links=(LinkSnapshot('Account', href),), collection_complete=True)
+                self.assertEqual(result['navigation'].status, expected)
+
 
 if __name__ == "__main__":
     unittest.main()

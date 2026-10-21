@@ -75,7 +75,7 @@ def main():
         crawl = CrawlResult(tuple(snapshot(page) for page in result['pages']),
                             result['attempted_pages'], tuple(result['limitations']))
         plan = build_test_plan(crawl, CASES, project)
-        statuses = {item.feature: item.status.value for item in plan.assessment.features}
+        statuses = {item.feature: item.status.value for item in plan.assessment.features if item.feature in FEATURES}
         assert statuses == dict(zip(FEATURES, expected)), (name, statuses)
         assert not plan.execution_authorized
         decisions = {'present': 'selected', 'absent': 'skipped', 'unknown': 'blocked'}

@@ -9,7 +9,7 @@ from threading import Thread
 
 from adaptive_qa.browser_process import run_isolated_sample_test
 from adaptive_qa.models import TestStatus
-from adaptive_qa.ui_bindings import REUSABLE_CHECKS
+from adaptive_qa.local_browser import VARIANT_CHECKS
 
 
 def main():
@@ -20,7 +20,7 @@ def main():
     results = []
     try:
         for site in ('english', 'turkish', 'mapped'):
-            for case_id in REUSABLE_CHECKS:
+            for case_id in VARIANT_CHECKS:
                 result = run_isolated_sample_test(case_id, site=site)
                 assert result.status == TestStatus.PASSED, (site, result)
                 assert result.evidence_paths and all(Path(path).is_file() for path in result.evidence_paths)

@@ -3,6 +3,7 @@
 from collections.abc import Callable
 
 from playwright.sync_api import Page, expect
+from adaptive_qa.extra_ui_checks import EXTRA_CHECKS
 
 
 def check_login_form(page: Page) -> None:
@@ -101,3 +102,4 @@ SMOKE_CHECKS: dict[str, Callable[[Page], None]] = {
     "NAV-001": check_login_navigation,
     "NAV-002": check_search_navigation,
 }
+SMOKE_CHECKS.update(EXTRA_CHECKS)

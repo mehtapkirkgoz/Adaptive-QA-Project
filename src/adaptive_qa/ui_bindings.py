@@ -26,6 +26,15 @@ DEFAULTS = {
     'search.query': _labels('search.query', 'search-form', 'Search products', 'Ürün ara'),
     'search.submit': _buttons('search.submit', 'search-form', 'Search', 'Ara'),
 }
+for key, scope, identifier in (
+    ('login.reset', 'login-form', 'login-reset'), ('login.toggle', 'login-form', 'login-toggle'),
+    ('search.reset', 'search-form', 'search-reset'),
+    *tuple(('forms.' + name, 'controls-form', 'control-' + name) for name in
+           ('email', 'terms', 'standard', 'express', 'country', 'notes', 'quantity',
+            'disabled', 'readonly', 'submit', 'reset')),
+    ('navigation.login', 'navigation', 'nav-login'), ('navigation.search', 'navigation', 'nav-search'),
+):
+    DEFAULTS[key] = ElementMapping(key, (LocatorSpec(LocatorStrategy.TEST_ID, identifier),), scope)
 OVERRIDES = ProjectElementMappings('local-demo', tuple(
     ElementMapping(key, (LocatorSpec(LocatorStrategy.TEST_ID, 'mapped-' + key.replace('.', '-')),),
                    mapping.scope_test_id) for key, mapping in DEFAULTS.items()))

@@ -9,7 +9,7 @@ from adaptive_qa.discovery import FeatureFinding, PageSnapshot, detect_page_feat
 from adaptive_qa.models import FeatureStatus, TestCase, TestType
 
 
-FEATURES = ('login', 'search', 'registration', 'product', 'cart')
+FEATURES = ('login', 'search', 'registration', 'product', 'cart', 'forms', 'navigation')
 
 
 class PlanDecision(StrEnum):

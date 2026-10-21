@@ -129,12 +129,14 @@ def detect_page_features(snapshot: PageSnapshot) -> tuple[FeatureFinding, ...]:
         raise ValueError("snapshot must be a PageSnapshot instance.")
     present: dict[str, str] = {}
     hints: dict[str, list[str]] = {name: [] for name in
-                                  ("login", "search", "registration", "product", "cart")}
+                                  ("login", "search", "registration", "product", "cart", "forms", "navigation")}
     for index, form in enumerate(snapshot.forms):
         if not form.visible:
             continue
         reference = f"form[{index}]"
         fields = [item for item in form.fields if item.visible]
+        if fields:
+            present.setdefault('forms', reference)
         types = {item.input_type.casefold() for item in fields}
         buttons = {_normalize(button) for button in form.buttons if button.strip()}
         if buttons & _LOGIN_NAMES:
@@ -173,6 +175,8 @@ def detect_page_features(snapshot: PageSnapshot) -> tuple[FeatureFinding, ...]:
             labels.add(_normalize(parsed.fragment))
         except ValueError:
             continue
+        if parsed.scheme in ('http', 'https') or (not parsed.scheme and link.href.startswith(('/', '#'))):
+            present.setdefault('navigation', f'link[{index}]')
         if labels & (_LOGIN_NAMES | {"giris"}):
             hints["login"].append(f"link[{index}]: login hint")
         if labels & _SEARCH_NAMES:

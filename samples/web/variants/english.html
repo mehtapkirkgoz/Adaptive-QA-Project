@@ -8,9 +8,9 @@
     <body>
         <header>
             <h1>Adaptive QA Sample</h1>
-            <nav aria-label="Main navigation">
-                <a href="#login">Sign in</a>
-                <a href="#search">Search</a>
+            <nav data-testid="navigation" aria-label="Main navigation">
+                <a data-testid="nav-login" href="#login">Sign in</a>
+                <a data-testid="nav-search" href="#search">Search</a>
             </nav>
         </header>
 
@@ -22,7 +22,7 @@
                     <div>
                         <label for="username">Username</label>
                         <input
-                            id="username" data-testid="mapped-login-username"
+                            id="username" data-testid="mapped-login-username" pattern="[a-z][a-z0-9_\-]{2,31}"
                             name="username"
                             type="text"
                             autocomplete="username"
@@ -33,7 +33,7 @@
                     <div>
                         <label for="password">Password</label>
                         <input
-                            id="password" data-testid="mapped-login-password"
+                            id="password" data-testid="mapped-login-password" minlength="8"
                             name="password"
                             type="password"
                             autocomplete="current-password"
@@ -42,6 +42,8 @@
                     </div>
 
                     <button data-testid="mapped-login-submit" type="submit">Sign in</button>
+<button type="button" data-testid="login-toggle" id="login-toggle">Toggle password visibility</button>
+<button type="reset" data-testid="login-reset">Reset login</button>
                     <p id="login-result" role="status"></p>
                 </form>
             </section>
@@ -51,11 +53,25 @@
 
                 <form id="search-form" data-testid="search-form" role="search">
                     <label for="query">Search products</label>
-                    <input id="query" data-testid="mapped-search-query" name="query" type="search" required />
+                    <input id="query" data-testid="mapped-search-query" maxlength="64" name="query" type="search" required />
                     <button data-testid="mapped-search-submit" type="submit">Search</button>
+<button type="reset" data-testid="search-reset">Reset search</button>
                     <p id="search-result" role="status"></p>
                 </form>
             </section>
+<section><h2>Native controls</h2><form id="controls-form" data-testid="controls-form">
+<label>Email <input type="email" data-testid="control-email" required></label>
+<label><input type="checkbox" data-testid="control-terms" required>Accept terms</label>
+<label><input type="radio" name="delivery" data-testid="control-standard" checked>Standard</label>
+<label><input type="radio" name="delivery" data-testid="control-express">Express</label>
+<label>Country <select data-testid="control-country"><option value="gb">United Kingdom</option><option value="tr">Türkiye</option></select></label>
+<label>Notes <textarea data-testid="control-notes"></textarea></label>
+<label>Quantity <input type="number" min="1" max="10" step="1" value="1" data-testid="control-quantity"></label>
+<label>Disabled <input value="fixed-disabled" disabled data-testid="control-disabled"></label>
+<label>Read only <input value="fixed-readonly" readonly data-testid="control-readonly"></label>
+<button type="submit" data-testid="control-submit">Submit controls</button>
+<button type="reset" data-testid="control-reset">Reset controls</button>
+<p id="controls-result" role="status"></p></form></section>
         </main>
 
         <script>
@@ -77,6 +93,18 @@
                         ? `No products found for "${query}".`
                         : "Enter a search term.";
                 });
+document.getElementById('login-toggle').addEventListener('click', () => {
+const input = document.getElementById('password'); input.type = input.type === 'password' ? 'text' : 'password';
+});
+for (const name of ['login', 'search', 'controls']) {
+document.getElementById(name + '-form').addEventListener('reset', () => {
+document.getElementById(name + '-result').textContent = '';
+if (name === 'login') document.getElementById('password').type = 'password';
+});
+}
+document.getElementById('controls-form').addEventListener('submit', event => {
+event.preventDefault(); document.getElementById('controls-result').textContent = 'Demo controls submitted.';
+});
         </script>
     </body>
 </html>

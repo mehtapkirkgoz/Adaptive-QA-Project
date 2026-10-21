@@ -2,7 +2,7 @@
 
 An AI-assisted QA platform under development for website discovery and applicable UI, API, and database tests.
 
-**Status:** Sprint 3 started on October 21, 2026 (Europe/Istanbul): UI catalog and element matching. Sprint 2 is complete. The local prototype runs 10 smoke scenarios through a persistent queue with cancellation, deadlines, destination controls, JSON results, and screenshots. Page feature detection, guarded structural collection, bounded local crawling, and evidence-based test plans are implemented and verified against four contrasting controlled sites. AI, API/SQL execution, and the dashboard are not implemented yet.
+**Status:** Sprint 3 started on October 21, 2026 (Europe/Istanbul): UI catalog and element matching. Sprint 2 is complete. The local prototype runs 40 UI scenarios through a persistent queue with cancellation, deadlines, destination controls, JSON results, and screenshots. Page feature detection, guarded structural collection, bounded local crawling, and evidence-based test plans are implemented and verified against four contrasting controlled sites. AI, API/SQL execution, and the dashboard are not implemented yet.
 
 ## Project Plans
 
@@ -50,15 +50,18 @@ Keep port 8000 available and run these scripts sequentially. They manage local s
 
 Current local results:
 
-- **260 unit tests passed locally:** platform rules and adapters, not website scenarios.
+- **262 unit tests passed locally:** platform rules and adapters, not website scenarios.
 - **3 real OS lifecycle checks passed on Windows:** deadline, active cancellation, and crash lock release.
 - **9 real Chromium security checks passed:** forbidden canaries received no connections.
-- **10 queued smoke scenarios passed:** matching JSON results and PNG screenshots.
+- **40 queued UI scenarios passed:** matching JSON results and PNG screenshots.
 - Dependency compatibility and compilation checks passed.
 
 Remote verification passed for the implementation commit on Linux and Windows. CI installs Chromium/system dependencies, runs security and smoke checks, and uploads `local-browser-evidence` with seven-day retention.
 
 ## Smoke Catalog
+
+The table below retains the original ten cases. Thirty additional scenarios are
+listed in the [full catalog guide](docs/UI_CATALOG.md).
 
 | Case | Behavior |
 |---|---|
@@ -197,5 +200,5 @@ reusable executors, independent test data, and expansion toward 40 meaningful
 runnable UI scenarios. Validated mappings and deterministic browser matching are
 implemented. Existing login/search checks pass across three controlled fixture
 variants in isolated processes, including explicit project overrides. The catalog
-still has ten scenarios; variants do not inflate its count. The hourly follow-up
+now has 40 distinct scenarios; 32 shared executors also pass 96 runs across three fixture variants. Variants do not inflate the case count. The hourly follow-up
 is active for this sprint.
