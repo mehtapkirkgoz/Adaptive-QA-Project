@@ -180,3 +180,14 @@ fixtures and reports errors/abstention/latency without hiding failures. Installa
 model download and real predictions remain pending until measured. See
 [Ollama setup and limitations](OLLAMA.md). No automatic model download occurs
 during test execution; setup is separate from inference.
+
+Host setup is running separately under the owner's authorization. The ignored
+`artifacts/setup/state.json` records its current stage. The helper
+`artifacts/setup/finish_ollama_setup.ps1` resumes the official installer download,
+requires a valid Ollama publisher signature before installation, starts a
+loopback/local-only service, and pulls qwen3:4b. Do not launch duplicate installers
+or pulls while this setup is active. On `ready_for_model_evaluation`, run
+`scripts/check_ollama_model.py` and review actual results before acceptance. A
+`failed_review_required` stage requires inspecting the setup failure first.
+Downloads/installer/models remain outside version control; no successful host
+installation or real inference is claimed until those stages complete.

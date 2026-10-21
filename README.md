@@ -1,5 +1,10 @@
 # Adaptive-QA-Project
 
+Current update: the owner selected local Ollama/qwen3:4b. The registered isolated
+adapter requires no API key and enables no paid cloud calls. All 395 unit tests
+pass; host installation/model download and real-model evaluation are in progress.
+See [Ollama setup](docs/OLLAMA.md) and [Sprint 6 progress](docs/SPRINT_6.md).
+
 Sprint 6 free local AI validation is verified: 388 unit tests, 18 scripted
 integration/browser controls, and seven successful CI jobs for
 `54ece45bee3a628d260e321f3ff7587d43691837`. Original test policy, plan decisions,
