@@ -18,6 +18,7 @@ def configure_parser(subparsers):
         command.add_argument('--database', type=Path, default=Path('artifacts/dashboard/auth.sqlite'))
         if name == 'serve':
             command.add_argument('--port', type=int, default=8765)
+            command.add_argument('--ui-directory', type=Path, default=Path('frontend/dist'))
 
 
 def run(args):
@@ -44,9 +45,15 @@ def run(args):
     if type(args.port) is not int or not 1024 <= args.port <= 65535:
         raise ValueError('Port must be an integer in [1024, 65535].')
     import uvicorn
-    app = create_app(AuthStore(args.database), port=args.port)
+    ui_directory = getattr(args, 'ui_directory', Path('frontend/dist'))
+    app = create_app(AuthStore(args.database), port=args.port,
+                     ui_directory=ui_directory if ui_directory.is_dir() else None)
     print(f'Local authentication API: http://127.0.0.1:{args.port}/api/auth/me')
-    print('Dashboard interface is still in development. Press Ctrl+C to stop.')
+    if ui_directory.is_dir():
+        print(f'Dashboard: http://127.0.0.1:{args.port}/')
+    else:
+        print('Dashboard build is missing. Run npm ci and npm run build in frontend/.')
+    print('Press Ctrl+C to stop.')
     uvicorn.run(app, host='127.0.0.1', port=args.port, workers=1,
                 proxy_headers=False, access_log=False, log_level='warning',
                 limit_concurrency=32, timeout_keep_alive=5)

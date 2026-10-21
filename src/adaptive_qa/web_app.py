@@ -3,13 +3,15 @@
 import asyncio
 from collections import deque
 import json
+from pathlib import Path
 from threading import Lock
 import time
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from starlette.concurrency import run_in_threadpool
-from starlette.responses import JSONResponse
+from starlette.responses import JSONResponse, FileResponse
+from starlette.staticfiles import StaticFiles
 
 from adaptive_qa.auth_store import AuthenticationError, AuthStore
 from adaptive_qa.project_store import ProjectStore, ProjectNotFound
@@ -39,7 +41,7 @@ def _object(body, fields):
     return data
 
 
-def create_app(store: AuthStore, *, port=8765, projects=None):
+def create_app(store: AuthStore, *, port=8765, projects=None, ui_directory=None):
     """Trusted composition root. Bind the server to 127.0.0.1 only."""
     if type(port) is not int or not 1024 <= port <= 65535:
         raise ValueError('A local unprivileged port is required.')
@@ -48,6 +50,15 @@ def create_app(store: AuthStore, *, port=8765, projects=None):
     app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
     projects = projects if projects is not None else ProjectStore(store.database.with_name('projects.sqlite'))
     attempts, lock = deque(), Lock()
+    if ui_directory is not None:
+        ui_root = Path(ui_directory).resolve(strict=True)
+        if not (ui_root / 'index.html').is_file() or not (ui_root / 'assets').is_dir():
+            raise ValueError('A built dashboard directory is required.')
+        app.mount('/assets', StaticFiles(directory=ui_root / 'assets'), name='dashboard-assets')
+
+        @app.get('/')
+        def dashboard():
+            return FileResponse(ui_root / 'index.html', media_type='text/html')
 
     @app.exception_handler(AuthenticationError)
     async def authentication_error(request, error):
@@ -174,7 +185,7 @@ def create_app(store: AuthStore, *, port=8765, projects=None):
                     message['headers'] = list(message.get('headers', [])) + [
                         (b'cache-control', b'no-store'),
                         (b'x-content-type-options', b'nosniff'),
-                        (b'content-security-policy', b"default-src 'none'; connect-src 'self'; frame-ancestors 'none'"),
+                        (b'content-security-policy', b"default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'"),
                         (b'referrer-policy', b'no-referrer')]
                 await send(message)
             async def deny(status):
@@ -224,8 +235,13 @@ def create_app(store: AuthStore, *, port=8765, projects=None):
             except (ValueError, TimeoutError):
                 await deny(408)
                 return
+            delivered = False
             async def replay():
-                return {'type': 'http.request', 'body': bytes(body), 'more_body': False}
+                nonlocal delivered
+                if not delivered:
+                    delivered = True
+                    return {'type': 'http.request', 'body': bytes(body), 'more_body': False}
+                return await receive()
             await app(scope, replay, secured_send)
 
     return Boundary()

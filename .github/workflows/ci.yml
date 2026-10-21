@@ -130,6 +130,16 @@ jobs:
           python -m pip install --no-deps -e .
       - name: Install Chromium and system dependencies
         run: python -m playwright install --with-deps chromium
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+      - name: Build dashboard
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run build
+      - name: Verify built React dashboard
+        run: python scripts/check_dashboard_ui.py
       - name: Verify browser egress and redirect protection
         run: python scripts/check_network_security.py
       - name: Verify dashboard browser authentication
@@ -170,5 +180,6 @@ jobs:
             artifacts/database/bridge.json
             artifacts/ai/*.json
             artifacts/dashboard/*.json
+            artifacts/dashboard/*.png
           retention-days: 7
           if-no-files-found: warn

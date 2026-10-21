@@ -70,7 +70,7 @@ Start the local authentication API in a separate terminal:
 
 The server binds only to `127.0.0.1:8765`, uses one process, ignores forwarded
 headers, disables access logging, and bounds concurrent connections. Stop it
-with Ctrl+C. The React interface is not implemented yet. Opening
+with Ctrl+C. After building the React interface below, open `/` to sign in. Opening
 `http://127.0.0.1:8765/api/auth/me` returns an authentication error until a session
 is established; that is expected. The `localhost` alias is deliberately rejected.
 
@@ -92,3 +92,33 @@ This check owns a temporary account/database and loopback server on port 8765.
 Stop an existing dashboard server first. It verifies cookies and logout in real
 Chromium, cleans up its server and database, and saves a value-free report under
 `artifacts/dashboard/auth.json`.
+
+## Build the React Dashboard
+
+Install Node.js 24, then run from the repository root:
+
+```powershell
+cd frontend
+npm ci
+npm run build
+cd ..
+.\.venv\Scripts\python.exe -m adaptive_qa dashboard serve
+```
+
+Open `http://127.0.0.1:8765/`. The TypeScript check and Vite build produce ignored
+`frontend/dist` assets. Python serves the built index and assets alongside the API.
+No CORS exceptions, external CDN or separate development server are needed.
+`serve --ui-directory` selects a trusted build. Without a build, `/` returns 404.
+
+The panel supports sign-in/out, paginated projects, create/rename, target/host
+settings, data-change policy and masked references. Run controls and reports remain
+unfinished. Credentials are not saved in localStorage or other browser storage.
+
+Verify the built interface with no persistent account or server:
+
+```powershell
+.\.venv\Scripts\python.exe scripts/check_dashboard_ui.py
+```
+
+Keep port 8765 available. The check saves a report and desktop/mobile fixture
+screenshots under `artifacts/dashboard/` and cleans up its temporary storage.

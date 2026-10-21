@@ -162,3 +162,30 @@ implementation is the next unfinished phase. See DASHBOARD_API.md for contracts.
 
 All 445 local unit tests and the real Chromium authentication/project/settings
 check passed for this increment. Current-commit CI remains pending after push.
+
+### Phase 7.4 partial delivery: React project workspace
+
+The pinned React/TypeScript/Vite frontend now provides sign-in/out, paginated
+owner projects, create/rename, target and allowed-host settings, data-change policy,
+and masked reference selection. Loading, empty, error and successful-save states
+are explicit. Password inputs clear after submission; credentials/session tokens
+are not kept in browser storage. Desktop and narrow mobile layouts were visually
+reviewed using fixture screenshots. No run buttons imply executable support.
+
+The loopback Python server optionally serves only built index/assets with the API
+on the same origin. CSP permits local scripts/styles without unsafe-inline or
+external resources. Source files and databases are not served. Request replay now
+delivers the bounded body once and then preserves disconnect handling, fixing a
+static-file response hang found by the real browser check.
+
+The build performs strict TypeScript checking. The browser acceptance script uses
+temporary accounts/storage to verify invalid login, cleared password input,
+owner-filtered listing, create/rename, settings, reload persistence, masked values,
+mobile width and logout persistence. It rejects JavaScript errors or external
+requests. CI builds with Node 24, runs that script and retains fixture screenshots.
+Two HTTP tests additionally verify static-file security and private-file denial.
+Plan review is not implemented, so phase 7.4 remains incomplete. Previous commit
+cc8216f passed CI run 39652672378; this increment needs its own CI result.
+
+All 447 unit tests, the TypeScript/Vite build, the built dashboard browser check,
+and the existing authentication/project/settings browser check passed locally.
