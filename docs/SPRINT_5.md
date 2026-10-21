@@ -44,7 +44,29 @@ connects nor resolves secrets. SQL authorization and actual parameter binding
 remain adapter responsibilities in phase 5.2; models are not an execution permit.
 
 Nine new model tests pass; the complete local suite has 316 passing tests.
-Database execution and additional executable catalog cases are not implemented.
+Additional executable catalog cases are not implemented.
+
+## Phase 5.2 Progress
+
+The internal SQLite primitive now binds parameters through the driver, opens
+existing fixture files with `mode=ro`, enables `query_only`, disables trusted
+schema and extension loading, and installs an authorizer with a narrow read and
+function allowlist. Writes, attachments, pragmas, and other operations are denied
+by SQLite authorization rather than SQL keyword matching. A trusted caller must
+supply a fixture root; the resolved private file must remain inside it. Only
+the fixed local sample project origin is accepted. This is not OS isolation
+against a concurrent filesystem attacker or permission to query customer files.
+
+Row count, cumulative encoded bytes, SQLite value/column/expression limits,
+cooperative query timeouts, and cancellation are enforced. Results expose only
+safe statuses and failed assertion indexes; rows, paths, SQL, and SQLite error
+messages remain private. All connections close on success and failure.
+
+Eight tests exercise real disposable SQLite files, including bound injection
+input, write rejection, resource limits, recursive-query interruption, cleanup,
+and safe outcome classification. The full local suite passes 324 tests.
+Phase 5.2 remains incomplete until an isolated child enforces a hard total
+deadline. No database CLI or catalog execution is enabled in this increment.
 
 ## Acceptance
 
