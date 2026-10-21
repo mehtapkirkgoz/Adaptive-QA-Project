@@ -2,7 +2,7 @@
 
 An AI-assisted QA platform under development for website discovery and applicable UI, API, and database tests.
 
-**Status:** Sprint 4 started on October 21, 2026 (Europe/Istanbul): API testing. Sprint 3 is complete. Sprint 2 is complete. The local prototype runs 40 UI scenarios through a persistent queue with cancellation, deadlines, destination controls, JSON results, and screenshots. Page feature detection, guarded structural collection, bounded local crawling, and evidence-based test plans are implemented and verified against four contrasting controlled sites. AI, API/SQL execution, and the dashboard are not implemented yet.
+**Status:** Sprint 4 completed on October 21, 2026 (Europe/Istanbul): API testing. Sprints 2 and 3 are complete. The local prototype runs 40 UI scenarios through a persistent queue with cancellation, deadlines, destination controls, JSON results, and screenshots. Page feature detection, guarded structural collection, bounded local crawling, and evidence-based test plans are implemented and verified against four contrasting controlled sites. Controlled API execution is implemented with 20 additional scenarios and explicit UI/API bindings. AI, SQL execution, and the dashboard are not implemented yet.
 
 ## Project Plans
 
@@ -14,7 +14,7 @@ Sprints follow goals and acceptance criteria without a fixed two-week commitment
 | 1 | First controlled end-to-end execution | Completed |
 | 2 | Website discovery | Completed |
 | 3 | UI catalog and element matching | Completed |
-| 4 | API tests | In progress |
+| 4 | API tests | Completed |
 | 5 | Database validation | Planned |
 | 6 | AI integration | Planned |
 | 7 | Web dashboard | Planned |
@@ -219,4 +219,14 @@ hourly follow-up is paused after acceptance.
 [Plan](docs/SPRINT_4.md) and [issue #5](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/5)
 track configured API transport, authentication references, structured assertions,
 explicit UI/API bindings, and controlled positive/negative coverage. Customer API
-execution remains disabled until its authorization and adapter contracts are verified.
+execution remains disabled. The controlled adapter has 20 API cases, environment
+secret references, typed assertions, hard process deadlines/cancellation, and
+20 hostile-response/policy boundary checks. Four UI/API validation controls keep
+each layer's outcomes independent.
+
+[Accepted CI run](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/actions/runs/39559291036)
+for `5db716ced9576e878611e5579a3ebe0f64ddb873` passed five jobs with 307 unit tests
+and retained UI/discovery/security/lifecycle coverage. Four artifact digests,
+60 case results, boundary/bridge reports, and 177 PNG references were verified.
+See [acceptance review](docs/SPRINT_4_ACCEPTANCE.md). Issue #5 is closed; the
+Sprint 4 milestone still requires owner creation/association/closure.

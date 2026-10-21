@@ -1,9 +1,10 @@
 # Sprint 4 — API Testing
 
 Start date: October 21, 2026 (Europe/Istanbul)
-Status: In progress — phases 4.1 through 4.5 completed locally.
+Status: Completed — implementation CI and downloaded evidence verified on October 21, 2026.
 Tracking: [issue #5](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/5).
 Milestone: Pending creation and association by the repository owner.
+Issue #5 is closed as completed. Technical acceptance is complete; milestone tracking remains an owner action.
 
 ## Goal
 
@@ -18,7 +19,7 @@ and enforced destination, mutation, response-size, and execution limits.
 - [x] 4.3: Add controlled positive/negative API coverage toward 60 combined cases.
 - [x] 4.4: Add explicit UI/API validation bindings.
 - [x] 4.5: Verify missing configuration, secrets, mutation policy, redirects, and deadlines.
-- [ ] 4.6: Verify same-commit CI/artifacts and close after acceptance.
+- [x] 4.6: Verify same-commit CI/artifacts and close after acceptance.
 
 ## Phase 4.1 Deliverables
 
@@ -103,15 +104,30 @@ bridge runs use the isolated adapter. All 307 unit tests pass locally; the 20
 API scenarios and four bridge checks also pass. Same-commit CI/artifact acceptance
 is the remaining gate. No public/customer API execution is enabled.
 
+## Phase 4.6 Acceptance Gate
+
+Local checks pass: 307 unit tests, 20 isolated API cases, 20 boundary checks,
+and four explicit UI/API bridge checks. The final implementation is
+`5db716ced9576e878611e5579a3ebe0f64ddb873`. Five same-commit CI jobs and four
+downloaded artifacts were reviewed and accepted. See [review](SPRINT_4_ACCEPTANCE.md).
+
+[Accepted CI run](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/actions/runs/39559291036)
+passed all five jobs. Unit logs confirm 307 tests. Four artifact digests and
+implementation SHAs matched. The 20 API case records, 20 boundary outcomes,
+40 UI results, four bridge controls, 96 variants, 40 reversed runs, 177 PNG
+references, fixture hashes/matrices, and security/lifecycle reports were checked.
+A bridge screenshot visibly retains the configured sample book input and
+no-results status. Reports contain only safe outcomes, not private API inputs.
+
 ## Acceptance Criteria
 
-- [ ] Controlled positive and negative API cases pass.
-- [ ] Missing API configuration has an explicit non-execution reason.
-- [ ] Secrets and response payloads do not appear in reports/logs.
-- [ ] Target and mutation policies and execution budgets are enforced.
-- [ ] UI/API bindings preserve independent expected outcomes.
-- [ ] Catalog counts reflect runnable behavior, not cosmetic variations.
-- [ ] Remote CI and downloaded artifacts are verified before closure.
+- [x] Controlled positive and negative API cases pass.
+- [x] Missing API configuration has an explicit non-execution reason.
+- [x] Secrets and response payloads do not appear in reports/logs.
+- [x] Target and mutation policies and execution budgets are enforced.
+- [x] UI/API bindings preserve independent expected outcomes.
+- [x] Catalog counts reflect runnable behavior, not cosmetic variations.
+- [x] Remote CI and downloaded artifacts are verified before closure.
 
 ## Boundaries
 
@@ -125,5 +141,6 @@ will not be described as full JSON Schema/OpenAPI support.
 
 Sprint 3 was accepted with 40 runnable UI cases, 268 unit tests, 96 variant runs,
 40 reversed runs, and verified CI/artifacts. The owner confirmed milestone #4 closed.
-API cases remain blocked by the existing UI-only planner until a compatible API
-execution/configuration contract is implemented. No API coverage is claimed yet.
+At kickoff API cases were blocked by the UI-only planner and no API coverage
+was claimed. The explicit API adapter added in this sprint remains separate from
+automatic UI planning and only executes configured controlled fixtures.
