@@ -10,7 +10,7 @@ from uuid import uuid4
 
 from adaptive_qa.api_catalog import API_CASES
 from adaptive_qa.api_models import ApiConfiguration
-from adaptive_qa.api_transport import run_api_case
+from adaptive_qa.api_process import run_isolated_api_case
 from adaptive_qa.config import ProjectConfig
 from adaptive_qa.models import TestStatus
 from adaptive_qa.sample_api import create_sample_api
@@ -30,7 +30,7 @@ def main():
             SecretReference('QA_SAMPLE_API_TOKEN'))
         with patch.dict(os.environ, {'QA_SAMPLE_API_TOKEN': token}):
             for case in API_CASES:
-                result = run_api_case(case, configuration)
+                result = run_isolated_api_case(case, configuration)
                 assert result.status == TestStatus.PASSED, result
                 results.append(asdict(result))
                 save_result(result, Path('artifacts/api/results'))

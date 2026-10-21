@@ -96,6 +96,22 @@ class SampleApiHandler(BaseHTTPRequestHandler):
             except OSError:
                 pass
             self.close_connection = True
+        elif path == '/api/slow-body':
+            try:
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.send_header('Content-Length', '100')
+                self.end_headers()
+                for _ in range(100):
+                    self.wfile.write(b' ')
+                    self.wfile.flush()
+                    time.sleep(0.05)
+            except OSError:
+                pass
+            self.close_connection = True
+        elif path == '/api/stall':
+            time.sleep(0.5)
+            self._respond(200, {'ready': True})
         else:
             self._respond(404, {'error': 'not_found'})
 

@@ -31,3 +31,9 @@ The script manages its own local server; port 8000 must be available. It saves
 safe summaries and result records under `artifacts/api/`. The UI worker remains
 a UI adapter; API execution uses its own configured adapter rather than silently
 treating arbitrary queued IDs as network requests.
+
+Catalog execution uses a private isolated API process with a hard total deadline
+and cancellation cleanup. Run `python scripts/check_api_boundaries.py` for twenty
+transport/policy/redaction boundary checks; these do not add catalog cases.
+Private temporary configuration inputs are not report artifacts and are removed
+after the run. Slow header/body streams are terminated by the parent deadline.

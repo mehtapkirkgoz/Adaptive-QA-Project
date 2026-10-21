@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from time import perf_counter
 
 from adaptive_qa.api_models import ApiCase, ApiConfiguration
-from adaptive_qa.api_transport import run_api_case
+from adaptive_qa.api_process import run_isolated_api_case
 from adaptive_qa.models import TestResult, TestStatus
 
 
@@ -51,7 +51,7 @@ def validate_ui_api(binding: UiApiBinding, ui_result: TestResult, api_cases: tup
     elif configuration.project.project_id != binding.project_id:
         status, message = TestStatus.BLOCKED, 'API configuration belongs to a different project.'
     else:
-        runner = api_runner or run_api_case
+        runner = api_runner or run_isolated_api_case
         collected = []
         for case in api_cases:
             try:

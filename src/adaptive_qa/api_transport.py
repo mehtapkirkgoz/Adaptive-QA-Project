@@ -132,12 +132,14 @@ def run_api_case(case: ApiCase, configuration: ApiConfiguration | None) -> TestR
     case_id = case.definition.case_id
     if configuration is None:
         return TestResult(case_id, TestStatus.BLOCKED, 0, 'API configuration is missing.')
+    if not isinstance(configuration, ApiConfiguration):
+        raise ValueError('configuration must be an ApiConfiguration or None.')
     if case.definition.changes_data and not configuration.project.allow_data_changes:
         return TestResult(case_id, TestStatus.BLOCKED, 0, 'Project policy disables data-changing API tests.')
     try:
         exchange = perform_request(configuration, case.request)
         if exchange.status != case.expected_status:
-            status, message = TestStatus.FAILED, 'HTTP status did not match the explicit contract.'
+            status, message = TestStatus.FAILED, f'HTTP status mismatch: expected {case.expected_status}, received {exchange.status}.'
         elif case.expect_json and (not exchange.json_content_type or not exchange.valid_json):
             status, message = TestStatus.FAILED, 'The JSON response contract was not satisfied.'
         elif case.expect_json and (failures := failed_json_checks(exchange.payload, case.checks)):

@@ -1,7 +1,7 @@
 # Sprint 4 — API Testing
 
 Start date: October 21, 2026 (Europe/Istanbul)
-Status: In progress — phases 4.1 through 4.4 completed locally.
+Status: In progress — phases 4.1 through 4.5 completed locally.
 Tracking: [issue #5](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/5).
 Milestone: Pending creation and association by the repository owner.
 
@@ -17,7 +17,7 @@ and enforced destination, mutation, response-size, and execution limits.
 - [x] 4.2: Implement bounded pinned-destination transport and safe reporting.
 - [x] 4.3: Add controlled positive/negative API coverage toward 60 combined cases.
 - [x] 4.4: Add explicit UI/API validation bindings.
-- [ ] 4.5: Verify missing configuration, secrets, mutation policy, redirects, and deadlines.
+- [x] 4.5: Verify missing configuration, secrets, mutation policy, redirects, and deadlines.
 - [ ] 4.6: Verify same-commit CI/artifacts and close after acceptance.
 
 ## Phase 4.1 Deliverables
@@ -83,6 +83,25 @@ The bridge report contains result metadata only and is retained with browser
 evidence. These repeated validations do not increase the 60-case catalog count.
 All 299 unit tests pass locally. This is an explicit sample binding, not inferred
 customer endpoint discovery or automatic execution of a generated plan.
+
+## Phase 4.5 Deliverables
+
+The API adapter runs each case in a hidden isolated child process with a hard
+total deadline and cancellation support. The parent validates result identity,
+size, status, and absence of payload evidence. Private temporary inputs contain
+configuration/test data only; bearer values are resolved in the child from the
+environment. Temporary inputs/results are removed after execution. Reports must
+never publish these private input files. Socket/size limits remain independently
+enforced; process-tree cleanup may require additional teardown time after deadline.
+
+Twenty real boundary checks verify missing configuration/secrets, denied writes,
+invalid/injected authentication, reflected-token/header redaction, oversized and
+malformed responses, duplicate keys, numeric overflow, unsupported encoding/media,
+redirect credential isolation, slow-header/body deadlines, idle timeout, and
+prestart/active cancellation. Canary contacts stay zero. API catalog and UI/API
+bridge runs use the isolated adapter. All 307 unit tests pass locally; the 20
+API scenarios and four bridge checks also pass. Same-commit CI/artifact acceptance
+is the remaining gate. No public/customer API execution is enabled.
 
 ## Acceptance Criteria
 

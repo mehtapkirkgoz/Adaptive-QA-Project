@@ -72,6 +72,8 @@ jobs:
           python -m pip install --no-deps -e .
       - name: Verify controlled API scenarios
         run: python scripts/check_local_api.py
+      - name: Verify API policies redaction and total deadlines
+        run: python scripts/check_api_boundaries.py
       - name: Upload API evidence
         if: always()
         uses: actions/upload-artifact@v7

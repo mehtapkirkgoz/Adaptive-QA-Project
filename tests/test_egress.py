@@ -16,6 +16,21 @@ class DestinationGuardTests(unittest.TestCase):
         self.project = ProjectConfig("demo", "Demo", "https://example.com", ("example.com",))
         self.guard = DestinationGuard(self.project)
 
+    def test_connection_timeout_is_bounded_before_socket_creation(self):
+        target = ValidatedTarget('example.com', 443, ('8.8.8.8',))
+        with patch('adaptive_qa.egress.socket.socket') as create:
+            for timeout in (True, 0, float('nan'), 6):
+                with self.subTest(timeout=timeout), self.assertRaises(ValueError):
+                    self.guard.connect(target, timeout_seconds=timeout)
+            create.assert_not_called()
+
+    def test_checked_connection_uses_requested_short_timeout(self):
+        target = ValidatedTarget('example.com', 443, ('8.8.8.8',))
+        with patch('adaptive_qa.egress.socket.socket') as create:
+            create.return_value.getpeername.return_value = ('8.8.8.8', 443)
+            self.guard.connect(target, timeout_seconds=0.25)
+            create.return_value.settimeout.assert_called_once_with(0.25)
+
     @patch("adaptive_qa.egress.resolve_with_deadline", return_value=("8.8.8.8",))
     def test_public_target_is_validated(self, resolve) -> None:
         target = self.guard.authorize("https://example.com/path")
