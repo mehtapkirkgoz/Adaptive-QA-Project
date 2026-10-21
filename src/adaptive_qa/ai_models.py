@@ -18,7 +18,7 @@ def _identifier(value):
 
 
 def _confidence(value):
-    if type(value) not in (int, float) or not math.isfinite(value) or not 0 <= value <= 1:
+    if type(value) not in (int, float) or not 0 <= value <= 1 or not math.isfinite(value):
         raise ValueError('Confidence must be finite and between zero and one.')
 
 
@@ -41,8 +41,8 @@ class AiBudget:
                                (self.max_output_bytes, 32768)):
             if type(value) is not int or not 1 <= value <= maximum:
                 raise ValueError('AI request and byte budgets must be bounded positive integers.')
-        if (type(self.timeout_seconds) not in (int, float) or not math.isfinite(self.timeout_seconds)
-                or not 0 < self.timeout_seconds <= 60):
+        if (type(self.timeout_seconds) not in (int, float) or not 0 < self.timeout_seconds <= 60
+                or not math.isfinite(self.timeout_seconds)):
             raise ValueError('AI timeout must be finite and in (0, 60].')
         if type(self.max_cost_microusd) is not int or not 0 <= self.max_cost_microusd <= 1000000:
             raise ValueError('AI cost budget must be a bounded nonnegative integer.')

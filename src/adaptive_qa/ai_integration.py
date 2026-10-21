@@ -13,7 +13,7 @@ from adaptive_qa.planning import PlanDecision, TestPlan
 
 
 def _threshold(value):
-    if type(value) not in (int, float) or not math.isfinite(value) or not 0.5 <= value <= 1:
+    if type(value) not in (int, float) or not 0.5 <= value <= 1 or not math.isfinite(value):
         raise ValueError('AI confidence threshold must be finite and in [0.5, 1].')
 
 

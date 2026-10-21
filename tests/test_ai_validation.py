@@ -50,7 +50,8 @@ class AiValidationTests(unittest.TestCase):
 
     def test_duplicate_keys_nonfinite_json_and_markdown_are_rejected(self):
         for text in ('{"website_kind":"general","website_kind":"commerce"}',
-                     json.dumps(self.raw).replace('0.9', 'NaN'), '```json\n{}\n```', '[' * 2000):
+                     json.dumps(self.raw).replace('0.9', 'NaN'),
+                     json.dumps(self.raw).replace('0.9', str(10**400)), '```json\n{}\n```', '[' * 2000):
             with self.subTest(prefix=text[:20]), self.assertRaises(ValueError):
                 decode_ai_advice(text, self.reduced, ('login.submit',), self.budget)
 

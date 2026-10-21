@@ -26,8 +26,8 @@ class OfflineAiProvider:
     def __post_init__(self):
         if not isinstance(self.response, str) or len(self.response.encode('utf-8')) > 32768:
             raise ValueError('Scripted response must be bounded UTF-8 text.')
-        if (type(self.delay_seconds) not in (int, float) or not math.isfinite(self.delay_seconds)
-                or not 0 <= self.delay_seconds <= 60 or type(self.fail) is not bool):
+        if (type(self.delay_seconds) not in (int, float) or not 0 <= self.delay_seconds <= 60
+                or not math.isfinite(self.delay_seconds) or type(self.fail) is not bool):
             raise ValueError('Scripted provider behavior must be bounded and typed.')
 
 

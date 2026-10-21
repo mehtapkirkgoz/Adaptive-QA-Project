@@ -15,7 +15,7 @@ class AiModelTests(unittest.TestCase):
             AiAdvice(WebsiteKind.COMMERCE, 1, execution_authorized=True)
 
     def test_confidence_rejects_boolean_nonfinite_and_out_of_range(self):
-        for value in (True, float('nan'), float('inf'), -0.1, 1.1, '1'):
+        for value in (True, float('nan'), float('inf'), -0.1, 1.1, '1', 10**400):
             with self.subTest(value=value), self.assertRaises(ValueError):
                 AiAdvice(WebsiteKind.GENERAL, value)
 
