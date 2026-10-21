@@ -7,6 +7,7 @@ from playwright.sync_api import Error
 
 from adaptive_qa.models import TestCase, TestType
 from adaptive_qa.ui_bindings import control
+from adaptive_qa.sample_data import SampleData
 
 
 # Each row is one behavior, not one language or visual variation.
@@ -82,6 +83,7 @@ EXTRA_CASES = tuple(TestCase(case_id, name, TestType.UI, (feature,),
 
 def _check(page, case_id):
     with ExitStack() as stack:
+        data = SampleData()
         cached = {}
         def get(key):
             if key not in cached:
@@ -92,8 +94,8 @@ def _check(page, case_id):
         def validity(key, flag):
             return get(key).evaluate('(el, flag) => el.validity[flag]', flag)
         def login():
-            get('login.username').fill('demo-user')
-            get('login.password').fill('fake-demo-password')
+            get('login.username').fill(data.username)
+            get('login.password').fill(data.password)
         login_result = page.locator('#login-result')
         search_result = page.locator('#search-result')
         form_result = page.locator('#controls-result')

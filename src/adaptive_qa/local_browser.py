@@ -1,6 +1,7 @@
 """Browser verification for the controlled local sample application."""
 
 import argparse
+from contextlib import nullcontext
 from time import perf_counter
 
 from playwright.sync_api import Error, Page, Route, expect, sync_playwright
@@ -15,6 +16,7 @@ from adaptive_qa.smoke_checks import SMOKE_CHECKS
 from adaptive_qa.ui_bindings import ElementBindingError, REUSABLE_CHECKS, SITE_PATHS
 from adaptive_qa.element_models import MatchStatus
 from adaptive_qa.extra_ui_checks import EXTRA_CHECKS
+from adaptive_qa.sample_data import sample_test_data
 from pathlib import Path
 from uuid import uuid4
 
@@ -101,23 +103,31 @@ def _verify_sample_page(evidence_path: Path, case_id: str = "LOGIN-001", *, site
                         )
                     ).to_be_visible()
 
-                    if site != 'root':
-                        from adaptive_qa.crawler import CrawlResult
-                        from adaptive_qa.page_collector import collect_page_snapshot
-                        from adaptive_qa.planning import PlanDecision, build_test_plan
-                        definition = next(case for case in TEST_CASES if case.case_id == case_id)
-                        snapshot = collect_page_snapshot(page)
-                        plan = build_test_plan(CrawlResult((snapshot,), 1, ()), (definition,), project)
-                        if plan.cases[0].decision != PlanDecision.SELECTED or plan.cases[0].target_url != snapshot.url:
-                            raise RuntimeError('Fixture prerequisites do not support the selected case.')
-                        VARIANT_CHECKS[case_id](page)
-                    else:
-                        SMOKE_CHECKS[case_id](page)
+                    scope = sample_test_data(page) if case_id in EXTRA_CHECKS else nullcontext()
+                    with scope:
+                        try:
+                            if site != 'root':
+                                from adaptive_qa.crawler import CrawlResult
+                                from adaptive_qa.page_collector import collect_page_snapshot
+                                from adaptive_qa.planning import PlanDecision, build_test_plan
+                                definition = next(case for case in TEST_CASES if case.case_id == case_id)
+                                snapshot = collect_page_snapshot(page)
+                                plan = build_test_plan(CrawlResult((snapshot,), 1, ()), (definition,), project)
+                                if plan.cases[0].decision != PlanDecision.SELECTED or plan.cases[0].target_url != snapshot.url:
+                                    raise RuntimeError('Fixture prerequisites do not support the selected case.')
+                                VARIANT_CHECKS[case_id](page)
+                            else:
+                                SMOKE_CHECKS[case_id](page)
+                        finally:
+                            if case_id in EXTRA_CHECKS:
+                                _capture_evidence(page, evidence_path)
                 except (AssertionError, Error, RuntimeError):
-                    _capture_evidence(page, evidence_path)
+                    if not evidence_path.is_file():
+                        _capture_evidence(page, evidence_path)
                     raise
                 else:
-                    _capture_evidence(page, evidence_path)
+                    if not evidence_path.is_file():
+                        _capture_evidence(page, evidence_path)
 
             finally:
                 context.close()

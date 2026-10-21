@@ -30,3 +30,8 @@ The general `forms` feature means visible native form fields exist; `navigation`
 means a supported visible link exists. These are prerequisites, not evidence that
 every scenario has a compatible binding. The runtime executor still validates its
 specific controls and fixed fixture destination before performing actions.
+
+New action scenarios prepare and clear browser-local fake test data explicitly;
+screenshots retain the asserted state before cleanup. Cleanup failures are errors.
+All scenarios also run in fresh browser processes and pass reverse-order checks.
+Backend/customer data provisioning and deletion remain outside this local adapter.

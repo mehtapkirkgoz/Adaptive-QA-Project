@@ -1,7 +1,7 @@
 # Sprint 3 — UI Test Catalog and Element Matching
 
 Start date: October 21, 2026 (Europe/Istanbul)
-Status: In progress — phases 3.1 through 3.4 completed locally.
+Status: In progress — phases 3.1 through 3.5 completed locally.
 Tracking issue: [#4](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/4).
 Milestone: [Sprint 3 — UI Test Catalog and Element Matching](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/4).
 
@@ -18,7 +18,7 @@ cosmetic variants or unimplemented definitions.
 - [x] 3.2: Implement role/label/alternative-name matching with controlled missing and ambiguous outcomes.
 - [x] 3.3: Bind reusable executors to discovered pages and contrasting fixture variants.
 - [x] 3.4: Expand login, form, search, navigation, and negative UI coverage toward 40 runnable scenarios.
-- [ ] 3.5: Add isolated test data preparation/cleanup and data-change policy enforcement.
+- [x] 3.5: Add isolated test data preparation/cleanup and data-change policy enforcement.
 - [ ] 3.6: Verify independent/repeated execution, remote CI, artifacts, and acceptance.
 
 ## Matching Contract Goals
@@ -100,6 +100,23 @@ All 262 unit tests pass locally. The 40-case queue run verifies registered
 executors, saved results, and screenshots. The 32 currently reusable cases pass
 96 isolated runs across English, Turkish, and mapped fixtures. Discovery budget
 and contrasting-site regressions also pass. CI verification remains pending.
+
+## Phase 3.5 Deliverables
+
+New action scenarios use immutable fake sample data, explicit browser-local
+preparation, and cleanup on success or assertion failure. Cleanup resets native
+forms/statuses, clears local/session storage and cookies, and rejects unknown
+origins/paths. It never deletes backend records. A cleanup error invalidates the
+run instead of preserving a pass. Screenshots are captured before cleanup.
+Fresh contexts/processes still provide the final resource and data boundary for
+all scenarios, including legacy checks. Real customer mutations remain unsupported.
+
+All 267 unit tests pass, including five new data/policy boundary cases. Real
+Chromium checks verify failure cleanup and context separation; all 40 scenarios
+also pass in reversed catalog order in isolated processes. The forward queue
+run and reversed run cover the same IDs without increasing the case count.
+The policy regression confirms data-changing definitions are blocked before
+browser preparation. Remote same-commit verification remains for phase 3.6.
 
 ## Acceptance Criteria
 
