@@ -8,7 +8,7 @@ Milestone: [#7](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/7
 ## Delivery Phases
 
 - [x] 6.1: Provider-independent bounded advisory and budget contracts.
-- [ ] 6.2: Reduce collected inputs, validate strict response schemas and reference membership.
+- [x] 6.2: Reduce collected inputs, validate strict response schemas and reference membership.
 - [ ] 6.3: Add an optional provider adapter with time/request/cost limits and safe fallback.
 - [ ] 6.4: Integrate feature, test-selection, and element suggestions without policy escalation.
 - [ ] 6.5: Evaluate controlled fixtures, ambiguity, prompt injection, outages, and privacy boundaries.
@@ -32,3 +32,24 @@ accuracy. Website content is untrusted data, never authorization.
 Five new contract tests pass; the complete local suite has 345 passing tests.
 Sprint 5 issue #6 was closed at the owner's explicit request. Its milestone
 closure has not been re-confirmed; this does not block the authorized Sprint 6.
+
+## Phase 6.2
+
+Input reduction keeps bounded visible form/field/button structure and commerce
+flags. It replaces page identifiers with local references and omits URLs, links,
+raw names, and arbitrary text. Labels/actions are included only when they match
+a small fixed vocabulary; other text becomes empty. This conservative policy
+reduces semantics for novel button names. It is not a general secret detector:
+host configuration and review remain necessary before enabling a remote provider.
+Input text is explicitly marked as untrusted page data. Truncation makes coverage
+incomplete, and oversized encoded input is rejected rather than silently shortened.
+
+Strict JSON decoding rejects duplicate keys, non-finite values, malformed/deep
+JSON, Markdown wrappers, extra root/nested properties, unknown features, duplicate
+advice, and uncollected evidence/element references. Logical names must be supplied
+by the host. Incomplete collection cannot support an absent-feature suggestion.
+Accepted output remains advisory; confidence is not proof of correctness and
+matching a reference does not establish visibility/uniqueness at execution time.
+
+Eight new tests pass; all 353 local unit tests pass. No provider call, execution
+integration, runtime budget enforcement, or measured model evaluation is claimed.
