@@ -142,6 +142,8 @@ jobs:
         run: python scripts/check_ui_isolation.py
       - name: Verify UI API database record creation and readback
         run: python scripts/check_database_bridge.py
+      - name: Verify free local AI integration and fallback boundaries
+        run: python scripts/check_ai_acceptance.py
       - name: Verify explicit UI and API validation binding
         run: python scripts/check_ui_api_bridge.py
       - name: Verify bounded local discovery
@@ -164,5 +166,6 @@ jobs:
             artifacts/matching/*.json
             artifacts/bridge/*.json
             artifacts/database/bridge.json
+            artifacts/ai/*.json
           retention-days: 7
           if-no-files-found: warn

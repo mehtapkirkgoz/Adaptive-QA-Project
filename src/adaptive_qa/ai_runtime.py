@@ -37,6 +37,15 @@ class AiOutcome:
     reason: str
     advice: AiAdvice | None = None
 
+    def __post_init__(self):
+        if self.status not in ('accepted', 'unavailable', 'budget_exhausted', 'timeout', 'rejected'):
+            raise ValueError('AI outcome status is unsupported.')
+        if not isinstance(self.reason, str) or not self.reason.strip() or len(self.reason) > 500:
+            raise ValueError('AI outcome requires a bounded non-empty reason.')
+        if (self.status == 'accepted' and not isinstance(self.advice, AiAdvice)
+                or self.status != 'accepted' and self.advice is not None):
+            raise ValueError('Only accepted AI outcomes may contain typed advice.')
+
 
 class AiSession:
     """Shared, thread-safe run budget; attempts consume slots even on failure."""

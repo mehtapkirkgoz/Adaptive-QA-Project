@@ -8,7 +8,7 @@ import unittest
 from unittest.mock import patch
 
 from adaptive_qa.ai_models import AiBudget
-from adaptive_qa.ai_runtime import AiSession, OfflineAiProvider
+from adaptive_qa.ai_runtime import AiOutcome, AiSession, OfflineAiProvider
 from adaptive_qa.discovery import PageSnapshot
 
 
@@ -67,3 +67,14 @@ class AiRuntimeTests(unittest.TestCase):
         session = AiSession(AiBudget(max_cost_microusd=1))
         self.assertFalse(session._reserve(2))
         self.assertTrue(session._reserve(1))
+
+    def test_invalid_accepted_or_failed_advice_envelopes_are_rejected(self):
+        for status, advice in (('accepted', None), ('accepted', 'untrusted-advice'),
+                              ('rejected', 'untrusted-advice'), ('invented', None)):
+            with self.subTest(status=status), self.assertRaises(ValueError):
+                AiOutcome(status, 'Controlled reason.', advice)
+
+    def test_cost_reservation_rejects_negative_or_boolean_amounts(self):
+        for amount in (-1, True, 1.5):
+            with self.assertRaises(ValueError):
+                AiSession(AiBudget())._reserve(amount)

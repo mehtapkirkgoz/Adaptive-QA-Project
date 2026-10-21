@@ -10,7 +10,7 @@ Milestone: [#7](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/7
 - [x] 6.1: Provider-independent bounded advisory and budget contracts.
 - [x] 6.2: Reduce collected inputs, validate strict response schemas and reference membership.
 - [ ] 6.3: Add an optional provider adapter with time/request/cost limits and safe fallback.
-- [ ] 6.4: Integrate feature, test-selection, and element suggestions without policy escalation.
+- [x] 6.4: Integrate feature, test-selection, and element suggestions without policy escalation.
 - [ ] 6.5: Evaluate controlled fixtures, ambiguity, prompt injection, outages, and privacy boundaries.
 - [ ] 6.6: Verify exact-commit CI/evidence and report readiness for owner closure.
 
@@ -120,3 +120,31 @@ spend-control claim is made for this unregistered primitive.
 Eight mocked transport tests pass; all 376 local unit tests pass. Tests use fake
 keys and mocked HTTPS only. No real environment credentials were read, no model
 was contacted, and no paid request was made.
+
+## Owner-Selected Offline Validation Scope
+
+On 2026-10-21 the owner explicitly chose to finish free local validation first
+and select a live model/spend limit later. Do not enable paid calls or claim live
+model accuracy. The unfinished live portion of 6.3 and real-model evaluation in
+6.5 remain pending that later decision; they do not block the offline controls.
+
+## Phase 6.4 and Local Evaluation
+
+The advisory plan overlay retains the exact original plan, authorization flag,
+and decisions. Only already-selected cases whose structurally present features
+also receive confident advice are prioritized. AI cannot unblock policy-denied
+tests or replace unknown/absent prerequisites. Website kind is advisory only.
+
+Element fallback runs only after a deterministic missing match, uses one collected
+reference mapped to a host-owned locator, and rechecks current visibility and
+uniqueness using the existing matcher. It never narrows ambiguous results,
+overrides explicit project mappings, accepts model-generated locators, or performs
+an action. Runtime policy and deadlines remain caller responsibilities.
+
+Six integration unit tests and 17 real-child/browser controls verify these rules,
+plain/commerce scripted fixtures, hidden/duplicate elements, outages, timeouts,
+injected instructions, and rejected references/authorization fields. Reports state
+`mode=offline_scripted`, `remote_calls=0`, `real_model_accuracy=null`. Scripted
+fixture consistency is not evidence of model intelligence or accuracy.
+All 384 local unit tests pass. CI now repeats local AI acceptance and retains
+metadata-only evidence. Exact-commit CI review for this increment is pending.
