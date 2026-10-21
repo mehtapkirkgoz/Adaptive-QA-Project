@@ -13,7 +13,7 @@ def advice_json_schema(reduced, logical_names):
     feature = _object({'feature': {'type': 'string', 'enum': sorted(FEATURE_NAMES)},
         'status': {'type': 'string', 'enum': ['present', 'unknown'] + (['absent'] if reduced.collection_complete else [])},
         'confidence': confidence,
-        'evidence_ids': {'type': 'array', 'minItems': 1, 'maxItems': 20,
+        'evidence_ids': {'type': 'array', 'minItems': 1, 'maxItems': min(20, max(1, len(reduced.evidence_ids))),
                          'items': {'type': 'string', 'enum': list(reduced.evidence_ids) or ['unavailable']}}})
     element = _object({'logical_name': {'type': 'string', 'enum': list(logical_names) or ['unavailable']},
         'candidate_id': {'type': 'string', 'enum': list(reduced.candidate_ids) or ['unavailable']},

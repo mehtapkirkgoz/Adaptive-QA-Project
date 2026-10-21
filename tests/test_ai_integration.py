@@ -89,3 +89,18 @@ class AiIntegrationTests(unittest.TestCase):
             with patch('adaptive_qa.ai_integration.match_element', return_value=self.bound(MatchStatus.MISSING)) as matcher:
                 match_with_ai_fallback(None, self.default, outcome, self.reduced, candidates)
                 matcher.assert_called_once()
+
+    def test_incomplete_collection_or_unknown_feature_prevents_confident_element_fallback(self):
+        uncertain = replace(self.advice, features=(replace(self.advice.features[0], status=FeatureStatus.UNKNOWN),))
+        for reduced, outcome in ((replace(self.reduced, collection_complete=False), self.outcome),
+                                  (self.reduced, AiOutcome('accepted', 'Unknown feature.', uncertain))):
+            with patch('adaptive_qa.ai_integration.match_element', return_value=self.bound(MatchStatus.MISSING)) as matcher:
+                match_with_ai_fallback(None, self.default, outcome, reduced, (self.candidate,))
+                matcher.assert_called_once()
+
+    def test_feature_evidence_from_a_different_form_does_not_authorize_candidate(self):
+        other = replace(self.advice, features=(replace(self.advice.features[0], evidence_ids=('form_1',)),))
+        with patch('adaptive_qa.ai_integration.match_element', return_value=self.bound(MatchStatus.MISSING)) as matcher:
+            match_with_ai_fallback(None, self.default, AiOutcome('accepted', 'Other form.', other),
+                                  self.reduced, (self.candidate,))
+            matcher.assert_called_once()

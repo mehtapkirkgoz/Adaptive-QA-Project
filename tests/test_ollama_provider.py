@@ -39,7 +39,7 @@ class OllamaProviderTests(unittest.TestCase):
         payload = json.loads(args.kwargs['body'])
         self.assertFalse(payload['stream'])
         self.assertFalse(payload['think'])
-        self.assertEqual(payload['keep_alive'], 0)
+        self.assertEqual(payload['keep_alive'], 30)
         self.assertNotIn('tools', payload)
         self.connection.close.assert_called_once()
 
@@ -84,3 +84,6 @@ class OllamaProviderTests(unittest.TestCase):
         for tokens in (True, 0, 2049):
             with self.assertRaises(ValueError):
                 OllamaProvider(max_output_tokens=tokens)
+        for lifetime in (True, -1, 121):
+            with self.assertRaises(ValueError):
+                OllamaProvider(keep_alive_seconds=lifetime)

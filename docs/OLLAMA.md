@@ -32,7 +32,8 @@ Redirects, unsupported media/encoding, incomplete/length-limited output, wrong
 model names, tool calls, and nonempty thinking output are rejected. No custom
 endpoint, cloud model, proxy environment routing, or API authorization header is
 accepted. Thinking is disabled, generation is bounded, and keep_alive=0 requests
-model unload after completion. Request payloads and raw model output are not
+model unload after its bounded idle period (30 seconds by default, configurable
+from 0 to 120 seconds). Request payloads and raw model output are not
 retained as reports.
 
 The parent enforces its total session deadline and terminates the owned client
@@ -49,11 +50,27 @@ python scripts/check_ollama_model.py
 ```
 
 The model evaluation uses independently labeled plain/login/commerce/incomplete
-fixtures. It reports real local-model outcomes, abstentions, incorrect confident
+fixtures plus a separate five-fixture holdout set. It reports real local-model outcomes, abstentions, incorrect confident
 decisions, latencies, and aggregate metrics. Local model evaluation is distinct
 from the scripted controls in `check_ai_acceptance.py`. A successful HTTP/schema
 response is not proof of correct classification; review all measured results.
 Hosted CI tests mock the local service and do not download multi-GB models.
+
+## Measured Integration Findings
+
+Ollama 0.40.7 and the local Q4_K_M qwen3:4b model are installed. The first four-case
+run had two 60-second timeouts and only 1/4 correct thresholded classifications.
+After avoiding repeated immediate model unloads and clarifying general domain
+classification instructions, all four development replies were accepted and
+4/4 kinds were correct at the unchanged 0.85 confidence threshold. Warm replies
+took approximately 2–3 seconds. GPU inspection confirmed 100% GPU execution with
+about 3.8 GiB allocated; this is one-machine evidence, not a performance SLA.
+
+The model still proposed an element for an uncertain incomplete form. This raw
+high-confidence error remains in the report. Host fallback now rejects incomplete
+coverage, unknown feature advice, or evidence belonging to a different form;
+ambiguous deterministic matches were already protected. The held-out fixtures
+must be scored separately from these development examples before acceptance.
 
 ## References
 

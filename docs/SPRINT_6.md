@@ -191,3 +191,21 @@ or pulls while this setup is active. On `ready_for_model_evaluation`, run
 `failed_review_required` stage requires inspecting the setup failure first.
 Downloads/installer/models remain outside version control; no successful host
 installation or real inference is claimed until those stages complete.
+
+## Local Model Runtime Findings
+
+Host setup is complete: Ollama 0.40.7 and qwen3:4b are installed. The initial
+four-case baseline retained under ignored artifacts had two timeouts and 1/4
+correct thresholded kinds. A bounded 30-second idle lifetime avoids immediate
+reload between requests. Shared schema evidence arrays cannot exceed the number
+of available unique references. General classification/unique-reference rules
+were clarified without changing labels or the 0.85 confidence threshold.
+
+All four development responses were then accepted, with 4/4 correct kinds and
+one wrong confident element suggestion on incomplete evidence retained in metrics.
+Host matching now additionally requires complete reduced coverage, a confident
+present prerequisite, and evidence from the candidate's same form. It does not
+convert an unsafe model suggestion into an action. Two new guard tests pass;
+all 397 unit tests and 18 scripted integration controls pass. A separate five-case
+holdout and immutable model/implementation identity reporting are prepared for
+the next measured run; full sprint acceptance remains pending that evidence and CI.

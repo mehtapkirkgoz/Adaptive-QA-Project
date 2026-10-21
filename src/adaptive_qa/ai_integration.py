@@ -79,11 +79,27 @@ def match_with_ai_fallback(page, default, outcome, reduced, candidates, *, thres
     original = match_element(page, default)
     if original.result.status != MatchStatus.MISSING or explicit_project_mapping:
         return original
+    if not reduced.collection_complete:
+        return original
     advice = outcome.advice if outcome.status == 'accepted' else None
+    feature_name = default.logical_name.split('.')[0]
+    feature_name = {'form': 'forms', 'nav': 'navigation'}.get(feature_name, feature_name)
+    supported = () if advice is None else tuple(item for item in advice.features
+        if item.feature == feature_name and item.status == FeatureStatus.PRESENT
+        and item.confidence >= threshold)
+    if len(supported) != 1:
+        return original
     suggestions = () if advice is None else tuple(item for item in advice.elements
         if item.logical_name == default.logical_name and item.confidence >= threshold
         and item.candidate_id in reduced.candidate_ids)
     if len(suggestions) != 1:
+        return original
+    # A high-confidence feature from another form cannot justify this candidate.
+    import json
+    structure = json.loads(reduced.payload)['untrusted_page_data']
+    owner_forms = tuple(form['id'] for form in structure['forms']
+        if any(item['id'] == suggestions[0].candidate_id for item in form['fields'] + form['buttons']))
+    if len(owner_forms) != 1 or owner_forms[0] not in supported[0].evidence_ids:
         return original
     bindings = tuple(item for item in candidates if item.candidate_id == suggestions[0].candidate_id
                      and item.mapping.logical_name == default.logical_name)
