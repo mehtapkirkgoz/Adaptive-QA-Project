@@ -4,13 +4,13 @@ Updated: 2026-10-21
 
 Active sprint: 6 — AI Integration.
 The owner selected Ollama with a real local model after completing scripted
-validation. Continue the local-only adapter, installation and measured evaluation.
+validation. Technical acceptance and exact-commit CI/artifact review are complete.
 No API key, paid cloud service, or cloud model is authorized. Sprint 7 is not started.
 Setup is complete and nine real local-model cases have been evaluated, including
 five held-out fixtures. Do not repeat installation or downloads. The frozen
-report is docs/evidence/sprint6-ollama-evaluation.json. Continue exact-commit CI
-and artifact review for implementation 5e51be96a0c8e63ab30217ee7d4860372fd85f9e,
-then report readiness for owner closure with measured model limitations.
+report is docs/evidence/sprint6-ollama-evaluation.json. Acceptance is documented
+in docs/SPRINT_6_ACCEPTANCE.md. Wait quietly for owner closure and an explicit
+next-sprint start; do not rerun unchanged tests or implement Sprint 7.
 Sprint 5 technical acceptance is complete and issue #6 was closed at the owner's request.
 Owner authorization: explicitly started in this chat on 2026-10-21.
 Sprint 0–4 technical acceptance and owner closure are complete.
@@ -18,7 +18,7 @@ Sprint 0–4 technical acceptance and owner closure are complete.
 | Sprint | Tracking issue | Milestone | State |
 |---|---|---|---|
 | 5 | [#6](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/6) | [#6](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/6) | Accepted; issue closed |
-| 6 | [#7](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/7) | [#7](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/7) | In progress |
+| 6 | [#7](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/7) | [#7](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/7) | Ready for owner closure |
 | 7 | [#8](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/8) | [#8](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/8) | Planned |
 | 8 | [#9](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/9) | [#9](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/9) | Planned |
 | 9 | [#10](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/10) | [#10](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/10) | Planned |

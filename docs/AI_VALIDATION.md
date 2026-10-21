@@ -57,6 +57,11 @@ Record feature precision/recall, classification confusion, element accuracy,
 abstention and incorrect high-confidence decisions, latency and actual cost.
 Keep thresholds and evaluation denominators explicit and report failures.
 
-Remote validation remains deferred by the owner's choice. Sprint 6 remains open
-until the owner makes that decision and the remaining acceptance is verified,
-or explicitly accepts a reduced offline scope. Do not start Sprint 7 automatically.
+The owner subsequently selected real local Ollama inference. Paid remote
+validation is outside that selected scope and is not required to complete the
+local adapter. A nine-case actual-model evaluation is retained in
+[frozen evidence](evidence/sprint6-ollama-evaluation.json), with a separate
+five-case holdout and explicit errors/abstentions. Current host element fallback
+also requires complete reduced coverage, a confident present prerequisite, and
+evidence belonging to the candidate's same form. Full local acceptance still
+requires exact-commit CI review and owner closure. Do not start Sprint 7 automatically.

@@ -1,30 +1,12 @@
 # Adaptive-QA-Project
 
-Current update: the owner selected local Ollama/qwen3:4b. The registered isolated
-adapter requires no API key and enables no paid cloud calls. All 397 unit tests
-pass; Ollama and the model are installed. Nine local-model fixtures were measured:
-8/9 kinds overall and 4/5 on the separate holdout, with abstentions/errors retained.
-Browser guards prevented unsafe handles for incomplete and duplicate controls.
-See [Ollama setup](docs/OLLAMA.md) and [Sprint 6 progress](docs/SPRINT_6.md).
-
-Sprint 6 free local AI validation is verified: 388 unit tests, 18 scripted
-integration/browser controls, and seven successful CI jobs for
-`54ece45bee3a628d260e321f3ff7587d43691837`. Original test policy, plan decisions,
-assertions, and element ambiguity remain authoritative. No live model or paid
-provider is enabled; model selection and spending are deferred by the owner.
-Sprint 6 remains open. See [local AI acceptance](docs/SPRINT_6_LOCAL_ACCEPTANCE.md).
-
-Sprint 5 technical acceptance is complete and awaits owner closure. The local
-catalog has 40 UI, 20 API, and 15 database scenarios. All seven jobs passed in
-[verified CI](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/actions/runs/39563143665)
-for `b8e7e647bd02d1d6508a390b550d5bd3d0d20348`, including 340 unit tests.
-Six artifact digests, both OS database reports, boundary checks, cross-layer
-creation/readback, and 178 PNG references were reviewed. SQLite is limited to
-controlled local fixtures. See [Sprint 5 acceptance](docs/SPRINT_5_ACCEPTANCE.md).
-
 An AI-assisted QA platform under development for website discovery and applicable UI, API, and database tests.
 
-**Status:** Sprint 4 completed on October 21, 2026 (Europe/Istanbul): API testing. Sprints 2 and 3 are complete. The local prototype runs 40 UI scenarios through a persistent queue with cancellation, deadlines, destination controls, JSON results, and screenshots. Page feature detection, guarded structural collection, bounded local crawling, and evidence-based test plans are implemented and verified against four contrasting controlled sites. Controlled API execution is implemented with 20 additional scenarios and explicit UI/API bindings. AI, SQL execution, and the dashboard are not implemented yet.
+**Status:** Sprint 6 technical acceptance is complete for the controlled local prototype; owner closure is pending. The catalog has 40 UI, 20 API, and 15 database scenarios. Ollama/qwen3:4b inference requires no API key or paid cloud service. Existing destination, data-change, deadline, and non-executing plan policies remain authoritative.
+
+All 397 unit tests and seven CI jobs passed for `5e51be96a0c8e63ab30217ee7d4860372fd85f9e`. Six artifact digests and retained regression evidence were reviewed. Nine actual local-model fixtures scored 8/9 website kinds overall and 4/5 on the separate holdout; errors and abstentions remain recorded. Browser guards prevented unsafe handles on incomplete and duplicate controls. These small-fixture measurements do not establish arbitrary-site accuracy.
+
+See [Sprint 6 acceptance](docs/SPRINT_6_ACCEPTANCE.md), [Ollama setup](docs/OLLAMA.md), and [Sprint 5 acceptance](docs/SPRINT_5_ACCEPTANCE.md). The dashboard, customer-site execution, and deployment remain future work.
 
 ## Project Plans
 
@@ -37,8 +19,8 @@ Sprints follow goals and acceptance criteria without a fixed two-week commitment
 | 2 | Website discovery | Completed |
 | 3 | UI catalog and element matching | Completed |
 | 4 | API tests | Completed |
-| 5 | Database validation | Planned |
-| 6 | AI integration | Planned |
+| 5 | Database validation | Accepted; issue closed |
+| 6 | AI integration | Technical acceptance complete; owner closure pending |
 | 7 | Web dashboard | Planned |
 | 8 | Reporting and catalog expansion | Planned |
 | 9 | Domain and deployment | Planned |
