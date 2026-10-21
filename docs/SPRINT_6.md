@@ -72,3 +72,29 @@ untouched. Eight new runtime tests pass, including actual child termination,
 concurrent admission, failed-attempt accounting, and output rejection; the full
 local suite passes 361 tests. Phase 6.3 remains open for the actual optional
 model adapter, trusted pricing limits, and its provider-specific validation.
+
+## Responses API Contract Preparation
+
+An offline request builder now prepares an explicitly configured model request
+with `store=false`, streaming disabled, no tools, and a strict JSON schema under
+`text.format`. Model selection has no default and API authentication accepts only
+an environment secret reference. The builder never resolves credentials or opens
+HTTP connections. Schema references are limited to collected IDs and host logical
+names; incomplete coverage excludes absent-feature suggestions. Empty evidence
+or candidate sets require empty corresponding suggestion arrays.
+
+The bounded response-envelope extractor accepts one completed assistant text
+message and rejects refusals, incomplete/error responses, tools, multiple outputs,
+oversized bodies, and oversized text. Host advice validation still runs after
+extraction. This conservative subset may reject legitimate model response shapes;
+reasoning-message support must be reviewed before enabling such models.
+
+Seven offline contract tests pass; all 368 local unit tests pass. These tests do
+not establish live provider compatibility, pricing correctness, or model accuracy.
+Remote transport, trusted charge bounds, explicit provider enablement, and live
+evaluation remain pending. No paid call or credential access was performed.
+
+Official contract references reviewed on 2026-10-21:
+
+- [Structured outputs](https://developers.openai.com/api/docs/guides/structured-outputs)
+- [Responses migration and storage controls](https://developers.openai.com/api/docs/guides/migrate-to-responses)
