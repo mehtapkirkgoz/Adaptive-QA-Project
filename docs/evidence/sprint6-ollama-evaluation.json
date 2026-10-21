@@ -1,0 +1,283 @@
+{
+  "mode": "local_model",
+  "model": "qwen3:4b",
+  "remote_calls": 0,
+  "model_digest": "359d7dd4bcdab3d86b87d73ac27966f4dbb9f5efdfcc75d34a8764a09474fae7",
+  "implementation_sha": "5e51be96a0c8e63ab30217ee7d4860372fd85f9e",
+  "api_cost_microusd": 0,
+  "results": [
+    {
+      "case_id": "plain",
+      "status": "accepted",
+      "duration_seconds": 4.3570018000900745,
+      "advice": {
+        "website_kind": "general",
+        "confidence": 1,
+        "features": [],
+        "elements": [],
+        "execution_authorized": false
+      }
+    },
+    {
+      "case_id": "login",
+      "status": "accepted",
+      "duration_seconds": 2.813411599956453,
+      "advice": {
+        "website_kind": "general",
+        "confidence": 0.95,
+        "features": [
+          {
+            "feature": "login",
+            "status": "present",
+            "confidence": 0.95,
+            "evidence_ids": [
+              "form_0"
+            ]
+          }
+        ],
+        "elements": [
+          {
+            "logical_name": "login.submit",
+            "candidate_id": "button_0_0",
+            "confidence": 0.95
+          }
+        ],
+        "execution_authorized": false
+      }
+    },
+    {
+      "case_id": "store",
+      "status": "accepted",
+      "duration_seconds": 2.102014600066468,
+      "advice": {
+        "website_kind": "commerce",
+        "confidence": 0.95,
+        "features": [
+          {
+            "feature": "product",
+            "status": "present",
+            "confidence": 0.95,
+            "evidence_ids": [
+              "commerce_0"
+            ]
+          }
+        ],
+        "elements": [],
+        "execution_authorized": false
+      }
+    },
+    {
+      "case_id": "uncertain",
+      "status": "accepted",
+      "duration_seconds": 3.013241400010884,
+      "advice": {
+        "website_kind": "unknown",
+        "confidence": 0.9,
+        "features": [
+          {
+            "feature": "login",
+            "status": "unknown",
+            "confidence": 0.9,
+            "evidence_ids": [
+              "form_0"
+            ]
+          }
+        ],
+        "elements": [
+          {
+            "logical_name": "login.submit",
+            "candidate_id": "button_0_0",
+            "confidence": 0.9
+          }
+        ],
+        "execution_authorized": false
+      }
+    },
+    {
+      "case_id": "turkish_login",
+      "status": "accepted",
+      "duration_seconds": 2.7245784000260755,
+      "advice": {
+        "website_kind": "general",
+        "confidence": 1,
+        "features": [
+          {
+            "feature": "login",
+            "status": "present",
+            "confidence": 1,
+            "evidence_ids": [
+              "form_0"
+            ]
+          }
+        ],
+        "elements": [
+          {
+            "logical_name": "login.submit",
+            "candidate_id": "button_0_0",
+            "confidence": 1
+          }
+        ],
+        "execution_authorized": false
+      }
+    },
+    {
+      "case_id": "search",
+      "status": "accepted",
+      "duration_seconds": 2.7396344000007957,
+      "advice": {
+        "website_kind": "general",
+        "confidence": 0.95,
+        "features": [
+          {
+            "feature": "search",
+            "status": "present",
+            "confidence": 0.95,
+            "evidence_ids": [
+              "form_0"
+            ]
+          }
+        ],
+        "elements": [
+          {
+            "logical_name": "search.submit",
+            "candidate_id": "button_0_0",
+            "confidence": 0.95
+          }
+        ],
+        "execution_authorized": false
+      }
+    },
+    {
+      "case_id": "empty_cart",
+      "status": "accepted",
+      "duration_seconds": 2.0326612999197096,
+      "advice": {
+        "website_kind": "commerce",
+        "confidence": 0.95,
+        "features": [
+          {
+            "feature": "cart",
+            "status": "present",
+            "confidence": 0.95,
+            "evidence_ids": [
+              "commerce_0"
+            ]
+          }
+        ],
+        "elements": [],
+        "execution_authorized": false
+      }
+    },
+    {
+      "case_id": "registration",
+      "status": "accepted",
+      "duration_seconds": 2.992531699943356,
+      "advice": {
+        "website_kind": "general",
+        "confidence": 0.95,
+        "features": [
+          {
+            "feature": "login",
+            "status": "present",
+            "confidence": 0.95,
+            "evidence_ids": [
+              "form_0"
+            ]
+          }
+        ],
+        "elements": [
+          {
+            "logical_name": "registration.submit",
+            "candidate_id": "button_0_0",
+            "confidence": 0.95
+          }
+        ],
+        "execution_authorized": false
+      }
+    },
+    {
+      "case_id": "duplicate_buttons",
+      "status": "rejected",
+      "duration_seconds": 3.3186482000164688,
+      "advice": null
+    }
+  ],
+  "metrics": {
+    "mode": "live_model",
+    "threshold": 0.85,
+    "case_count": 9,
+    "kind_correct": 8,
+    "kind_total": 9,
+    "kind_confusion": {
+      "general:general": 5,
+      "commerce:commerce": 2,
+      "unknown:unknown": 1,
+      "general:unknown": 1
+    },
+    "feature_correct": 6,
+    "feature_total": 8,
+    "feature_present_precision": 1,
+    "feature_present_recall": 0.7142857142857143,
+    "element_correct": 5,
+    "element_total": 6,
+    "decision_abstentions": 6,
+    "high_confidence_errors": 1,
+    "real_model_accuracy": 0.8888888888888888
+  },
+  "development_metrics": {
+    "mode": "live_model",
+    "threshold": 0.85,
+    "case_count": 4,
+    "kind_correct": 4,
+    "kind_total": 4,
+    "kind_confusion": {
+      "general:general": 2,
+      "commerce:commerce": 1,
+      "unknown:unknown": 1
+    },
+    "feature_correct": 3,
+    "feature_total": 3,
+    "feature_present_precision": 1,
+    "feature_present_recall": 1,
+    "element_correct": 1,
+    "element_total": 2,
+    "decision_abstentions": 2,
+    "high_confidence_errors": 1,
+    "real_model_accuracy": 1
+  },
+  "holdout_metrics": {
+    "mode": "live_model",
+    "threshold": 0.85,
+    "case_count": 5,
+    "kind_correct": 4,
+    "kind_total": 5,
+    "kind_confusion": {
+      "general:general": 3,
+      "commerce:commerce": 1,
+      "general:unknown": 1
+    },
+    "feature_correct": 3,
+    "feature_total": 5,
+    "feature_present_precision": 1,
+    "feature_present_recall": 0.6,
+    "element_correct": 4,
+    "element_total": 4,
+    "decision_abstentions": 4,
+    "high_confidence_errors": 0,
+    "real_model_accuracy": 0.8
+  },
+  "host_safety": [
+    {
+      "case_id": "uncertain",
+      "status": "missing",
+      "unsafe_handle_bound": false
+    },
+    {
+      "case_id": "duplicate_buttons",
+      "status": "ambiguous",
+      "unsafe_handle_bound": false
+    }
+  ],
+  "accepted_responses": 8,
+  "case_count": 9
+}

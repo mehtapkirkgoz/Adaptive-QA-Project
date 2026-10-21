@@ -6,13 +6,11 @@ Active sprint: 6 — AI Integration.
 The owner selected Ollama with a real local model after completing scripted
 validation. Continue the local-only adapter, installation and measured evaluation.
 No API key, paid cloud service, or cloud model is authorized. Sprint 7 is not started.
-An authorized setup helper is already running: inspect ignored
-artifacts/setup/state.json and existing setup progress before starting anything
-new. Do not duplicate downloads, installers, or model pulls. When the stage is
-ready_for_model_evaluation, run scripts/check_ollama_model.py and review its
-actual predictions. Installer/model downloads can take time; do not report them
-as completed while pending. The helper log/session failure must be reviewed if
-the stage becomes failed_review_required.
+Setup is complete and nine real local-model cases have been evaluated, including
+five held-out fixtures. Do not repeat installation or downloads. The frozen
+report is docs/evidence/sprint6-ollama-evaluation.json. Continue exact-commit CI
+and artifact review for implementation 5e51be96a0c8e63ab30217ee7d4860372fd85f9e,
+then report readiness for owner closure with measured model limitations.
 Sprint 5 technical acceptance is complete and issue #6 was closed at the owner's request.
 Owner authorization: explicitly started in this chat on 2026-10-21.
 Sprint 0–4 technical acceptance and owner closure are complete.

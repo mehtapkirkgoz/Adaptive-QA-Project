@@ -31,7 +31,7 @@ child sends one non-streamed request to the fixed numeric loopback address.
 Redirects, unsupported media/encoding, incomplete/length-limited output, wrong
 model names, tool calls, and nonempty thinking output are rejected. No custom
 endpoint, cloud model, proxy environment routing, or API authorization header is
-accepted. Thinking is disabled, generation is bounded, and keep_alive=0 requests
+accepted. Thinking is disabled, generation is bounded, and keep_alive requests
 model unload after its bounded idle period (30 seconds by default, configurable
 from 0 to 120 seconds). Request payloads and raw model output are not
 retained as reports.
@@ -70,7 +70,18 @@ The model still proposed an element for an uncertain incomplete form. This raw
 high-confidence error remains in the report. Host fallback now rejects incomplete
 coverage, unknown feature advice, or evidence belonging to a different form;
 ambiguous deterministic matches were already protected. The held-out fixtures
-must be scored separately from these development examples before acceptance.
+were scored separately from these development examples.
+
+The frozen [nine-case local evaluation](evidence/sprint6-ollama-evaluation.json)
+records implementation `5e51be96a0c8e63ab30217ee7d4860372fd85f9e` and the installed
+model digest. Eight replies were accepted; the duplicate-button reply was
+rejected without being removed from metric denominators. Overall kind accuracy
+was 8/9; the five-case holdout scored 4/5 kinds, 3/5 feature states, present-feature
+precision 1.0 and recall 0.6, and 4/4 element decisions including abstention.
+The four development cases retained one wrong confident element suggestion.
+Actual browser checks produced no unsafe handle: incomplete evidence remained
+missing and duplicate matches remained ambiguous. API cost and remote calls were
+zero. This small fixture set is not an estimate of arbitrary-site accuracy.
 
 ## References
 

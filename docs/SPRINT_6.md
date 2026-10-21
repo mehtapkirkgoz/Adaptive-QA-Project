@@ -11,9 +11,9 @@ Milestone: [#7](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/7
 
 - [x] 6.1: Provider-independent bounded advisory and budget contracts.
 - [x] 6.2: Reduce collected inputs, validate strict response schemas and reference membership.
-- [ ] 6.3: Add an optional provider adapter with time/request/cost limits and safe fallback.
+- [x] 6.3: Add an optional local provider adapter with time/request/cost limits and safe fallback.
 - [x] 6.4: Integrate feature, test-selection, and element suggestions without policy escalation.
-- [ ] 6.5: Evaluate controlled fixtures, ambiguity, prompt injection, outages, and privacy boundaries.
+- [x] 6.5: Evaluate controlled fixtures, ambiguity, prompt injection, outages, and privacy boundaries.
 - [ ] 6.6: Verify exact-commit CI/evidence and report readiness for owner closure.
 
 ## Phase 6.1
@@ -209,3 +209,23 @@ convert an unsafe model suggestion into an action. Two new guard tests pass;
 all 397 unit tests and 18 scripted integration controls pass. A separate five-case
 holdout and immutable model/implementation identity reporting are prepared for
 the next measured run; full sprint acceptance remains pending that evidence and CI.
+
+## Nine-Case Local Model Evaluation
+
+The measured run for implementation `5e51be96a0c8e63ab30217ee7d4860372fd85f9e`
+is retained in [safe frozen evidence](evidence/sprint6-ollama-evaluation.json).
+It records the installed model digest, actual validated advice, outcomes,
+latencies, and development/holdout metrics. All seven positive fixtures returned
+valid advice. Of the two negative controls, the incomplete fixture returned a
+wrong confident element suggestion and the duplicate-button reply was rejected.
+Negative rejection is allowed only with no unsafe bound handle; the rejected
+case stays in every scoring denominator. Browser guards verified missing and
+ambiguous outcomes respectively. No labels or confidence threshold were relaxed.
+
+Overall kind accuracy: 8/9. Five held-out cases: 4/5 kinds, 3/5 feature states,
+present precision 1.0/recall 0.6, 4/4 element decisions including abstention, and
+zero wrong high-confidence held-out decisions. Development retained one such
+error. Accepted replies took about 2–5 seconds on this host. These are limited
+fixture measurements, not general website accuracy or guaranteed latency.
+No API key, paid usage, or cloud inference is required. Final exact-commit CI
+and artifact review remain pending; issue/milestone closure belongs to the owner.
