@@ -81,19 +81,53 @@ def main():
     metrics = evaluate_ai_decisions(tuple(labels), tuple(outcomes), mode='live_model')
     development = evaluate_ai_decisions(tuple(labels[:4]), tuple(outcomes[:4]), mode='live_model')
     holdout = evaluate_ai_decisions(tuple(labels[4:]), tuple(outcomes[4:]), mode='live_model')
+    # Negative fixtures can abstain/reject. Preserve those decisions in accuracy
+    # denominators; separately prove that no unsafe DOM handle is produced.
+    from playwright.sync_api import sync_playwright
+    from adaptive_qa.ai_integration import AiElementCandidate, match_with_ai_fallback
+    from adaptive_qa.ai_validation import reduce_ai_input
+    from adaptive_qa.element_models import ElementMapping, LocatorSpec, LocatorStrategy, MatchStatus
+    safety = []
+    with sync_playwright() as playwright:
+        browser = playwright.chromium.launch()
+        try:
+            context = browser.new_context(service_workers='block', accept_downloads=False)
+            context.route('**/*', lambda route: route.abort())
+            context.route_web_socket('**/*', lambda connection: connection.close())
+            tab = context.new_page()
+            default = ElementMapping('login.submit', (LocatorSpec(LocatorStrategy.ROLE, 'Sign in', 'button'),))
+            for index, html, button_name, expected in (
+                (3, '<input type=password><button>Continue</button>', 'Continue', MatchStatus.MISSING),
+                (8, '<button>Sign in</button><button>Sign in</button>', 'Sign in', MatchStatus.AMBIGUOUS)):
+                tab.set_content(html)
+                candidate = AiElementCandidate('button_0_0', ElementMapping('login.submit',
+                    (LocatorSpec(LocatorStrategy.ROLE, button_name, 'button'),)))
+                bound = match_with_ai_fallback(tab, default, outcomes[index],
+                    reduce_ai_input(fixtures[index][1], AiBudget()), (candidate,))
+                try:
+                    assert bound.result.status == expected and bound.handle is None
+                    safety.append({'case_id': labels[index].case_id, 'status': bound.result.status.value,
+                                   'unsafe_handle_bound': False})
+                finally:
+                    bound.close()
+            context.close()
+        finally:
+            browser.close()
     report = {'mode': 'local_model', 'model': 'qwen3:4b', 'remote_calls': 0,
               'model_digest': model_digest,
               'implementation_sha': subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
               'api_cost_microusd': 0, 'results': rows, 'metrics': metrics,
               'development_metrics': development, 'holdout_metrics': holdout,
+              'host_safety': safety,
               'accepted_responses': sum(item.status == 'accepted' for item in outcomes),
               'case_count': len(fixtures)}
     destination = Path('artifacts/ai/ollama-evaluation.json')
     destination.parent.mkdir(parents=True, exist_ok=True)
     destination.write_text(json.dumps(report, indent=2), encoding='utf-8')
     print(json.dumps(report, indent=2))
-    if report['accepted_responses'] != len(fixtures):
-        raise SystemExit('Some local-model responses were not accepted; see safe evaluation outcomes.')
+    positives = (0, 1, 2, 4, 5, 6, 7)
+    if any(outcomes[index].status != 'accepted' for index in positives):
+        raise SystemExit('A positive fixture did not produce valid advice; see measured outcomes.')
 
 
 if __name__ == '__main__':
