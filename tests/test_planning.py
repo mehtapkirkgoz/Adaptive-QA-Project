@@ -165,6 +165,14 @@ class PlanningTests(unittest.TestCase):
         self.assertTrue(all(item.decision == PlanDecision.SKIPPED for item in plain.cases))
         self.assertTrue(all(item.decision == PlanDecision.SELECTED for item in commerce.cases))
 
+    def test_real_cross_form_case_requires_both_features_on_the_target_page(self):
+        definition = next(case for case in TEST_CASES if case.case_id == 'LOGIN-009')
+        separated = self.entry(self.crawl(self.page('/login', forms=(self.login,)),
+                                          self.page('/search', forms=(self.search,))), definition)
+        self.assertEqual(separated.decision, PlanDecision.BLOCKED)
+        combined = self.entry(self.crawl(self.page(forms=(self.login, self.search))), definition)
+        self.assertEqual(combined.decision, PlanDecision.SELECTED)
+
 
 if __name__ == '__main__':
     unittest.main()

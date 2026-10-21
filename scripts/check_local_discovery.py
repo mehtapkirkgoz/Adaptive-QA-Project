@@ -54,10 +54,12 @@ def main():
         assert 'excluded_link' in result['limitations']
         plan = result['plan']
         assert not plan['execution_authorized']
-        assert sum(case['decision'] == 'selected' for case in plan['cases']) == len(TEST_CASES)
+        assert sum(case['decision'] == 'selected' for case in plan['cases']) == len(TEST_CASES) - 1
+        blocked = [case for case in plan['cases'] if case['decision'] == 'blocked']
+        assert len(blocked) == 1 and blocked[0]['case_id'] == 'LOGIN-009'
         for case in plan['cases']:
             if case['decision'] == 'selected':
-                path = ('/login' if case['case_id'].startswith(('LOGIN', 'FORM')) else
+                path = ('/login' if case['case_id'].startswith(('LOGIN', 'FORM')) or case['case_id'] == 'NAV-005' else
                         '/search' if case['case_id'].startswith('SEARCH') else '/')
                 assert case['target_url'] == 'http://127.0.0.1:8000' + path
                 assert case['evidence']

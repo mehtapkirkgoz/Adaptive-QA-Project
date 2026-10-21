@@ -75,7 +75,9 @@ EXPECTED = {
     'NAV-005': 'Navigating to search preserves the entered username.',
     'NAV-006': 'Back from search restores the previous login fragment.',
 }
-EXTRA_CASES = tuple(TestCase(case_id, name, TestType.UI, (feature,),
+EXTRA_CASES = tuple(TestCase(case_id, name, TestType.UI,
+    ('login', 'search') if case_id == 'LOGIN-009' else
+    ('navigation', 'login') if case_id == 'NAV-005' else (feature,),
     ('Open a fresh controlled fixture', name, 'Check the explicit browser outcome'),
     EXPECTED[case_id])
     for case_id, name, feature, behavior in SPECS)

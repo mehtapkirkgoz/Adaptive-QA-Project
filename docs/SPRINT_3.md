@@ -111,12 +111,23 @@ run instead of preserving a pass. Screenshots are captured before cleanup.
 Fresh contexts/processes still provide the final resource and data boundary for
 all scenarios, including legacy checks. Real customer mutations remain unsupported.
 
-All 267 unit tests pass, including five new data/policy boundary cases. Real
+All 268 unit tests pass, including five new data/policy boundary cases. Real
 Chromium checks verify failure cleanup and context separation; all 40 scenarios
 also pass in reversed catalog order in isolated processes. The forward queue
 run and reversed run cover the same IDs without increasing the case count.
 The policy regression confirms data-changing definitions are blocked before
 browser preparation. Remote same-commit verification remains for phase 3.6.
+
+## Phase 3.6 Verification
+
+Local acceptance covers 40 queued cases, 96 variant runs, 40 reverse-order runs,
+18 matching checks, cleanup/context separation, and 268 unit tests. The final
+audit corrected cross-feature prerequisites for the login/search independence
+and navigation/state cases. A real catalog regression verifies that separate
+login/search pages cannot satisfy the combined case. The multi-page discovery
+fixture selects 39 cases and blocks that combined case, preserving explicit scope.
+See [acceptance review](SPRINT_3_ACCEPTANCE.md). Final same-commit CI and artifact
+inspection are required before sprint closure.
 
 ## Acceptance Criteria
 
