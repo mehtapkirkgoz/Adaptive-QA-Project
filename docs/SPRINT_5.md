@@ -3,7 +3,7 @@
 Started: 2026-10-21
 Status: In progress
 Tracking issue: [#6](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/6)
-Milestone: Awaiting the owner's milestone link.
+Milestone: [Sprint 5 — Database Validation](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/6)
 
 ## Goal
 

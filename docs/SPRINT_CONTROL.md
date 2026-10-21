@@ -6,14 +6,14 @@ Active sprint: 5 — Database Validation.
 Owner authorization: explicitly started in this chat on 2026-10-21.
 Sprint 0–4 technical acceptance and owner closure are complete.
 
-| Sprint | Tracking issue | State |
-|---|---|---|
-| 5 | [#6](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/6) | In progress |
-| 6 | [#7](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/7) | Planned |
-| 7 | [#8](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/8) | Planned |
-| 8 | [#9](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/9) | Planned |
-| 9 | [#10](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/10) | Planned |
-| 10 | [#11](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/11) | Planned |
+| Sprint | Tracking issue | Milestone | State |
+|---|---|---|---|
+| 5 | [#6](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/6) | [#6](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/6) | In progress |
+| 6 | [#7](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/7) | [#7](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/7) | Planned |
+| 7 | [#8](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/8) | [#8](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/8) | Planned |
+| 8 | [#9](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/9) | [#9](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/9) | Planned |
+| 9 | [#10](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/10) | [#10](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/10) | Planned |
+| 10 | [#11](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/11) | [#11](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/11) | Planned |
 
 The owner manages sprint starts and closures. Opening a tracking issue or
 milestone does not authorize implementing a future sprint. After verified
