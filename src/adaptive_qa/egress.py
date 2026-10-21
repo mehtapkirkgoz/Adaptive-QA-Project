@@ -4,6 +4,7 @@ import http.client
 import select
 import socket
 import time
+import math
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from ipaddress import ip_address
 from threading import Lock, Thread
@@ -49,8 +50,11 @@ class DestinationGuard:
                 raise ValueError("Redirect budget exceeded.")
         self.authorize(urljoin(current_url, location))
 
-    def connect(self, target: ValidatedTarget) -> socket.socket:
+    def connect(self, target: ValidatedTarget, *, timeout_seconds: float = 5) -> socket.socket:
         """Connect to a checked numeric IP, never resolve the hostname again."""
+        if (isinstance(timeout_seconds, bool) or not isinstance(timeout_seconds, (int, float))
+                or not math.isfinite(timeout_seconds) or not 0 < timeout_seconds <= 5):
+            raise ValueError('Connection timeout must be finite and between 0 and 5 seconds.')
         for address in target.addresses:
             if self.local_sample:
                 if target.hostname != "127.0.0.1" or target.port != 8000 or address != "127.0.0.1":
@@ -60,7 +64,7 @@ class DestinationGuard:
         for address in target.addresses:
             parsed = ip_address(address)
             connection = socket.socket(socket.AF_INET if parsed.version == 4 else socket.AF_INET6)
-            connection.settimeout(5)
+            connection.settimeout(timeout_seconds)
             try:
                 connection.connect((str(parsed), target.port))
                 if ip_address(connection.getpeername()[0]) != parsed:

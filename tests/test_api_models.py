@@ -53,7 +53,7 @@ class ApiModelTests(unittest.TestCase):
                 ApiRequest('/api/health', **values)
 
     def test_json_bodies_reject_invalid_nonfinite_and_read_method_payloads(self):
-        for body in ('not-json', '{"value":NaN}', 'x' * 65537):
+        for body in ('not-json', '{"value":NaN}', '{"value":1e400}', '{"id":1,"id":2}', 'x' * 65537):
             with self.subTest(body=body[:20]), self.assertRaises(ValueError):
                 ApiRequest('/api/echo', HttpMethod.POST, body_json=body)
         with self.assertRaises(ValueError):

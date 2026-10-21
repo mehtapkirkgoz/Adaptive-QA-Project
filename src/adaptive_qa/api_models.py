@@ -50,6 +50,27 @@ def _reject_constant(value):
     raise ValueError('Non-finite JSON constants are not allowed.')
 
 
+def _finite_float(value):
+    number = float(value)
+    if not math.isfinite(number):
+        raise ValueError('JSON floating-point values must be finite.')
+    return number
+
+
+def _unique_object(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError('Duplicate JSON keys are not allowed.')
+        result[key] = value
+    return result
+
+
+def parse_api_json(value):
+    return json.loads(value, parse_constant=_reject_constant,
+                      parse_float=_finite_float, object_pairs_hook=_unique_object)
+
+
 @dataclass(frozen=True)
 class ApiConfiguration:
     project: ProjectConfig
@@ -109,7 +130,7 @@ class ApiRequest:
                     or len(self.body_json.encode('utf-8')) > 65536):
                 raise ValueError('body_json must be bounded JSON text.')
             try:
-                json.loads(self.body_json, parse_constant=_reject_constant)
+                parse_api_json(self.body_json)
             except (ValueError, RecursionError) as error:
                 raise ValueError('body_json must contain valid finite JSON.') from error
             if self.method in (HttpMethod.GET, HttpMethod.HEAD):

@@ -1,7 +1,7 @@
 # Sprint 4 — API Testing
 
 Start date: October 21, 2026 (Europe/Istanbul)
-Status: In progress — phase 4.1 completed locally.
+Status: In progress — phases 4.1 and 4.2 completed locally.
 Tracking: [issue #5](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/5).
 Milestone: Pending creation and association by the repository owner.
 
@@ -14,7 +14,7 @@ and enforced destination, mutation, response-size, and execution limits.
 ## Phases
 
 - [x] 4.1: Define API configuration, request, and assertion contracts.
-- [ ] 4.2: Implement bounded pinned-destination transport and safe reporting.
+- [x] 4.2: Implement bounded pinned-destination transport and safe reporting.
 - [ ] 4.3: Add controlled positive/negative API coverage toward 60 combined cases.
 - [ ] 4.4: Add explicit UI/API validation bindings.
 - [ ] 4.5: Verify missing configuration, secrets, mutation policy, redirects, and deadlines.
@@ -35,6 +35,23 @@ OpenAPI validation. Query/body/expected operands are excluded from repr; later
 reports must serialize only explicit safe outcome fields, never whole request models.
 All 280 unit tests pass, including 12 API contract cases. No transport or runnable
 API coverage is claimed at this checkpoint. Remote verification follows push.
+
+## Phase 4.2 Deliverables
+
+The transport authorizes and connects to the fixed local origin through the
+existing numeric-IP guard. It does not follow redirects or use environment proxy
+settings. Socket and response-size limits apply; encoded responses are rejected.
+The isolated hard total deadline for slow streams is a separate phase 4.5 gate.
+Requests resolve bearer tokens only from environment references and reject header
+controls. Mutating methods require both a declared data change and project policy.
+
+Strict JSON parsing rejects duplicate keys, non-finite literals, and floating-point
+overflow. Assertions distinguish booleans from numbers and missing paths from null.
+Results contain only case ID, status, duration, and generic reasons/assertion
+indexes. Payloads, headers, tokens, and expected operands are never serialized.
+Missing configuration/authentication produces blocked outcomes; assertion and
+transport failures remain distinct. All 290 unit tests and a real pinned local
+health request pass. Customer execution and public API transport remain disabled.
 
 ## Acceptance Criteria
 

@@ -50,7 +50,7 @@ Keep port 8000 available and run these scripts sequentially. They manage local s
 
 Current local results:
 
-- **280 unit tests passed locally:** platform rules and adapters, not website scenarios.
+- **290 unit tests passed locally:** platform rules and adapters, not website scenarios.
 - **3 real OS lifecycle checks passed on Windows:** deadline, active cancellation, and crash lock release.
 - **9 real Chromium security checks passed:** forbidden canaries received no connections.
 - **40 queued UI scenarios passed:** matching JSON results and PNG screenshots.
