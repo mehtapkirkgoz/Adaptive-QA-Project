@@ -3,12 +3,13 @@
 Updated: 2026-10-21
 
 Active sprint: 5 — Database Validation.
+Technical acceptance complete; waiting for owner closure and explicit next-sprint start.
 Owner authorization: explicitly started in this chat on 2026-10-21.
 Sprint 0–4 technical acceptance and owner closure are complete.
 
 | Sprint | Tracking issue | Milestone | State |
 |---|---|---|---|
-| 5 | [#6](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/6) | [#6](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/6) | In progress |
+| 5 | [#6](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/6) | [#6](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/6) | Ready for owner closure |
 | 6 | [#7](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/7) | [#7](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/7) | Planned |
 | 7 | [#8](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/8) | [#8](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/8) | Planned |
 | 8 | [#9](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/9) | [#9](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/9) | Planned |

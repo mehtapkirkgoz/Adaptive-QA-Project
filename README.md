@@ -1,5 +1,13 @@
 # Adaptive-QA-Project
 
+Sprint 5 technical acceptance is complete and awaits owner closure. The local
+catalog has 40 UI, 20 API, and 15 database scenarios. All seven jobs passed in
+[verified CI](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/actions/runs/39563143665)
+for `b8e7e647bd02d1d6508a390b550d5bd3d0d20348`, including 340 unit tests.
+Six artifact digests, both OS database reports, boundary checks, cross-layer
+creation/readback, and 178 PNG references were reviewed. SQLite is limited to
+controlled local fixtures. See [Sprint 5 acceptance](docs/SPRINT_5_ACCEPTANCE.md).
+
 An AI-assisted QA platform under development for website discovery and applicable UI, API, and database tests.
 
 **Status:** Sprint 4 completed on October 21, 2026 (Europe/Istanbul): API testing. Sprints 2 and 3 are complete. The local prototype runs 40 UI scenarios through a persistent queue with cancellation, deadlines, destination controls, JSON results, and screenshots. Page feature detection, guarded structural collection, bounded local crawling, and evidence-based test plans are implemented and verified against four contrasting controlled sites. Controlled API execution is implemented with 20 additional scenarios and explicit UI/API bindings. AI, SQL execution, and the dashboard are not implemented yet.
