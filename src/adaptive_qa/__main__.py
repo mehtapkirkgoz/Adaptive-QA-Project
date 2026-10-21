@@ -12,7 +12,8 @@ def main() -> None:
     if args.status:
         from adaptive_qa.catalog import TEST_CASES
         from adaptive_qa.api_catalog import API_CASES
-        print(f"Local prototype: {len(TEST_CASES)} UI + {len(API_CASES)} API scenarios, bounded discovery, and scoped planning available; "
+        from adaptive_qa.database_catalog import DATABASE_CASES
+        print(f"Local prototype: {len(TEST_CASES)} UI + {len(API_CASES)} API + {len(DATABASE_CASES)} database scenarios, bounded discovery, and scoped planning available; "
               "general website execution is not enabled.")
     else:
         parser.print_help()

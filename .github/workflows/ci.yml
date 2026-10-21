@@ -57,6 +57,34 @@ jobs:
           retention-days: 7
           if-no-files-found: error
 
+  database:
+    name: Controlled database checks (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2025]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - name: Install package
+        run: python -m pip install --no-deps -e .
+      - name: Verify isolated database scenarios
+        run: python scripts/check_local_database.py
+      - name: Verify database policy and process boundaries
+        run: python -m unittest discover -s tests -p "test_database*.py" -v
+      - name: Upload safe database evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: local-database-evidence-${{ matrix.os }}
+          path: artifacts/database/report.json
+          retention-days: 7
+          if-no-files-found: error
+
   api:
     name: Controlled API checks
     runs-on: ubuntu-24.04

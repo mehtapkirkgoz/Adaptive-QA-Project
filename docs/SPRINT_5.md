@@ -17,7 +17,7 @@ scenarios, subject to implemented behavior and verified acceptance.
 - [x] 5.0: Establish sprint tracking and owner-controlled continuation rules.
 - [x] 5.1: Define database configuration, query templates, parameters, assertions, and secret references.
 - [x] 5.2: Implement the first bounded adapter with enforced read-only execution, row limits, deadlines, and safe outcomes.
-- [ ] 5.3: Implement controlled fixture preparation and approximately 15 distinct database scenarios.
+- [x] 5.3: Implement controlled fixture preparation and approximately 15 distinct database scenarios.
 - [ ] 5.4: Validate a record created through a controlled UI/API operation without combining independent layer outcomes.
 - [ ] 5.5: Verify write rejection, malformed queries, connection failures, timeout/cancellation, redaction, and cleanup.
 - [ ] 5.6: Review exact-commit CI and artifacts; report technical acceptance to the owner.
@@ -77,6 +77,24 @@ Eight additional process tests cover real child passes/failures, write rejection
 total timeout, active cancellation, released database locks, private roundtrips,
 prestart non-execution, invalid deadlines, and missing output. The full local
 suite passes 332 tests. Same-commit remote acceptance remains pending.
+
+## Phase 5.3 Delivered
+
+Fifteen executable database scenarios cover product identity/missing records,
+catalog count, price, unavailable and available stock, Unicode lookup, order
+ownership/status/customer filtering, nullable notes, quantity and total
+aggregation, product references, and literal SQL-like parameters. These are
+distinct behaviors, not repeated execution counts. The combined catalog now
+contains 75 definitions: 40 UI, 20 API, and 15 database.
+
+`scripts/check_local_database.py` creates fake records in a fresh temporary
+database, runs every case in an isolated child, confirms the fixture bytes are
+unchanged, removes the fixture, and writes metadata-only evidence. Exclusive file
+creation prevents overwriting existing files. Local execution passed all 15
+scenarios; 334 unit tests pass. Dedicated Ubuntu and Windows CI jobs now repeat
+the scenario and boundary checks and retain safe JSON evidence. Remote results
+and cross-layer creation validation remain pending; seeded fixtures alone do
+not satisfy phase 5.4.
 
 ## Acceptance
 

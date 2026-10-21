@@ -76,7 +76,10 @@ def run_database_case(case, configuration, *, fixture_root, should_cancel=None):
         nonlocal denied
         allowed = action in (sqlite3.SQLITE_SELECT, sqlite3.SQLITE_RECURSIVE)
         if action == sqlite3.SQLITE_READ:
-            allowed = database == 'main'
+            # SQLite may emit a table-level read with an empty column and no
+            # database name when optimizing rowid-only/count queries. Attach
+            # and temporary schema creation remain denied independently.
+            allowed = database == 'main' or (database is None and second == '')
         if action == sqlite3.SQLITE_FUNCTION:
             allowed = second in ('count', 'sum', 'avg', 'min', 'max', 'length',
                                  'lower', 'upper', 'coalesce', 'abs', 'round')
