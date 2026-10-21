@@ -2,7 +2,7 @@
 
 An AI-assisted QA platform under development for website discovery and applicable UI, API, and database tests.
 
-**Status:** Sprint 3 started on October 21, 2026 (Europe/Istanbul): UI catalog and element matching. Sprint 2 is complete. The local prototype runs 40 UI scenarios through a persistent queue with cancellation, deadlines, destination controls, JSON results, and screenshots. Page feature detection, guarded structural collection, bounded local crawling, and evidence-based test plans are implemented and verified against four contrasting controlled sites. AI, API/SQL execution, and the dashboard are not implemented yet.
+**Status:** Sprint 3 completed on October 21, 2026 (Europe/Istanbul): UI catalog and element matching. Sprint 2 is complete. The local prototype runs 40 UI scenarios through a persistent queue with cancellation, deadlines, destination controls, JSON results, and screenshots. Page feature detection, guarded structural collection, bounded local crawling, and evidence-based test plans are implemented and verified against four contrasting controlled sites. AI, API/SQL execution, and the dashboard are not implemented yet.
 
 ## Project Plans
 
@@ -13,7 +13,7 @@ Sprints follow goals and acceptance criteria without a fixed two-week commitment
 | 0 | Architecture, models, configuration, GitHub workflow | Completed |
 | 1 | First controlled end-to-end execution | Completed |
 | 2 | Website discovery | Completed |
-| 3 | UI catalog and element matching | In progress |
+| 3 | UI catalog and element matching | Completed |
 | 4 | API tests | Planned |
 | 5 | Database validation | Planned |
 | 6 | AI integration | Planned |
@@ -200,5 +200,14 @@ reusable executors, independent test data, and expansion toward 40 meaningful
 runnable UI scenarios. Validated mappings and deterministic browser matching are
 implemented. Existing login/search checks pass across three controlled fixture
 variants in isolated processes, including explicit project overrides. The catalog
-now has 40 distinct scenarios; 32 shared executors also pass 96 runs across three fixture variants. Variants do not inflate the case count. The hourly follow-up
-is active for this sprint.
+now has 40 distinct scenarios; 32 shared executors also pass 96 runs across three fixture variants. Variants do not inflate the case count. All 40 cases also pass in reversed order;
+browser-local fake data is prepared and cleaned explicitly, including on failure.
+
+[Accepted CI run](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/actions/runs/39519899466)
+for `eb95e96696d148133747ee4f290cb727f9fc4bb1` passed all four jobs: 268 unit tests,
+18 matching checks, 96 shared-variant runs, 40 reversed runs, 40 queued runs,
+and discovery/security/lifecycle regressions. Three archive digests, all result
+records, and 176 PNG references were verified. A pre-cleanup form screenshot was
+visually inspected. See [acceptance evidence](docs/SPRINT_3_ACCEPTANCE.md).
+Issue #4 is closed; milestone #4 is ready for the owner to close. The Sprint 3
+hourly follow-up is paused after acceptance.

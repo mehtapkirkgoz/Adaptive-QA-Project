@@ -1,9 +1,10 @@
 # Sprint 3 — UI Test Catalog and Element Matching
 
 Start date: October 21, 2026 (Europe/Istanbul)
-Status: In progress — phases 3.1 through 3.5 completed locally.
+Status: Completed — implementation CI and downloaded evidence verified on October 21, 2026.
 Tracking issue: [#4](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/4).
 Milestone: [Sprint 3 — UI Test Catalog and Element Matching](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/4).
+Issue #4 is closed as completed. Milestone #4 is ready for the repository owner to close.
 
 ## Goal
 
@@ -19,7 +20,7 @@ cosmetic variants or unimplemented definitions.
 - [x] 3.3: Bind reusable executors to discovered pages and contrasting fixture variants.
 - [x] 3.4: Expand login, form, search, navigation, and negative UI coverage toward 40 runnable scenarios.
 - [x] 3.5: Add isolated test data preparation/cleanup and data-change policy enforcement.
-- [ ] 3.6: Verify independent/repeated execution, remote CI, artifacts, and acceptance.
+- [x] 3.6: Verify independent/repeated execution, remote CI, artifacts, and acceptance.
 
 ## Matching Contract Goals
 
@@ -45,10 +46,10 @@ are applied. Multi-page workflows require explicit bindings.
 - Bounds, typed tuples/enums, duplicate alternatives, duplicate logical names,
   invalid roles, and malformed text are rejected before browser use.
 
-All 256 unit tests pass locally, including 13 new contract cases. Compilation
-and diff checks pass. Remote verification is pending after push. These models do
+At this checkpoint 256 unit tests passed locally, including 13 new contract cases.
+Compilation and diff checks passed. These models do
 not locate elements or execute actions yet; browser matching belongs to phase 3.2.
-The runnable smoke catalog remains at ten cases.
+The runnable smoke catalog was still ten cases at this checkpoint.
 
 ## Phase 3.2 Deliverables
 
@@ -61,9 +62,9 @@ budget; callers must still supply a hard process deadline. A matched static DOM
 handle cannot retarget silently after replacement and must be disposed by its caller.
 Visibility does not imply enabled/actionable state. No click or fill occurs here.
 
-All 256 unit tests and 18 real Chromium checks pass locally. CI runs the matching
+At this checkpoint 256 unit tests and 18 real Chromium checks passed locally. CI runs the matching
 script and retains its report under `artifacts/matching/`. Runtime execution and
-fixture bindings belong to phase 3.3; the smoke catalog remains ten scenarios.
+fixture bindings belong to phase 3.3; the catalog was still ten scenarios here.
 
 ## Phase 3.3 Deliverables
 
@@ -99,7 +100,7 @@ the planner additionally carries forms/navigation evidence and limitations.
 All 262 unit tests pass locally. The 40-case queue run verifies registered
 executors, saved results, and screenshots. The 32 currently reusable cases pass
 96 isolated runs across English, Turkish, and mapped fixtures. Discovery budget
-and contrasting-site regressions also pass. CI verification remains pending.
+and contrasting-site regressions also pass. Final CI evidence is recorded below.
 
 ## Phase 3.5 Deliverables
 
@@ -116,7 +117,7 @@ Chromium checks verify failure cleanup and context separation; all 40 scenarios
 also pass in reversed catalog order in isolated processes. The forward queue
 run and reversed run cover the same IDs without increasing the case count.
 The policy regression confirms data-changing definitions are blocked before
-browser preparation. Remote same-commit verification remains for phase 3.6.
+browser preparation. Same-commit verification is recorded in phase 3.6.
 
 ## Phase 3.6 Verification
 
@@ -126,29 +127,32 @@ audit corrected cross-feature prerequisites for the login/search independence
 and navigation/state cases. A real catalog regression verifies that separate
 login/search pages cannot satisfy the combined case. The multi-page discovery
 fixture selects 39 cases and blocks that combined case, preserving explicit scope.
-See [acceptance review](SPRINT_3_ACCEPTANCE.md). Final same-commit CI and artifact
-inspection are required before sprint closure.
+See [acceptance review](SPRINT_3_ACCEPTANCE.md). The accepted implementation SHA is
+`eb95e96696d148133747ee4f290cb727f9fc4bb1`, verified in [CI](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/actions/runs/39519899466).
+All four jobs passed. Three downloaded artifact digests matched GitHub metadata
+and the implementation SHA. Both OS lifecycle reports, 18 matching checks, 96
+variant runs, 40 reversed runs, 40 queued JSON records, and 176 linked PNGs were
+verified. Discovery/fixture/security regressions passed. A FORM-005 screenshot
+visibly retained express delivery selected before cleanup.
 
 ## Acceptance Criteria
 
-- [ ] Shared tests work against controlled pages with different element names.
-- [ ] Missing and ambiguous controls produce explicit controlled outcomes.
-- [ ] Cases are independent of execution order and isolate their test data.
-- [ ] Data-changing actions respect project policy and include cleanup behavior.
-- [ ] Repeated runs produce explainable results and evidence.
-- [ ] Catalog counts reflect implemented runnable coverage.
-- [ ] CI and downloaded evidence are verified for the accepted implementation commit.
+- [x] Shared tests work against controlled pages with different element names.
+- [x] Missing and ambiguous controls produce explicit controlled outcomes.
+- [x] Cases are independent of execution order and isolate their test data.
+- [x] Data-changing actions respect project policy and include cleanup behavior.
+- [x] Repeated runs produce explainable results and evidence.
+- [x] Catalog counts reflect implemented runnable coverage.
+- [x] CI and downloaded evidence are verified for the accepted implementation commit.
 
 ## Scheduled Continuation
 
-The existing hourly follow-up is active for Sprint 3 in this chat. It checks usage
-availability before continuing the next unfinished phase, preserves user changes,
-and commits/pushes small verified increments. It stops after Sprint 3 acceptance;
-Sprint 4, deployment, and customer-site execution are outside its scope.
+The hourly follow-up covered Sprint 3 only and is paused after acceptance.
+Sprint 4, deployment, and customer-site execution were outside its scope.
 
 ## Baseline
 
 Sprint 2 was accepted with 243 unit tests, four contrasting discovery sites, and
 verified CI/artifacts. The repository owner confirmed milestone #3 is closed.
-The runnable smoke catalog still contains ten cases. Phase 3.1 adds configuration
-and result contracts, without claiming extra executable scenario coverage.
+The baseline catalog contained ten cases. Phase 3.1 added configuration and result
+contracts without claiming extra executable scenario coverage; phase 3.4 expanded it to 40.

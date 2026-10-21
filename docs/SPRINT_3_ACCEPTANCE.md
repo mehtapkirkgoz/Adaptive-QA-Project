@@ -1,7 +1,7 @@
 # Sprint 3 Acceptance Review
 
 Review date: October 21, 2026 (Europe/Istanbul)
-Status: Local acceptance passed; final implementation CI/artifact review pending.
+Status: Accepted. Final implementation CI and downloaded evidence verified.
 
 Tracking: [issue #4](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/4)
 and [milestone #4](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/4).
@@ -49,6 +49,24 @@ catalog coverage. All thirty added behaviors have explicit expected outcomes.
 - Retain discovery, contrasting-fixture, nine egress, and both OS lifecycle checks.
 - Inspect screenshot evidence before cleanup for an action scenario.
 
+## Verified Remote Evidence
+
+Implementation: `eb95e96696d148133747ee4f290cb727f9fc4bb1`.
+[CI run](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/actions/runs/39519899466)
+passed all four jobs. The unit log confirms 268 tests. Both OS reports contain
+three successful lifecycle checks. Browser reports confirm 18 matching checks,
+96 variant runs, failure cleanup/context separation, 40 reversed runs, and 40
+queued JSON results. All 176 referenced PNGs are present and valid. The reversed
+case ID order matches the reverse of the forward queue order. Four discovery
+fixture hashes/matrices, five budget scenarios, and nine egress checks also pass.
+The combined login/search case is correctly blocked on separate discovered pages.
+
+All three downloaded archive digests matched GitHub metadata and the same
+implementation SHA. A FORM-005 screenshot was visually inspected: express delivery
+remained selected, proving evidence was captured before cleanup. Downloads,
+metadata, and inspection tooling are retained under ignored `artifacts/acceptance/`.
+GitHub artifact retention is seven days; committed scripts/fixtures reproduce checks.
+
 ## Boundaries
 
 This is a controlled local prototype. Eight original root-specific checks remain
@@ -63,6 +81,9 @@ is weakened to accommodate a failed match or a fixture variation.
 
 - [x] Verify local acceptance and matching catalog/executor counts.
 - [x] Record explicit scope and reproduction commands.
-- [ ] Verify final same-commit CI and downloaded evidence.
-- [ ] Update completion documents and close issue #4 after acceptance.
+- [x] Verify final same-commit CI and downloaded evidence.
+- [x] Update completion documents and close issue #4 after acceptance.
 - [ ] Repository owner closes milestone #4.
+
+Issue #4 is closed as completed. The connected tool cannot close milestones;
+milestone #4 remains an owner action. Technical acceptance is complete.
