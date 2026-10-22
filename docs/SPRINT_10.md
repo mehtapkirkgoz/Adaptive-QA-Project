@@ -20,7 +20,8 @@ are authorized by this sprint start.
   - [x] Add authenticated, CSRF-protected organization/project configuration API routes.
   - [x] Add local organization/project configuration UI with role-aware controls.
   - [x] Integrate scoped discovery queue/worker lifecycle and recovery.
-  - [ ] Integrate scoped test-run admission/results/evidence and recovery.
+  - [x] Integrate scoped test-run admission/results/evidence and recovery.
+  - [ ] Finish membership administration and scoped usage visibility for onboarding.
 - [ ] 10.3: Verify isolation and concurrency against two disposable organizations.
 - [ ] 10.4: Implement and exercise authenticated outbound agent flow on controlled local fixtures.
 - [ ] 10.5: Document onboarding/support and prioritized pilot findings.
@@ -151,3 +152,43 @@ fixture and reviews its plan with execution_authorized=false. It still records
 zero test runs, external UI requests or page errors. Full local regression ran
 621 tests: 620 passed and one Windows symlink-permission fixture was skipped.
 TypeScript/Vite build passed. Same-commit CI remains pending after push.
+
+## Shared Test Runs, Evidence and Atomic Quotas
+
+Shared run admission now inserts the quota reservation and queued run in one
+SQLite write transaction. A failed run insert rolls back the reservation. Current
+membership, settings and completed scoped discovery are required; only selected
+read-only UI cases bound to the controlled local root can be dispatched. Global
+100-job and per-user five-job bounds include personal plus shared runs in both
+directions. Pending, active and UTC daily organization limits use the persistent
+ledger; cancellation frees outstanding capacity without refunding daily usage.
+
+Claims bind the same opaque token in both the run and reservation. Membership and
+settings are rechecked at claim, cancellation checks, result insertion and final
+publication. Revocation/policy change discards late results and cancels work.
+Individual assertion outcomes remain distinct from completed lifecycle. Partial
+results survive cancellation/recovery; unattempted cases receive no invented
+outcome. Recovering interrupted work releases only the exact linked claim and
+never replays execution. Offline restore cancels both shared runs and reservations
+while retaining earlier assertions/PNGs and original live database bytes.
+
+The authenticated shared API now supports explicit run dispatch, history/detail,
+cancel and opaque scoped PNG retrieval. Current viewers can read but cannot
+dispatch/cancel. Expired evidence is immediately unavailable, with bounded indexed
+cleanup under the worker. Raw adapter messages, secrets, claims and paths are not
+returned. Shared historical comparisons/reruns are not enabled by this increment.
+
+The local UI selects up to ten explicit cases from reviewed discovery and shows
+run results/evidence links. The existing supervised UI worker processes shared
+work after personal work under its OS lock, inner deadlines and private temporary
+evidence directory. The managed launcher checks selected-package support before
+using the fallback. The public interface demo remains unchanged.
+
+Eight queue tests passed for parallel admission/active limits, transaction rollback,
+revocation, daily usage, policy changes, tenant isolation, expiry, stale claims and
+partial recovery. A new real-SQLite restore test and authenticated ASGI evidence
+test passed. Real Chromium queued LOGIN-001/SEARCH-001, the actual worker passed
+both cases and persisted two PNGs, and anonymous/revoked evidence requests were
+denied. Zero UI external requests/page errors occurred. Production build passed;
+full local regression completed 631 tests (630 passed, one Windows symlink
+permission skip). New exact-commit CI remains pending after push.

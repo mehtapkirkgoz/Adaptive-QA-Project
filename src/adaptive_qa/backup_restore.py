@@ -65,6 +65,9 @@ def prepare_restore(plan, bundle_id, *, maintenance_confirmed=False):
                     if 'dashboard_organization_discovery' in tables:
                         connection.execute("UPDATE dashboard_organization_discovery SET status='cancelled', claim_token=NULL "
                                            "WHERE status IN ('queued', 'running', 'cancel_requested')")
+                    if 'dashboard_organization_runs' in tables:
+                        connection.execute("UPDATE dashboard_organization_runs SET status='cancelled', claim_token=NULL "
+                                           "WHERE status IN ('queued', 'running', 'cancel_requested')")
                     if 'dashboard_organization_admissions' in tables:
                         connection.execute("UPDATE dashboard_organization_admissions SET status='cancelled', claim_token=NULL "
                                            "WHERE status IN ('pending', 'active')")

@@ -13,6 +13,49 @@ from adaptive_qa.web_app import create_app, CSRF_COOKIE
 
 
 class WebOrganizationTests(unittest.TestCase):
+    def test_shared_run_admission_result_and_evidence_require_current_membership(self):
+        from adaptive_qa.organization_projects import OrganizationProjects
+        from adaptive_qa.organization_discovery import OrganizationDiscoveryQueue
+        from adaptive_qa.organization_runs import OrganizationRunQueue
+        from adaptive_qa.dashboard_worker import configuration_fingerprint
+        from adaptive_qa.models import TestResult, TestStatus
+        from png_fixture import png_bytes
+        project = self.client.post(self.path,headers=self.headers,json={'name':'Shared'}).json()['project_id']
+        base = self.path+'/'+project
+        self.client.put(base+'/configuration',headers=self.headers,json={
+            'base_url':'http://127.0.0.1:8000/','allowed_hosts':['127.0.0.1'],
+            'allow_data_changes':False,'secret_references':{}})
+        discovery = OrganizationDiscoveryQueue(OrganizationProjects(self.organizations))
+        job = discovery.submit(self.alice,self.org,project)['job_id']
+        work = discovery.claim_next()
+        discovery.finish(work,report={'project_id':project,'execution_authorized':False,
+            'discovery_status':'completed','inspected_pages':1,
+            'configuration_fingerprint':configuration_fingerprint(work.configuration),
+            'cases':[{'case_id':'LOGIN-001','decision':'selected','test_type':'ui','target_binding':'local_root'}]})
+        body = {'discovery_job_id':job,'case_ids':['LOGIN-001']}
+        self.assertEqual(self.client.post(base+'/runs',headers={'origin':self.headers['origin']},json=body).status_code,401)
+        response = self.client.post(base+'/runs',headers=self.headers,json=body)
+        self.assertEqual(response.status_code,202)
+        self.assertEqual(response.json()['status'],'queued')
+        runs = OrganizationRunQueue(discovery)
+        claim = runs.claim_next()
+        runs.record_result(claim,TestResult('LOGIN-001',TestStatus.PASSED,.1,'Private fixture'),evidence_png=png_bytes())
+        runs.finish(claim)
+        target = base+'/runs/'+response.json()['run_id']
+        report = self.client.get(target).json()
+        self.assertNotIn('Private fixture',str(report))
+        evidence = target+'/evidence/'+report['results'][0]['evidence_id']
+        self.assertEqual(self.client.get(evidence).content,png_bytes())
+        self.login('bob')
+        self.assertEqual(self.client.get(evidence).status_code,404)
+        self.organizations.set_member(self.alice,self.org,self.bob.user_id,Role.VIEWER)
+        self.assertEqual(self.client.get(evidence).status_code,200)
+        self.assertEqual(self.client.post(base+'/runs',headers=self.headers,json=body).status_code,404)
+        self.organizations.remove_member(self.alice,self.org,self.bob.user_id)
+        self.assertEqual(self.client.get(evidence).status_code,404)
+        self.client.cookies.clear()
+        self.assertEqual(self.client.get(evidence).status_code,401)
+
     def setUp(self):
         self.temp = TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
@@ -54,7 +97,7 @@ class WebOrganizationTests(unittest.TestCase):
         self.assertEqual(self.client.get('/api/projects').json()['projects'], [])
         with self.projects._connection() as c:
             self.assertEqual(c.execute('SELECT count(*) FROM dashboard_test_runs').fetchone()[0], 0)
-        self.assertEqual(self.client.post(target+'/runs', headers=self.headers, json={}).status_code, 404)
+        self.assertEqual(self.client.post(target+'/runs', headers=self.headers, json={}).status_code, 400)
 
     def test_anonymous_other_organization_and_revoked_member_cannot_read(self):
         project = self.client.post(self.path, headers=self.headers, json={'name': 'Shared'}).json()

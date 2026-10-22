@@ -5,6 +5,13 @@ enables staging/production origins, public interfaces or customer-site execution
 GitHub Pages remains a separate static demo. Existing non-executing deployment
 and test-plan commands remain non-executing.
 
+Sprint 10 packages also support membership-scoped local discovery/UI work. The
+same discovery-once/run-once role processes one personal job first, then one shared
+job if the personal queue is empty. Selected older packages without these modules
+do not receive this fallback. Shared membership/configuration, admission/evidence
+and recovery checks remain in the selected application, under the existing lease
+and worker lock/deadline controls. This does not enable customer-site execution.
+
 ## Prerequisites and Trust
 
 Use the locked interpreter dependencies, Chromium and controlled fixture from

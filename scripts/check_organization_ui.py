@@ -19,6 +19,8 @@ from adaptive_qa.web_app import create_app
 from adaptive_qa.organization_discovery import OrganizationDiscoveryQueue
 from adaptive_qa.organization_projects import OrganizationProjects
 from adaptive_qa.dashboard_worker import process_discovery_once
+from adaptive_qa.dashboard_run_worker import process_run_once
+from adaptive_qa.organization_runs import OrganizationRunQueue
 from check_dashboard_runs import QuietHandler
 
 
@@ -89,6 +91,25 @@ def main():
                     assert outcome['status'] == 'completed'
                     panel.get_by_role('button', name='Review discovery plan', exact=True).click()
                     expect(panel.get_by_text('Execution authorized: No.', exact=False)).to_be_visible()
+                    run_panel = panel.get_by_label('Organization test runs', exact=True)
+                    run_panel.get_by_label('Shared select LOGIN-001', exact=True).check()
+                    run_panel.get_by_label('Shared select SEARCH-001', exact=True).check()
+                    run_panel.get_by_role('button', name='Start shared tests', exact=True).click()
+                    expect(run_panel.get_by_text('Shared run queued', exact=False)).to_be_visible()
+                    shared_runs = OrganizationRunQueue(queue)
+                    run_outcome = process_run_once(shared_runs)
+                    assert run_outcome['status'] == 'completed'
+                    expect(run_panel.get_by_text('LOGIN-001: passed', exact=False)).to_be_visible()
+                    expect(run_panel.get_by_text('SEARCH-001: passed', exact=False)).to_be_visible()
+                    screenshot_link = run_panel.get_by_role('link', name='View shared screenshot', exact=True).first
+                    screenshot_path = screenshot_link.get_attribute('href')
+                    response = page.request.get(origin+screenshot_path)
+                    assert response.status == 200 and response.body().startswith(b'\x89PNG\r\n\x1a\n')
+                    anonymous = browser.new_context()
+                    try:
+                        assert anonymous.request.get(origin+screenshot_path).status == 401
+                    finally:
+                        anonymous.close()
                     organizations.set_member(alice, organization_id, bob.user_id, Role.VIEWER)
                     page.screenshot(path=str(output/'owner.png'), full_page=True)
                     page.get_by_role('button', name='Sign out', exact=True).click()
@@ -100,15 +121,20 @@ def main():
                     expect(panel.get_by_label('Organization target URL', exact=True)).to_be_disabled()
                     expect(panel.get_by_role('button', name='Save shared configuration', exact=True)).to_have_count(0)
                     expect(panel.get_by_role('button', name='Queue local discovery', exact=True)).to_be_disabled()
+                    expect(panel.get_by_role('button', name='Start shared tests', exact=True)).to_be_disabled()
+                    expect(panel.get_by_text('LOGIN-001: passed', exact=False)).to_be_visible()
                     organizations.remove_member(alice, organization_id, bob.user_id)
                     page.reload()
                     page.get_by_role('button', name='Organizations', exact=True).click()
                     expect(panel.get_by_role('button', name='Other private organization · owner', exact=True)).to_be_visible()
                     expect(panel.get_by_role('button', name='Controlled team · viewer', exact=True)).to_have_count(0)
+                    assert page.request.get(origin+screenshot_path).status == 404
                     page.set_viewport_size({'width': 390, 'height': 844})
                     page.screenshot(path=str(output/'mobile.png'), full_page=True)
                     with projects._connection() as c:
                         assert c.execute('SELECT count(*) FROM dashboard_test_runs').fetchone()[0] == 0
+                        assert c.execute("SELECT count(*) FROM dashboard_organization_runs WHERE status='completed'").fetchone()[0] == 1
+                        assert c.execute('SELECT count(*) FROM dashboard_organization_evidence').fetchone()[0] == 2
                     assert not errors and not external
                 finally:
                     browser.close()
@@ -122,6 +148,8 @@ def main():
     report = {'owner_create_and_save': True, 'viewer_read_only': True,
               'revocation_after_reload': True, 'other_organization_hidden': True,
               'queued_runs': 0, 'scoped_discovery_completed': True, 'plan_execution_authorized': False,
+              'actual_shared_cases_passed': 2, 'shared_pngs_persisted': 2,
+              'anonymous_and_revoked_evidence_denied': True,
               'external_requests': len(external), 'page_errors': errors,
               'demo_modified': False}
     (output/'ui.json').write_text(json.dumps(report, indent=2)+'\n', encoding='utf-8')

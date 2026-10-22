@@ -47,6 +47,12 @@ def main():
         elif args.role == 'run-once':
             from adaptive_qa.dashboard_run_worker import process_run_once
             outcome = process_run_once(DashboardRunQueue(projects))
+            if outcome is None and importlib.util.find_spec('adaptive_qa.organization_runs') is not None:
+                from adaptive_qa.organization_runs import OrganizationRunQueue
+                from adaptive_qa.organization_discovery import OrganizationDiscoveryQueue
+                from adaptive_qa.organization_projects import OrganizationProjects
+                from adaptive_qa.organization_store import OrganizationStore
+                outcome = process_run_once(OrganizationRunQueue(OrganizationDiscoveryQueue(OrganizationProjects(OrganizationStore(projects)))))
             if outcome is not None and outcome.get('status') == 'error':
                 raise SystemExit(2)
         elif args.role == 'discovery-once':

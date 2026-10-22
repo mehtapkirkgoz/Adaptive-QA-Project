@@ -19,6 +19,49 @@ from adaptive_qa.project_store import ProjectStore
 
 
 class BackupRestoreTests(unittest.TestCase):
+    def test_shared_run_restore_keeps_partial_results_and_png_but_cancels_claims(self):
+        from adaptive_qa.organization_store import OrganizationStore
+        from adaptive_qa.organization_projects import OrganizationProjects
+        from adaptive_qa.organization_discovery import OrganizationDiscoveryQueue
+        from adaptive_qa.organization_runs import OrganizationRunQueue
+        from adaptive_qa.dashboard_worker import configuration_fingerprint
+        from adaptive_qa.models import TestResult, TestStatus
+        from png_fixture import png_bytes
+        actor = self.grant.actor
+        organizations = OrganizationStore(self.projects)
+        organization = organizations.create(actor, 'Shared recovery')
+        scoped = OrganizationProjects(organizations)
+        project = scoped.create(actor, organization, 'Fixture')['project_id']
+        scoped.save_configuration(actor, organization, project, {'base_url':'http://127.0.0.1:8000/',
+            'allowed_hosts':['127.0.0.1'],'allow_data_changes':False,'secret_references':{}})
+        discovery = OrganizationDiscoveryQueue(scoped)
+        job = discovery.submit(actor,organization,project)['job_id']
+        work = discovery.claim_next()
+        discovery.finish(work,report={'project_id':project,'execution_authorized':False,
+            'discovery_status':'completed','inspected_pages':1,
+            'configuration_fingerprint':configuration_fingerprint(work.configuration),
+            'cases':[{'case_id':case,'decision':'selected','test_type':'ui','target_binding':'local_root'}
+                     for case in ('LOGIN-001','SEARCH-001')]})
+        runs = OrganizationRunQueue(discovery)
+        run = runs.submit(actor,organization,project,job,('LOGIN-001','SEARCH-001'))
+        claim = runs.claim_next()
+        runs.record_result(claim,TestResult('LOGIN-001',TestStatus.PASSED,.1,'Fixture'),evidence_png=png_bytes())
+        runs.submit(actor,organization,project,job,('LOGIN-001',))
+        bundle = create_backup(self.plan,maintenance_confirmed=True)['bundle_id']
+        before = self.projects.database.read_bytes()
+        result = prepare_restore(self.plan,bundle,maintenance_confirmed=True)
+        database = self.plan.directory/'recovery'/result['recovery_id']/'projects.sqlite'
+        recovered = OrganizationRunQueue(OrganizationDiscoveryQueue(OrganizationProjects(OrganizationStore(ProjectStore(database)))))
+        public = recovered.get(actor,organization,project,run['run_id'])
+        self.assertEqual(public['status'],'cancelled')
+        self.assertEqual(len(public['results']),1)
+        evidence_id = public['results'][0]['evidence_id']
+        self.assertEqual(recovered.evidence(actor,organization,project,run['run_id'],evidence_id),png_bytes())
+        with self.assertRaises(ValueError):
+            recovered.finish(claim)
+        self.assertIsNone(recovered.claim_next())
+        self.assertEqual(before,self.projects.database.read_bytes())
+
     def test_organization_jobs_and_reservations_are_cancelled_only_in_recovered_copy(self):
         from adaptive_qa.organization_store import OrganizationStore
         from adaptive_qa.organization_projects import OrganizationProjects

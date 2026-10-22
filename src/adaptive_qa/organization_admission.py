@@ -43,20 +43,26 @@ class OrganizationAdmission:
         return OrganizationQuota(*tuple(row))
 
     def reserve(self, actor, organization_id):
-        day = self._day()
         with self.organizations.projects._connection() as c:
             c.execute('BEGIN IMMEDIATE')
-            self.organizations._membership(c, actor, organization_id, Action.EXECUTE)
-            quota = self._quota(c, organization_id)
-            pending = c.execute('SELECT count(*) FROM dashboard_organization_admissions '
-                                "WHERE organization_id=? AND status='pending'", (organization_id,)).fetchone()[0]
-            daily = c.execute('SELECT count(*) FROM dashboard_organization_admissions '
-                              'WHERE organization_id=? AND utc_day=?', (organization_id, day)).fetchone()[0]
-            if not quota.admits('pending_runs', pending) or not quota.admits('daily_runs', daily):
-                raise OrganizationCapacityExceeded('Organization admission capacity reached.')
-            reservation_id = uuid4().hex
-            c.execute('INSERT INTO dashboard_organization_admissions VALUES (?, ?, ?, ?, ?, NULL)',
-                      (reservation_id, organization_id, actor.user_id, day, 'pending'))
+            return self._reserve(c, actor, organization_id)
+
+    def _reserve(self, c, actor, organization_id):
+        """Trusted queue composition; caller must hold BEGIN IMMEDIATE."""
+        if not c.in_transaction:
+            raise ValueError('Admission requires an existing write transaction.')
+        day = self._day()
+        self.organizations._membership(c, actor, organization_id, Action.EXECUTE)
+        quota = self._quota(c, organization_id)
+        pending = c.execute('SELECT count(*) FROM dashboard_organization_admissions '
+                            "WHERE organization_id=? AND status='pending'", (organization_id,)).fetchone()[0]
+        daily = c.execute('SELECT count(*) FROM dashboard_organization_admissions '
+                          'WHERE organization_id=? AND utc_day=?', (organization_id, day)).fetchone()[0]
+        if not quota.admits('pending_runs', pending) or not quota.admits('daily_runs', daily):
+            raise OrganizationCapacityExceeded('Organization admission capacity reached.')
+        reservation_id = uuid4().hex
+        c.execute('INSERT INTO dashboard_organization_admissions VALUES (?, ?, ?, ?, ?, NULL)',
+                  (reservation_id, organization_id, actor.user_id, day, 'pending'))
         return reservation_id
 
     def claim(self, actor, organization_id, reservation_id):

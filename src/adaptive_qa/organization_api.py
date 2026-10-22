@@ -4,10 +4,40 @@ from dataclasses import asdict
 from fastapi import Request
 from starlette.concurrency import run_in_threadpool
 from adaptive_qa.organization_discovery import OrganizationDiscoveryQueue
+from adaptive_qa.organization_runs import OrganizationRunQueue
+from starlette.responses import Response
 
 
 def register_organization_routes(app, organizations, projects, actor, parse_object):
     discovery = OrganizationDiscoveryQueue(projects)
+    runs = OrganizationRunQueue(discovery)
+
+    @app.get('/api/organizations/{organization_id}/projects/{project_id}/runs')
+    def list_runs(organization_id: str, project_id: str, request: Request):
+        return {'runs': runs.list(actor(request), organization_id, project_id)}
+
+    @app.post('/api/organizations/{organization_id}/projects/{project_id}/runs', status_code=202)
+    async def submit_run(organization_id: str, project_id: str, request: Request):
+        identity = await run_in_threadpool(actor, request, mutation=True)
+        data = parse_object(await request.body(), ('discovery_job_id', 'case_ids'))
+        if not isinstance(data['case_ids'], list):
+            raise ValueError('An explicit case selection is required.')
+        return await run_in_threadpool(runs.submit, identity, organization_id, project_id,
+                                      data['discovery_job_id'], tuple(data['case_ids']))
+
+    @app.get('/api/organizations/{organization_id}/projects/{project_id}/runs/{run_id}')
+    def get_run(organization_id: str, project_id: str, run_id: str, request: Request):
+        return runs.get(actor(request), organization_id, project_id, run_id)
+
+    @app.post('/api/organizations/{organization_id}/projects/{project_id}/runs/{run_id}/cancel')
+    async def cancel_run(organization_id: str, project_id: str, run_id: str, request: Request):
+        identity = await run_in_threadpool(actor, request, mutation=True)
+        parse_object(await request.body(), ())
+        return await run_in_threadpool(runs.cancel, identity, organization_id, project_id, run_id)
+
+    @app.get('/api/organizations/{organization_id}/projects/{project_id}/runs/{run_id}/evidence/{evidence_id}')
+    def evidence(organization_id: str, project_id: str, run_id: str, evidence_id: str, request: Request):
+        return Response(runs.evidence(actor(request), organization_id, project_id, run_id, evidence_id), media_type='image/png')
 
     @app.get('/api/organizations/{organization_id}/projects/{project_id}/discovery')
     def list_discovery(organization_id: str, project_id: str, request: Request):

@@ -3,8 +3,8 @@
 ## Organization Discovery During Sprint 10
 
 The local Organizations panel supports shared project configuration and bounded
-discovery of the same controlled root fixture. It does not enable organization
-test runs or arbitrary customer targets. The existing discovery-once command
+discovery and explicitly selected read-only UI runs on the same controlled root
+fixture. Arbitrary customer targets remain unsupported. The existing discovery-once command
 processes one personal job first, or one shared job if no personal work is queued.
 Membership and settings are rechecked at claim, cancellation checks and report
 publication. A viewer can read history but cannot dispatch or cancel discovery.
@@ -21,6 +21,33 @@ This command obtains the same worker OS lock; live execution causes refusal.
 It marks running work error and requested cancellation cancelled, clears claims
 and preserves queued/terminal jobs. Offline backup restoration instead cancels
 all pending/active shared work and admission reservations in the new copy.
+
+## Shared UI Runs
+
+After reviewing current scoped discovery, owner/admin/member roles may explicitly
+queue up to ten eligible read-only cases in the local panel. Saving configuration
+or reviewing a plan never queues test execution. The same run-once command processes
+one personal run first, or one shared run when no personal work is queued. Repeat
+explicit invocations to drain the bounded queue. The existing supervised browser,
+120-second run/30-second case deadlines and OS worker lock remain authoritative.
+
+Shared pending/active/daily reservations are persisted. Cancelled pending work
+does not refund daily usage. Membership removal or policy changes prevent late
+result publication. Current readers can view previously authorized scoped results
+and opaque PNG links; removed members and anonymous callers cannot. PNGs expire
+after seven days and are pruned in bounded worker batches before further work.
+There is no automatic background pruning daemon or shared comparison/rerun UI.
+
+Stop workers before explicit interrupted-run finalization (use the selected data
+directory, including recovery binding when applicable):
+
+```powershell
+python -m adaptive_qa dashboard recover-organization-runs --database "$qaDataRoot/local/projects.sqlite"
+```
+
+This acquires the execution/recovery lock, preserves partial assertions/PNGs,
+marks interrupted work error or cancelled, clears matching claims and releases
+linked capacity without replay. Keep the source backup and original data intact.
 
 ## Runtime Boundaries
 
