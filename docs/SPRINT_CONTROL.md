@@ -1,6 +1,25 @@
 # Sprint Control
 
-Updated: 2026-10-22
+Updated: 2026-10-23
+
+## Current Authorization
+
+Active sprint: 10 — Customer Management and Pilot Testing; in progress.
+The owner explicitly started Sprint 10 on 2026-10-23 after requesting closure of
+Sprint 9 issue #10. Sprint 9 milestone #10 was verified closed in GitHub.
+Follow docs/SPRINT_10.md. Commit/push small verified increments and notify after
+each commit without waiting for another continue instruction. Keep issues and
+milestones open until owner closure authorization. Preserve all accepted guards,
+non-executing plans and the 100-case catalog. Pages remains a public static demo;
+real automation remains local. No purchases, hosted backend activation or customer
+site testing is authorized. Controlled local agent fixtures are in Sprint 10 scope.
+Usage-gated follow-ups should continue only unfinished Sprint 10 work, and remain
+quiet once technical readiness is reported while awaiting owner review.
+
+## Historical Sprint 9 Record
+
+The following notes record the previous sprint and do not override the current
+Sprint 10 authorization above.
 
 Active sprint: 9 — Custom Domain and Deployment; technical acceptance complete.
 The owner explicitly started Sprint 9 on 2026-10-22. Sprint 8 issue #9 and
