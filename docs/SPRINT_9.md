@@ -16,7 +16,8 @@ free local preparation; do not buy services or activate external hosting.
 - [ ] 9.3: Implement and demonstrate migration, backup, restoration and rollback.
 - [ ] 9.4: Verify worker isolation, network/resource limits and deployment boundaries.
 - [ ] 9.5: Add operational health/monitoring/logging and an operations guide.
-- [ ] 9.6: Configure reviewed domain/DNS/HTTPS and controlled staging activation.
+- [x] 9.6a: Publish and verify the owner-approved HTTPS interface demo on GitHub Pages.
+- [ ] 9.6b: Review backend staging activation; custom domain deferred by the owner.
 - [ ] 9.7: Verify staging end-to-end acceptance, restore/rollback and exact-commit CI.
 
 The owner manages closure and any Sprint 10 start. Deployment activation needs
@@ -249,3 +250,22 @@ synthetic report labels and mobile width, with zero API/external requests or pag
 errors. The test engine was not executed. Safe live report and desktop/mobile
 screenshots are in artifacts/demo. See evidence/sprint9-pages.json. This verifies
 the static UI publication, not an online Python/worker runtime or Sprint 9 closure.
+
+## Local Storage Health and Operations
+
+Added the operator-only `deployment storage-health` command with fixed-path,
+size, revision/core-column, integrity and foreign-key checks. It never provisions
+missing stores or outputs records, credentials or absolute local paths. Read-only
+connections use a one-second lock wait and a two-second progress budget per
+database. Exit 0 means database storage ready; exit 2 means unavailable. It does
+not claim web/worker/Chromium or deployment readiness.
+
+Six tests passed for safe ready output/unchanged database bytes, missing-file
+non-provisioning and CLI exit, future/corrupt stores, shared hardlinks, deadlines
+and exclusive-lock handling. Linux/Windows CI includes these checks. OPERATIONS.md
+documents local startup, explicit worker invocations, privacy, failure response,
+backup/recovery/rollback boundaries and retention. Central monitoring, service
+supervision, resource quotas and actual cutover/rollback remain pending.
+
+Storage/operations regression: 580 tests completed locally (579 passed, one
+Windows symlink-permission skip). Same-commit CI remains pending after push.

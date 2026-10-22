@@ -9,11 +9,12 @@ from adaptive_qa.deployment import DeploymentPlan, Environment
 def configure_parser(commands):
     parser = commands.add_parser('deployment', help='Prepare non-executing deployment plans')
     plans = parser.add_subparsers(dest='deployment_command', required=True)
-    for name in ('plan', 'backup', 'verify-backup', 'prepare-restore', 'rollback-plan'):
+    for name in ('plan', 'backup', 'verify-backup', 'prepare-restore', 'rollback-plan', 'storage-health'):
         help_text = {'plan': 'Plan an environment', 'backup': 'Back up an offline environment',
                      'verify-backup': 'Verify a private offline backup without restoring it',
                      'prepare-restore': 'Restore into a fresh inactive recovery directory',
-                     'rollback-plan': 'Compare a release candidate with offline schema revisions'}
+                     'rollback-plan': 'Compare a release candidate with offline schema revisions',
+                     'storage-health': 'Inspect environment database storage without provisioning'}
         plan = plans.add_parser(name, help=help_text[name])
         plan.add_argument('--environment', choices=[item.value for item in Environment], required=True)
         plan.add_argument('--data-root', type=Path, required=True)
@@ -29,7 +30,13 @@ def configure_parser(commands):
 
 def run(args):
     plan = DeploymentPlan(Environment(args.environment), args.data_root, args.origin)
-    if args.deployment_command == 'rollback-plan':
+    if args.deployment_command == 'storage-health':
+        from adaptive_qa.storage_health import storage_health
+        result = storage_health(plan)
+        print(json.dumps(result, indent=2))
+        if result['status'] != 'ready':
+            raise SystemExit(2)
+    elif args.deployment_command == 'rollback-plan':
         from adaptive_qa.rollback_plan import plan_rollback
         try:
             result = plan_rollback(plan, args.candidate, args.candidate_commit,

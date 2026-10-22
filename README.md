@@ -16,6 +16,8 @@ Sprint 9 release manifests now declare schema support. The installed-wheel check
 probes future-schema rejection, and `deployment rollback-plan` compares candidate
 digests/revisions with offline databases without executing a rollback candidate.
 Actual service cutover and rollback remain unfinished.
+An operator-only storage health command and local operations guide are available
+in [OPERATIONS.md](docs/OPERATIONS.md); storage readiness does not imply service readiness.
 
 ## Interface Demo
 

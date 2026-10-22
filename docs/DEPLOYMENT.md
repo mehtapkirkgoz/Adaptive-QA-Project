@@ -199,6 +199,11 @@ Actual cutover/rollback, staging end-to-end and owner review remain required.
 
 ## Hosting Acceptance Requirements
 
+The operator-only `deployment storage-health` command checks the fixed database
+pair without provisioning it. See OPERATIONS.md for its bounded budgets, safe
+output, exit codes, local startup/worker commands and incident response. Storage
+health does not imply a running service or readiness for public backend hosting.
+
 - Separate staging/production data, accounts, secrets and backup policies.
 - Reviewed packaging, immutable release identity and explicit migrations.
 - A demonstrated backup restore and rollback procedure before activation.
