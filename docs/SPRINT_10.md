@@ -13,7 +13,8 @@ are authorized by this sprint start.
 ## Delivery Steps
 
 - [x] 10.1a: Define typed organization roles and fail-closed quota decisions.
-- [ ] 10.1b: Persist organization membership and atomic admission/usage reservations.
+- [x] 10.1b: Persist organization membership with transactional privilege/revocation checks.
+- [ ] 10.1c: Implement atomic admission and usage reservations.
 - [ ] 10.2: Integrate organization-scoped projects, API/UI access and worker controls.
 - [ ] 10.3: Verify isolation and concurrency against two disposable organizations.
 - [ ] 10.4: Implement and exercise authenticated outbound agent flow on controlled local fixtures.
@@ -37,3 +38,20 @@ boundaries. Same-commit CI is required after push.
 
 The owner controls closure and any subsequent scope. Never claim synthetic local
 pilot findings are real customer feedback or enable customer execution implicitly.
+
+## Persistent Membership Increment
+
+OrganizationStore adds organization and membership tables through the existing
+project store's schema-gated connection. Creation atomically persists an owner
+and typed quota. Membership writes use BEGIN IMMEDIATE and re-read the caller's
+role inside the write transaction. Revocation/demotion takes effect on the next
+operation. Admins cannot promote members to admins, change peer admins or change
+owners; owner transfer/removal is disabled, so the last owner cannot disappear.
+Other-organization and nonexistent access share the same not-found outcome.
+
+Six real SQLite tests passed for reopening, quota persistence, two-organization
+isolation, administrative boundaries, owner preservation, revocation and unchanged
+historical owner-project isolation. These internal tables are not yet connected
+to HTTP or workers. Membership user IDs must originate from authenticated server
+identity resolution; there is no public invitation endpoint or automatic grant.
+Quotas are stored but not yet reserved/enforced transactionally.
