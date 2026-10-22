@@ -50,5 +50,24 @@ DEPLOYMENT.md for the deployment contract and current limitations.
 Validation: 540 unit tests completed locally with 539 passing and one skipped
 because this Windows account cannot create the symlink fixture. The other five
 new environment/CLI tests passed; Linux CI will exercise the real symlink check.
-Same-commit CI remains pending. Domain, runtime HTTPS and hosting acceptance are
+Commit 49e5f5e passed CI run 39757636731. Domain, runtime HTTPS and hosting acceptance are
 not complete.
+
+## Offline Backup Increment
+
+Added the operator-only deployment backup command for an already populated
+environment. It requires explicit offline-maintenance acknowledgement, uses
+SQLite snapshots rather than raw copying, includes committed WAL records,
+checks integrity/digests and detects concurrent commits before publication.
+Backups are bounded to 256 MiB and ten seconds per database and published only
+as a complete pair. Source databases are not replaced or provisioned.
+
+Seven focused tests verify real snapshot records/checksums, source preservation,
+missing/corrupt databases, maintenance acknowledgement, WAL commits, deadline
+cleanup and concurrent-commit rejection. Restore and rollback remain unfinished,
+so step 9.3 is not complete. Docker CLI is installed but its Linux daemon is not
+running; no container build or staging deployment has been claimed or activated.
+
+Local regression validation: 547 tests completed, 546 passed and the Windows
+symlink-permission fixture was skipped. Backup-specific tests all passed.
+Same-commit backup CI evidence remains pending after push.

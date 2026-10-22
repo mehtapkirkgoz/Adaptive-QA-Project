@@ -25,7 +25,37 @@ rejected. Runtime activation must independently validate concrete database files
 permissions, locks and service configuration; planning alone does not guarantee
 filesystem isolation against later administrator changes.
 
-## Required Before Hosting
+## Offline SQLite Backup Bundles
+
+After stopping the environment's web/worker processes and verifying private
+storage permissions, the operator can back up existing environment databases:
+
+```powershell
+python -m adaptive_qa deployment backup --environment staging --data-root "$((Get-Location).Path)/artifacts/environments" --origin https://staging.example.test --offline-maintenance
+```
+
+The confirmation flag acknowledges operator maintenance; it does not stop or
+prove the absence of running services. Both auth.sqlite and projects.sqlite must
+already exist as regular, unredirected files. The command never provisions them.
+It uses SQLite's backup API, including committed WAL data, checks integrity and
+records file lengths/SHA-256 digests in an environment-bound manifest. Concurrent
+commits detected during the pair capture invalidate the bundle instead of
+publishing it. Still stop services; this check is not distributed coordination.
+
+Each database is limited to 256 MiB and a ten-second progress/verification budget;
+hashing is streamed. The bundle is published under a random ID only after both
+snapshots pass. Partial bundles are removed. The original databases are retained.
+Output contains the bundle ID/environment/count, not records or credentials.
+
+The backup directory uses POSIX mode 0700 where supported; Windows operators
+must verify inherited private ACLs. Backups contain sensitive database content
+and must never be served as web assets or uploaded as CI artifacts. Checksums
+detect corruption, not authenticity, and do not encrypt/sign a backup. Retention,
+restore, session invalidation and a complete rollback drill are still pending.
+No real operator database was backed up during development; verification used
+disposable fixtures only.
+
+## Hosting Acceptance Requirements
 
 - Separate staging/production data, accounts, secrets and backup policies.
 - Reviewed packaging, immutable release identity and explicit migrations.
