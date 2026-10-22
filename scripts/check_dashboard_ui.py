@@ -144,6 +144,17 @@ def main():
                     assert exported['recorded_total'] == 2 and exported['status_counts']['passed'] == 2
                     assert exported['catalog_total'] == 86
                     assert len(exported['results']) == 2
+                    expect(completed.get_by_role('button', name='Rerun checked tests', exact=True)).to_be_disabled()
+                    runs.get_by_label('Select LOGIN-001', exact=True).check()
+                    completed.get_by_role('button', name='Rerun checked tests', exact=True).click()
+                    child = runs.locator('article').filter(has_text='Run queued')
+                    expect(child).to_contain_text('Rerun of ')
+                    child_id = child.get_attribute('data-run-id')
+                    child.get_by_role('button', name='Cancel test run', exact=True).click()
+                    expect(runs.locator(f'article[data-run-id="{child_id}"]')).to_contain_text('Run cancelled')
+                    completed.get_by_label('Compare with run', exact=True).select_option(child_id)
+                    expect(completed.get_by_test_id('comparison-row').filter(has_text='LOGIN-001')).to_contain_text('unrecorded')
+                    expect(completed.get_by_label('Run comparison')).to_contain_text('do not establish flakiness')
                     link = runs.locator('.run-outcome').filter(has_text='LOGIN-001').get_by_role('link', name='View screenshot', exact=True)
                     evidence_url = 'http://127.0.0.1:8765' + link.get_attribute('href')
                     with page.expect_popup() as popup_info:
@@ -203,6 +214,7 @@ def main():
         'explicit two-case selection', 'queued test-run cancellation',
         'separate test worker completion and two real passed outcomes',
         'report filters preserve aggregate totals', 'downloaded JSON agrees with real outcomes',
+        'explicit subset rerun queues without execution', 'cancelled rerun lineage and historical comparison',
         'decoded authorized screenshot', 'anonymous screenshot denied', 'other-owner screenshot denied',
         'no script errors or external requests']}), encoding='utf-8')
     print('Built React dashboard browser checks passed.')

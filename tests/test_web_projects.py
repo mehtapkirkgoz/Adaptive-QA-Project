@@ -72,6 +72,25 @@ class WebProjectTests(unittest.TestCase):
         for suffix in ('', '/download', '/status/failed'):
             self.assertEqual(self.client.get(target + suffix).status_code, 404)
 
+    def test_explicit_rerun_endpoint_rechecks_csrf_and_exposes_lineage(self):
+        _, path, body = self.run_request()
+        original = self.client.post(path, headers=self.headers, json=body).json()
+        target = path + '/' + original['run_id']
+        self.client.post(target + '/cancel', headers=self.headers, json={})
+        self.assertEqual(self.client.post(target + '/rerun', headers={'origin': self.headers['origin']}, json=body).status_code, 401)
+        response = self.client.post(target + '/rerun', headers=self.headers, json=body)
+        self.assertEqual(response.status_code, 202)
+        child = response.json()
+        self.assertEqual(child['rerun_of'], original['run_id'])
+        self.assertEqual(child['results'], [])
+        self.assertEqual(child['status'], 'queued')
+        self.client.post(path + '/' + child['run_id'] + '/cancel', headers=self.headers, json={})
+        report = self.client.get(path + '/' + child['run_id'] + '/compare/' + original['run_id'])
+        self.assertEqual(report.status_code, 200)
+        self.assertEqual(report.json()['results'][0]['change'], 'unrecorded')
+        self.client.cookies.clear()
+        self.assertEqual(self.client.get(path + '/' + child['run_id'] + '/compare/' + original['run_id']).status_code, 401)
+
     def test_create_list_get_rename_and_reopen(self):
         response = self.client.post('/api/projects', headers=self.headers, json={'name': 'Checkout'})
         self.assertEqual(response.status_code, 201)

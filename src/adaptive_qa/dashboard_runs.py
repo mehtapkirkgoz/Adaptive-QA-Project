@@ -2,6 +2,8 @@
 
 import json
 import secrets
+import hashlib
+from dataclasses import asdict
 from dataclasses import dataclass, field
 from uuid import uuid4
 
@@ -44,7 +46,8 @@ class DashboardRunQueue:
             connection.execute('CREATE TABLE IF NOT EXISTS dashboard_run_evidence ('
                 'evidence_id TEXT PRIMARY KEY, run_id TEXT NOT NULL, case_id TEXT NOT NULL, png BLOB NOT NULL)')
             columns = {row['name'] for row in connection.execute('PRAGMA table_info(dashboard_test_runs)')}
-            for name, declaration in (('claim_token', 'TEXT'), ('results_json', "TEXT NOT NULL DEFAULT '[]'")):
+            for name, declaration in (('claim_token', 'TEXT'), ('results_json', "TEXT NOT NULL DEFAULT '[]'"),
+                                      ('rerun_of', 'TEXT'), ('contracts_json', 'TEXT')):
                 if name not in columns:
                     connection.execute(f'ALTER TABLE dashboard_test_runs ADD COLUMN {name} {declaration}')
 
@@ -52,7 +55,7 @@ class DashboardRunQueue:
     def _public(row):
         return {'run_id': row['run_id'], 'project_id': row['project_id'],
                 'discovery_job_id': row['discovery_job_id'], 'case_ids': json.loads(row['case_ids_json']),
-                'status': row['status'], 'results': json.loads(row['results_json'])}
+                'status': row['status'], 'results': json.loads(row['results_json']), 'rerun_of': row['rerun_of']}
 
     def _owned(self, connection, actor, project_id, run_id):
         self.projects._actor(actor)
@@ -65,7 +68,7 @@ class DashboardRunQueue:
             raise TestRunNotFound('Test run not found.')
         return row
 
-    def submit(self, actor, project_id, discovery_job_id, case_ids):
+    def submit(self, actor, project_id, discovery_job_id, case_ids, *, rerun_of=None):
         self.projects._actor(actor)
         _id(project_id)
         _id(discovery_job_id)
@@ -75,6 +78,12 @@ class DashboardRunQueue:
             raise ValueError('Select one to ten distinct test case IDs.')
         with self.projects._connection() as connection:
             connection.execute('BEGIN IMMEDIATE')
+            if rerun_of is not None:
+                parent = self._owned(connection, actor, project_id, rerun_of)
+                if parent['status'] not in ('completed', 'cancelled', 'error'):
+                    raise ValueError('Only finalized runs can be rerun.')
+                if not set(case_ids) <= set(json.loads(parent['case_ids_json'])):
+                    raise ValueError('Rerun selection must belong to the original run.')
             row = connection.execute('SELECT s.settings_json FROM dashboard_projects p '
                 'LEFT JOIN dashboard_project_settings s ON s.project_id=p.project_id '
                 'WHERE p.project_id=? AND p.owner_id=?', (project_id, actor.user_id)).fetchone()
@@ -111,11 +120,19 @@ class DashboardRunQueue:
             if total >= 100 or owned >= 5:
                 raise ValueError('Test run admission limit reached.')
             run_id = uuid4().hex
+            contracts = {case_id: hashlib.sha256(json.dumps(asdict(catalog[case_id]),
+                sort_keys=True).encode()).hexdigest() for case_id in case_ids}
             connection.execute('INSERT INTO dashboard_test_runs '
-                '(run_id, project_id, owner_id, discovery_job_id, case_ids_json, configuration_json, status) '
-                "VALUES (?, ?, ?, ?, ?, ?, 'queued')", (run_id, project_id, actor.user_id,
-                discovery_job_id, json.dumps(case_ids), json.dumps(snapshot)))
+                '(run_id, project_id, owner_id, discovery_job_id, case_ids_json, configuration_json, status, rerun_of, contracts_json) '
+                "VALUES (?, ?, ?, ?, ?, ?, 'queued', ?, ?)", (run_id, project_id, actor.user_id,
+                discovery_job_id, json.dumps(case_ids), json.dumps(snapshot), rerun_of, json.dumps(contracts)))
             return self._public(self._owned(connection, actor, project_id, run_id))
+
+    def comparison_context(self, actor, project_id, run_id):
+        with self.projects._connection() as connection:
+            row = self._owned(connection, actor, project_id, run_id)
+            return {'configuration': configuration_fingerprint(json.loads(row['configuration_json'])),
+                    'contracts': json.loads(row['contracts_json']) if row['contracts_json'] else None}
 
     def get(self, actor, project_id, run_id):
         with self.projects._connection() as connection:

@@ -13,7 +13,7 @@ pre-start CI run 39743359671 passed on e7ac30da9bfed7990fc6c8c6fc39cf4a601e2dcf.
 - [x] 8.1: Add a read-only owned report projection with result-status filtering,
   unchanged aggregate counts and explicit unrecorded counts.
 - [x] 8.2: Expose authenticated JSON reports/exports, with dashboard status filtering.
-- [ ] 8.3: Add explicit rerun admission and comparable historical results.
+- [x] 8.3: Add explicit rerun admission and qualified historical results in the API/dashboard.
 - [ ] 8.4: Record flaky-test signals with context and sufficient observations.
 - [ ] 8.5: Enforce evidence retention and access rules.
 - [ ] 8.6: Expand to at least 100 meaningful, implemented and fixture-verified cases.
@@ -103,3 +103,26 @@ actual inspected document snapshot as evidence, without claiming the assertion
 passed. The real discovery check resolves expected page bindings from feature
 prerequisites and permits generic document inspection under a page limit while
 keeping unknown feature-dependent cases blocked. Plans still never execute tests.
+
+## Reruns and historical comparisons
+
+Finalized owned runs can request a new queued run with an explicit subset of
+their original case IDs and current owned discovery ID. Admission repeats current
+configuration, selection, data-change, local-target and quota checks in the same
+transaction. Original outcomes are immutable. No automatic retry or execution
+occurs in HTTP; the worker remains separate. The dashboard requires checkbox
+selection before enabling a rerun and displays its parent lineage.
+
+New runs retain hashes of their test definition contracts. Comparison requires
+two distinct finalized owned runs, common IDs, matching saved target policy and
+matching definition contracts. Older runs without contract metadata and changed
+policies/contracts are explicitly incomparable. Outcomes may be unchanged,
+changed, added, removed or unrecorded. Missing results are never successful.
+Fixture state may differ between runs: changes alone do not prove flakiness or
+performance regressions. Flaky tracking and retention remain unfinished.
+
+Validation: all 519 unit tests passed, strict TypeScript/Vite build passed and
+the real Chromium dashboard flow verified explicit subset rerun admission,
+cancelled-child lineage and a historical comparison without invented outcomes.
+The mobile report/comparison screenshot was inspected. Same-commit CI remains
+required before sprint acceptance.

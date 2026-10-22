@@ -19,7 +19,7 @@ from adaptive_qa.dashboard_plan import review_project_plan, ConfigurationRequire
 from adaptive_qa.dashboard_jobs import DashboardDiscoveryQueue, DiscoveryJobNotFound
 from adaptive_qa.dashboard_worker import configuration_fingerprint
 from adaptive_qa.dashboard_runs import DashboardRunQueue, TestRunNotFound
-from adaptive_qa.dashboard_reports import build_run_report
+from adaptive_qa.dashboard_reports import build_run_report, compare_runs
 
 
 SESSION_COOKIE = 'adaptive_session'
@@ -93,6 +93,19 @@ def create_app(store: AuthStore, *, port=8765, projects=None, ui_directory=None)
     @app.get('/api/projects/{project_id}/runs/{run_id}')
     def get_run(project_id: str, run_id: str, request: Request):
         return runs.get(actor(request), project_id, run_id)
+
+    @app.post('/api/projects/{project_id}/runs/{run_id}/rerun', status_code=202)
+    async def rerun(project_id: str, run_id: str, request: Request):
+        owner = await run_in_threadpool(actor, request, mutation=True)
+        data = _object(await request.body(), ('discovery_job_id', 'case_ids'))
+        if not isinstance(data['case_ids'], list):
+            raise ValueError()
+        return await run_in_threadpool(runs.submit, owner, project_id, data['discovery_job_id'],
+                                       tuple(data['case_ids']), rerun_of=run_id)
+
+    @app.get('/api/projects/{project_id}/runs/{run_id}/compare/{baseline_id}')
+    def comparison(project_id: str, run_id: str, baseline_id: str, request: Request):
+        return compare_runs(runs, actor(request), project_id, baseline_id, run_id)
 
     @app.get('/api/projects/{project_id}/runs/{run_id}/report')
     def run_report(project_id: str, run_id: str, request: Request):

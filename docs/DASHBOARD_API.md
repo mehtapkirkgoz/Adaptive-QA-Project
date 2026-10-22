@@ -162,7 +162,25 @@ reduced persisted messages and optional opaque evidence IDs, never screenshot
 bytes, raw adapter text, credentials or filesystem paths. Export is a snapshot
 at download time; an active run may have additional outcomes later.
 
-## Screenshot Evidence Details
+## Reruns and Historical Comparison
+
+`POST /api/projects/{project_id}/runs/{run_id}/rerun` requires owner session,
+Origin/CSRF and exactly `discovery_job_id` and `case_ids`. It queues a fresh run
+(202) with `rerun_of` lineage. The parent must be finalized; selected IDs must
+be a non-empty subset of the parent's requested IDs and admitted by current
+discovery/configuration. Existing target, read-only and quota restrictions apply.
+Neither old results nor screenshots are copied into the new run.
+
+`GET /api/projects/{project_id}/runs/{run_id}/compare/{baseline_id}` compares two
+different finalized owned runs. Saved policy and common case contract hashes
+must match; otherwise `comparable=false` with an explanation and no change rows.
+Legacy runs without contract hashes cannot establish comparability. Rows contain
+only case IDs, recorded statuses or null, and a change category. Active/self
+comparisons return 400; anonymous/other-owner access remains 401/404. Neither
+comparison nor export executes tests. Fixture state may differ; this API does
+not infer flaky tests or performance regressions.
+
+## Screenshot Evidence Storage
 
 `GET /api/projects/{project_id}/runs/{run_id}/evidence/{evidence_id}` requires the
 owner's session and exact project/run/evidence binding. Recorded outcomes contain

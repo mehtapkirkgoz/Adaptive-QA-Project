@@ -1,8 +1,9 @@
 import {useEffect, useState} from 'react';
 import {ReportPanel} from './ReportPanel';
+import {HistoryPanel} from './HistoryPanel';
 
 type Outcome = {case_id: string; status: string; duration_seconds: number; message: string; evidence_id?: string};
-type Run = {run_id: string; status: string; case_ids: string[]; results: Outcome[]};
+type Run = {run_id: string; status: string; case_ids: string[]; results: Outcome[]; rerun_of: string | null};
 type Props = {projectId: string; discoveryJobId?: string; candidates: string[];
   request: <T>(path: string, method?: string, body?: unknown) => Promise<T>};
 const active = (run: Run) => ['queued', 'running', 'cancel_requested'].includes(run.status);
@@ -44,7 +45,7 @@ export function RunPanel({projectId, discoveryJobId, candidates, request}: Props
       })}>Start selected tests</button>
     {error && <p role="alert" className="message error">{error}</p>}
     {!runs.length && <p className="hint">No test runs yet.</p>}
-    {runs.map(run => <article className="run-card" key={run.run_id}><div className="discovery-job"><span><code>{run.run_id.slice(0, 8)}</code><strong>Run {run.status.replaceAll('_', ' ')}</strong></span>
+    {runs.map(run => <article className="run-card" data-run-id={run.run_id} key={run.run_id}><div className="discovery-job"><span><code>{run.run_id.slice(0, 8)}</code><strong>Run {run.status.replaceAll('_', ' ')}</strong></span>
       {active(run) && <button disabled={busy || run.status === 'cancel_requested'} onClick={() => void action(async () => {
         const updated = await request<Run>(`${base}/${run.run_id}/cancel`, 'POST', {});
         setRuns(previous => previous.map(item => item.run_id === run.run_id ? updated : item));
@@ -53,6 +54,16 @@ export function RunPanel({projectId, discoveryJobId, candidates, request}: Props
       {run.results.map(result => <p className="run-outcome" key={result.case_id}><strong>{result.case_id}</strong> <span>{result.status}</span> <small>{result.duration_seconds.toFixed(2)}s</small>
         {result.evidence_id && <a href={`${base}/${run.run_id}/evidence/${result.evidence_id}`} target="_blank" rel="noopener noreferrer">View screenshot</a>}</p>)}
       {run.status === 'completed' && <p className="hint">The run finished. Check each test outcome; completion does not mean every test passed.</p>}
+      {run.rerun_of && <p className="hint">Rerun of {run.rerun_of.slice(0, 8)}</p>}
+      {!active(run) && <>
+        <p className="hint">To rerun, check tests above that belong to this run. Current discovery and policy will be checked again.</p>
+        <button disabled={busy || polling || !discoveryJobId || !selection.length || selection.some(id => !run.case_ids.includes(id))}
+          onClick={() => void action(async () => {
+            const child = await request<Run>(`${base}/${run.run_id}/rerun`, 'POST', {discovery_job_id: discoveryJobId, case_ids: selection});
+            setRuns(previous => [child, ...previous].slice(0, 20)); setSelection([]);
+          })}>Rerun checked tests</button>
+        <HistoryPanel base={base} runId={run.run_id} others={runs} request={request}/>
+      </>}
       <ReportPanel base={`${base}/${run.run_id}`} revision={`${run.status}:${run.results.length}`} request={request}/>
     </article>)}
   </section>;
