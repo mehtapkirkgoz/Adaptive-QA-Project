@@ -2,11 +2,13 @@
 
 An AI-assisted QA platform under development for website discovery and applicable UI, API, and database tests.
 
-**Current sprint:** [Sprint 8](docs/SPRINT_8.md) is technically complete and ready for owner review. All 100 scenarios (51 UI / 34 API / 15 database), 534 unit tests and seven CI jobs are verified on implementation `d72d2f5`. Reports provide filters, JSON downloads, explicit reruns, historical comparisons and conservative consistency signals. Screenshots expire after seven days with bounded cleanup; assertion history remains. See [Sprint 8 acceptance](docs/SPRINT_8_ACCEPTANCE.md), [full test catalog](docs/evidence/sprint8-catalog.json) and [verified evidence](docs/evidence/sprint8-acceptance.json). The Sprint 7 record below remains historical delivery evidence.
+**Current sprint:** [Sprint 9](docs/SPRINT_9.md) is in progress. The first increment validates isolated local/staging/production deployment plans without creating files or starting services. Domain/server purchases and public hosting are not enabled. See [deployment preparation](docs/DEPLOYMENT.md).
+
+**Accepted Sprint 8 baseline:** All 100 scenarios (51 UI / 34 API / 15 database), 534 unit tests and seven CI jobs are verified on implementation `d72d2f5`. Reports include filters, JSON downloads, explicit reruns, historical comparison, consistency signals and seven-day owned screenshot retention. Its issue and milestone are closed. See [acceptance](docs/SPRINT_8_ACCEPTANCE.md), [full catalog](docs/evidence/sprint8-catalog.json) and [verified evidence](docs/evidence/sprint8-acceptance.json).
 
 **Accepted baseline:** Sprint 7 is accepted; its issue and milestone are closed. The local React dashboard supports authenticated projects, scoped configuration/references, guarded discovery, explicit read-only UI runs, progress/results and owner-authorized PNG evidence. The catalog remains 40 UI, 20 API and 15 database definitions. Customer-site execution and deployment are not enabled.
 
-Sprint 7 implementation `2608fc40919e8e530c07b434538f70ac4070f118` passed 500 unit tests and all seven CI jobs. Six downloaded archive digests/head SHAs, 184 retained PNGs and 178 filesystem references were verified. The real panel completed LOGIN-001/SEARCH-001 and decoded authorized evidence while denying anonymous/other-owner access. See [acceptance and limits](docs/SPRINT_7_ACCEPTANCE.md), [verification manifest](docs/evidence/sprint7-acceptance.json), and [CI](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/actions/runs/39742021256). The owner has authorized Sprint 8; future sprint starts and closures remain with the owner.
+Sprint 7 implementation `2608fc40919e8e530c07b434538f70ac4070f118` passed 500 unit tests and all seven CI jobs. Six downloaded archive digests/head SHAs, 184 retained PNGs and 178 filesystem references were verified. The real panel completed LOGIN-001/SEARCH-001 and decoded authorized evidence while denying anonymous/other-owner access. See [acceptance and limits](docs/SPRINT_7_ACCEPTANCE.md), [verification manifest](docs/evidence/sprint7-acceptance.json), and [CI](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/actions/runs/39742021256). The owner has authorized Sprint 9; future sprint starts and closures remain with the owner.
 
 Earlier [Sprint 6 acceptance](docs/SPRINT_6_ACCEPTANCE.md) verified free local Ollama/qwen3:4b without an API key. Its nine model fixtures scored 8/9 website kinds overall and 4/5 on the separate holdout; errors and abstentions remain recorded. These small-fixture measurements do not establish arbitrary-site accuracy. See [Ollama setup](docs/OLLAMA.md), [Sprint 5 acceptance](docs/SPRINT_5_ACCEPTANCE.md), [Sprint 7 progress](docs/SPRINT_7.md) and [dashboard API contracts](docs/DASHBOARD_API.md). Destination, data-change, deadline and non-executing plan policies remain authoritative.
 
@@ -24,8 +26,8 @@ Sprints follow goals and acceptance criteria without a fixed two-week commitment
 | 5 | Database validation | Accepted; issue closed |
 | 6 | AI integration | Accepted; issue closed |
 | 7 | Web dashboard | Accepted; issue and milestone closed |
-| 8 | Reporting and catalog expansion | Technical acceptance complete; ready for owner review/closure |
-| 9 | Domain and deployment | Planned |
+| 8 | Reporting and catalog expansion | Accepted; issue and milestone closed |
+| 9 | Domain and deployment | In progress |
 | 10 | Customer management and pilot | Planned |
 
 See [architecture](docs/ARCHITECTURE.md), [sprint plan](docs/SPRINT_PLAN.md), [Sprint 1](docs/SPRINT_1.md), [GitHub workflow](docs/GITHUB_WORKFLOW.md), and [security contract](docs/SECURITY_CONTRACT.md).
