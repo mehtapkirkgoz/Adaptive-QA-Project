@@ -186,6 +186,16 @@ Acceptance criteria:
 
 ## Sprint 9 — Custom Domain and Deployment
 
+Owner-approved delivery adjustment (2026-10-22): publish a GitHub Pages interface
+demo while real automation runs locally. The owner authorized public repository
+visibility. A custom domain and public backend are deferred, with no purchases.
+For this delivery, acceptance requires the HTTPS static demo, separate local
+data, verified package execution, restored-session revocation, guarded managed
+workers, actual binary rollback preserving current data, safe health/status/logs,
+operations documentation and exact-commit cross-platform CI/artifact evidence.
+Public backend staging, production quotas/alerts and hosted TLS remain future
+deployment prerequisites and must not be claimed complete by local acceptance.
+
 Scope:
 
 - Separate staging and production environments.
@@ -197,10 +207,10 @@ Scope:
 
 Acceptance criteria:
 
-- An end-to-end run succeeds in staging.
+- An end-to-end run succeeds in the owner-approved local runtime; public backend staging is deferred.
 - Rollback and backup restoration are demonstrated.
-- The dashboard is accessible through HTTPS on the configured domain.
-- Production deployment has a concrete release and rollout plan.
+- The static interface demo is accessible through HTTPS on the GitHub-provided URL; it does not execute tests.
+- Local release selection, reviewed historical packages and rollback are demonstrated; production rollout requirements are documented as deferred.
 - Operational limitations are documented.
 
 Domain purchases and paid service selections are performed

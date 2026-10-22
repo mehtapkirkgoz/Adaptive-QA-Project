@@ -2,7 +2,7 @@
 
 An AI-assisted QA platform under development for website discovery and applicable UI, API, and database tests.
 
-**Current sprint:** [Sprint 9](docs/SPRINT_9.md) is in progress. Validated environment plans, bounded offline SQLite backups, backup verification and inactive recovery preparation are implemented. Recovery copies revoke old sessions, cancel active work and apply versioned additive migrations without replacing live databases or starting services. Runtime stores reject unsupported or incomplete versioned schemas before writing. Committed-source release bundles include a verified wheel, compiled dashboard and dependency locks. The static HTTPS interface demo is live on GitHub Pages. Environment runtime configuration, actual release rollback and backend hosting remain unfinished; no domain or server has been purchased. See [deployment preparation](docs/DEPLOYMENT.md).
+**Current sprint:** [Sprint 9](docs/SPRINT_9.md) is in progress. Validated environment plans, bounded offline SQLite backups, backup verification and inactive recovery preparation are implemented. Recovery copies revoke old sessions, cancel active work and apply versioned additive migrations without replacing live databases or starting services. Runtime stores reject unsupported or incomplete versioned schemas before writing. Committed-source release bundles include a verified wheel, compiled dashboard and dependency locks. The static HTTPS interface demo is live on GitHub Pages. Managed loopback runtime and actual local binary rollback are implemented; exact-commit cross-platform acceptance is pending. Public backend hosting is deferred; no domain or server has been purchased. See [deployment preparation](docs/DEPLOYMENT.md).
 
 **Accepted Sprint 8 baseline:** All 100 scenarios (51 UI / 34 API / 15 database), 534 unit tests and seven CI jobs are verified on implementation `d72d2f5`. Reports include filters, JSON downloads, explicit reruns, historical comparison, consistency signals and seven-day owned screenshot retention. Its issue and milestone are closed. See [acceptance](docs/SPRINT_8_ACCEPTANCE.md), [full catalog](docs/evidence/sprint8-catalog.json) and [verified evidence](docs/evidence/sprint8-acceptance.json).
 
@@ -15,7 +15,7 @@ Earlier [Sprint 6 acceptance](docs/SPRINT_6_ACCEPTANCE.md) verified free local O
 Sprint 9 release manifests now declare schema support. The installed-wheel check
 probes future-schema rejection, and `deployment rollback-plan` compares candidate
 digests/revisions with offline databases without executing a rollback candidate.
-Actual service cutover and rollback remain unfinished.
+Actual local package/data cutover and binary rollback are verified; public backend rollout remains deferred.
 An operator-only storage health command and local operations guide are available
 in [OPERATIONS.md](docs/OPERATIONS.md); storage readiness does not imply service readiness.
 

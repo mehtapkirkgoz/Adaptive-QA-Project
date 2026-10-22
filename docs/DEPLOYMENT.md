@@ -1,5 +1,11 @@
 # Deployment Preparation
 
+Current delivery is the owner's public Pages interface demo plus managed local
+automation. LOCAL_RUNTIME.md implements explicit package preparation, guarded
+loopback execution, copied-data selection and a tested actual local binary
+rollback. Earlier non-executing plan commands remain non-executing. Statements
+below about pending public hosting refer to the deferred Python/backend rollout.
+
 Current scope: free local preparation for Sprint 9. There is no deployed public
 service, purchased domain/server or enabled production profile. The existing
 dashboard remains its accepted loopback-only prototype. Worker destination guards,

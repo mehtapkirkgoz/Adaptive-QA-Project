@@ -11,6 +11,11 @@ remains local. The owner explicitly authorized making the entire repository
 public after private-repository Pages eligibility was unavailable. Publish only
 compiled demo assets to Pages; keep data/credentials ignored. No paid upgrade or
 online Python backend/worker deployment is authorized. Custom domain is deferred.
+The owner asked to finish the remaining runtime/rollback work. Delivery acceptance
+now covers the public HTTPS interface demo plus guarded managed local execution,
+restoration and actual binary rollback. Public backend staging, production OS
+quotas and hosted alert services are deferred, not claimed implemented. Complete
+fresh exact-commit Linux/Windows CI/artifact review before reporting readiness.
 Sprint 7 issue #8 and milestone #8 are verified closed. Its verified implementation is
 2608fc40919e8e530c07b434538f70ac4070f118, CI run 39742021256 (seven successful jobs).
 Acceptance and artifact verification are in docs/SPRINT_7_ACCEPTANCE.md.

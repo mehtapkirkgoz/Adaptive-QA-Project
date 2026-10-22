@@ -94,6 +94,7 @@ jobs:
           python -m unittest discover -s tests -p test_schema_migrations.py -v
           python -m unittest discover -s tests -p test_runtime_schema.py -v
           python -m unittest discover -s tests -p test_storage_health.py -v
+          python -m unittest discover -s tests -p test_local_runtime.py -v
       - name: Upload lifecycle report
         if: always()
         uses: actions/upload-artifact@v7
@@ -220,6 +221,47 @@ jobs:
             artifacts/demo/*.png
           retention-days: 7
           if-no-files-found: warn
+
+  local_runtime:
+    name: Packaged local runtime (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 12
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2025]
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+      - name: Install locked dependencies and current supervisor
+        run: |
+          python -m pip install -r requirements.lock.txt
+          python -m pip install --no-deps -e .
+      - name: Install controlled browser runtime
+        run: python -m playwright install --with-deps chromium
+      - name: Build reviewed historical release
+        run: python scripts/build_release.py --commit a71bc2c69140b3d4bd993be7495ab2d360f8decc
+      - name: Build current committed release
+        run: python scripts/build_release.py
+      - name: Verify installed current package
+        run: python scripts/check_release.py artifacts/releases/${{ github.sha }}
+      - name: Verify managed execution recovery and binary rollback
+        run: python scripts/check_local_runtime.py artifacts/releases/${{ github.sha }}
+      - name: Upload value-free runtime and rollback evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: local-runtime-${{ matrix.os }}
+          path: artifacts/deployment/local-runtime.json
+          retention-days: 7
+          if-no-files-found: error
 
   ui_catalog:
     name: UI catalog and isolation

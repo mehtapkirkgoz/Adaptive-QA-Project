@@ -12,13 +12,13 @@ free local preparation; do not buy services or activate external hosting.
 ## Delivery Steps
 
 - [x] 9.1: Add validated, non-executing local/staging/production environment plans.
-- [ ] 9.2: Package services and wire environment-specific runtime configuration.
-- [ ] 9.3: Implement and demonstrate migration, backup, restoration and rollback.
-- [ ] 9.4: Verify worker isolation, network/resource limits and deployment boundaries.
-- [ ] 9.5: Add operational health/monitoring/logging and an operations guide.
+- [x] 9.2: Package services and wire the owner-approved local runtime configuration.
+- [x] 9.3: Demonstrate local migration, backup, restoration and actual binary rollback.
+- [x] 9.4: Implement managed process leases/deadlines and preserve local target boundaries.
+- [x] 9.5: Add storage health, component status/logging and the local operations guide.
 - [x] 9.6a: Publish and verify the owner-approved HTTPS interface demo on GitHub Pages.
-- [ ] 9.6b: Review backend staging activation; custom domain deferred by the owner.
-- [ ] 9.7: Verify staging end-to-end acceptance, restore/rollback and exact-commit CI.
+- Deferred 9.6b: Public backend staging/custom domain and production OS quotas; outside the owner's current Pages-demo/local-runtime delivery.
+- [ ] 9.7: Verify local end-to-end/recovery/rollback and exact-commit cross-platform CI/artifacts.
 
 The owner manages closure and any Sprint 10 start. Deployment activation needs
 concrete infrastructure/hostname details and owner authorization; paid purchases
@@ -269,3 +269,31 @@ supervision, resource quotas and actual cutover/rollback remain pending.
 
 Storage/operations regression: 580 tests completed locally (579 passed, one
 Windows symlink-permission skip). Same-commit CI remains pending after push.
+
+## Managed Local Runtime and Actual Binary Rollback
+
+Added reviewed wheel/UI preparation, hash inventories, atomic release/data
+selection with stale-ID refusal and explicit bounded local-run commands. A
+stable trusted launcher imports the selected application wheel and its workers.
+Component leases block duplicate roles and maintenance while serving/executing.
+Binary reselection preserves the current data generation unless live-data is
+explicitly requested. Existing plans do not activate runtime automatically.
+
+Eight unit tests passed for trust/local-profile checks, preparation non-execution,
+immutable publication, inventories/traversal, stale selection, live leases and
+preserved recovery binding. A real Windows drill used historical a71bc2c and
+15f2bc0 packages: old/live → new/restored → old/restored. It verified guarded
+serving, old-session revocation, new login, a new project's persistence on rollback,
+packaged discovery/UI workers, two passed actual UI cases with PNGs, OS lease
+release, supervisor deadline cleanup and an unchanged valid backup. This is
+actual local serving/recovery/binary rollback, not only a plan. CI repeats with
+the new exact committed package on Linux and Windows; that evidence is pending.
+See LOCAL_RUNTIME.md. Production/backend infrastructure remains deferred.
+
+The final local drill also proved that a deliberately invalidated queued job
+returns a nonzero component outcome instead of appearing successfully executed.
+Original live database bytes and the backup remained unchanged. Eight focused
+runtime tests and the real final drill passed after the last runtime changes.
+Full local regression completed 588 tests (587 passed, one Windows symlink
+permission skip). Previous implementation 15f2bc0 passed the split ten-job CI run
+39826529115. New managed-runtime exact-commit Linux/Windows evidence is pending.

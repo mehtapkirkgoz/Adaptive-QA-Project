@@ -41,6 +41,10 @@ headers disabled. Its project database is the sibling projects.sqlite. Existing
 environment data is reused; the server must not be started against an arbitrary
 backup or recovery directory without a reviewed compatibility/cutover decision.
 
+For verified package selection, component leases and a tested local binary
+rollback path, use LOCAL_RUNTIME.md. Its managed commands provide bounded local
+supervision; the legacy commands below remain available for development.
+
 ## Explicit Local Worker Invocations
 
 In a separate terminal after reviewing a plan and explicitly queueing work:
@@ -97,7 +101,8 @@ verify a backup, then prepare recovery into a fresh inactive directory. Recovery
 revokes sessions and cancels active jobs in the copies. Review migration metadata,
 checksums, restored project records and login behavior before considering cutover.
 The rollback-plan command compares metadata/revisions only and never activates a
-release. Actual service cutover/rollback is still pending.
+release. Actual managed local service cutover/rollback is implemented in
+LOCAL_RUNTIME.md; public backend rollout remains deferred.
 
 Owned screenshots expire after seven days by default. The operator's
 `dashboard prune-evidence --database ... --limit 100` removes a bounded batch of

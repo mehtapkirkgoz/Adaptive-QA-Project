@@ -1,6 +1,7 @@
 """Build an inactive release from committed sources, never from workspace secrets."""
 
 import ast
+import argparse
 import hashlib
 import json
 import os
@@ -19,8 +20,12 @@ def run(command, cwd, *, timeout=300):
     subprocess.run(command, cwd=cwd, check=True, timeout=timeout)
 
 
-def build_release():
-    revision = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip()
+def build_release(commit=None):
+    if commit is not None:
+        import re
+        if not re.fullmatch('[0-9a-f]{40}', commit):
+            raise ValueError('An explicit full lowercase commit SHA is required.')
+    revision = subprocess.check_output(['git', 'rev-parse', '--verify', (commit or 'HEAD') + '^{commit}'], cwd=ROOT, text=True).strip()
     base = ROOT / 'artifacts' / 'releases'
     if base.resolve() != base:
         raise ValueError('Release storage must not redirect outside the repository.')
@@ -91,4 +96,6 @@ def build_release():
 
 
 if __name__ == '__main__':
-    build_release()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--commit', help='Build an explicit reviewed historical commit instead of HEAD')
+    build_release(parser.parse_args().commit)
