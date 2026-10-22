@@ -321,3 +321,31 @@ are still missing. Previous 2eb643a passed CI run 39713249940; current CI is pen
 All 474 local unit tests, strict TypeScript/Vite build and real built React
 queue/worker/polling/review acceptance passed. This is discovery delivery, not
 completion of an end-to-end test run or Sprint 7 acceptance.
+
+### Explicit test-run admission foundation
+
+A separate owner-bound test-run queue now admits one to ten explicitly requested
+distinct case IDs against an owned completed discovery report. It atomically
+checks current saved configuration, the report fingerprint, inspected coverage,
+selected UI decisions, registered executors and read-only definitions before
+persisting a queued run. Preview plans remain unauthorized and are never rewritten.
+Discovery alone still submits no tests. Secret references are excluded from the
+frozen run configuration. Local admission is bounded to five active runs per owner
+and 100 globally, separately from discovery admission.
+
+Reduced plan cases now include a fixed `local_root` binding only when the selected
+page exactly matches the controlled root URL. No raw URL is added to reports.
+Cases discovered on another route are not silently rebound to a root executor.
+API/database, unselected, unknown and data-changing cases remain unsupported by
+this admission path even if project data changes are enabled. Current runtime
+support must be rechecked by the future worker before execution.
+
+Seven persistence tests cover explicit/non-executing submission, unchanged plan
+authorization, reopened runs, stale/uncompleted evidence, owner/project isolation,
+unsupported/duplicate cases, route mismatch, bounded admission and idempotent queued
+cancellation. No test-run HTTP endpoint, run worker, active cancellation, result
+or evidence delivery is exposed yet. Phase 7.5 remains incomplete. Prior
+f42c759 passed CI run 39718474608. This increment is admission groundwork only.
+
+All 481 local unit tests and the existing real React discovery/worker/review
+acceptance passed. Current-commit CI remains pending after push.
