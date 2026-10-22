@@ -15,6 +15,7 @@ from adaptive_qa.execution_context import capture_execution_context
 
 def process_run_once(queue):
     with worker_lock(queue.projects.database), TemporaryDirectory(prefix='adaptive-qa-owned-evidence-') as temporary:
+        evidence_root = Path(temporary).resolve(strict=True)
         queue.prune_expired_evidence()
         work = queue.claim_next()
         if work is None:
@@ -37,12 +38,12 @@ def process_run_once(queue):
                 if definition is None or definition.changes_data or case_id not in SMOKE_CHECKS:
                     raise ValueError('Unsupported runtime case.')
                 result = run_isolated_sample_test(case_id, timeout_seconds=min(30, 120 - (monotonic() - started)),
-                    should_cancel=stop, site='root', evidence_directory=Path(temporary))
+                    should_cancel=stop, site='root', evidence_directory=evidence_root)
                 if queue.cancellation_requested(work):
                     break
                 if stop() or not isinstance(result, TestResult) or result.case_id != case_id or result.status == TestStatus.CANCELLED:
                     raise ValueError('Run interrupted or returned an invalid result.')
-                evidence = import_screenshot(result.evidence_paths, root=Path(temporary))
+                evidence = import_screenshot(result.evidence_paths, root=evidence_root)
                 if not queue.record_result(work, result, evidence_png=evidence):
                     break
         except Exception:

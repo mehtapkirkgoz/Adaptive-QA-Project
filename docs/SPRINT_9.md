@@ -303,3 +303,13 @@ the runner's temporary root used a short filename while DeploymentPlan had
 canonicalized it. The fixture now resolves its temporary root before constructing
 candidate paths. Runtime rejection of redirected/noncanonical candidates is
 unchanged. The failed attempt is not accepted as cross-platform evidence.
+
+Run 39829281618 passed 588 unit tests and eleven jobs, including the Linux
+packaged rollback drill. Windows exposed short TEMP aliases in worker-owned
+screenshot paths: assertions completed but optional evidence was rejected by the
+canonical-root guard. The worker now canonicalizes its own newly created private
+directory before passing it to the browser and importer; importer rejection rules
+remain unchanged. The drill also stops its server before temporary-directory
+cleanup on assertion failure and reports only case/status/evidence-presence flags.
+Thirteen focused worker/evidence tests passed locally. Full fresh exact-commit
+CI remains required; this failed Windows run is not acceptance evidence.

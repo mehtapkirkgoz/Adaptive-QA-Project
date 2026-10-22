@@ -1,6 +1,6 @@
 """Real packaged local runtime, restored data, workers and binary rollback drill."""
 
-from contextlib import closing
+from contextlib import closing, ExitStack
 from functools import partial
 from http.cookiejar import CookieJar
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
@@ -97,7 +97,9 @@ def main(candidate):
     fixture_thread.start()
     process = None
     try:
-        with TemporaryDirectory(prefix='adaptive-local-runtime-') as temporary:
+        with TemporaryDirectory(prefix='adaptive-local-runtime-') as temporary, ExitStack() as cleanup:
+            cleanup.callback(lambda: _terminate_process_tree(process)
+                             if process is not None and process.poll() is None else None)
             plan = DeploymentPlan(Environment.LOCAL, Path(temporary), ORIGIN)
             auth = AuthStore(plan.directory / 'auth.sqlite')
             actor = auth.create_user('runtime@example.test', 'Disposable runtime password 2026!')
@@ -155,7 +157,9 @@ def main(candidate):
             assert run_local(plan, 'run-once', duration_seconds=90)['status'] == 'completed'
             result = queue.get(actor, project.project_id, work['run_id'])
             assert result['status'] == 'completed' and len(result['results']) == 2
-            assert all(item['status'] == 'passed' and item.get('evidence_id') for item in result['results'])
+            assert all(item['status'] == 'passed' and item.get('evidence_id') for item in result['results']), [
+                {'case_id': item['case_id'], 'status': item['status'],
+                 'evidence_present': bool(item.get('evidence_id'))} for item in result['results']]
             rejected = queue.submit(actor, project.project_id, job['job_id'], ('LOGIN-001',))
             recovered.save_configuration(actor, project.project_id, {'base_url': 'http://127.0.0.1:8000/changed-fixture',
                 'allowed_hosts': ['127.0.0.1'], 'allow_data_changes': False, 'secret_references': {}})
