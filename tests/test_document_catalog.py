@@ -20,4 +20,5 @@ class DocumentCatalogTests(unittest.TestCase):
         crawl = CrawlResult((PageSnapshot(project.base_url, collection_complete=True),), 0, ())
         plan = build_test_plan(crawl, DOCUMENT_CASES, project)
         self.assertTrue(all(case.decision == 'selected' and case.target_url == project.base_url for case in plan.cases))
+        self.assertTrue(all(case.evidence == ('page: inspected document snapshot',) for case in plan.cases))
         self.assertFalse(plan.execution_authorized)

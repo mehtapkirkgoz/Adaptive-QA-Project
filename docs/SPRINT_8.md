@@ -94,3 +94,12 @@ Local verification passed all 512 unit tests, all 51 queued UI cases with
 persisted JSON/PNG evidence, the eleven-case offline positive/negative suite,
 and the corrected separate discovery worker CLI. These are platform unit tests,
 website scenarios and fixture checks respectively; they are separate counts.
+
+## Generic-rule discovery evidence correction
+
+Run 39748798411 failed at the bounded-discovery check: newly selected generic
+document rules had no feature-specific evidence. Their plans now record the
+actual inspected document snapshot as evidence, without claiming the assertion
+passed. The real discovery check resolves expected page bindings from feature
+prerequisites and permits generic document inspection under a page limit while
+keeping unknown feature-dependent cases blocked. Plans still never execute tests.

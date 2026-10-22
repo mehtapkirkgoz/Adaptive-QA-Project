@@ -57,17 +57,22 @@ def main():
         assert sum(case['decision'] == 'selected' for case in plan['cases']) == len(TEST_CASES) - 1
         blocked = [case for case in plan['cases'] if case['decision'] == 'blocked']
         assert len(blocked) == 1 and blocked[0]['case_id'] == 'LOGIN-009'
+        definitions = {case.case_id: case for case in TEST_CASES}
         for case in plan['cases']:
             if case['decision'] == 'selected':
-                path = ('/login' if case['case_id'].startswith(('LOGIN', 'FORM')) or case['case_id'] == 'NAV-005' else
-                        '/search' if case['case_id'].startswith('SEARCH') else '/')
+                prerequisites = definitions[case['case_id']].required_features
+                path = ('/login' if {'login', 'forms'} & set(prerequisites) else
+                        '/search' if 'search' in prerequisites else '/')
                 assert case['target_url'] == 'http://127.0.0.1:8000' + path
                 assert case['evidence']
         reports['pages'] = discover_local_sample(CrawlBudget(max_pages=1))
         assert reports['pages']['attempted_pages'] == 1
         assert 'page_limit' in reports['pages']['limitations']
         assert all(case['decision'] == 'blocked' for case in reports['pages']['plan']['cases']
-                   if not case['case_id'].startswith('NAV'))
+                   if set(definitions[case['case_id']].required_features) - {'navigation'})
+        assert all(case['decision'] == 'selected' and case['evidence']
+                   for case in reports['pages']['plan']['cases']
+                   if not definitions[case['case_id']].required_features)
         reports['depth'] = discover_local_sample(CrawlBudget(max_depth=0))
         assert len(reports['depth']['pages']) == 1
         assert 'depth_limit' in reports['depth']['limitations']

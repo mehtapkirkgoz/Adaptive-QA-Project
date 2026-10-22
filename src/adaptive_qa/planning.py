@@ -132,6 +132,8 @@ def build_test_plan(crawl: CrawlResult, cases: tuple[TestCase, ...],
             url, findings = candidates[0]
             evidence = tuple(f'{name}: {reference}' for name in case.required_features
                              for reference in findings[name].evidence)
+            if not case.required_features:
+                evidence = ('page: inspected document snapshot',)
             entries.append(PlannedCase(case.case_id, PlanDecision.SELECTED,
                 'Applicable on the referenced page. A compatible executor and runtime checks are still required.',
                 url, evidence))

@@ -41,6 +41,9 @@ The hourly in-chat follow-up checks account usage before development. Exhausted,
 disallowed, or unknown availability means waiting for a later run. Never buy or
 reset credits. Continue only unfinished work in the owner-authorized sprint.
 Preserve changes, verify increments, and commit/push plain English messages.
+After every commit, briefly notify the owner and continue authorized Sprint 8
+work without waiting for another instruction. Stop at technical acceptance for
+owner closure; do not start Sprint 9 automatically.
 Remain quiet while waiting for owner decisions or when nothing actionable changes.
 Pause the follow-up when the project is accepted or the owner cancels it.
 
