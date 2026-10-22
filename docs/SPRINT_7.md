@@ -1,7 +1,7 @@
 # Sprint 7 — Web Dashboard and Project Management
 
 Started: 2026-10-21, explicitly authorized by the owner after closing Sprint 6 issue #7.
-Status: In progress
+Status: Technical acceptance complete; ready for owner review and closure.
 Issue: [#8](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/8)
 Milestone: [#8](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/8)
 
@@ -13,7 +13,7 @@ Milestone: [#8](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/8
 - [x] 7.4: Build the React/TypeScript dashboard for project and plan review.
 - [x] 7.5: Bridge authorized run start/cancel/progress to separate worker execution.
 - [x] 7.6: Display owner-scoped history/results/evidence and test cross-owner denial.
-- [ ] 7.7: Demonstrate the integrated local MVP and review exact-commit CI/evidence.
+- [x] 7.7: Demonstrate the integrated local MVP and review exact-commit CI/evidence.
 
 ## Phase 7.1 Delivered
 
@@ -440,3 +440,18 @@ the final non-regular/nonblocking import guard then passed all six evidence test
 TypeScript/Vite build and actual panel/worker/screenshot acceptance passed. Phase
 7.6 is locally delivered; exact-commit CI/artifact review and final acceptance
 remain pending. Prior 54eb857 passed CI run 39729304103.
+
+## Technical Acceptance — 2026-10-22
+
+Implementation `2608fc40919e8e530c07b434538f70ac4070f118` passed all seven jobs in
+[CI run 39742021256](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/actions/runs/39742021256).
+The 500-test log, six archive SHA-256 digests/head SHAs, retained dashboard/worker
+reports, 184 PNG files and 178 distinct filesystem references were verified.
+The integrated local flow includes actual LOGIN-001/SEARCH-001 assertions and
+owner-authorized screenshot decoding with anonymous/other-owner denial.
+Regression evidence remains green across UI, API, database and lifecycle jobs.
+
+See [acceptance and practical limits](SPRINT_7_ACCEPTANCE.md) and the
+[verification manifest](evidence/sprint7-acceptance.json). All delivery phases are
+technically accepted for the documented local fixture scope. Issue #8 and milestone
+#8 remain owner-managed; do not close them automatically or start Sprint 8.

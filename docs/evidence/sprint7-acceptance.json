@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "status": "ready_for_owner_review",
+  "verified_date": "2026-10-22",
+  "implementation_sha": "2608fc40919e8e530c07b434538f70ac4070f118",
+  "ci_run_id": 39742021256,
+  "ci_run_url": "https://github.com/mehtapkirkgoz/Adaptive-QA-Project/actions/runs/39742021256",
+  "jobs": [
+    {
+      "id": 119701299504,
+      "name": "scaffold",
+      "conclusion": "success"
+    },
+    {
+      "id": 119701299639,
+      "name": "Controlled API checks",
+      "conclusion": "success"
+    },
+    {
+      "id": 119701299671,
+      "name": "Local browser check",
+      "conclusion": "success"
+    },
+    {
+      "id": 119701299683,
+      "name": "Controlled database checks (windows-2025)",
+      "conclusion": "success"
+    },
+    {
+      "id": 119701299733,
+      "name": "Process lifecycle (windows-2025)",
+      "conclusion": "success"
+    },
+    {
+      "id": 119701299742,
+      "name": "Controlled database checks (ubuntu-24.04)",
+      "conclusion": "success"
+    },
+    {
+      "id": 119701300724,
+      "name": "Process lifecycle (ubuntu-24.04)",
+      "conclusion": "success"
+    }
+  ],
+  "unit_tests": 500,
+  "artifacts": [
+    {
+      "name": "local-database-evidence-ubuntu-24.04",
+      "id": 12410490193,
+      "digest": "sha256:871e61583b33a66a958a1c4c9810bbcb0dd402541de464fa7a681aba3bc0cebf",
+      "head_sha": "2608fc40919e8e530c07b434538f70ac4070f118"
+    },
+    {
+      "name": "local-api-evidence",
+      "id": 12410031502,
+      "digest": "sha256:d51705b106a9af74e60eedecebd513e9f538c434d2659283f55b447ae8e26fd6",
+      "head_sha": "2608fc40919e8e530c07b434538f70ac4070f118"
+    },
+    {
+      "name": "process-lifecycle-windows-2025",
+      "id": 12409990946,
+      "digest": "sha256:10c1d13c83f75d56158d40a5f1acdb6bd539ca93b0b30068bf0d957c3eb6a798",
+      "head_sha": "2608fc40919e8e530c07b434538f70ac4070f118"
+    },
+    {
+      "name": "local-database-evidence-windows-2025",
+      "id": 12409936289,
+      "digest": "sha256:e2de0b627bd83ffc0111486fc0e08caa32f6253f569cd3a37a0024550ad0962d",
+      "head_sha": "2608fc40919e8e530c07b434538f70ac4070f118"
+    },
+    {
+      "name": "process-lifecycle-ubuntu-24.04",
+      "id": 12409702241,
+      "digest": "sha256:9db201587c3cd356bc597caeb1f64d616d717ecbc164576eee99b153e9130baf",
+      "head_sha": "2608fc40919e8e530c07b434538f70ac4070f118"
+    },
+    {
+      "name": "local-browser-evidence",
+      "id": 12409678238,
+      "digest": "sha256:0921bed3c769fa22112c381f92d208a87999c51aca6c17d7822de3be0b897f14",
+      "head_sha": "2608fc40919e8e530c07b434538f70ac4070f118"
+    }
+  ],
+  "png_files_validated": 184,
+  "distinct_filesystem_png_references_validated": 178,
+  "dashboard_checks": 23,
+  "actual_dashboard_case_ids": [
+    "LOGIN-001",
+    "SEARCH-001"
+  ],
+  "actual_dashboard_outcomes": [
+    "passed",
+    "passed"
+  ],
+  "screenshots": {
+    "decoded_in_real_browser": true,
+    "anonymous_status": 401,
+    "other_owner_status": 404
+  },
+  "scope": "controlled_local_root_fixture_only",
+  "owner_closure_pending": true,
+  "next_sprint_authorized": false
+}

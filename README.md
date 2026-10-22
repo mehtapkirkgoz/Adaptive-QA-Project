@@ -2,11 +2,11 @@
 
 An AI-assisted QA platform under development for website discovery and applicable UI, API, and database tests.
 
-**Status:** Sprint 7 is in progress: dashboard and project management. Sprint 6 technical acceptance is complete and its issue is closed. The catalog has 40 UI, 20 API, and 15 database scenarios. Ollama/qwen3:4b inference requires no API key or paid cloud service. Existing destination, data-change, deadline, and non-executing plan policies remain authoritative.
+**Status:** Sprint 7 technical acceptance is complete; ready for owner review and closure. The local React dashboard supports authenticated projects, scoped configuration/references, guarded discovery, explicit read-only UI runs, progress/results and owner-authorized PNG evidence. The catalog remains 40 UI, 20 API and 15 database definitions. Customer-site execution and deployment are not enabled.
 
-All 397 unit tests and seven CI jobs passed for `5e51be96a0c8e63ab30217ee7d4860372fd85f9e`. Six artifact digests and retained regression evidence were reviewed. Nine actual local-model fixtures scored 8/9 website kinds overall and 4/5 on the separate holdout; errors and abstentions remain recorded. Browser guards prevented unsafe handles on incomplete and duplicate controls. These small-fixture measurements do not establish arbitrary-site accuracy.
+Sprint 7 implementation `2608fc40919e8e530c07b434538f70ac4070f118` passed 500 unit tests and all seven CI jobs. Six downloaded archive digests/head SHAs, 184 retained PNGs and 178 filesystem references were verified. The real panel completed LOGIN-001/SEARCH-001 and decoded authorized evidence while denying anonymous/other-owner access. See [acceptance and limits](docs/SPRINT_7_ACCEPTANCE.md), [verification manifest](docs/evidence/sprint7-acceptance.json), and [CI](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/actions/runs/39742021256). Sprint closure and the next sprint start remain with the owner.
 
-See [Sprint 6 acceptance](docs/SPRINT_6_ACCEPTANCE.md), [Ollama setup](docs/OLLAMA.md), and [Sprint 5 acceptance](docs/SPRINT_5_ACCEPTANCE.md). Sprint 7 now includes local session authentication, owner-scoped project/configuration APIs and masked, scoped secret references. The React project/settings interface is available. Discovery-backed plan review and local discovery controls are available. Explicit local read-only UI runs and owned per-case results are available. Owner-authorized PNG evidence is available. Final Sprint 7 acceptance, customer-site execution, and deployment remain unfinished. See [Sprint 7](docs/SPRINT_7.md) and [dashboard API contracts](docs/DASHBOARD_API.md).
+Earlier [Sprint 6 acceptance](docs/SPRINT_6_ACCEPTANCE.md) verified free local Ollama/qwen3:4b without an API key. Its nine model fixtures scored 8/9 website kinds overall and 4/5 on the separate holdout; errors and abstentions remain recorded. These small-fixture measurements do not establish arbitrary-site accuracy. See [Ollama setup](docs/OLLAMA.md), [Sprint 5 acceptance](docs/SPRINT_5_ACCEPTANCE.md), [Sprint 7 progress](docs/SPRINT_7.md) and [dashboard API contracts](docs/DASHBOARD_API.md). Destination, data-change, deadline and non-executing plan policies remain authoritative.
 
 ## Project Plans
 
@@ -21,7 +21,7 @@ Sprints follow goals and acceptance criteria without a fixed two-week commitment
 | 4 | API tests | Completed |
 | 5 | Database validation | Accepted; issue closed |
 | 6 | AI integration | Accepted; issue closed |
-| 7 | Web dashboard | In progress; React project/settings workspace and local authenticated APIs implemented; discovery controls implemented; explicit read-only UI runs and results implemented; owner-scoped PNG evidence implemented; acceptance pending |
+| 7 | Web dashboard | Technical acceptance complete; ready for owner review/closure |
 | 8 | Reporting and catalog expansion | Planned |
 | 9 | Domain and deployment | Planned |
 | 10 | Customer management and pilot | Planned |
