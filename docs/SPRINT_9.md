@@ -127,3 +127,25 @@ Packaging regression: 561 tests completed (560 passed, one Windows permission
 skip), including three pre-installation tamper/commit/file-set rejection tests.
 The real local build/install check passed; packaging CI is pending after push.
 Backup commit 7aaf817 passed CI run 39783349779.
+
+## Versioned Recovery-copy Migrations
+
+Inactive recovery now validates required core columns and adopts SQLite schema
+revision 1. Existing unversioned copies receive only known additive discovery,
+run and evidence columns. Existing rows are retained; reapplying revision 1 is
+idempotent. Unknown/future versions refuse downgrade, and inconsistent versioned
+schemas are rejected instead of silently repaired. Migration metadata is stored
+in recovery.json. All changes occur before publishing the copied pair; live
+databases and backup snapshots remain unchanged.
+
+Four real-SQLite migration tests and the four recovery tests passed locally.
+Linux/Windows CI exercises both suites. Runtime startup/version gating, cutover,
+release rollback and staging acceptance remain unfinished; 9.3 remains open.
+
+Migration regression: 565 tests completed locally (564 passed, one Windows
+permission skip). Recovery implementation 63f8fa7 passed CI run 39784224509.
+Packaging job in run 39785109938 passed for 0536b63; its downloaded artifact
+12428842277 had its archive digest/head verified and all four payloads checked.
+The downloaded wheel installed outside the checkout and exposed all 100 cases.
+See evidence/sprint9-release.json. The overall packaging run was still pending
+at that artifact review; no full-run or staging acceptance is inferred.

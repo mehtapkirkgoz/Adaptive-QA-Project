@@ -10,6 +10,7 @@ from time import monotonic
 from uuid import uuid4
 
 from adaptive_qa.backup_verification import _verified_manifest
+from adaptive_qa.schema_migrations import migrate_recovery_connection
 
 
 def prepare_restore(plan, bundle_id, *, maintenance_confirmed=False):
@@ -24,6 +25,7 @@ def prepare_restore(plan, bundle_id, *, maintenance_confirmed=False):
     base.chmod(0o700)
     recovery_id = uuid4().hex
     target = base / recovery_id
+    migrations = {}
     with TemporaryDirectory(prefix='.pending-', dir=base) as temporary:
         pending = Path(temporary).resolve()
         if not pending.is_relative_to(base) or target.resolve() != target or target.exists():
@@ -48,6 +50,7 @@ def prepare_restore(plan, bundle_id, *, maintenance_confirmed=False):
                 if connection.execute("SELECT 1 FROM sqlite_master WHERE type IN ('trigger', 'view') LIMIT 1").fetchone():
                     raise ValueError('Recovery requires the supported dashboard table schema.')
                 tables = {row[0] for row in connection.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+                migrations[entry['name']] = migrate_recovery_connection(connection, entry['name'])
                 if entry['name'] == 'auth.sqlite':
                     if not {'dashboard_users', 'dashboard_sessions', 'dashboard_login_admission'} <= tables:
                         raise ValueError('Recovery requires the supported authentication schema.')
@@ -69,6 +72,7 @@ def prepare_restore(plan, bundle_id, *, maintenance_confirmed=False):
         (pending / 'recovery.json').write_text(json.dumps({
             'schema_version': 1, 'source_bundle_id': bundle_id, 'environment': plan.environment.value,
             'sessions_invalidated': True, 'pending_work_cancelled': True, 'activation_enabled': False,
+            'migrations': migrations,
         }, indent=2) + '\n', encoding='utf-8')
         # Both absolute publication paths are confined to the checked recovery root.
         pending.rename(target)

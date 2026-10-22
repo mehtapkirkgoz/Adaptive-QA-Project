@@ -96,8 +96,9 @@ cancelled and their claim tokens cleared. Completed results and project records
 remain available. Users must log in again after an eventual reviewed cutover.
 SQLite integrity and foreign-key checks must pass before publication. Unexpected
 application tables or missing core tables cannot be assumed compatible; required
-core tables are checked, triggers/views are rejected and this command performs
-no schema upgrades. Full release/schema compatibility review remains required.
+core columns are checked and triggers/views are rejected. The copied databases
+receive only the versioned additive migrations described below. Full
+release/schema compatibility review remains required.
 
 `recovery.json` records the source bundle, environment and safety actions without
 credentials. The result has `activation_enabled=false`. No service, worker,
@@ -105,7 +106,25 @@ queued job or network request starts. The source backup and existing environment
 databases remain intact. The recovery directory contains sensitive data and
 requires the same private ACLs as backups; do not upload it as a CI artifact.
 This demonstrates offline data recovery, not an implemented live cutover,
-application release rollback, migration framework or staging deployment.
+application release rollback or staging deployment.
+
+### Recovery Schema Revision 1
+
+Migrations execute only inside unpublished recovery copies under the same
+bounded SQLite progress handler. Existing live databases and the backup remain
+unchanged. SQLite `user_version=0` means the existing unversioned local format;
+revision 1 validates required core columns and adds the known optional discovery
+report, run claim/results/lineage/contracts/context and evidence-expiry columns
+when absent. Existing values are preserved. Reapplying revision 1 adds nothing.
+
+Both copied databases are stamped revision 1. A future/unknown revision is
+rejected without a guessed downgrade. A revision-1 database missing a required
+column is rejected rather than silently repaired. Recovery metadata records each
+database's old/new revisions and added column names. No destructive migration,
+in-place upgrade, general SQL migration input or down-migration is supported.
+Revision checks currently protect recovery preparation; runtime stores have not
+yet adopted a version-gated startup contract. Do not activate a prepared copy or
+run an older release against it without a reviewed compatibility check.
 
 ## Inactive Release Packaging
 

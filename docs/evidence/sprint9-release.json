@@ -1,0 +1,22 @@
+{
+  "source_commit": "0536b634a2a615e3947e2862dc910ecd31674272",
+  "workflow_run_id": 39785109938,
+  "job": "Inactive release packaging",
+  "job_conclusion": "success",
+  "overall_run_conclusion_at_review": "pending",
+  "artifact_id": 12428842277,
+  "artifact_name": "inactive-release-0536b634a2a615e3947e2862dc910ecd31674272",
+  "artifact_sha256": "5e1aa06975cbdde6d258efe86f50b2c42342a2439758bb2b96755e970c0f72cd",
+  "artifact_digest_verified_after_download": true,
+  "artifact_head_verified": true,
+  "payload_digest_and_size_checks_passed": 4,
+  "downloaded_wheel_installed_away_from_source": true,
+  "installed_catalog": {"ui": 51, "api": 34, "database": 15},
+  "activation_enabled": false,
+  "limitations": [
+    "Packaging verification is not staging deployment acceptance.",
+    "Runtime dependencies were already installed in the verification interpreter.",
+    "No empty-OS/container/browser-worker installation or release activation is claimed.",
+    "Artifact retention is seven days; hashes do not provide release authenticity."
+  ]
+}
