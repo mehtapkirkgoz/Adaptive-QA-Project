@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "scripts": {"build": "tsc --noEmit && vite build"},
+  "scripts": {"build": "tsc --noEmit && vite build", "build:demo": "tsc --noEmit && vite build --mode demo --base ./ --outDir dist-demo"},
   "dependencies": {"react": "19.3.1", "react-dom": "19.3.1"},
   "devDependencies": {"@types/react": "19.3.0", "@types/react-dom": "19.3.0", "typescript": "7.0.2", "vite": "8.3.5"}
 }

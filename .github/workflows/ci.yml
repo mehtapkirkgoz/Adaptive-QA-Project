@@ -185,6 +185,11 @@ jobs:
           npm run build
       - name: Verify built React dashboard
         run: python scripts/check_dashboard_ui.py
+      - name: Build static interface demo
+        working-directory: frontend
+        run: npm run build:demo
+      - name: Verify static demo without API or external requests
+        run: python scripts/check_pages_demo.py
       - name: Verify browser egress and redirect protection
         run: python scripts/check_network_security.py
       - name: Verify dashboard browser authentication
@@ -232,5 +237,7 @@ jobs:
             artifacts/ai/*.json
             artifacts/dashboard/*.json
             artifacts/dashboard/*.png
+            artifacts/demo/*.json
+            artifacts/demo/*.png
           retention-days: 7
           if-no-files-found: warn

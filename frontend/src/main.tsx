@@ -5,6 +5,7 @@ import './style.css';
 import './plan.css';
 import {DiscoveryPanel} from './DiscoveryPanel';
 import {RunPanel} from './RunPanel';
+import {DemoWorkspace} from './DemoWorkspace';
 
 type Project = {project_id: string; name: string};
 type Plan = {execution_authorized: false; inspected_pages: number; discovery_status: string; discovery_job_id?: string;
@@ -96,7 +97,7 @@ function App() {
     <div className="workspace"><header><span>Workspace <span className="slash">/</span> Projects</span><div className="header-actions"><span className="badge">LOCAL</span>
       {signedIn && <button className="quiet" disabled={busy} onClick={() => void perform(async () => {await api('/api/auth/logout', 'POST', {}); clear();})}>Sign out</button>}</div></header>
       <main><div className="page-title"><div><p className="eyebrow">ADAPTIVE TESTING</p><h1>{signedIn ? 'Project workspace' : 'Welcome to your workspace'}</h1>
-        <p className="subtitle">{signedIn ? 'Manage your projects and define what is in scope.' : 'Sign in to manage your QA projects.'}</p></div><span className="step">SPRINT 07</span></div>
+        <p className="subtitle">{signedIn ? 'Manage your projects and define what is in scope.' : 'Sign in to manage your QA projects.'}</p></div><span className="step">LOCAL WORKSPACE</span></div>
         {error && <div role="alert" className="message error">{error}</div>}
         {notice && <div role="status" className="message success">{notice}</div>}
         {checking ? <p role="status">Checking your session…</p> : !signedIn ? <section className="card login"><p className="eyebrow">YOUR ACCOUNT</p><h2>Sign in</h2>
@@ -138,4 +139,4 @@ function App() {
     </div></div>;
 }
 
-createRoot(document.getElementById('root')!).render(<App/>);
+createRoot(document.getElementById('root')!).render(import.meta.env.VITE_DEMO === 'true' ? <DemoWorkspace/> : <App/>);

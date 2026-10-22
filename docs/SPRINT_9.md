@@ -189,3 +189,35 @@ JSON evidence. These checks do not demonstrate actual service cutover/rollback;
 Local regression: 574 tests completed (573 passed, one Windows permission skip).
 The final bounded-file checks also passed the four focused rollback tests.
 Same-commit compatibility-plan CI remains pending after push.
+
+## Owner Scope Update: GitHub-hosted Interface Demo
+
+The owner deferred a custom domain and selected a public GitHub Pages interface
+demo with real automation remaining local. After the private repository's Pages
+settings required an upgrade/public visibility, the owner explicitly authorized
+making the entire repository public. No paid upgrade or backend hosting is
+authorized. Runtime/operations/rollback work remains required; a static demo does
+not establish staging backend acceptance.
+
+Implemented a separate demo build with overview, sample site categories, the
+accepted 100-definition catalog with search/layer filters and a clearly synthetic
+report. It performs no API/network target requests and persists nothing. Normal
+local sign-in/project/run behavior remains in the default build. The stale
+Sprint 07 UI badge was replaced with Local Workspace.
+
+Real browser verification under /Adaptive-QA-Project/ passed at 390/768/1440
+widths, including catalog counts/search/empty state, example report labeling,
+reload and sample-project selection, with zero API/external requests or page
+errors. Both TypeScript/Vite builds passed. Desktop/mobile screenshots and safe
+browser report are in ignored artifacts/demo. Publication workflow is manual and
+uploads only frontend/dist-demo. See PAGES_DEMO.md. Publication/URL verification
+is pending until the workflow and Pages settings are applied.
+
+Repository visibility was changed to public and verified in GitHub Settings at
+the owner's explicit request. Local unit regression completed: 574 tests, 573
+passing and one Windows symlink-permission skip. The real demo browser checks
+and both production/demo frontend builds passed.
+
+Previous implementation 4db5e1e passed CI run 39786903454; runtime a71bc2c also
+passed CI run 39786355350. Earlier 6e28abb run 39785596059 was cancelled; it is
+not claimed as successful evidence. Later accepted CI includes those changes.

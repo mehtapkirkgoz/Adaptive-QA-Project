@@ -5,7 +5,12 @@ Updated: 2026-10-22
 Active sprint: 9 — Custom Domain and Deployment; in progress.
 The owner explicitly started Sprint 9 on 2026-10-22. Sprint 8 issue #9 and
 milestone #9 are verified closed. The owner has not purchased a domain/server.
-Continue free local preparation; do not buy services or activate external hosting.
+Continue free local preparation; do not buy services or activate backend hosting.
+Latest owner instruction: use a GitHub Pages interface demo while automation
+remains local. The owner explicitly authorized making the entire repository
+public after private-repository Pages eligibility was unavailable. Publish only
+compiled demo assets to Pages; keep data/credentials ignored. No paid upgrade or
+online Python backend/worker deployment is authorized. Custom domain is deferred.
 Sprint 7 issue #8 and milestone #8 are verified closed. Its verified implementation is
 2608fc40919e8e530c07b434538f70ac4070f118, CI run 39742021256 (seven successful jobs).
 Acceptance and artifact verification are in docs/SPRINT_7_ACCEPTANCE.md.

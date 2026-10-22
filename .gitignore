@@ -12,6 +12,8 @@ htmlcov/
 .env
 .env.*
 !.env.example
+!frontend/.env.demo
+frontend/dist-demo/
 artifacts/
 reports/
 playwright-report/

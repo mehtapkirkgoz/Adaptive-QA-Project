@@ -17,6 +17,15 @@ probes future-schema rejection, and `deployment rollback-plan` compares candidat
 digests/revisions with offline databases without executing a rollback candidate.
 Actual service cutover and rollback remain unfinished.
 
+## Interface Demo
+
+The owner selected GitHub Pages for a public, non-executing interface demo;
+real automation continues locally. The demo includes sample projects, the
+100-case catalog and explicitly illustrative reports. No credentials or API
+connection are needed, and no test is started. See [demo build and publication](docs/PAGES_DEMO.md).
+The owner authorized making this repository public; Pages publication/URL
+verification is in progress. This does not mark backend deployment complete.
+
 ## Project Plans
 
 Sprints follow goals and acceptance criteria without a fixed two-week commitment.
