@@ -21,6 +21,10 @@ from adaptive_qa.dashboard_worker import configuration_fingerprint
 from adaptive_qa.dashboard_runs import DashboardRunQueue, TestRunNotFound
 from adaptive_qa.dashboard_reports import build_run_report, compare_runs
 from adaptive_qa.flaky_signals import build_flaky_report
+from adaptive_qa.organization_store import OrganizationStore, OrganizationNotFound
+from adaptive_qa.organization_projects import OrganizationProjects
+from adaptive_qa.organization_admission import OrganizationCapacityExceeded
+from adaptive_qa.organization_api import register_organization_routes
 
 
 SESSION_COOKIE = 'adaptive_session'
@@ -57,6 +61,8 @@ def create_app(store: AuthStore, *, port=8765, projects=None, ui_directory=None)
     projects = projects if projects is not None else ProjectStore(store.database.with_name('projects.sqlite'))
     discovery = DashboardDiscoveryQueue(projects)
     runs = DashboardRunQueue(projects)
+    organizations = OrganizationStore(projects)
+    organization_projects = OrganizationProjects(organizations)
     attempts, lock = deque(), Lock()
     if ui_directory is not None:
         ui_root = Path(ui_directory).resolve(strict=True)
@@ -75,8 +81,13 @@ def create_app(store: AuthStore, *, port=8765, projects=None, ui_directory=None)
     @app.exception_handler(ProjectNotFound)
     @app.exception_handler(DiscoveryJobNotFound)
     @app.exception_handler(TestRunNotFound)
+    @app.exception_handler(OrganizationNotFound)
     async def missing_project(request, error):
         return JSONResponse({'detail': 'Project not found.'}, status_code=404)
+
+    @app.exception_handler(OrganizationCapacityExceeded)
+    async def organization_capacity(request, error):
+        return JSONResponse({'detail': 'Organization capacity reached.'}, status_code=409)
 
     @app.get('/api/projects/{project_id}/runs')
     def list_runs(project_id: str, request: Request):
@@ -181,6 +192,8 @@ def create_app(store: AuthStore, *, port=8765, projects=None, ui_directory=None)
 
     def public_project(project):
         return {'project_id': project.project_id, 'name': project.name}
+
+    register_organization_routes(app, organizations, organization_projects, actor, _object)
 
     @app.get('/api/projects')
     def list_projects(request: Request):

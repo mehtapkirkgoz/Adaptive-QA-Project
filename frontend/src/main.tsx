@@ -6,6 +6,7 @@ import './plan.css';
 import {DiscoveryPanel} from './DiscoveryPanel';
 import {RunPanel} from './RunPanel';
 import {DemoWorkspace} from './DemoWorkspace';
+import {OrganizationPanel} from './OrganizationPanel';
 
 type Project = {project_id: string; name: string};
 type Plan = {execution_authorized: false; inspected_pages: number; discovery_status: string; discovery_job_id?: string;
@@ -104,7 +105,7 @@ function App() {
           <form onSubmit={login}><fieldset disabled={busy}><label>Email<input name="email" type="email" autoComplete="username" required maxLength={254}/></label>
             <label>Password<input name="password" type="password" autoComplete="current-password" required/></label>
             <button className="primary" type="submit">{busy ? 'Signing in…' : 'Sign in'}</button></fieldset></form><p className="hint">Use the account created by your local workspace administrator.</p></section>
-        : <><section className="card create"><div><h2>Your projects</h2><p className="hint">Start with a name. Add target settings when you are ready.</p></div>
+        : <><OrganizationPanel request={api}/><section className="card create"><div><h2>Your projects</h2><p className="hint">Start with a name. Add target settings when you are ready.</p></div>
           <form onSubmit={create}><fieldset disabled={busy} className="inline"><label className="sr-only" htmlFor="new-project">New project name</label><input id="new-project" name="name" placeholder="New project name" required maxLength={100}/><button className="primary">+ Create project</button></fieldset></form></section>
           <div className="columns"><section className="card project-list"><div className="section-label"><h2>Projects</h2><span className="count">{projects.length} on this page</span></div>
             {!projects.length && <div className="empty"><h3>No projects here yet</h3><p>Create a project to define your first testing scope.</p></div>}

@@ -187,6 +187,8 @@ jobs:
           npm run build
       - name: Verify built React dashboard
         run: python scripts/check_dashboard_ui.py
+      - name: Verify organization roles and shared configuration UI
+        run: python scripts/check_organization_ui.py
       - name: Build static interface demo
         working-directory: frontend
         run: npm run build:demo
@@ -217,6 +219,8 @@ jobs:
             artifacts/ai/*.json
             artifacts/dashboard/*.json
             artifacts/dashboard/*.png
+            artifacts/organizations/*.json
+            artifacts/organizations/*.png
             artifacts/demo/*.json
             artifacts/demo/*.png
           retention-days: 7

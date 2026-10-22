@@ -69,6 +69,15 @@ class OrganizationStore:
         with self.projects._connection() as c:
             return self._membership(c, actor, organization_id, Action.READ)
 
+    def list(self, actor):
+        ProjectStore._actor(actor)
+        with self.projects._connection() as c:
+            rows = c.execute('SELECT o.organization_id, o.name, m.role FROM dashboard_organizations o '
+                            'JOIN dashboard_organization_members m ON m.organization_id=o.organization_id '
+                            'WHERE m.user_id=? ORDER BY o.organization_id LIMIT 100', (actor.user_id,)).fetchall()
+            return [{'organization_id': row['organization_id'], 'name': row['name'],
+                     'role': Role(row['role']).value} for row in rows]
+
     def quota(self, actor, organization_id):
         with self.projects._connection() as c:
             self._membership(c, actor, organization_id, Action.READ)
