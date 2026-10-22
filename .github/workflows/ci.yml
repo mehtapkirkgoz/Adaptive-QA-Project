@@ -42,16 +42,28 @@ jobs:
         with:
           node-version: '24'
       - name: Install locked verification dependencies
-        run: python -m pip install -r requirements.lock.txt
+        run: |
+          python -m pip install -r requirements.lock.txt
+          python -m pip install --no-deps -e .
       - name: Build committed inactive release
         run: python scripts/build_release.py
       - name: Verify digests and installed wheel away from checkout
         run: python scripts/check_release.py artifacts/releases/${{ github.sha }}
+      - name: Verify non-executing rollback compatibility planning
+        run: python scripts/check_rollback_plan.py artifacts/releases/${{ github.sha }}
       - name: Upload inactive release bundle
         uses: actions/upload-artifact@v7
         with:
           name: inactive-release-${{ github.sha }}
           path: artifacts/releases/${{ github.sha }}/
+          retention-days: 7
+          if-no-files-found: error
+
+      - name: Upload safe rollback planning evidence
+        uses: actions/upload-artifact@v7
+        with:
+          name: inactive-rollback-plan-${{ github.sha }}
+          path: artifacts/deployment/rollback-plan.json
           retention-days: 7
           if-no-files-found: error
 

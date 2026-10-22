@@ -165,6 +165,38 @@ CI builds/verifies this bundle separately and retains its commit-named artifact
 for seven days. Downloaded artifacts still require digest/commit verification
 and owner review before use. No release is activated or deployed by CI.
 
+## Non-executing Rollback Compatibility Plan
+
+New release manifests declare the runtime's supported database revisions.
+The installed-wheel verifier also probes both stores with a future revision;
+they must reject it. This links the declaration to exercised installed behavior,
+without treating a checksum or metadata field as release authenticity.
+
+After stopping services and checkpointing SQLite (no WAL/SHM/journal sidecars):
+
+```powershell
+python -m adaptive_qa deployment rollback-plan --environment staging --data-root "$((Get-Location).Path)/artifacts/environments" --origin https://staging.example.test --candidate "$((Get-Location).Path)/artifacts/releases/<full-commit-sha>" --candidate-commit <full-commit-sha> --offline-maintenance
+```
+
+Replace both SHA placeholders with the same reviewed candidate commit. The
+command checks the fixed four payloads, full commit and file digests/sizes, then
+reads both offline database revision markers in immutable read-only mode.
+Missing schema support in an older manifest produces `schema_compatible=false`;
+unsupported revision pairs also remain incompatible. No downgrade is guessed.
+Manifest/payload size, path, file-count and hash-time limits are enforced.
+
+`schema_compatible=true` means the declared revision numbers match. It does not
+verify all SQL constraints, authenticity, runtime dependencies or release health,
+and it never authorizes cutover. `activation_enabled=false` is unconditional.
+The plan does not import/install/execute candidate code, write databases, start
+processes, contact the network or change a release pointer. Maintenance is an
+operator acknowledgement; the command does not stop services itself.
+
+`scripts/check_rollback_plan.py <release-directory>` exercises matching/future
+revision outcomes with disposable real stores and records safe CI evidence.
+This is a compatibility planning drill, not a demonstrated service rollback.
+Actual cutover/rollback, staging end-to-end and owner review remain required.
+
 ## Hosting Acceptance Requirements
 
 - Separate staging/production data, accounts, secrets and backup policies.

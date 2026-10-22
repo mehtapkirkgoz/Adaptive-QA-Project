@@ -1,5 +1,6 @@
 """Build an inactive release from committed sources, never from workspace secrets."""
 
+import ast
 import hashlib
 import json
 import os
@@ -68,7 +69,14 @@ def build_release():
         files = [{'name': path.name, 'bytes': path.stat().st_size,
                   'sha256': hashlib.sha256(path.read_bytes()).hexdigest()}
                  for path in sorted(bundle.iterdir())]
+        schema_source = ast.parse((source / 'src/adaptive_qa/schema_migrations.py').read_text(encoding='utf-8'))
+        schema_revision = next(ast.literal_eval(node.value) for node in schema_source.body
+                        if isinstance(node, ast.Assign)
+                        and any(isinstance(target, ast.Name) and target.id == 'SCHEMA_REVISION' for target in node.targets))
+        if type(schema_revision) is not int or schema_revision < 1:
+            raise ValueError('Release schema revision must be a positive integer.')
         manifest = {'schema_version': 1, 'source_commit': revision, 'files': files,
+                    'database_schema_revisions': [0, schema_revision],
                     'activation_enabled': False, 'python_version': sys.version.split()[0],
                     'node_version': subprocess.check_output(['node', '--version'], text=True).strip(),
                     'limitations': ['No runtime, fixtures, Chromium, credentials or databases are bundled.',

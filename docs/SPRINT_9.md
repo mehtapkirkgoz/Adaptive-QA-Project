@@ -167,3 +167,25 @@ This does not implement runtime cutover or establish older-release compatibility
 Packaging commit 0536b63 passed the complete eight-job CI run 39785109938.
 Runtime gate regression: 570 tests completed locally (569 passed, one Windows
 symlink-permission skip). Same-commit runtime CI is pending after push.
+
+## Rollback Candidate Compatibility Preparation
+
+Added schema support declarations to release manifests and future-schema probes
+against the externally installed wheel. `deployment rollback-plan` verifies a
+candidate's exact commit/payloads and compares its declared support with both
+offline database revision markers. Missing declarations or unsupported versions
+are not guessed compatible. The plan is read-only and non-executing; it never
+installs/imports candidates, changes a release pointer or activates services.
+
+Four tests cover CLI non-execution/unchanged bytes, missing/mismatched support,
+tampering/wrong identity and offline/checkpoint requirements. A real a71bc2c
+bundle was rebuilt with the new builder, installed outside the checkout and
+passed both future-schema runtime probes and its 100-case catalog check. An
+offline drill with that bundle matched revision 1, rejected a future revision
+and preserved the matched database bytes. CI repeats the drill and retains safe
+JSON evidence. These checks do not demonstrate actual service cutover/rollback;
+9.3 and staging acceptance remain open.
+
+Local regression: 574 tests completed (573 passed, one Windows permission skip).
+The final bounded-file checks also passed the four focused rollback tests.
+Same-commit compatibility-plan CI remains pending after push.

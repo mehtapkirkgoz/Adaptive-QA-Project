@@ -54,11 +54,27 @@ from adaptive_qa.catalog import TEST_CASES
 from adaptive_qa.api_catalog import API_CASES
 from adaptive_qa.database_catalog import DATABASE_CASES
 assert (len(TEST_CASES), len(API_CASES), len(DATABASE_CASES)) == (51, 34, 15)
+from adaptive_qa.schema_migrations import SCHEMA_REVISION
+import json, sqlite3
+assert json.loads(sys.argv[2]) == [0, SCHEMA_REVISION]
+from adaptive_qa.auth_store import AuthStore
+from adaptive_qa.project_store import ProjectStore
+for factory, name in ((AuthStore, 'future-auth.sqlite'), (ProjectStore, 'future-projects.sqlite')):
+    connection = sqlite3.connect(name)
+    connection.execute('PRAGMA user_version=2147483647')
+    connection.close()
+    try:
+        factory(Path(name))
+    except ValueError:
+        pass
+    else:
+        raise AssertionError('Installed release did not reject a future schema')
 from adaptive_qa.__main__ import main
 sys.argv = ['adaptive-qa', '--status']
 main()
 """
-        subprocess.run([sys.executable, '-I', '-c', code, str(site)], cwd=temporary,
+        subprocess.run([sys.executable, '-I', '-c', code, str(site),
+                        json.dumps(manifest.get('database_schema_revisions'))], cwd=temporary,
                        env=environment, check=True, timeout=30)
     print(json.dumps({'source_commit': revision, 'files_verified': len(manifest['files']),
                       'installed_catalog': {'ui': 51, 'api': 34, 'database': 15},

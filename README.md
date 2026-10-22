@@ -12,6 +12,11 @@ Sprint 7 implementation `2608fc40919e8e530c07b434538f70ac4070f118` passed 500 un
 
 Earlier [Sprint 6 acceptance](docs/SPRINT_6_ACCEPTANCE.md) verified free local Ollama/qwen3:4b without an API key. Its nine model fixtures scored 8/9 website kinds overall and 4/5 on the separate holdout; errors and abstentions remain recorded. These small-fixture measurements do not establish arbitrary-site accuracy. See [Ollama setup](docs/OLLAMA.md), [Sprint 5 acceptance](docs/SPRINT_5_ACCEPTANCE.md), [Sprint 7 progress](docs/SPRINT_7.md) and [dashboard API contracts](docs/DASHBOARD_API.md). Destination, data-change, deadline and non-executing plan policies remain authoritative.
 
+Sprint 9 release manifests now declare schema support. The installed-wheel check
+probes future-schema rejection, and `deployment rollback-plan` compares candidate
+digests/revisions with offline databases without executing a rollback candidate.
+Actual service cutover and rollback remain unfinished.
+
 ## Project Plans
 
 Sprints follow goals and acceptance criteria without a fixed two-week commitment.
