@@ -163,3 +163,38 @@ Verify the separate worker against an owned temporary fixture and database:
 Keep port 8000 available. The check starts/stops its fixture and worker, persists
 the reduced report under `artifacts/dashboard/worker.json`, and removes temporary
 storage. It does not run the selected UI cases or contact external sites.
+
+## Trusted UI Test Worker
+
+The separate run worker processes one explicitly admitted owned test run:
+
+```powershell
+.\.venv\Scripts\python.exe -m adaptive_qa dashboard run-once
+.\.venv\Scripts\python.exe -m adaptive_qa dashboard recover-runs
+```
+
+Both use `artifacts/dashboard/projects.sqlite` unless `--database` selects a
+trusted project database. These commands submit no work. Test-run HTTP/UI
+submission is not wired yet; only the internal explicit admission path exists.
+The sample server on port 8000 must match the controlled root fixture.
+
+The worker holds the shared project OS lock, rechecks the current target/policy,
+and runs requested read-only UI cases in isolated guarded children. Each case
+has at most 30 seconds and a run has a 120-second execution budget, followed by
+bounded process cleanup. Persistent cancellation/configuration changes are polled
+while waiting. Each accepted result commits in order, with actual outcome/duration
+and a generic message. Raw messages and filesystem paths are not exposed.
+Unattempted cases do not receive fabricated results. Evidence delivery is pending.
+
+`recover-runs` refuses an active lock, marks interrupted work as error/cancelled,
+preserves earlier committed progress and never retries automatically.
+
+Verify two actual UI assertions through a separate worker process:
+
+```powershell
+.\.venv\Scripts\python.exe scripts/check_dashboard_runs.py
+```
+
+The check owns its sample server, temporary project/discovery/run, and worker.
+It writes reduced results to `artifacts/dashboard/run-worker.json`. Keep port 8000
+free before running it. This is local fixture acceptance, not customer-site access.

@@ -1,6 +1,8 @@
 """Explicit owned test-run admission, separate from non-executing discovery plans."""
 
 import json
+import secrets
+from dataclasses import dataclass, field
 from uuid import uuid4
 
 from adaptive_qa.catalog import TEST_CASES
@@ -8,6 +10,18 @@ from adaptive_qa.dashboard_jobs import DashboardDiscoveryQueue
 from adaptive_qa.dashboard_worker import configuration_fingerprint
 from adaptive_qa.project_store import ProjectNotFound, _id
 from adaptive_qa.smoke_checks import SMOKE_CHECKS
+from adaptive_qa.models import TestResult
+from adaptive_qa.worker_lock import worker_lock
+
+
+@dataclass(frozen=True)
+class RunWork:
+    run_id: str
+    project_id: str
+    owner_id: str
+    case_ids: tuple[str, ...]
+    configuration: dict
+    claim_token: str = field(repr=False)
 
 
 class TestRunNotFound(LookupError):
@@ -15,7 +29,7 @@ class TestRunNotFound(LookupError):
 
 
 class DashboardRunQueue:
-    """Admission/persistence only; no HTTP routes or test executor wired yet."""
+    """Owned dispatch and result lifecycle; HTTP integration remains separate."""
 
     def __init__(self, projects):
         self.projects = projects
@@ -26,12 +40,16 @@ class DashboardRunQueue:
                 'project_id TEXT NOT NULL, owner_id TEXT NOT NULL, discovery_job_id TEXT NOT NULL, '
                 'case_ids_json TEXT NOT NULL, configuration_json TEXT NOT NULL, status TEXT NOT NULL)')
             connection.execute('CREATE INDEX IF NOT EXISTS dashboard_runs_owner ON dashboard_test_runs(owner_id, sequence)')
+            columns = {row['name'] for row in connection.execute('PRAGMA table_info(dashboard_test_runs)')}
+            for name, declaration in (('claim_token', 'TEXT'), ('results_json', "TEXT NOT NULL DEFAULT '[]'")):
+                if name not in columns:
+                    connection.execute(f'ALTER TABLE dashboard_test_runs ADD COLUMN {name} {declaration}')
 
     @staticmethod
     def _public(row):
         return {'run_id': row['run_id'], 'project_id': row['project_id'],
                 'discovery_job_id': row['discovery_job_id'], 'case_ids': json.loads(row['case_ids_json']),
-                'status': row['status']}
+                'status': row['status'], 'results': json.loads(row['results_json'])}
 
     def _owned(self, connection, actor, project_id, run_id):
         self.projects._actor(actor)
@@ -104,7 +122,86 @@ class DashboardRunQueue:
         with self.projects._connection() as connection:
             connection.execute('BEGIN IMMEDIATE')
             row = self._owned(connection, actor, project_id, run_id)
-            if row['status'] not in ('queued', 'cancelled'):
-                raise ValueError('Only queued test runs can currently be cancelled.')
-            connection.execute("UPDATE dashboard_test_runs SET status='cancelled' WHERE run_id=?", (run_id,))
+            status = {'queued': 'cancelled', 'running': 'cancel_requested'}.get(row['status'], row['status'])
+            connection.execute('UPDATE dashboard_test_runs SET status=? WHERE run_id=?', (status, run_id))
             return self._public(self._owned(connection, actor, project_id, run_id))
+
+    def claim_next(self):
+        with self.projects._connection() as connection:
+            connection.execute('BEGIN IMMEDIATE')
+            row = connection.execute("SELECT * FROM dashboard_test_runs WHERE status='queued' ORDER BY sequence LIMIT 1").fetchone()
+            if row is None:
+                return None
+            token = secrets.token_urlsafe(32)
+            connection.execute("UPDATE dashboard_test_runs SET status='running', claim_token=? WHERE run_id=?", (token, row['run_id']))
+            return RunWork(row['run_id'], row['project_id'], row['owner_id'],
+                           tuple(json.loads(row['case_ids_json'])), json.loads(row['configuration_json']), token)
+
+    @staticmethod
+    def _claimed(connection, work):
+        row = connection.execute('SELECT * FROM dashboard_test_runs WHERE run_id=? AND project_id=? AND owner_id=?',
+                                 (work.run_id, work.project_id, work.owner_id)).fetchone()
+        if (row is None or row['status'] not in ('running', 'cancel_requested')
+                or not secrets.compare_digest(row['claim_token'] or '', work.claim_token)):
+            raise ValueError('Invalid or finalized run claim.')
+        return row
+
+    def cancellation_requested(self, work):
+        with self.projects._connection() as connection:
+            return self._claimed(connection, work)['status'] == 'cancel_requested'
+
+    def configuration_current(self, work):
+        with self.projects._connection() as connection:
+            self._claimed(connection, work)
+            return self._configuration_current(connection, work)
+
+    @staticmethod
+    def _configuration_current(connection, work):
+        row = connection.execute('SELECT s.settings_json FROM dashboard_projects p '
+            'JOIN dashboard_project_settings s ON s.project_id=p.project_id '
+            'WHERE p.project_id=? AND p.owner_id=?', (work.project_id, work.owner_id)).fetchone()
+        if row is None:
+            return False
+        saved = json.loads(row['settings_json'])
+        snapshot = {key: saved[key] for key in ('base_url', 'allowed_hosts', 'allow_data_changes')}
+        return configuration_fingerprint(snapshot) == configuration_fingerprint(work.configuration)
+
+    def record_result(self, work, result):
+        if not isinstance(result, TestResult):
+            raise ValueError('A typed test result is required.')
+        with self.projects._connection() as connection:
+            connection.execute('BEGIN IMMEDIATE')
+            row = self._claimed(connection, work)
+            if row['status'] == 'cancel_requested':
+                return False
+            if not self._configuration_current(connection, work):
+                raise ValueError('Run settings changed before result commit.')
+            results = json.loads(row['results_json'])
+            ids = json.loads(row['case_ids_json'])
+            if len(results) >= len(ids) or result.case_id != ids[len(results)]:
+                raise ValueError('Result must match the next requested case.')
+            # Raw adapter messages and filesystem paths are never exposed in dashboard results.
+            results.append({'case_id': result.case_id, 'status': result.status,
+                            'duration_seconds': result.duration_seconds,
+                            'message': f'Test execution outcome: {result.status.value}.'})
+            connection.execute('UPDATE dashboard_test_runs SET results_json=? WHERE run_id=?',
+                               (json.dumps(results, allow_nan=False), work.run_id))
+            return True
+
+    def finish(self, work, *, failed=False):
+        if type(failed) is not bool:
+            raise ValueError('Failure flag must be boolean.')
+        with self.projects._connection() as connection:
+            connection.execute('BEGIN IMMEDIATE')
+            row = self._claimed(connection, work)
+            incomplete = len(json.loads(row['results_json'])) != len(json.loads(row['case_ids_json']))
+            status = 'cancelled' if row['status'] == 'cancel_requested' else ('error' if failed or incomplete or not self._configuration_current(connection, work) else 'completed')
+            connection.execute('UPDATE dashboard_test_runs SET status=?, claim_token=NULL WHERE run_id=?', (status, work.run_id))
+            return status
+
+    def recover_interrupted(self):
+        with worker_lock(self.projects.database), self.projects._connection() as connection:
+            connection.execute('BEGIN IMMEDIATE')
+            cancelled = connection.execute("UPDATE dashboard_test_runs SET status='cancelled', claim_token=NULL WHERE status='cancel_requested'").rowcount
+            failed = connection.execute("UPDATE dashboard_test_runs SET status='error', claim_token=NULL WHERE status='running'").rowcount
+            return {'cancelled': cancelled, 'error': failed}

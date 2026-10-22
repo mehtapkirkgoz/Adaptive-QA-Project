@@ -349,3 +349,33 @@ f42c759 passed CI run 39718474608. This increment is admission groundwork only.
 
 All 481 local unit tests and the existing real React discovery/worker/review
 acceptance passed. Current-commit CI remains pending after push.
+
+### Owned UI run worker and persisted progress
+
+`dashboard run-once` now claims an explicitly admitted run while holding the shared
+project OS lock. It revalidates the current target/policy and registered read-only
+case definitions before invoking existing guarded isolated root executors. Each
+case has a 30-second limit and the run has a 120-second execution budget plus
+bounded cleanup. Cancellation and configuration/deadline changes stop child work;
+the parent rejects late or obsolete-policy results. Policy matching is rechecked
+inside the result/finalization transaction as well as during execution.
+
+Result progress commits strictly in requested order. Actual status and duration
+are retained, but raw adapter messages and filesystem paths are omitted. A failed
+assertion remains failed while the job lifecycle can complete normally. Missing
+or unattempted cases never receive invented passes. Cancellation wins finalization,
+and already committed earlier results survive interruption. Claim tokens protect
+worker updates and disappear at finalization. `recover-runs` requires the OS lock,
+clears interrupted claims, preserves progress and never replays tests.
+
+Seven worker tests cover preserved failed assertions, active cancellation/late
+result rejection, policy changes before/during execution, invalid results,
+claim/order checks, recovery and live-lock exclusion. A real separate worker
+process executed LOGIN-001 and SEARCH-001 successfully against the owned sample
+after actual discovery and explicit admission. CI now repeats this integration.
+Prior 6dcd5db passed CI run 39723720576. Test-run HTTP/UI submission, result/history
+views and authorized evidence delivery remain unfinished; Sprint 7 stays open.
+
+All 488 local unit tests passed. Separate-process Chromium acceptance verified
+two real passed assertions and preserved the discovery plan's non-executing flag.
+Current-commit CI remains pending after push.

@@ -148,6 +148,8 @@ jobs:
         run: python scripts/check_web_auth.py
       - name: Verify separate owned discovery worker
         run: python scripts/check_dashboard_worker.py
+      - name: Verify separate owned UI test worker
+        run: python scripts/check_dashboard_runs.py
       - name: Verify structural page collection
         run: python scripts/check_page_collector.py
       - name: Verify deterministic element matching

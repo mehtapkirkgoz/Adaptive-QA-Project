@@ -1,0 +1,45 @@
+"""Supervised read-only UI execution for one explicitly admitted owned run."""
+
+from time import monotonic
+
+from adaptive_qa.browser_process import run_isolated_sample_test
+from adaptive_qa.catalog import TEST_CASES
+from adaptive_qa.models import TestResult, TestStatus
+from adaptive_qa.smoke_checks import SMOKE_CHECKS
+from adaptive_qa.worker_lock import worker_lock
+
+
+def process_run_once(queue):
+    with worker_lock(queue.projects.database):
+        work = queue.claim_next()
+        if work is None:
+            return None
+        started = monotonic()
+        catalog = {case.case_id: case for case in TEST_CASES}
+        def stop():
+            return (queue.cancellation_requested(work) or not queue.configuration_current(work)
+                    or monotonic() - started >= 120)
+        try:
+            if work.configuration['base_url'] not in ('http://127.0.0.1:8000', 'http://127.0.0.1:8000/'):
+                raise ValueError('Unsupported controlled target.')
+            for case_id in work.case_ids:
+                if queue.cancellation_requested(work):
+                    break
+                if stop():
+                    raise ValueError('Run configuration or deadline changed.')
+                definition = catalog.get(case_id)
+                if definition is None or definition.changes_data or case_id not in SMOKE_CHECKS:
+                    raise ValueError('Unsupported runtime case.')
+                result = run_isolated_sample_test(case_id, timeout_seconds=min(30, 120 - (monotonic() - started)),
+                                                  should_cancel=stop, site='root')
+                if queue.cancellation_requested(work):
+                    break
+                if stop() or not isinstance(result, TestResult) or result.case_id != case_id or result.status == TestStatus.CANCELLED:
+                    raise ValueError('Run interrupted or returned an invalid result.')
+                if not queue.record_result(work, result):
+                    break
+        except Exception:
+            status = queue.finish(work, failed=True)
+        else:
+            status = queue.finish(work)
+        return {'run_id': work.run_id, 'project_id': work.project_id, 'status': status}
