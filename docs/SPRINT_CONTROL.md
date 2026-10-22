@@ -2,7 +2,7 @@
 
 Updated: 2026-10-22
 
-Active sprint: 9 — Custom Domain and Deployment; in progress.
+Active sprint: 9 — Custom Domain and Deployment; technical acceptance complete.
 The owner explicitly started Sprint 9 on 2026-10-22. Sprint 8 issue #9 and
 milestone #9 are verified closed. The owner has not purchased a domain/server.
 Continue free local preparation; do not buy services or activate backend hosting.
@@ -16,13 +16,18 @@ now covers the public HTTPS interface demo plus guarded managed local execution,
 restoration and actual binary rollback. Public backend staging, production OS
 quotas and hosted alert services are deferred, not claimed implemented. Complete
 fresh exact-commit Linux/Windows CI/artifact review before reporting readiness.
+That review is complete: implementation 3982f404fb350671a9bd49b86878eb32550a5808,
+CI run 39830200667, all twelve jobs successful, 588 unit tests and twelve downloaded
+artifact digests/head SHAs verified. See SPRINT_9_ACCEPTANCE.md. Await owner review
+and closure; do not repeat accepted drills without a new reason or start Sprint 10.
 Sprint 7 issue #8 and milestone #8 are verified closed. Its verified implementation is
 2608fc40919e8e530c07b434538f70ac4070f118, CI run 39742021256 (seven successful jobs).
 Acceptance and artifact verification are in docs/SPRINT_7_ACCEPTANCE.md.
 Sprint 8 is accepted and closed. Implementation
 d72d2f564b332058b66de4941222f459f1a0a671 passed CI run 39752481207 (all seven jobs)
 and exact-commit artifact verification. See docs/SPRINT_8_ACCEPTANCE.md.
-Continue unfinished Sprint 9 steps in docs/SPRINT_9.md. Do not start Sprint 10.
+Sprint 9 has no unfinished work within the owner-approved local/demo delivery.
+Remain quiet while awaiting owner review/closure. Do not start Sprint 10.
 The accepted catalog preserves feature prerequisites and explicit
 unsupported/uncertain outcomes across site types.
 The current catalog has 100 definitions (51 UI / 34 API / 15 database).
@@ -45,7 +50,7 @@ Sprint 0–4 technical acceptance and owner closure are complete.
 | 6 | [#7](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/7) | [#7](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/7) | Accepted; issue closed |
 | 7 | [#8](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/8) | [#8](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/8) | Accepted; issue and milestone closed |
 | 8 | [#9](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/9) | [#9](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/9) | Accepted; issue and milestone closed |
-| 9 | [#10](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/10) | [#10](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/10) | In progress; owner started 2026-10-22 |
+| 9 | [#10](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/10) | [#10](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/10) | Technical acceptance complete; awaiting owner closure |
 | 10 | [#11](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/11) | [#11](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/11) | Planned |
 
 The owner manages sprint starts and closures. Opening a tracking issue or

@@ -2,7 +2,7 @@
 
 An AI-assisted QA platform under development for website discovery and applicable UI, API, and database tests.
 
-**Current sprint:** [Sprint 9](docs/SPRINT_9.md) is in progress. Validated environment plans, bounded offline SQLite backups, backup verification and inactive recovery preparation are implemented. Recovery copies revoke old sessions, cancel active work and apply versioned additive migrations without replacing live databases or starting services. Runtime stores reject unsupported or incomplete versioned schemas before writing. Committed-source release bundles include a verified wheel, compiled dashboard and dependency locks. The static HTTPS interface demo is live on GitHub Pages. Managed loopback runtime and actual local binary rollback are implemented; exact-commit cross-platform acceptance is pending. Public backend hosting is deferred; no domain or server has been purchased. See [deployment preparation](docs/DEPLOYMENT.md).
+**Current sprint:** [Sprint 9](docs/SPRINT_9.md) is technically complete and ready for owner review. The HTTPS interface demo is live on GitHub Pages; real automation runs in the guarded managed local runtime. Reviewed packages, backup/restoration, session revocation, bounded workers and actual binary rollback preserving current data passed exact-commit Linux/Windows CI: all twelve jobs and 588 unit tests. Twelve downloaded artifact digests/head SHAs were verified. See [acceptance and limits](docs/SPRINT_9_ACCEPTANCE.md), [evidence](docs/evidence/sprint9-acceptance.json) and [local commands](docs/LOCAL_RUNTIME.md). Public backend hosting and a custom domain remain deferred. Issue/milestone await owner closure; Sprint 10 has not started.
 
 **Accepted Sprint 8 baseline:** All 100 scenarios (51 UI / 34 API / 15 database), 534 unit tests and seven CI jobs are verified on implementation `d72d2f5`. Reports include filters, JSON downloads, explicit reruns, historical comparison, consistency signals and seven-day owned screenshot retention. Its issue and milestone are closed. See [acceptance](docs/SPRINT_8_ACCEPTANCE.md), [full catalog](docs/evidence/sprint8-catalog.json) and [verified evidence](docs/evidence/sprint8-acceptance.json).
 
@@ -45,7 +45,7 @@ Sprints follow goals and acceptance criteria without a fixed two-week commitment
 | 6 | AI integration | Accepted; issue closed |
 | 7 | Web dashboard | Accepted; issue and milestone closed |
 | 8 | Reporting and catalog expansion | Accepted; issue and milestone closed |
-| 9 | Domain and deployment | In progress |
+| 9 | Domain and deployment | Technical acceptance complete; owner review pending |
 | 10 | Customer management and pilot | Planned |
 
 See [architecture](docs/ARCHITECTURE.md), [sprint plan](docs/SPRINT_PLAN.md), [Sprint 1](docs/SPRINT_1.md), [GitHub workflow](docs/GITHUB_WORKFLOW.md), and [security contract](docs/SECURITY_CONTRACT.md).

@@ -1,0 +1,195 @@
+{
+  "schema_version": 1,
+  "status": "ready_for_owner_review",
+  "verified_date": "2026-10-22",
+  "implementation_sha": "3982f404fb350671a9bd49b86878eb32550a5808",
+  "ci_run_id": 39830200667,
+  "ci_run_url": "https://github.com/mehtapkirkgoz/Adaptive-QA-Project/actions/runs/39830200667",
+  "ci_conclusion": "success",
+  "unit_tests": 588,
+  "jobs": [
+    {
+      "id": 120004010580,
+      "name": "scaffold",
+      "conclusion": "success"
+    },
+    {
+      "id": 120004010848,
+      "name": "Packaged local runtime (ubuntu-24.04)",
+      "conclusion": "success"
+    },
+    {
+      "id": 120004010943,
+      "name": "Controlled API checks",
+      "conclusion": "success"
+    },
+    {
+      "id": 120004010970,
+      "name": "Controlled database checks (ubuntu-24.04)",
+      "conclusion": "success"
+    },
+    {
+      "id": 120004010976,
+      "name": "UI catalog and isolation",
+      "conclusion": "success"
+    },
+    {
+      "id": 120004010998,
+      "name": "Inactive release packaging",
+      "conclusion": "success"
+    },
+    {
+      "id": 120004011030,
+      "name": "Process lifecycle (ubuntu-24.04)",
+      "conclusion": "success"
+    },
+    {
+      "id": 120004011059,
+      "name": "Process lifecycle (windows-2025)",
+      "conclusion": "success"
+    },
+    {
+      "id": 120004011075,
+      "name": "Browser integration checks",
+      "conclusion": "success"
+    },
+    {
+      "id": 120004011290,
+      "name": "Controlled database checks (windows-2025)",
+      "conclusion": "success"
+    },
+    {
+      "id": 120004011359,
+      "name": "Packaged local runtime (windows-2025)",
+      "conclusion": "success"
+    },
+    {
+      "id": 120004011480,
+      "name": "Local browser check",
+      "conclusion": "success"
+    }
+  ],
+  "artifacts": [
+    {
+      "id": 12449190021,
+      "name": "local-database-evidence-ubuntu-24.04",
+      "digest": "sha256:cf20331ee992e289695f734e0868a559c3b7596a3194d1004f3c1455cfd745c2",
+      "head_sha": "3982f404fb350671a9bd49b86878eb32550a5808",
+      "downloaded_digest_verified": true
+    },
+    {
+      "id": 12448950857,
+      "name": "process-lifecycle-windows-2025",
+      "digest": "sha256:4a5ab9900ea9d954be1cba487cc814033675a8f47f5ddb24157f4f15130e2730",
+      "head_sha": "3982f404fb350671a9bd49b86878eb32550a5808",
+      "downloaded_digest_verified": true
+    },
+    {
+      "id": 12448846425,
+      "name": "local-runtime-windows-2025",
+      "digest": "sha256:66de3c1ca719a6fec518c76c819fe9b5f8c364fa765eea5c99abeb237c5ccf5b",
+      "head_sha": "3982f404fb350671a9bd49b86878eb32550a5808",
+      "downloaded_digest_verified": true
+    },
+    {
+      "id": 12448342526,
+      "name": "ui-catalog-evidence",
+      "digest": "sha256:a329103c8dbd666a89084d50ab3ece9fe3341e432cdd075652d82e4b52fceda8",
+      "head_sha": "3982f404fb350671a9bd49b86878eb32550a5808",
+      "downloaded_digest_verified": true
+    },
+    {
+      "id": 12448242458,
+      "name": "local-database-evidence-windows-2025",
+      "digest": "sha256:60c3cf5ebd800f36809c3b9620796dab670027e8e109cfdd435efd2a486da5a2",
+      "head_sha": "3982f404fb350671a9bd49b86878eb32550a5808",
+      "downloaded_digest_verified": true
+    },
+    {
+      "id": 12448042801,
+      "name": "local-browser-evidence",
+      "digest": "sha256:d1d4797a82d9b9ece6e044348d4fc04ea2be58d2054c06727a7e798699f5b70d",
+      "head_sha": "3982f404fb350671a9bd49b86878eb32550a5808",
+      "downloaded_digest_verified": true
+    },
+    {
+      "id": 12447943346,
+      "name": "inactive-rollback-plan-3982f404fb350671a9bd49b86878eb32550a5808",
+      "digest": "sha256:a43bec892dfbb2da5e544d57f15180bb4d3e6b55700796a9822e68f54e27a79d",
+      "head_sha": "3982f404fb350671a9bd49b86878eb32550a5808",
+      "downloaded_digest_verified": true
+    },
+    {
+      "id": 12447833363,
+      "name": "process-lifecycle-ubuntu-24.04",
+      "digest": "sha256:9800dfe7ed197206c65ba036495697eb506106af58df9bfd9c54da4c58ead223",
+      "head_sha": "3982f404fb350671a9bd49b86878eb32550a5808",
+      "downloaded_digest_verified": true
+    },
+    {
+      "id": 12447818993,
+      "name": "local-api-evidence",
+      "digest": "sha256:ab987803faabe58b775038d5b712048c272fdb0a597f5414147828b544a27824",
+      "head_sha": "3982f404fb350671a9bd49b86878eb32550a5808",
+      "downloaded_digest_verified": true
+    },
+    {
+      "id": 12447683509,
+      "name": "inactive-release-3982f404fb350671a9bd49b86878eb32550a5808",
+      "digest": "sha256:635bf80e6d14d0ac963a9d24289925de72c372996cf869824d57af5769829533",
+      "head_sha": "3982f404fb350671a9bd49b86878eb32550a5808",
+      "downloaded_digest_verified": true
+    },
+    {
+      "id": 12447294419,
+      "name": "browser-integration-evidence",
+      "digest": "sha256:e762c20fa05a6ae987e1089e38d3af4bb2a8f6293306b201fbe9d411647b744f",
+      "head_sha": "3982f404fb350671a9bd49b86878eb32550a5808",
+      "downloaded_digest_verified": true
+    },
+    {
+      "id": 12447164443,
+      "name": "local-runtime-ubuntu-24.04",
+      "digest": "sha256:f84ecdab1dbffc81ede1f530864758a2b9ef7ad3dd1ef44b1d69ee77388e1d5f",
+      "head_sha": "3982f404fb350671a9bd49b86878eb32550a5808",
+      "downloaded_digest_verified": true
+    }
+  ],
+  "catalog": {
+    "ui": 51,
+    "api": 34,
+    "database": 15
+  },
+  "runtime_platforms": [
+    "ubuntu-24.04",
+    "windows-2025"
+  ],
+  "runtime_checks": {
+    "actual_packages": true,
+    "sequence": [
+      "old/live",
+      "new/restored",
+      "old/restored"
+    ],
+    "old_release": "a71bc2c69140b3d4bd993be7495ab2d360f8decc",
+    "passed_cases_per_platform": 2,
+    "persisted_pngs_per_platform": 2,
+    "active_server_switch_blocked": true,
+    "restored_session_revoked": true,
+    "new_data_preserved_on_binary_rollback": true,
+    "leases_released": true,
+    "deadline_cleanup": true,
+    "invalidated_job_nonzero_exit": true,
+    "original_database_bytes_preserved": true,
+    "backup_still_verified": true
+  },
+  "pages_evidence": "sprint9-pages.json",
+  "public_backend": false,
+  "deferred": [
+    "custom domain",
+    "public backend staging",
+    "production OS quotas",
+    "central hosted alerts"
+  ],
+  "owner_closure_pending": true
+}

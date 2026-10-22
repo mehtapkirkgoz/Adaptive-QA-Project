@@ -1,7 +1,7 @@
 # Sprint 9 — Custom Domain and Deployment
 
 Started: 2026-10-22
-Status: In progress; explicitly started by the owner.
+Status: Technical acceptance complete; ready for owner review and closure.
 Tracking: [issue #10](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/10)
 Milestone: [#10](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/10)
 
@@ -18,13 +18,21 @@ free local preparation; do not buy services or activate external hosting.
 - [x] 9.5: Add storage health, component status/logging and the local operations guide.
 - [x] 9.6a: Publish and verify the owner-approved HTTPS interface demo on GitHub Pages.
 - Deferred 9.6b: Public backend staging/custom domain and production OS quotas; outside the owner's current Pages-demo/local-runtime delivery.
-- [ ] 9.7: Verify local end-to-end/recovery/rollback and exact-commit cross-platform CI/artifacts.
+- [x] 9.7: Verify local end-to-end/recovery/rollback and exact-commit cross-platform CI/artifacts.
 
 The owner manages closure and any Sprint 10 start. Deployment activation needs
 concrete infrastructure/hostname details and owner authorization; paid purchases
 and customer targets remain unauthorized.
 
 ## First Increment: Environment Plans
+
+Final acceptance: implementation 3982f404fb350671a9bd49b86878eb32550a5808 passed
+all twelve jobs in CI run 39830200667, including 588 unit tests and actual
+Linux/Windows package/recovery/binary rollback drills. All twelve downloaded
+artifact digests/head SHAs were verified. See SPRINT_9_ACCEPTANCE.md and
+evidence/sprint9-acceptance.json. Earlier progress/pending notes below are the
+increment history, superseded by this acceptance record. Issue/milestone remain
+open pending owner closure; Sprint 10 has not started.
 
 `adaptive-qa deployment plan` validates a profile and prints its intended paths
 and requirements. It does not create files, resolve secrets, provision accounts,
