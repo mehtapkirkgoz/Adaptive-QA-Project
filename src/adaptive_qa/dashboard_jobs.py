@@ -6,6 +6,7 @@ import secrets
 from uuid import uuid4
 
 from adaptive_qa.project_store import ProjectStore, ProjectNotFound, _id
+from adaptive_qa.worker_lock import worker_lock
 
 
 class DiscoveryJobNotFound(LookupError):
@@ -121,3 +122,11 @@ class DashboardDiscoveryQueue:
             status = 'cancelled' if row['status'] == 'cancel_requested' else ('error' if failed else 'completed')
             connection.execute('UPDATE dashboard_discovery_jobs SET status=?, claim_token=NULL WHERE job_id=?', (status, work.job_id))
             return status
+
+    def recover_interrupted(self):
+        """Operator-only, never replay work; refuse recovery while an executor holds the lock."""
+        with worker_lock(self.projects.database), self.projects._connection() as connection:
+            connection.execute('BEGIN IMMEDIATE')
+            cancelled = connection.execute("UPDATE dashboard_discovery_jobs SET status='cancelled', claim_token=NULL WHERE status='cancel_requested'").rowcount
+            failed = connection.execute("UPDATE dashboard_discovery_jobs SET status='error', claim_token=NULL WHERE status='running'").rowcount
+            return {'cancelled': cancelled, 'error': failed}

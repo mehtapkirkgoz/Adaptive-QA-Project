@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 import subprocess
 import sys
+from time import monotonic
 from tempfile import TemporaryDirectory
 
 from playwright.sync_api import sync_playwright
@@ -75,10 +76,15 @@ def _collect_sample(budget: CrawlBudget) -> dict:
             browser.close()
 
 
-def discover_local_sample(budget: CrawlBudget = CrawlBudget()) -> dict:
+def discover_local_sample(budget: CrawlBudget = CrawlBudget(), *, should_cancel=None) -> dict:
     """Run with a hard process deadline; return explicit failure limitations."""
     if not isinstance(budget, CrawlBudget):
         raise ValueError('budget must be a CrawlBudget.')
+    if should_cancel is not None and not callable(should_cancel):
+        raise ValueError('Cancellation must be a trusted callback.')
+    if should_cancel is not None and should_cancel():
+        return {**_failed_discovery('cancelled'), 'partial_results_discarded': True}
+    started = monotonic()
     failure = _failed_discovery('discovery_process_error')
     with TemporaryDirectory(prefix='adaptive-qa-discovery-') as directory:
         output = Path(directory) / 'result.json'
@@ -89,10 +95,21 @@ def discover_local_sample(budget: CrawlBudget = CrawlBudget()) -> dict:
             '--budget', json.dumps(asdict(budget)),
         ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, **options)
         try:
-            try:
-                process.wait(timeout=budget.timeout_seconds)
-            except subprocess.TimeoutExpired:
-                _terminate_process_tree(process)
+            while process.poll() is None:
+                if should_cancel is not None and should_cancel():
+                    _terminate_process_tree(process)
+                    return {**_failed_discovery('cancelled'), 'partial_results_discarded': True}
+                remaining = budget.timeout_seconds - (monotonic() - started)
+                if remaining <= 0:
+                    _terminate_process_tree(process)
+                    return {**_failed_discovery('time_limit'), 'partial_results_discarded': True}
+                try:
+                    process.wait(timeout=min(0.1, remaining))
+                except subprocess.TimeoutExpired:
+                    pass
+            if should_cancel is not None and should_cancel():
+                return {**_failed_discovery('cancelled'), 'partial_results_discarded': True}
+            if monotonic() - started >= budget.timeout_seconds:
                 return {**_failed_discovery('time_limit'), 'partial_results_discarded': True}
             if process.returncode != 0:
                 return failure

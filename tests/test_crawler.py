@@ -123,8 +123,10 @@ class CrawlerTests(unittest.TestCase):
     def test_hard_deadline_terminates_process_tree(self, popen, terminate):
         process = popen.return_value
         process.wait.side_effect = subprocess.TimeoutExpired('discovery', 1)
-        process.poll.return_value = -1
-        result = discover_local_sample(CrawlBudget(timeout_seconds=1))
+        process.poll.return_value = None
+        terminate.side_effect = lambda child: setattr(child.poll, 'return_value', -1)
+        with patch('adaptive_qa.local_discovery.monotonic', side_effect=(0, 2)):
+            result = discover_local_sample(CrawlBudget(timeout_seconds=1))
         terminate.assert_called_once_with(process)
         self.assertEqual(result['limitations'], ['time_limit'])
         self.assertTrue(result['partial_results_discarded'])

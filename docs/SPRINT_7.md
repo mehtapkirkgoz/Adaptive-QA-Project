@@ -238,3 +238,31 @@ implementation fd06142 passed CI run 39694904241.
 
 All 457 local unit tests passed for this dispatch-core increment. Current-commit
 CI remains pending after push. No browser flow changed in this increment.
+
+### Phase 7.5 discovery supervision and recovery controls
+
+The existing guarded local discovery supervisor now accepts a trusted cancellation
+callback, checks it before spawn, while waiting and before accepting results, and
+terminates the owned process tree on active cancellation or hard deadline. Partial
+results are discarded and return explicit cancellation/time limitations with a
+non-executing plan. Callback failures also clean up the child. Destination guards,
+the fixed local target and read-only browser policy remain unchanged.
+
+Dashboard discovery recovery acquires the same OS worker lock intended for the
+executor. It refuses a live worker lock, marks interrupted running work as error,
+finalizes interrupted cancellation as cancelled, clears claim tokens, and never
+replays work. Queued jobs are preserved. A future worker must hold this lock for
+its complete execution; no worker loop or job endpoint is wired yet.
+
+Four supervisor tests launch real owned replacement Python children to verify
+pre-cancellation, active cancellation, timeout and cleanup after callback failure.
+Two queue tests cover interrupted states, stale claims and active-lock rejection.
+CI runs supervisor tests on both Linux and Windows process jobs. These tests
+validate supervision, not additional website scenarios. Previous implementation
+7796f2b passed CI run 39700937077. Phase 7.5 remains incomplete until actual
+worker/report and HTTP integration is delivered.
+
+All 463 local unit tests and five guarded real-browser discovery scenarios passed.
+The existing timeout mock was updated to represent a still-running child under
+the polling supervisor; real-child timeout/cancellation tests independently verify
+termination. Current-commit Linux/Windows CI remains pending after push.

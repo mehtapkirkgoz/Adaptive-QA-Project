@@ -8,6 +8,7 @@ import unittest
 
 from adaptive_qa.dashboard_jobs import DashboardDiscoveryQueue, DiscoveryJobNotFound
 from adaptive_qa.project_store import ProjectStore, ProjectActor, ProjectNotFound
+from adaptive_qa.worker_lock import worker_lock
 
 
 class DashboardJobsTests(unittest.TestCase):
@@ -88,3 +89,26 @@ class DashboardJobsTests(unittest.TestCase):
             self.submit()
         self.queue.cancel(self.actor, self.project.project_id, jobs[0]['job_id'])
         self.assertEqual(self.submit()['status'], 'queued')
+
+    def test_recovery_marks_interrupted_work_without_replaying_or_resurrecting_claims(self):
+        running = self.submit()
+        work = self.queue.claim_next()
+        cancelled = self.submit()
+        other_work = self.queue.claim_next()
+        self.queue.cancel(self.actor, self.project.project_id, cancelled['job_id'])
+        queued = self.submit()
+        self.assertEqual(self.queue.recover_interrupted(), {'cancelled': 1, 'error': 1})
+        self.assertEqual(self.queue.get(self.actor, self.project.project_id, running['job_id'])['status'], 'error')
+        self.assertEqual(self.queue.get(self.actor, self.project.project_id, cancelled['job_id'])['status'], 'cancelled')
+        self.assertEqual(self.queue.claim_next().job_id, queued['job_id'])
+        for stale in (work, other_work):
+            with self.assertRaises(ValueError):
+                self.queue.finish(stale)
+
+    def test_recovery_refuses_active_worker_lock(self):
+        self.submit()
+        work = self.queue.claim_next()
+        with worker_lock(self.store.database):
+            with self.assertRaises(ValueError):
+                self.queue.recover_interrupted()
+        self.assertEqual(self.queue.get(self.actor, self.project.project_id, work.job_id)['status'], 'running')
