@@ -3,9 +3,31 @@
 from dataclasses import asdict
 from fastapi import Request
 from starlette.concurrency import run_in_threadpool
+from adaptive_qa.organization_discovery import OrganizationDiscoveryQueue
 
 
 def register_organization_routes(app, organizations, projects, actor, parse_object):
+    discovery = OrganizationDiscoveryQueue(projects)
+
+    @app.get('/api/organizations/{organization_id}/projects/{project_id}/discovery')
+    def list_discovery(organization_id: str, project_id: str, request: Request):
+        return {'jobs': discovery.list(actor(request), organization_id, project_id)}
+
+    @app.post('/api/organizations/{organization_id}/projects/{project_id}/discovery', status_code=202)
+    async def submit_discovery(organization_id: str, project_id: str, request: Request):
+        identity = await run_in_threadpool(actor, request, mutation=True)
+        parse_object(await request.body(), ())
+        return await run_in_threadpool(discovery.submit, identity, organization_id, project_id)
+
+    @app.get('/api/organizations/{organization_id}/projects/{project_id}/discovery/{job_id}')
+    def get_discovery(organization_id: str, project_id: str, job_id: str, request: Request):
+        return discovery.get(actor(request), organization_id, project_id, job_id)
+
+    @app.post('/api/organizations/{organization_id}/projects/{project_id}/discovery/{job_id}/cancel')
+    async def cancel_discovery(organization_id: str, project_id: str, job_id: str, request: Request):
+        identity = await run_in_threadpool(actor, request, mutation=True)
+        parse_object(await request.body(), ())
+        return await run_in_threadpool(discovery.cancel, identity, organization_id, project_id, job_id)
     @app.get('/api/organizations')
     def list_organizations(request: Request):
         return {'organizations': organizations.list(actor(request))}

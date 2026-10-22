@@ -1,5 +1,6 @@
 import {useEffect, useRef, useState} from 'react';
 import type {FormEvent} from 'react';
+import {DiscoveryPanel} from './DiscoveryPanel';
 
 type Request = <T>(path: string, method?: string, body?: unknown) => Promise<T>;
 type Organization = {organization_id: string; name: string; role: string};
@@ -24,6 +25,7 @@ function OrganizationWorkspace({request}: {request: Request}) {
   const [busy, setBusy] = useState(false), [error, setError] = useState(''), [notice, setNotice] = useState('');
   const [target, setTarget] = useState(''), [hosts, setHosts] = useState(''), [slots, setSlots] = useState<string[]>([]);
   const [maxProjects, setMaxProjects] = useState<number | null>(null);
+  const [planSummary, setPlanSummary] = useState('');
   const generation = useRef(0);
   const canConfigure = selected?.role === 'owner' || selected?.role === 'admin';
   const path = selected ? `/api/organizations/${selected.organization_id}/projects` : '';
@@ -39,7 +41,7 @@ function OrganizationWorkspace({request}: {request: Request}) {
   }, [request]);
   function choose(organization: Organization) {
     const epoch = ++generation.current;
-    setSelected(null); setProjects([]); setProject(null); setSettings(null); setMaxProjects(null);
+    setSelected(null); setProjects([]); setProject(null); setSettings(null); setMaxProjects(null); setPlanSummary('');
     void perform(async () => {
       const [list, detail] = await Promise.all([
         request<{projects: Project[]}>(`/api/organizations/${organization.organization_id}/projects`),
@@ -50,7 +52,7 @@ function OrganizationWorkspace({request}: {request: Request}) {
   }
   function chooseProject(value: Project) {
     const epoch = ++generation.current;
-    setProject(null); setSettings(null);
+    setProject(null); setSettings(null); setPlanSummary('');
     void perform(async () => {
       const data = await request<Settings>(`${path}/${value.project_id}/configuration`);
       if (epoch !== generation.current) return;
@@ -77,6 +79,7 @@ function OrganizationWorkspace({request}: {request: Request}) {
         base_url: target, allowed_hosts: hosts.split('\n').map(h => h.trim()).filter(Boolean),
         allow_data_changes: settings.allow_data_changes ?? false, secret_references}));
       setNotice('Organization configuration saved. No work was started.');
+      setPlanSummary('');
     });
   }
   return <div aria-label="Organization workspace">
@@ -94,7 +97,7 @@ function OrganizationWorkspace({request}: {request: Request}) {
         <label>Organization project name<input name="name" required maxLength={100}/></label><button>Create shared project</button>
       </fieldset></form>}
       {projects.map(value => <button key={value.project_id} disabled={busy} onClick={() => chooseProject(value)}>{value.name}</button>)}
-      {project && settings && <form onSubmit={save}><h3>{project.name}</h3><fieldset disabled={busy || !canConfigure}>
+      {project && settings && <><form onSubmit={save}><h3>{project.name}</h3><fieldset disabled={busy || !canConfigure}>
         <label>Organization target URL<input type="url" required maxLength={512} value={target} onChange={e => setTarget(e.target.value)}/></label>
         <label>Organization allowed hosts<textarea required rows={3} value={hosts} onChange={e => setHosts(e.target.value)}/></label>
         <p className="hint">One exact hostname per line. Existing data-change policy is retained; new shared projects default to read-only.</p>
@@ -105,7 +108,13 @@ function OrganizationWorkspace({request}: {request: Request}) {
         {slots.length > 0 && <details><summary>Organization environment variable names</summary>
           {slots.map(slot => <code key={slot}>{settings.available_secret_references[slot]}</code>)}</details>}
         {canConfigure && <button>Save shared configuration</button>}
-      </fieldset><p className="hint">Organization execution is not available yet. Saving does not visit the target or queue tests.</p></form>}
+      </fieldset><p className="hint">Saving does not visit the target or queue tests. Organization test execution is not available yet.</p></form>
+        <DiscoveryPanel key={project.project_id + JSON.stringify(settings)} projectId={project.project_id}
+          basePath={`${path}/${project.project_id}`} configured={settings.configured}
+          canExecute={['owner', 'admin', 'member'].includes(selected.role)} request={request}
+          onReport={report => setPlanSummary(`Inspected pages: ${report.inspected_pages}. Catalog: ${report.counts.catalog}. Selected: ${report.counts.selected}. Execution authorized: No.`)}/>
+        {planSummary && <p role="status">{planSummary}</p>}
+      </>}
     </div>}
   </div>;
 }

@@ -53,6 +53,11 @@ def main():
             from adaptive_qa.dashboard_jobs import DashboardDiscoveryQueue
             from adaptive_qa.dashboard_worker import process_discovery_once
             outcome = process_discovery_once(DashboardDiscoveryQueue(projects))
+            if outcome is None and importlib.util.find_spec('adaptive_qa.organization_discovery') is not None:
+                from adaptive_qa.organization_discovery import OrganizationDiscoveryQueue
+                from adaptive_qa.organization_projects import OrganizationProjects
+                from adaptive_qa.organization_store import OrganizationStore
+                outcome = process_discovery_once(OrganizationDiscoveryQueue(OrganizationProjects(OrganizationStore(projects))))
             if outcome is not None and outcome.get('status') == 'error':
                 raise SystemExit(2)
         else:

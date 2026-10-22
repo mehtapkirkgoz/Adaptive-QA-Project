@@ -62,6 +62,12 @@ def prepare_restore(plan, bundle_id, *, maintenance_confirmed=False):
                     for table in ('dashboard_discovery_jobs', 'dashboard_test_runs'):
                         connection.execute(f"UPDATE {table} SET status='cancelled', claim_token=NULL "
                                            "WHERE status IN ('queued', 'running', 'cancel_requested')")
+                    if 'dashboard_organization_discovery' in tables:
+                        connection.execute("UPDATE dashboard_organization_discovery SET status='cancelled', claim_token=NULL "
+                                           "WHERE status IN ('queued', 'running', 'cancel_requested')")
+                    if 'dashboard_organization_admissions' in tables:
+                        connection.execute("UPDATE dashboard_organization_admissions SET status='cancelled', claim_token=NULL "
+                                           "WHERE status IN ('pending', 'active')")
                 connection.commit()
                 if connection.execute('PRAGMA quick_check').fetchall() != [('ok',)]:
                     raise ValueError('Recovered database integrity check failed.')

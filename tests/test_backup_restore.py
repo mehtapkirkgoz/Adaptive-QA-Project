@@ -19,6 +19,37 @@ from adaptive_qa.project_store import ProjectStore
 
 
 class BackupRestoreTests(unittest.TestCase):
+    def test_organization_jobs_and_reservations_are_cancelled_only_in_recovered_copy(self):
+        from adaptive_qa.organization_store import OrganizationStore
+        from adaptive_qa.organization_projects import OrganizationProjects
+        from adaptive_qa.organization_discovery import OrganizationDiscoveryQueue
+        from adaptive_qa.organization_admission import OrganizationAdmission
+        actor = self.grant.actor
+        organizations = OrganizationStore(self.projects)
+        organization = organizations.create(actor, 'Recovery fixture')
+        scoped = OrganizationProjects(organizations)
+        project = scoped.create(actor, organization, 'Shared')['project_id']
+        scoped.save_configuration(actor, organization, project, {'base_url': 'http://127.0.0.1:8000/',
+            'allowed_hosts': ['127.0.0.1'], 'allow_data_changes': False, 'secret_references': {}})
+        queue = OrganizationDiscoveryQueue(scoped)
+        queue.submit(actor, organization, project)
+        queue.claim_next()
+        queue.submit(actor, organization, project)
+        ledger = OrganizationAdmission(organizations)
+        reservation = ledger.reserve(actor, organization)
+        ledger.claim(actor, organization, reservation)
+        ledger.reserve(actor, organization)
+        bundle = create_backup(self.plan, maintenance_confirmed=True)['bundle_id']
+        original = self.projects.database.read_bytes()
+        result = prepare_restore(self.plan, bundle, maintenance_confirmed=True)
+        recovered = self.plan.directory/'recovery'/result['recovery_id']/'projects.sqlite'
+        with closing(sqlite3.connect(recovered)) as c:
+            for table in ('dashboard_organization_discovery', 'dashboard_organization_admissions'):
+                self.assertEqual(c.execute(f'SELECT status, claim_token FROM {table}').fetchall(),
+                                 [('cancelled', None), ('cancelled', None)])
+            self.assertEqual(c.execute('SELECT count(*) FROM dashboard_organization_projects').fetchone()[0], 1)
+        self.assertEqual(self.projects.database.read_bytes(), original)
+
     def setUp(self):
         self.temp = TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)

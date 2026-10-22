@@ -82,3 +82,25 @@ class WebOrganizationTests(unittest.TestCase):
         self.assertEqual(result.status_code, 201)
         self.assertEqual(result.json()['role'], 'owner')
         self.assertNotIn(self.second, [x['organization_id'] for x in self.client.get('/api/organizations').json()['organizations']])
+
+    def test_scoped_discovery_is_queued_without_execution_and_viewer_cannot_dispatch(self):
+        project = self.client.post(self.path, headers=self.headers, json={'name': 'Shared'}).json()
+        base = self.path+'/'+project['project_id']
+        settings = {'base_url': 'http://127.0.0.1:8000/', 'allowed_hosts': ['127.0.0.1'],
+                    'allow_data_changes': False, 'secret_references': {}}
+        self.assertEqual(self.client.put(base+'/configuration', headers=self.headers, json=settings).status_code, 200)
+        response = self.client.post(base+'/discovery', headers=self.headers, json={})
+        self.assertEqual(response.status_code, 202)
+        job = response.json()
+        self.assertEqual(job['status'], 'queued')
+        self.assertNotIn('claim_token', job)
+        self.assertNotIn('report', job)
+        self.login('bob')
+        self.assertEqual(self.client.get(base+'/discovery').status_code, 404)
+        self.organizations.set_member(self.alice, self.org, self.bob.user_id, Role.VIEWER)
+        self.assertEqual(self.client.get(base+'/discovery').status_code, 200)
+        self.assertEqual(self.client.post(base+'/discovery', headers=self.headers, json={}).status_code, 404)
+        self.assertEqual(self.client.post(base+'/discovery/'+job['job_id']+'/cancel', headers=self.headers, json={}).status_code, 404)
+        self.login('alice')
+        cancelled = self.client.post(base+'/discovery/'+job['job_id']+'/cancel', headers=self.headers, json={})
+        self.assertEqual(cancelled.json()['status'], 'cancelled')

@@ -19,7 +19,8 @@ are authorized by this sprint start.
   - [x] Persist separate organization projects and enforce transactional project quotas.
   - [x] Add authenticated, CSRF-protected organization/project configuration API routes.
   - [x] Add local organization/project configuration UI with role-aware controls.
-  - [ ] Integrate queue/worker lifecycle and recovery.
+  - [x] Integrate scoped discovery queue/worker lifecycle and recovery.
+  - [ ] Integrate scoped test-run admission/results/evidence and recovery.
 - [ ] 10.3: Verify isolation and concurrency against two disposable organizations.
 - [ ] 10.4: Implement and exercise authenticated outbound agent flow on controlled local fixtures.
 - [ ] 10.5: Document onboarding/support and prioritized pilot findings.
@@ -120,3 +121,33 @@ It recorded zero queued runs, external requests or page errors. Desktop/mobile
 screenshots and a value-free report are retained; CI repeats this check. Seven
 new project/API tests passed. Full local regression: 613 tests, 612 passed and
 one Windows symlink-permission skip. Exact-commit CI is pending after push.
+
+## Scoped Discovery Worker and Recovery
+
+Organization discovery now has separate persisted jobs with organization/project
+and submitting-user binding. HTTP submission only queues controlled loopback
+discovery. The local panel can review the resulting non-executing plan; viewer
+dispatch/cancel controls are disabled and API authorization is independently
+enforced. Worker claims re-read membership and configuration before any execution;
+revocation or policy changes cancel queued/active work and discard late reports.
+Claims are opaque, single-use and absent from public responses. The existing
+worker retains the OS execution/recovery lock and supervised crawl deadlines.
+
+Global discovery admission counts personal plus shared jobs in either direction
+under the same SQLite write lock; organization discovery also has a bounded
+pending cap. Personal jobs are processed first, then organization discovery on an
+explicit discovery-once invocation. The managed launcher checks selected-package
+support before invoking this fallback, preserving older package compatibility.
+Discovery plans never authorize test execution. Organization test runs remain
+unimplemented and are not exposed through the UI/API.
+
+Offline restore cancels pending/running shared discovery and pending/active
+admission reservations, clearing claims in the recovered copy while preserving
+source/live bytes and shared projects. Operator recovery also refuses a live
+worker and never replays interrupted work. Six queue tests, one real recovery
+test and one ASGI dispatch/role test cover these boundaries. The real Chromium
+flow now queues shared discovery, invokes the actual worker against the local
+fixture and reviews its plan with execution_authorized=false. It still records
+zero test runs, external UI requests or page errors. Full local regression ran
+621 tests: 620 passed and one Windows symlink-permission fixture was skipped.
+TypeScript/Vite build passed. Same-commit CI remains pending after push.

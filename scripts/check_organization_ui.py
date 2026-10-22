@@ -1,6 +1,8 @@
 """Real local organization UI, role isolation and non-executing configuration."""
 
 import json
+from functools import partial
+from http.server import ThreadingHTTPServer
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from threading import Thread
@@ -14,6 +16,10 @@ from adaptive_qa.project_store import ProjectStore
 from adaptive_qa.organization_store import OrganizationStore
 from adaptive_qa.organization_policy import OrganizationRole as Role
 from adaptive_qa.web_app import create_app
+from adaptive_qa.organization_discovery import OrganizationDiscoveryQueue
+from adaptive_qa.organization_projects import OrganizationProjects
+from adaptive_qa.dashboard_worker import process_discovery_once
+from check_dashboard_runs import QuietHandler
 
 
 def main():
@@ -34,6 +40,9 @@ def main():
             log_level='critical', access_log=False, proxy_headers=False))
         thread = Thread(target=server.run, daemon=True)
         thread.start()
+        fixture = ThreadingHTTPServer(('127.0.0.1', 8000), partial(QuietHandler, directory='samples/web'))
+        fixture_thread = Thread(target=fixture.serve_forever, daemon=True)
+        fixture_thread.start()
         try:
             deadline = time.monotonic()+10
             while not server.started:
@@ -73,6 +82,13 @@ def main():
                     panel.get_by_role('button', name='Save shared configuration', exact=True).click()
                     expect(panel.get_by_role('status')).to_have_text('Organization configuration saved. No work was started.')
                     organization_id = organizations.list(alice)[0]['organization_id']
+                    panel.get_by_role('button', name='Queue local discovery', exact=True).click()
+                    expect(panel.get_by_text('queued', exact=True)).to_be_visible()
+                    queue = OrganizationDiscoveryQueue(OrganizationProjects(organizations))
+                    outcome = process_discovery_once(queue)
+                    assert outcome['status'] == 'completed'
+                    panel.get_by_role('button', name='Review discovery plan', exact=True).click()
+                    expect(panel.get_by_text('Execution authorized: No.', exact=False)).to_be_visible()
                     organizations.set_member(alice, organization_id, bob.user_id, Role.VIEWER)
                     page.screenshot(path=str(output/'owner.png'), full_page=True)
                     page.get_by_role('button', name='Sign out', exact=True).click()
@@ -83,6 +99,7 @@ def main():
                     expect(panel.get_by_label('Organization target URL', exact=True)).to_have_value('http://127.0.0.1:8000/')
                     expect(panel.get_by_label('Organization target URL', exact=True)).to_be_disabled()
                     expect(panel.get_by_role('button', name='Save shared configuration', exact=True)).to_have_count(0)
+                    expect(panel.get_by_role('button', name='Queue local discovery', exact=True)).to_be_disabled()
                     organizations.remove_member(alice, organization_id, bob.user_id)
                     page.reload()
                     page.get_by_role('button', name='Organizations', exact=True).click()
@@ -99,9 +116,13 @@ def main():
             server.should_exit = True
             thread.join(timeout=10)
             assert not thread.is_alive()
+            fixture.shutdown()
+            fixture.server_close()
+            fixture_thread.join(timeout=5)
     report = {'owner_create_and_save': True, 'viewer_read_only': True,
               'revocation_after_reload': True, 'other_organization_hidden': True,
-              'queued_runs': 0, 'external_requests': len(external), 'page_errors': errors,
+              'queued_runs': 0, 'scoped_discovery_completed': True, 'plan_execution_authorized': False,
+              'external_requests': len(external), 'page_errors': errors,
               'demo_modified': False}
     (output/'ui.json').write_text(json.dumps(report, indent=2)+'\n', encoding='utf-8')
     print(json.dumps(report))

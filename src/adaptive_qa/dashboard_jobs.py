@@ -75,6 +75,8 @@ class DashboardDiscoveryQueue:
                 raise ValueError('The controlled local host must be authorized.')
             active = "status IN ('queued', 'running', 'cancel_requested')"
             count = connection.execute('SELECT count(*) FROM dashboard_discovery_jobs WHERE ' + active).fetchone()[0]
+            if connection.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='dashboard_organization_discovery'").fetchone():
+                count += connection.execute('SELECT count(*) FROM dashboard_organization_discovery WHERE ' + active).fetchone()[0]
             owned = connection.execute('SELECT count(*) FROM dashboard_discovery_jobs WHERE ' + active + ' AND owner_id=?', (actor.user_id,)).fetchone()[0]
             if count >= 100 or owned >= 5:
                 raise ValueError('Discovery admission limit reached.')

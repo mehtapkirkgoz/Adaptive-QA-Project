@@ -13,10 +13,10 @@ from adaptive_qa.web_app import create_app
 def configure_parser(subparsers):
     parser = subparsers.add_parser('dashboard', help='Manage the local dashboard')
     commands = parser.add_subparsers(dest='dashboard_command', required=True)
-    for name in ('create-user', 'serve', 'discovery-once', 'recover-discovery', 'run-once', 'recover-runs', 'prune-evidence'):
+    for name in ('create-user', 'serve', 'discovery-once', 'recover-discovery', 'recover-organization-discovery', 'run-once', 'recover-runs', 'prune-evidence'):
         command = commands.add_parser(name)
         command.add_argument('--database', type=Path, default=Path('artifacts/dashboard/projects.sqlite'
-            if name in ('discovery-once', 'recover-discovery', 'run-once', 'recover-runs', 'prune-evidence') else 'artifacts/dashboard/auth.sqlite'))
+            if name in ('discovery-once', 'recover-discovery', 'recover-organization-discovery', 'run-once', 'recover-runs', 'prune-evidence') else 'artifacts/dashboard/auth.sqlite'))
         if name == 'prune-evidence':
             command.add_argument('--limit', type=int, default=100)
         if name == 'serve':
@@ -25,6 +25,14 @@ def configure_parser(subparsers):
 
 
 def run(args):
+    if args.dashboard_command == 'recover-organization-discovery':
+        from adaptive_qa.project_store import ProjectStore
+        from adaptive_qa.organization_store import OrganizationStore
+        from adaptive_qa.organization_projects import OrganizationProjects
+        from adaptive_qa.organization_discovery import OrganizationDiscoveryQueue
+        queue = OrganizationDiscoveryQueue(OrganizationProjects(OrganizationStore(ProjectStore(args.database))))
+        print(queue.recover_interrupted())
+        return
     if args.dashboard_command == 'prune-evidence':
         from adaptive_qa.dashboard_runs import DashboardRunQueue
         from adaptive_qa.project_store import ProjectStore
@@ -46,7 +54,13 @@ def run(args):
         if args.dashboard_command == 'recover-discovery':
             print(queue.recover_interrupted())
         else:
-            print(process_discovery_once(queue) or 'No queued discovery work.')
+            outcome = process_discovery_once(queue)
+            if outcome is None:
+                from adaptive_qa.organization_discovery import OrganizationDiscoveryQueue
+                from adaptive_qa.organization_projects import OrganizationProjects
+                from adaptive_qa.organization_store import OrganizationStore
+                outcome = process_discovery_once(OrganizationDiscoveryQueue(OrganizationProjects(OrganizationStore(queue.projects))))
+            print(outcome or 'No queued discovery work.')
         return
     if args.dashboard_command == 'create-user':
         # Fail closed instead of getpass falling back to echoed stdin.

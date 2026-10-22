@@ -1,5 +1,27 @@
 # Local Operations and Published Demo
 
+## Organization Discovery During Sprint 10
+
+The local Organizations panel supports shared project configuration and bounded
+discovery of the same controlled root fixture. It does not enable organization
+test runs or arbitrary customer targets. The existing discovery-once command
+processes one personal job first, or one shared job if no personal work is queued.
+Membership and settings are rechecked at claim, cancellation checks and report
+publication. A viewer can read history but cannot dispatch or cancel discovery.
+
+After stopping managed/unmanaged workers, interrupted shared discovery can be
+finalized without replay using the actual selected projects database:
+
+```powershell
+python -m adaptive_qa dashboard recover-organization-discovery --database "$qaDataRoot/local/projects.sqlite"
+```
+
+Use the selected recovery directory instead when runtime data is bound there.
+This command obtains the same worker OS lock; live execution causes refusal.
+It marks running work error and requested cancellation cancelled, clears claims
+and preserves queued/terminal jobs. Offline backup restoration instead cancels
+all pending/active shared work and admission reservations in the new copy.
+
 ## Runtime Boundaries
 
 The public GitHub Pages site is a static interface demo. Its sample projects and
