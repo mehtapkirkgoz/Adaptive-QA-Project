@@ -1,7 +1,7 @@
 # Sprint 8 — Reporting and Test Catalog Expansion
 
 Started: 2026-10-22
-Status: In progress; explicitly started by the owner.
+Status: Technical acceptance complete; ready for owner review and closure.
 Tracking: [issue #9](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/9)
 Milestone: [#9](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/9)
 
@@ -17,7 +17,7 @@ pre-start CI run 39743359671 passed on e7ac30da9bfed7990fc6c8c6fc39cf4a601e2dcf.
 - [x] 8.4: Record conservative advisory signals with context and sufficient observations.
 - [x] 8.5: Enforce owned screenshot expiry and bounded cleanup, preserving assertion history.
 - [x] 8.6: Define 100 implemented scenarios and verify them in suitable controlled fixtures.
-- [ ] 8.7: Verify integrated acceptance and exact-commit CI evidence.
+- [x] 8.7: Verify integrated acceptance and exact-commit CI evidence.
 
 ## Reporting contract
 
@@ -201,3 +201,17 @@ acceptance; exact-commit CI and evidence must still confirm the integrated build
 All 534 unit tests passed after the expansion. The follow-on plan toward 200 is
 in CATALOG_ROADMAP.md, with pilot-driven priorities and executor/negative-fixture
 admission requirements. Planned capacity is not counted as implemented coverage.
+
+## Final Technical Acceptance — 2026-10-22
+
+Implementation d72d2f564b332058b66de4941222f459f1a0a671 passed all seven jobs in
+CI run 39752481207. The scaffold log confirms 534 tests. All six downloaded
+artifact digests/head SHAs matched that commit; 202 PNGs and 200 referenced
+filesystem PNGs were validated. Same-commit reports verify 51 UI, 34 API and
+15 database cases; fixture repetitions and unit tests do not inflate that total.
+The 28-check real dashboard flow and retained mobile screenshot were reviewed.
+
+See SPRINT_8_ACCEPTANCE.md, evidence/sprint8-acceptance.json and the complete
+evidence/sprint8-catalog.json. Earlier delivery notes above describe their state
+at the time; this final acceptance record supersedes earlier pending-CI notes.
+Issue/milestone remain open for owner review. No Sprint 9 start is authorized.

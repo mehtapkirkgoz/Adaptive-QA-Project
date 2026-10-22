@@ -2,16 +2,20 @@
 
 Updated: 2026-10-22
 
-Active sprint: 8 — Reporting and Test Catalog Expansion; in progress.
+Active sprint: 8 — Reporting and Test Catalog Expansion; technical acceptance complete.
 The owner explicitly started Sprint 8 on 2026-10-22 after confirming milestone closure.
 Sprint 7 issue #8 and milestone #8 are verified closed. Its verified implementation is
 2608fc40919e8e530c07b434538f70ac4070f118, CI run 39742021256 (seven successful jobs).
 Acceptance and artifact verification are in docs/SPRINT_7_ACCEPTANCE.md.
-Continue unfinished Sprint 8 work in docs/SPRINT_8.md. Do not start Sprint 9.
+Sprint 8 is ready for owner review and closure. Implementation
+d72d2f564b332058b66de4941222f459f1a0a671 passed CI run 39752481207 (all seven jobs)
+and exact-commit artifact verification. See docs/SPRINT_8_ACCEPTANCE.md.
+Wait quietly for owner closure and an explicit next-sprint start. Do not continue
+development or start Sprint 9 automatically.
 Latest owner steering: expand meaningful test coverage for different site types,
 with applicability prerequisites and explicit unsupported/uncertain outcomes.
 The current catalog has 100 definitions (51 UI / 34 API / 15 database).
-Integrated acceptance and exact-commit CI/artifact verification remain required.
+Integrated acceptance and exact-commit CI/artifact verification are complete.
 The owner selected Ollama with a real local model after completing scripted
 validation. Technical acceptance and exact-commit CI/artifact review are complete.
 No API key, paid cloud service, or cloud model is authorized.
@@ -29,7 +33,7 @@ Sprint 0–4 technical acceptance and owner closure are complete.
 | 5 | [#6](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/6) | [#6](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/6) | Accepted; issue closed |
 | 6 | [#7](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/7) | [#7](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/7) | Accepted; issue closed |
 | 7 | [#8](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/8) | [#8](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/8) | Accepted; issue and milestone closed |
-| 8 | [#9](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/9) | [#9](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/9) | In progress; owner started 2026-10-22 |
+| 8 | [#9](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/9) | [#9](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/9) | Technical acceptance complete; ready for owner review/closure |
 | 9 | [#10](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/10) | [#10](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/10) | Planned |
 | 10 | [#11](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/11) | [#11](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/11) | Planned |
 

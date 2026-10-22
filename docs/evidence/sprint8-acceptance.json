@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "status": "ready_for_owner_review",
+  "verified_date": "2026-10-22",
+  "implementation_sha": "d72d2f564b332058b66de4941222f459f1a0a671",
+  "ci_run_id": 39752481207,
+  "ci_run_url": "https://github.com/mehtapkirkgoz/Adaptive-QA-Project/actions/runs/39752481207",
+  "jobs": [
+    {
+      "id": 119736197145,
+      "name": "Controlled API checks",
+      "conclusion": "success"
+    },
+    {
+      "id": 119736197430,
+      "name": "Process lifecycle (ubuntu-24.04)",
+      "conclusion": "success"
+    },
+    {
+      "id": 119736197467,
+      "name": "Local browser check",
+      "conclusion": "success"
+    },
+    {
+      "id": 119736197503,
+      "name": "Controlled database checks (ubuntu-24.04)",
+      "conclusion": "success"
+    },
+    {
+      "id": 119736197585,
+      "name": "Process lifecycle (windows-2025)",
+      "conclusion": "success"
+    },
+    {
+      "id": 119736197615,
+      "name": "Controlled database checks (windows-2025)",
+      "conclusion": "success"
+    },
+    {
+      "id": 119736197868,
+      "name": "scaffold",
+      "conclusion": "success"
+    }
+  ],
+  "unit_tests": 534,
+  "catalog": {
+    "ui": 51,
+    "api": 34,
+    "database": 15,
+    "total": 100
+  },
+  "artifacts": [
+    {
+      "name": "local-database-evidence-ubuntu-24.04",
+      "id": 12414725377,
+      "digest": "sha256:ffb86f8ab46fb4f4cfe0d46ec6e657c13aa16f5012ed10e9e070bc95bc284872",
+      "head_sha": "d72d2f564b332058b66de4941222f459f1a0a671"
+    },
+    {
+      "name": "process-lifecycle-ubuntu-24.04",
+      "id": 12414391845,
+      "digest": "sha256:3381061c74f1fb5e388135ca04da632f25becd1de4a701570e3f398c0011b602",
+      "head_sha": "d72d2f564b332058b66de4941222f459f1a0a671"
+    },
+    {
+      "name": "process-lifecycle-windows-2025",
+      "id": 12413823213,
+      "digest": "sha256:ea268dc5ba600970d2f3418fdfffa5acbd5c71ed5b051f8baf605c0be698e8ba",
+      "head_sha": "d72d2f564b332058b66de4941222f459f1a0a671"
+    },
+    {
+      "name": "local-api-evidence",
+      "id": 12413748760,
+      "digest": "sha256:d4ab3178f8199afc053c739d3e776c46e9ac26e4434a75f704c1a07e43abb0c1",
+      "head_sha": "d72d2f564b332058b66de4941222f459f1a0a671"
+    },
+    {
+      "name": "local-database-evidence-windows-2025",
+      "id": 12413659486,
+      "digest": "sha256:b38d45f46dca19711e9a877ebe7722dac1b3ca8a547593b8728bbfefdd8a0d89",
+      "head_sha": "d72d2f564b332058b66de4941222f459f1a0a671"
+    },
+    {
+      "name": "local-browser-evidence",
+      "id": 12415055708,
+      "digest": "sha256:479f6f1b3fa091638ed5ebdb6f799d1bedc3bee8fbd09f39cfb33dd9826d3233",
+      "head_sha": "d72d2f564b332058b66de4941222f459f1a0a671"
+    }
+  ],
+  "png_files_validated": 202,
+  "distinct_filesystem_png_references_validated": 200,
+  "dashboard_checks": 28,
+  "actual_dashboard_case_ids": [
+    "LOGIN-001",
+    "SEARCH-001"
+  ],
+  "actual_dashboard_outcomes": [
+    "passed",
+    "passed"
+  ],
+  "scope": "controlled_local_fixtures_only",
+  "owner_closure_pending": true,
+  "next_sprint_authorized": false
+}

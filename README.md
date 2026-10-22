@@ -2,7 +2,7 @@
 
 An AI-assisted QA platform under development for website discovery and applicable UI, API, and database tests.
 
-**Current sprint:** [Sprint 8](docs/SPRINT_8.md) started on 2026-10-22 after owner acceptance and closure of Sprint 7. The catalog has 100 defined scenarios (51 UI / 34 API / 15 database). Owned reports provide filters, JSON downloads, explicit reruns, historical comparisons and conservative consistency signals. Screenshots expire after seven days with bounded cleanup; assertion history remains. Integrated acceptance and exact-commit CI review are pending. The Sprint 7 delivery evidence below remains the accepted baseline.
+**Current sprint:** [Sprint 8](docs/SPRINT_8.md) is technically complete and ready for owner review. All 100 scenarios (51 UI / 34 API / 15 database), 534 unit tests and seven CI jobs are verified on implementation `d72d2f5`. Reports provide filters, JSON downloads, explicit reruns, historical comparisons and conservative consistency signals. Screenshots expire after seven days with bounded cleanup; assertion history remains. See [Sprint 8 acceptance](docs/SPRINT_8_ACCEPTANCE.md), [full test catalog](docs/evidence/sprint8-catalog.json) and [verified evidence](docs/evidence/sprint8-acceptance.json). The Sprint 7 record below remains historical delivery evidence.
 
 **Accepted baseline:** Sprint 7 is accepted; its issue and milestone are closed. The local React dashboard supports authenticated projects, scoped configuration/references, guarded discovery, explicit read-only UI runs, progress/results and owner-authorized PNG evidence. The catalog remains 40 UI, 20 API and 15 database definitions. Customer-site execution and deployment are not enabled.
 
@@ -24,7 +24,7 @@ Sprints follow goals and acceptance criteria without a fixed two-week commitment
 | 5 | Database validation | Accepted; issue closed |
 | 6 | AI integration | Accepted; issue closed |
 | 7 | Web dashboard | Accepted; issue and milestone closed |
-| 8 | Reporting and catalog expansion | In progress |
+| 8 | Reporting and catalog expansion | Technical acceptance complete; ready for owner review/closure |
 | 9 | Domain and deployment | Planned |
 | 10 | Customer management and pilot | Planned |
 
@@ -56,11 +56,12 @@ Keep port 8000 available and run these scripts sequentially. They manage local s
 
 Current local results:
 
-- **500 unit tests passed locally:** platform rules, adapters, authentication and project/settings ownership, not website scenarios.
+- **534 unit tests passed locally:** platform rules, adapters, ownership, reports, reruns, consistency and retention; separate from website scenarios.
 - Real Chromium login/logout, project management and masked configuration checks passed (`scripts/check_web_auth.py`, owned port 8765).
 - **3 real OS lifecycle checks passed on Windows:** deadline, active cancellation, and crash lock release.
 - **9 real Chromium security checks passed:** forbidden canaries received no connections.
-- **40 queued UI scenarios passed:** matching JSON results and PNG screenshots.
+- **51 queued UI scenarios passed:** matching JSON results and PNG screenshots.
+- **34 isolated API and 15 database scenarios passed** in their controlled fixtures.
 - Dependency compatibility and compilation checks passed.
 
 Remote verification passed for the implementation commit on Linux and Windows. CI installs Chromium/system dependencies, runs security and smoke checks, and uploads `local-browser-evidence` with seven-day retention.
@@ -75,7 +76,7 @@ The current full catalog has **100 scenarios: 51 UI,
 deliberate defects verify the new rules; fixture variants do not increase counts.
 See [cross-site scope and limits](docs/UI_CATALOG.md#cross-site-expansion).
 
-The table below retains the original ten cases. Thirty additional scenarios are
+The table below retains the original ten cases. Forty-one additional scenarios are
 listed in the [full catalog guide](docs/UI_CATALOG.md).
 
 | Case | Behavior |
