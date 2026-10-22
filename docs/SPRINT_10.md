@@ -14,7 +14,7 @@ are authorized by this sprint start.
 
 - [x] 10.1a: Define typed organization roles and fail-closed quota decisions.
 - [x] 10.1b: Persist organization membership with transactional privilege/revocation checks.
-- [ ] 10.1c: Implement atomic admission and usage reservations.
+- [x] 10.1c: Implement atomic run admission, active claims and daily usage reservations.
 - [ ] 10.2: Integrate organization-scoped projects, API/UI access and worker controls.
 - [ ] 10.3: Verify isolation and concurrency against two disposable organizations.
 - [ ] 10.4: Implement and exercise authenticated outbound agent flow on controlled local fixtures.
@@ -55,3 +55,27 @@ historical owner-project isolation. These internal tables are not yet connected
 to HTTP or workers. Membership user IDs must originate from authenticated server
 identity resolution; there is no public invitation endpoint or automatic grant.
 Quotas are stored but not yet reserved/enforced transactionally.
+
+## Atomic Run Admission Increment
+
+OrganizationAdmission persists a local reservation ledger without starting work.
+BEGIN IMMEDIATE encloses membership reads, quota counts and reservation/claim
+writes. Eight parallel attempts admit exactly two pending reservations in the
+fixture; two parallel claims admit exactly one active reservation. Exact opaque
+claim tokens and organization/user bindings prevent another tenant or stale claim
+from releasing capacity. Role revocation blocks new claims and converts an active
+claim's release to cancelled. Pending cancellation frees pending capacity but
+never refunds daily admitted-run usage. Daily buckets use UTC admission time;
+crossing midnight does not free outstanding pending/active capacity.
+
+Six SQLite tests passed for concurrent admission/claim, stale tokens, two-tenant
+isolation, cancellation/daily rollover, revocation and invalid clocks. The prior
+complete suite ran 600 tests (599 passed, one Windows symlink-permission skip).
+The six new admission tests passed separately; new exact-commit CI remains pending.
+
+The ledger is an internal foundation, not yet the existing job queue. Project
+quota enforcement, membership resolution through authenticated API/UI, atomic
+queue linkage, crash/recovery handling of reservations and worker integration
+remain required before organizational execution is enabled. Existing queue
+limits and target policies stay authoritative. Stored quotas are not customer
+billing, and finished reservations do not imply successful test assertions.
