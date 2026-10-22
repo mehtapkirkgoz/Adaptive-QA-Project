@@ -1,6 +1,10 @@
 """Real built React dashboard against temporary owned local accounts and storage."""
 
 import json
+import os
+import subprocess
+import sys
+from http.server import ThreadingHTTPServer
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from threading import Thread
@@ -12,6 +16,8 @@ import uvicorn
 from adaptive_qa.auth_store import AuthStore
 from adaptive_qa.project_store import ProjectStore
 from adaptive_qa.web_app import create_app
+from adaptive_qa.browser_process import _terminate_process_tree
+from check_local_discovery import Handler
 
 
 def main():
@@ -29,6 +35,7 @@ def main():
         thread = Thread(target=server.run, daemon=True)
         thread.start()
         errors, external = [], []
+        fixture, fixture_thread, worker = None, None, None
         try:
             deadline = time.monotonic() + 10
             while not server.started:
@@ -76,10 +83,38 @@ def main():
                     expect(review).to_contain_text('Catalog: 75 · Selected: 0 · Skipped: 0 · Blocked: 75')
                     expect(review).to_contain_text('Execution authorized: No.')
                     expect(review.locator('details')).to_have_count(75)
+                    discovery = page.get_by_label('Discovery jobs')
+                    discovery.get_by_role('button', name='Queue local discovery', exact=True).click()
+                    expect(discovery.get_by_text('queued', exact=True)).to_be_visible()
+                    discovery.get_by_role('button', name='Cancel discovery', exact=True).click()
+                    expect(discovery.get_by_text('cancelled', exact=True)).to_be_visible()
+                    discovery.get_by_role('button', name='Queue local discovery', exact=True).click()
+                    expect(discovery.get_by_text('queued', exact=True)).to_be_visible()
+                    fixture = ThreadingHTTPServer(('127.0.0.1', 8000), Handler)
+                    fixture_thread = Thread(target=fixture.serve_forever, daemon=True)
+                    fixture_thread.start()
+                    options = {'creationflags': subprocess.CREATE_NO_WINDOW | subprocess.CREATE_NEW_PROCESS_GROUP} if os.name == 'nt' else {'start_new_session': True}
+                    worker = subprocess.Popen([sys.executable, '-m', 'adaptive_qa', 'dashboard',
+                        'discovery-once', '--database', str(projects.database)],
+                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, **options)
+                    expect(discovery.get_by_text('completed', exact=True)).to_be_visible(timeout=45000)
+                    worker.wait(timeout=5)
+                    assert worker.returncode == 0
+                    discovery.get_by_role('button', name='Review discovery plan', exact=True).click()
+                    expect(review).to_contain_text('Discovery completed.')
+                    expect(review).not_to_contain_text('Selected: 0 ·')
+                    expect(review).to_contain_text('Execution authorized: No.')
+                    page.evaluate('window.scrollTo(0, 0)')
                     page.screenshot(path=str(output / 'workspace-desktop.png'), full_page=True)
                     page.set_viewport_size({'width': 390, 'height': 844})
                     assert page.evaluate('document.documentElement.scrollWidth <= window.innerWidth')
                     page.screenshot(path=str(output / 'workspace-mobile.png'), full_page=True)
+                    page.get_by_label('Allow tests that change data').check()
+                    page.get_by_role('button', name='Save configuration', exact=True).click()
+                    expect(page.get_by_role('status')).to_have_text('Configuration saved. No tests were started.')
+                    page.get_by_role('button', name='Review discovery plan', exact=True).click()
+                    expect(page.get_by_text('This report uses older target or policy settings.', exact=False)).to_be_visible()
+                    expect(page.get_by_label('Plan review results')).to_have_count(0)
                     page.get_by_role('button', name='Sign out', exact=True).click()
                     expect(page.get_by_role('heading', name='Sign in', exact=True)).to_be_visible()
                     page.reload()
@@ -89,6 +124,12 @@ def main():
                 finally:
                     browser.close()
         finally:
+            if worker is not None and worker.poll() is None:
+                _terminate_process_tree(worker)
+            if fixture is not None:
+                fixture.shutdown()
+                fixture.server_close()
+                fixture_thread.join(timeout=5)
             server.should_exit = True
             thread.join(timeout=10)
             if thread.is_alive():
@@ -97,6 +138,8 @@ def main():
         'invalid login', 'password cleared', 'login', 'owner-filtered list', 'create',
         'rename', 'save settings', 'reload persistence', 'masked reference',
         'conservative non-executing plan review', 'mobile width', 'logout persistence',
+        'queue and cancel discovery', 'separate real worker and polled completion',
+        'discovery-backed plan review', 'historical policy mismatch denied',
         'no script errors or external requests']}), encoding='utf-8')
     print('Built React dashboard browser checks passed.')
 

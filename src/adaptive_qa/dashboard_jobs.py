@@ -90,6 +90,16 @@ class DashboardDiscoveryQueue:
         with self.projects._connection() as connection:
             return self._public(self._owned(connection, actor, project_id, job_id))
 
+    def list(self, actor, project_id):
+        self.projects.get(actor, project_id)
+        with self.projects._connection() as connection:
+            rows = connection.execute('SELECT j.* FROM dashboard_discovery_jobs j '
+                'JOIN dashboard_projects p ON p.project_id=j.project_id AND p.owner_id=j.owner_id '
+                'WHERE j.project_id=? AND j.owner_id=? ORDER BY j.sequence DESC LIMIT 20',
+                (project_id, actor.user_id)).fetchall()
+        # History lists exclude reports; read one authorized job for its bounded report.
+        return tuple({'job_id': row['job_id'], 'project_id': row['project_id'], 'status': row['status']} for row in rows)
+
     def cancel(self, actor, project_id, job_id):
         with self.projects._connection() as connection:
             connection.execute('BEGIN IMMEDIATE')

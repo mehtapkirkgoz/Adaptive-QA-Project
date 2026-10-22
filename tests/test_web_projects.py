@@ -9,6 +9,9 @@ from starlette.testclient import TestClient
 from adaptive_qa.auth_store import AuthStore
 from adaptive_qa.project_store import ProjectStore
 from adaptive_qa.web_app import create_app, CSRF_COOKIE
+from adaptive_qa.dashboard_jobs import DashboardDiscoveryQueue
+from adaptive_qa.dashboard_worker import configuration_fingerprint
+from unittest.mock import patch
 
 
 class WebProjectTests(unittest.TestCase):
@@ -144,3 +147,56 @@ class WebProjectTests(unittest.TestCase):
         self.assertEqual(self.client.get('/api/projects/' + other.project_id + '/plan').status_code, 404)
         self.client.cookies.clear()
         self.assertEqual(self.client.get(plan_path).status_code, 401)
+
+    def discovery(self):
+        project, path, data = self.settings()
+        self.client.put(path, headers=self.headers, json=data)
+        return project, '/api/projects/' + project.project_id + '/discovery', data
+
+    def test_discovery_submission_only_queues_and_can_cancel_before_worker(self):
+        project, path, _ = self.discovery()
+        with patch('adaptive_qa.dashboard_worker.discover_local_sample', side_effect=AssertionError('HTTP must not execute')):
+            response = self.client.post(path, headers=self.headers, json={})
+        self.assertEqual(response.status_code, 202)
+        job = response.json()
+        self.assertEqual(job['status'], 'queued')
+        self.assertEqual(self.client.get(path).json()['jobs'], [job])
+        self.assertEqual(self.client.get(path + '/' + job['job_id']).json(), job)
+        self.assertEqual(self.client.post(path + '/' + job['job_id'] + '/cancel', headers=self.headers, json={}).json()['status'], 'cancelled')
+        self.assertIsNone(DashboardDiscoveryQueue(self.projects).claim_next())
+
+    def test_discovery_other_owner_wrong_project_and_missing_jobs_share_denial(self):
+        _, path, _ = self.discovery()
+        job = self.client.post(path, headers=self.headers, json={}).json()
+        other = self.projects.create(self.bob, 'Other owner')
+        wrong = '/api/projects/' + other.project_id + '/discovery'
+        self.assertEqual(self.client.get(wrong).status_code, 404)
+        for base, jid in ((wrong, job['job_id']), (path, '0' * 32)):
+            self.assertEqual(self.client.get(base + '/' + jid).status_code, 404)
+            self.assertEqual(self.client.post(base + '/' + jid + '/cancel', headers=self.headers, json={}).status_code, 404)
+
+    def test_discovery_report_marks_changed_policy_as_historical(self):
+        project, path, data = self.discovery()
+        self.client.post(path, headers=self.headers, json={})
+        queue = DashboardDiscoveryQueue(self.projects)
+        work = queue.claim_next()
+        report = {'project_id': project.project_id, 'execution_authorized': False,
+                  'configuration_fingerprint': configuration_fingerprint(work.configuration)}
+        queue.finish(work, report=report)
+        self.assertTrue(self.client.get(path + '/' + work.job_id).json()['configuration_current'])
+        self.client.put('/api/projects/' + project.project_id + '/configuration', headers=self.headers,
+                        json=dict(data, allow_data_changes=True))
+        response = self.client.get(path + '/' + work.job_id)
+        self.assertFalse(response.json()['configuration_current'])
+        self.assertNotIn('report', self.client.get(path).json()['jobs'][0])
+
+    def test_discovery_requires_session_csrf_and_exact_empty_body(self):
+        _, path, _ = self.discovery()
+        headers = {k: v for k, v in self.headers.items() if k != 'x-csrf-token'}
+        self.assertEqual(self.client.post(path, headers=headers, json={}).status_code, 401)
+        for body in ({'owner_id': self.bob.user_id}, {'target': 'http://example.test/'}, {'execute': True}):
+            self.assertEqual(self.client.post(path, headers=self.headers, json=body).status_code, 400)
+        self.assertEqual(self.client.get(path).json()['jobs'], [])
+        self.client.cookies.clear()
+        self.assertEqual(self.client.get(path).status_code, 401)
+        self.assertEqual(self.client.post(path, headers=self.headers, json={}).status_code, 401)

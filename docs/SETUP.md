@@ -135,8 +135,9 @@ a separate terminal process:
 This command uses `artifacts/dashboard/projects.sqlite` by default, unlike the
 account/server commands whose database option selects the authentication database.
 Pass `--database` to select a trusted project database. No job is submitted by
-this command; an empty queue reports no work. Job submission through HTTP/UI is
-not implemented yet. Only the controlled root fixture on `127.0.0.1:8000` is
+this command; an empty queue reports no work. Submit with the panel's Queue local
+discovery button, then run this command in a separate terminal. The panel polls
+progress, supports cancellation and reviews completed plans. Only the controlled root fixture on `127.0.0.1:8000` is
 supported, and the fixture must be running. No customer target is supported.
 
 The worker holds the project database's OS lock across claim, guarded child

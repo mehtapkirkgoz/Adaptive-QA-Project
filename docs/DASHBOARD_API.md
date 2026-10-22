@@ -92,3 +92,29 @@ all cases remain blocked: UI prerequisites lack evidence, while API/database
 cases also need explicit adapter bindings. Enabling data changes or adding secret
 references does not create such evidence or authorize execution. This is a
 conservative preview; worker-backed discovery and execution remain unfinished.
+
+## Owned Discovery Jobs
+
+All paths below are under `/api/projects/{project_id}` and require the owner's session:
+
+| Method | Path | Behavior |
+|---|---|---|
+| POST | `/discovery` | Exactly `{}`; enqueue local discovery, return 202 |
+| GET | `/discovery` | At most 20 newest jobs, excluding reports |
+| GET | `/discovery/{job_id}` | Status and reduced report if completed |
+| POST | `/discovery/{job_id}/cancel` | Exactly `{}`; cancel queued work or request active cancellation |
+
+Mutations require Origin and CSRF. Extra owner/target/execution fields are denied.
+HTTP requests never run browsers or start workers. Use the separate
+`dashboard discovery-once` operator command. Only saved root settings for
+`http://127.0.0.1:8000/` are admitted, with five active jobs per owner and 100 globally.
+Invalid configuration/admission returns masked 400; missing/other-owner/wrong-project
+jobs share 404. Lists never include worker claim tokens or report payloads.
+
+Completed reads include `configuration_current`, comparing the frozen target,
+hosts and data-change policy with current saved settings. The UI refuses to use
+a mismatched report as the current plan. Historical reports are preserved. Plans
+never authorize execution. Cancelled/error jobs do not expose a success report.
+The UI restores recent jobs, polls active states and supports cancellation/review.
+Polling stops on unmount, terminal state or error. This is read-only discovery;
+starting UI/API/database test runs remains unfinished.

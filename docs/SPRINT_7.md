@@ -10,7 +10,7 @@ Milestone: [#8](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/8
 - [x] 7.1: Persist owner-scoped projects and verify cross-owner access boundaries.
 - [x] 7.2: Add credential/session authentication and local web security controls.
 - [x] 7.3: Expose authenticated project/configuration APIs with secret references.
-- [ ] 7.4: Build the React/TypeScript dashboard for project and plan review.
+- [x] 7.4: Build the React/TypeScript dashboard for project and plan review.
 - [ ] 7.5: Bridge authorized run start/cancel/progress to separate worker execution.
 - [ ] 7.6: Display owner-scoped history/results/evidence and test cross-owner denial.
 - [ ] 7.7: Demonstrate the integrated local MVP and review exact-commit CI/evidence.
@@ -294,3 +294,30 @@ discovery-backed panel review and test-run execution remain unfinished.
 
 All 469 local unit tests and the separate real-browser worker integration passed.
 Current-commit CI remains pending after push. Sprint acceptance is not complete.
+
+### Discovery HTTP and React integration
+
+Session-bound endpoints now submit/list/read/cancel owner/project discovery jobs.
+Mutations require exact empty JSON, Origin and CSRF. Requests only persist jobs;
+execution stays in the separate worker. History returns twenty newest statuses
+without reports or claim tokens. Report reads compare the frozen target/hosts/
+policy fingerprint against current configuration and label old reports accordingly.
+
+The React panel queues read-only local discovery, polls active states, cancels work,
+restores recent history and reviews current worker plans. Polling stops at terminal
+state, unmount or error. Actual inspected-page coverage is distinguished from the
+conservative uninspected preview, with execution authorization always false.
+Old-policy reports explain the mismatch rather than populating a current plan.
+
+Four HTTP tests cover queue-only submission/cancellation, ownership/wrong-project
+denial, session/CSRF/exact-body enforcement and stale policy. One queue test verifies
+bounded newest-first report-free history. Real built React acceptance queues and
+cancels work, invokes a separate worker against an owned fixture, observes polled
+completion, reviews discoveries and refuses stale-policy reports. Desktop/mobile
+screenshots retain actual states. Phase 7.4 is locally delivered. Phase 7.5 remains
+incomplete: actual test-run dispatch/cancel/progress and owner-scoped results/evidence
+are still missing. Previous 2eb643a passed CI run 39713249940; current CI is pending.
+
+All 474 local unit tests, strict TypeScript/Vite build and real built React
+queue/worker/polling/review acceptance passed. This is discovery delivery, not
+completion of an end-to-end test run or Sprint 7 acceptance.

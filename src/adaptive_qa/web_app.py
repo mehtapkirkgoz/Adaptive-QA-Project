@@ -16,6 +16,8 @@ from starlette.staticfiles import StaticFiles
 from adaptive_qa.auth_store import AuthenticationError, AuthStore
 from adaptive_qa.project_store import ProjectStore, ProjectNotFound
 from adaptive_qa.dashboard_plan import review_project_plan, ConfigurationRequired
+from adaptive_qa.dashboard_jobs import DashboardDiscoveryQueue, DiscoveryJobNotFound
+from adaptive_qa.dashboard_worker import configuration_fingerprint
 
 
 SESSION_COOKIE = 'adaptive_session'
@@ -50,6 +52,7 @@ def create_app(store: AuthStore, *, port=8765, projects=None, ui_directory=None)
     origin = f'http://{authority}'
     app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
     projects = projects if projects is not None else ProjectStore(store.database.with_name('projects.sqlite'))
+    discovery = DashboardDiscoveryQueue(projects)
     attempts, lock = deque(), Lock()
     if ui_directory is not None:
         ui_root = Path(ui_directory).resolve(strict=True)
@@ -66,8 +69,35 @@ def create_app(store: AuthStore, *, port=8765, projects=None, ui_directory=None)
         return JSONResponse({'detail': 'Authentication failed.'}, status_code=401)
 
     @app.exception_handler(ProjectNotFound)
+    @app.exception_handler(DiscoveryJobNotFound)
     async def missing_project(request, error):
         return JSONResponse({'detail': 'Project not found.'}, status_code=404)
+
+    @app.get('/api/projects/{project_id}/discovery')
+    def list_discovery(project_id: str, request: Request):
+        return {'jobs': discovery.list(actor(request), project_id)}
+
+    @app.post('/api/projects/{project_id}/discovery', status_code=202)
+    async def submit_discovery(project_id: str, request: Request):
+        owner = await run_in_threadpool(actor, request, mutation=True)
+        _object(await request.body(), ())
+        return await run_in_threadpool(discovery.submit, owner, project_id)
+
+    @app.get('/api/projects/{project_id}/discovery/{job_id}')
+    def get_discovery(project_id: str, job_id: str, request: Request):
+        owner = actor(request)
+        job = discovery.get(owner, project_id, job_id)
+        if 'report' in job:
+            saved = projects.configuration(owner, project_id)
+            snapshot = {key: saved[key] for key in ('base_url', 'allowed_hosts', 'allow_data_changes')} if saved['configured'] else {}
+            job['configuration_current'] = configuration_fingerprint(snapshot) == job['report'].get('configuration_fingerprint')
+        return job
+
+    @app.post('/api/projects/{project_id}/discovery/{job_id}/cancel')
+    async def cancel_discovery(project_id: str, job_id: str, request: Request):
+        owner = await run_in_threadpool(actor, request, mutation=True)
+        _object(await request.body(), ())
+        return await run_in_threadpool(discovery.cancel, owner, project_id, job_id)
 
     @app.exception_handler(ConfigurationRequired)
     async def configuration_required(request, error):

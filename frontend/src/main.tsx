@@ -3,6 +3,7 @@ import type {FormEvent} from 'react';
 import {createRoot} from 'react-dom/client';
 import './style.css';
 import './plan.css';
+import {DiscoveryPanel} from './DiscoveryPanel';
 
 type Project = {project_id: string; name: string};
 type Plan = {execution_authorized: false; inspected_pages: number; discovery_status: string;
@@ -118,18 +119,19 @@ function App() {
                 {slots.length > 0 && <details><summary>Environment variable names</summary>{slots.map(slot => <code key={slot}>{settings.available_secret_references[slot]}</code>)}</details>}
                 <div className="save-bar"><p className="hint">Saving configuration does not start a test.</p><button className="primary" type="submit">{busy ? 'Saving…' : 'Save configuration'}</button></div>
               </fieldset></form>
+              <DiscoveryPanel key={selected.project_id + JSON.stringify(settings)} projectId={selected.project_id} configured={settings.configured} request={api} onReport={setPlan}/>
               <section className="plan-review"><h3>Test plan review</h3><p className="hint">Review the saved configuration. Unsaved edits are not included. Reviewing never starts tests or visits your target.</p>
                 <button disabled={busy || !settings.configured} onClick={() => void perform(async () => {
                   setPlan(null); setPlan(await api<Plan>(`/api/projects/${selected.project_id}/plan`));
                 })}>Review saved plan</button>
                 {!settings.configured && <p className="hint">Save a target configuration first.</p>}
-                {plan && <div aria-label="Plan review results"><p className="message">Discovery has not run. No pages have been inspected. Features remain unknown.</p>
+                {plan && <div aria-label="Plan review results"><p className="message">{plan.discovery_status === 'completed' ? `Discovery completed. ${plan.inspected_pages} pages inspected; uninspected routes remain outside this plan.` : 'Discovery has not run. No pages have been inspected. Features remain unknown.'}</p>
                   <p className="hint">Catalog: {plan.counts.catalog} · Selected: {plan.counts.selected} · Skipped: {plan.counts.skipped} · Blocked: {plan.counts.blocked}</p>
                   <p className="hint">Execution authorized: No. Configured references do not establish API or database bindings.</p>
                   <div className="plan-cases">{plan.cases.map(item => <details key={item.case_id}><summary>{item.case_id} · {item.name} · {item.decision}</summary><p>{item.test_type} — {item.reason}</p></details>)}</div>
                 </div>}
               </section></>}
-            </section></div><div className="roadmap"><span className="dot"/><p>Saved-plan preview is available. Discovery and run controls are coming next.</p></div></>}
+            </section></div><div className="roadmap"><span className="dot"/><p>Discovery and plan review are available. Test-run controls are coming next.</p></div></>}
       </main><footer>ADAPTIVE QA <span>Controlled scope. Clear evidence.</span></footer>
     </div></div>;
 }

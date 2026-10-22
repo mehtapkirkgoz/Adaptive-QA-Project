@@ -112,3 +112,13 @@ class DashboardJobsTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 self.queue.recover_interrupted()
         self.assertEqual(self.queue.get(self.actor, self.project.project_id, work.job_id)['status'], 'running')
+
+    def test_history_is_bounded_newest_first_without_reports(self):
+        ids = []
+        for _ in range(22):
+            job = self.submit()
+            ids.append(job['job_id'])
+            self.queue.finish(self.queue.claim_next(), failed=True)
+        history = self.queue.list(self.actor, self.project.project_id)
+        self.assertEqual([job['job_id'] for job in history], list(reversed(ids[-20:])))
+        self.assertTrue(all(set(job) == {'job_id', 'project_id', 'status'} for job in history))
