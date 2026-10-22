@@ -73,3 +73,24 @@ persisted results and PNG evidence after this addition. The built dashboard
 browser verification also passed with the updated 80-case report/plan totals.
 All 508 unit tests passed. CI for this increment must still be verified before
 technical acceptance; these local checks do not close the sprint.
+
+## Semantic coverage and feature suitability
+
+Added six distinct read-only rules: accessible button/field/link names, explicit
+label associations, viewport zoom policy and absence of automatic meta refresh.
+The catalog now has 86 cases (51 UI / 20 API / 15 database). Field/label checks
+require forms and link checks require navigation. Focused tests verify absent
+versus uncertain prerequisites, non-execution without discovery and bounded
+element inspection. The document/semantic offline suite now checks eleven IDs
+across three site types and rejects eleven deliberately broken examples.
+
+Previous CI run 39748038963 on b6d2a14 failed in check_dashboard_worker.py because
+its selected/catalog assertions still assumed 40/75 definitions. The worker
+verification now derives those bounds from the registered catalogs. Other six
+jobs passed; report delivery commit 5c58b96 passed run 39747234056. Current
+increment CI remains pending and Sprint 8 is not accepted yet.
+
+Local verification passed all 512 unit tests, all 51 queued UI cases with
+persisted JSON/PNG evidence, the eleven-case offline positive/negative suite,
+and the corrected separate discovery worker CLI. These are platform unit tests,
+website scenarios and fixture checks respectively; they are separate counts.

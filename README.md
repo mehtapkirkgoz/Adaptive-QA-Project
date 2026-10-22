@@ -68,8 +68,10 @@ Remote verification passed for the implementation commit on Linux and Windows. C
 ## Smoke Catalog
 
 Sprint 8 adds DOC-001–005, five read-only HTML document rules that do not depend
-on login or commerce. The current full catalog has **80 scenarios: 45 UI,
-20 API and 15 database**. Fifteen checks on three offline site types and five
+on login or commerce. Six further semantic rules cover computed accessible names,
+label associations, viewport zoom and automatic refresh, with feature prerequisites.
+The current full catalog has **86 scenarios: 51 UI,
+20 API and 15 database**. Thirty-three checks on three offline site types and eleven
 deliberate defects verify the new rules; fixture variants do not increase counts.
 See [cross-site scope and limits](docs/UI_CATALOG.md#cross-site-expansion).
 

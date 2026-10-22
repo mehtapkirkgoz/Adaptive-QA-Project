@@ -14,7 +14,7 @@ class ApiCatalogTests(unittest.TestCase):
         self.assertEqual(len(set(ids)), 20)
         self.assertEqual(set(ids), set(API_BY_ID))
         self.assertFalse(set(ids) & {case.case_id for case in TEST_CASES})
-        self.assertEqual(len(TEST_CASES) + len(API_CASES), 65)
+        self.assertEqual(len(TEST_CASES) + len(API_CASES), 71)
 
     def test_non_read_cases_declare_data_changes(self):
         for case in API_CASES:

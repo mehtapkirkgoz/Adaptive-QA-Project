@@ -13,6 +13,9 @@ from check_local_discovery import Handler
 from adaptive_qa.dashboard_jobs import DashboardDiscoveryQueue
 from adaptive_qa.project_store import ProjectStore, ProjectActor
 from adaptive_qa.browser_process import _terminate_process_tree
+from adaptive_qa.catalog import TEST_CASES
+from adaptive_qa.api_catalog import API_CASES
+from adaptive_qa.database_catalog import DATABASE_CASES
 
 
 def main():
@@ -45,8 +48,8 @@ def main():
             report = result['report']
             assert not report['execution_authorized']
             assert report['inspected_pages'] > 0
-            assert 0 < report['counts']['selected'] <= 40
-            assert report['counts']['catalog'] == 75
+            assert 0 < report['counts']['selected'] <= len(TEST_CASES)
+            assert report['counts']['catalog'] == len(TEST_CASES) + len(API_CASES) + len(DATABASE_CASES)
             assert all(c['decision'] == 'blocked' for c in report['cases'] if c['test_type'] != 'ui')
             output = Path('artifacts/dashboard/worker.json')
             output.parent.mkdir(parents=True, exist_ok=True)

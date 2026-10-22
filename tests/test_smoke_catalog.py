@@ -15,7 +15,7 @@ from adaptive_qa.smoke_checks import SMOKE_CHECKS
 class SmokeCatalogTests(unittest.TestCase):
     def test_catalog_and_executors_have_matching_unique_identifiers(self) -> None:
         identifiers = [case.case_id for case in TEST_CASES]
-        self.assertEqual(len(identifiers), 45)
+        self.assertEqual(len(identifiers), 51)
         self.assertEqual(len(identifiers), len(set(identifiers)))
         self.assertEqual(set(identifiers), set(SMOKE_CHECKS))
 

@@ -1,8 +1,8 @@
 # Controlled UI Catalog
 
-The catalog contains 45 distinct definitions and registered sample executors:
-ten login cases, eight search cases, sixteen native-form cases, and six navigation
-cases, plus five cross-site HTML document rules. Language and project-mapping variants exercise the same IDs and do not
+The catalog contains 51 distinct definitions and registered sample executors:
+ten login cases, eight search cases, seventeen form cases, seven navigation
+cases, seven document rules and two accessible-name rules. Language and project-mapping variants exercise the same IDs and do not
 increase the scenario count. Definitions live in `catalog.py`/`extra_ui_checks.py`.
 
 | IDs | Behaviors |
@@ -16,6 +16,9 @@ increase the scenario count. Definitions live in `catalog.py`/`extra_ui_checks.p
 | FORM-014–016 | Restoring defaults, blocked invalid submission, valid submission status |
 | NAV-001–006 | Section links, keyboard activation, named targets, retained input, browser history |
 | DOC-001–005 | Non-empty title, declared language, unique IDs, valid ARIA references, resolvable local fragments |
+| DOC-006–007 | Viewport zoom remains available; no automatic meta refresh |
+| A11Y-001–002 | Visible buttons and form controls have programmatically computed names |
+| FORM-017 / NAV-007 | Explicit label associations and accessible link names |
 
 Every added definition has concrete prerequisites, steps, and an explicit expected
 outcome. Every executor makes browser assertions; unsupported or ambiguous bindings
@@ -53,9 +56,28 @@ and account HTML (15 checks), then verifies five deliberately broken pages fail.
 These are five unique scenarios, not twenty new cases. Checks are offline and
 do not contact customer sites, authentication backends or external URLs.
 
-The full catalog now has 80 definitions: 45 UI, 20 API and 15 database cases.
+The full catalog now has 86 definitions: 51 UI, 20 API and 15 database cases.
 Expansion toward 100 should add distinct registration, product/cart, pagination
 and account scenarios with feature prerequisites, explicit bindings, concrete
 outcomes and positive/negative controlled fixtures. Checkout, payment and account
 creation require authorized data-changing configuration and cleanup. A larger
 catalog does not establish arbitrary-site execution or universal compatibility.
+
+Six further semantic scenarios are in `semantic_checks.py`. Field-name and
+label-association rules require forms; link names require navigation. Confirmed
+absence skips them and uncertain discovery blocks them. Button names, zoom and
+meta-refresh rules apply to inspected HTML without assuming those features.
+Only visible elements exposed in the accessibility tree are inspected for names.
+Playwright checks computed accessible names, including labels and ARIA references,
+rather than English text or fixed selectors. Labels use the browser's own
+`label.control` association, including supported custom form-associated elements.
+Name inspection is bounded at 500 elements per role and uses existing worker
+deadlines. Exceeding this budget is an execution error, never an automatic pass.
+
+These fixed baseline rules prohibit meta refresh and explicit viewport zoom
+restrictions (`user-scalable=no/0`, numeric `maximum-scale` below 2). They do not
+measure actual zoom behavior, implement full accessibility conformance or infer
+whether a timed business workflow is intended. Missing viewport directives and
+absent optional attributes are not invented defects. Three contrasting offline
+fixtures now exercise all eleven document/semantic cases (33 positive checks),
+and eleven actual defects are rejected. Fixture repetitions do not add cases.
