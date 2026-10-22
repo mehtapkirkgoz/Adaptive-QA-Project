@@ -2,7 +2,7 @@
 
 An AI-assisted QA platform under development for website discovery and applicable UI, API, and database tests.
 
-**Current sprint:** [Sprint 8](docs/SPRINT_8.md) started on 2026-10-22 after owner acceptance and closure of Sprint 7. Owned reports provide status filters, JSON downloads, explicit subset reruns, historical comparisons, conservative consistency signals and separate catalog/requested/recorded counts. Owned screenshots expire after seven days with bounded cleanup; assertion history remains. Expansion from 86 to at least 100 meaningful scenarios and integrated acceptance remain pending. The Sprint 7 delivery evidence below remains the accepted baseline.
+**Current sprint:** [Sprint 8](docs/SPRINT_8.md) started on 2026-10-22 after owner acceptance and closure of Sprint 7. The catalog has 100 defined scenarios (51 UI / 34 API / 15 database). Owned reports provide filters, JSON downloads, explicit reruns, historical comparisons and conservative consistency signals. Screenshots expire after seven days with bounded cleanup; assertion history remains. Integrated acceptance and exact-commit CI review are pending. The Sprint 7 delivery evidence below remains the accepted baseline.
 
 **Accepted baseline:** Sprint 7 is accepted; its issue and milestone are closed. The local React dashboard supports authenticated projects, scoped configuration/references, guarded discovery, explicit read-only UI runs, progress/results and owner-authorized PNG evidence. The catalog remains 40 UI, 20 API and 15 database definitions. Customer-site execution and deployment are not enabled.
 
@@ -70,8 +70,8 @@ Remote verification passed for the implementation commit on Linux and Windows. C
 Sprint 8 adds DOC-001–005, five read-only HTML document rules that do not depend
 on login or commerce. Six further semantic rules cover computed accessible names,
 label associations, viewport zoom and automatic refresh, with feature prerequisites.
-The current full catalog has **86 scenarios: 51 UI,
-20 API and 15 database**. Thirty-three checks on three offline site types and eleven
+The current full catalog has **100 scenarios: 51 UI,
+34 API and 15 database**. Thirty-three checks on three offline site types and eleven
 deliberate defects verify the new rules; fixture variants do not increase counts.
 See [cross-site scope and limits](docs/UI_CATALOG.md#cross-site-expansion).
 

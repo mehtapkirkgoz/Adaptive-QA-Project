@@ -56,12 +56,16 @@ and account HTML (15 checks), then verifies five deliberately broken pages fail.
 These are five unique scenarios, not twenty new cases. Checks are offline and
 do not contact customer sites, authentication backends or external URLs.
 
-The full catalog now has 86 definitions: 51 UI, 20 API and 15 database cases.
-Expansion toward 100 should add distinct registration, product/cart, pagination
+The full catalog now has 100 definitions: 51 UI, 34 API and 15 database cases.
+Further expansion should add distinct registration, product/cart UI, pagination
 and account scenarios with feature prerequisites, explicit bindings, concrete
 outcomes and positive/negative controlled fixtures. Checkout, payment and account
 creation require authorized data-changing configuration and cleanup. A larger
 catalog does not establish arbitrary-site execution or universal compatibility.
+
+The Sprint 8 API expansion covers listing, account and commerce contracts with
+explicit endpoint/expected-response configuration. See API_CATALOG.md. It does
+not enable UI checkout, registration or customer-site execution automatically.
 
 Six further semantic scenarios are in `semantic_checks.py`. Field-name and
 label-association rules require forms; link names require navigation. Confirmed

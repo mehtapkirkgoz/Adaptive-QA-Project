@@ -16,7 +16,7 @@ pre-start CI run 39743359671 passed on e7ac30da9bfed7990fc6c8c6fc39cf4a601e2dcf.
 - [x] 8.3: Add explicit rerun admission and qualified historical results in the API/dashboard.
 - [x] 8.4: Record conservative advisory signals with context and sufficient observations.
 - [x] 8.5: Enforce owned screenshot expiry and bounded cleanup, preserving assertion history.
-- [ ] 8.6: Expand to at least 100 meaningful, implemented and fixture-verified cases.
+- [x] 8.6: Define 100 implemented scenarios and verify them in suitable controlled fixtures.
 - [ ] 8.7: Verify integrated acceptance and exact-commit CI evidence.
 
 ## Reporting contract
@@ -181,3 +181,23 @@ the owner's instruction to notify after each commit and continue without waiting
 
 All 532 unit tests, the strict frontend build and the real dashboard browser
 workflow passed after this increment. Same-commit CI is still required.
+
+## One hundred meaningful scenarios
+
+Added API-021–034: pagination/cursor and invalid pagination; numeric sorting;
+taxonomy identifiers and category filtering; available/unavailable stock;
+empty-cart checkout restriction, line/subtotal arithmetic and discount totals;
+regional shipping/unsupported regions; field-specific validation; and a protected
+profile preserving null/false fields. These are fourteen distinct explicit
+contracts, not language/label/fixture variants. They require configured API
+endpoints and expected values and cannot be inferred from UI feature detection.
+
+All 34 isolated API cases passed against the controlled stateless API. Combined
+with 51 verified UI scenarios and 15 verified database cases, the catalog has
+100 definitions. The dashboard remains UI-only and discovery plans still block
+unconfigured API/database cases. This milestone in scenario count is not sprint
+acceptance; exact-commit CI and evidence must still confirm the integrated build.
+
+All 534 unit tests passed after the expansion. The follow-on plan toward 200 is
+in CATALOG_ROADMAP.md, with pilot-driven priorities and executor/negative-fixture
+admission requirements. Planned capacity is not counted as implemented coverage.

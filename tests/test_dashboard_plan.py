@@ -35,9 +35,9 @@ class DashboardPlanTests(unittest.TestCase):
             result = review_project_plan(self.store, self.actor, self.project.project_id)
         self.assertFalse(result['execution_authorized'])
         self.assertEqual(result['inspected_pages'], 0)
-        self.assertEqual(result['counts'], {'catalog': 86, 'selected': 0, 'skipped': 0, 'blocked': 86})
+        self.assertEqual(result['counts'], {'catalog': 100, 'selected': 0, 'skipped': 0, 'blocked': 100})
         self.assertTrue(all(f['status'] == 'unknown' for f in result['features']))
-        self.assertEqual(len({c['case_id'] for c in result['cases']}), 86)
+        self.assertEqual(len({c['case_id'] for c in result['cases']}), 100)
 
     def test_enabling_data_changes_does_not_authorize_or_select_cases(self):
         self.save(changes=True)
@@ -45,5 +45,5 @@ class DashboardPlanTests(unittest.TestCase):
         self.assertFalse(result['execution_authorized'])
         self.assertEqual(result['counts']['selected'], 0)
         api_cases = [c for c in result['cases'] if c['test_type'] == 'api']
-        self.assertEqual(len(api_cases), 20)
+        self.assertEqual(len(api_cases), 34)
         self.assertTrue(all('adapter' in c['reason'] for c in api_cases))

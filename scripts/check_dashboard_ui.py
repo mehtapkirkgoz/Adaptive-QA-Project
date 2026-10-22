@@ -81,9 +81,9 @@ def main():
                     expect(page.get_by_text('[REDACTED]', exact=True)).to_be_visible()
                     page.get_by_role('button', name='Review saved plan', exact=True).click()
                     review = page.get_by_label('Plan review results')
-                    expect(review).to_contain_text('Catalog: 86 · Selected: 0 · Skipped: 0 · Blocked: 86')
+                    expect(review).to_contain_text('Catalog: 100 · Selected: 0 · Skipped: 0 · Blocked: 100')
                     expect(review).to_contain_text('Execution authorized: No.')
-                    expect(review.locator('details')).to_have_count(86)
+                    expect(review.locator('details')).to_have_count(100)
                     discovery = page.get_by_label('Discovery jobs')
                     discovery.get_by_role('button', name='Queue local discovery', exact=True).click()
                     expect(discovery.get_by_text('queued', exact=True)).to_be_visible()
@@ -130,7 +130,7 @@ def main():
                     completed.get_by_role('button', name='Review report', exact=True).click()
                     report = completed.get_by_label('Run report', exact=True)
                     expect(report).to_contain_text('Requested: 2. Recorded: 2. Unrecorded: 0.')
-                    expect(report).to_contain_text('Catalog: 86.')
+                    expect(report).to_contain_text('Catalog: 100.')
                     report.get_by_label('Result status').select_option('failed')
                     expect(report).to_contain_text('No recorded outcomes match this filter.')
                     expect(report).to_contain_text('passed: 2')
@@ -142,7 +142,7 @@ def main():
                     assert download.suggested_filename == 'test-run-report.json'
                     exported = json.loads(Path(download.path()).read_text(encoding='utf-8'))
                     assert exported['recorded_total'] == 2 and exported['status_counts']['passed'] == 2
-                    assert exported['catalog_total'] == 86
+                    assert exported['catalog_total'] == 100
                     assert len(exported['results']) == 2
                     expect(completed.get_by_role('button', name='Rerun checked tests', exact=True)).to_be_disabled()
                     runs.get_by_label('Select LOGIN-001', exact=True).check()

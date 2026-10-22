@@ -1,4 +1,4 @@
-"""Run 20 controlled API cases and persist safe outcome-only artifacts."""
+"""Run registered controlled API cases and persist safe outcome-only artifacts."""
 
 from dataclasses import asdict
 import json

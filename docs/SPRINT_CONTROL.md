@@ -10,7 +10,8 @@ Acceptance and artifact verification are in docs/SPRINT_7_ACCEPTANCE.md.
 Continue unfinished Sprint 8 work in docs/SPRINT_8.md. Do not start Sprint 9.
 Latest owner steering: expand meaningful test coverage for different site types,
 with applicability prerequisites and explicit unsupported/uncertain outcomes.
-The current catalog has 86 definitions; the Sprint 8 goal of 100 remains open.
+The current catalog has 100 definitions (51 UI / 34 API / 15 database).
+Integrated acceptance and exact-commit CI/artifact verification remain required.
 The owner selected Ollama with a real local model after completing scripted
 validation. Technical acceptance and exact-commit CI/artifact review are complete.
 No API key, paid cloud service, or cloud model is authorized.

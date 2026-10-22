@@ -6,6 +6,7 @@ import time
 from urllib.parse import parse_qs, urlsplit
 
 from adaptive_qa.api_models import parse_api_json
+from adaptive_qa.sample_api_extensions import extended_get
 
 
 ITEMS = ({'id': 1, 'name': 'Notebook', 'price': 10}, {'id': 2, 'name': 'Pencil', 'price': 2})
@@ -38,6 +39,10 @@ class SampleApiHandler(BaseHTTPRequestHandler):
         self._record()
         parsed = urlsplit(self.path)
         path = parsed.path
+        extension = extended_get(path, parse_qs(parsed.query), ITEMS)
+        if extension is not None:
+            self._respond(*extension)
+            return
         if path == '/api/health':
             self._respond(200, {'ready': True})
         elif path == '/api/items':
@@ -55,7 +60,7 @@ class SampleApiHandler(BaseHTTPRequestHandler):
             else:
                 matches = [item for item in ITEMS if query.casefold() in item['name'].casefold()]
                 self._respond(200, {'items': matches, 'count': len(matches)})
-        elif path in ('/api/private', '/api/admin'):
+        elif path in ('/api/private', '/api/admin', '/api/profile'):
             authorization = self.headers.get('Authorization')
             if authorization is None:
                 self._respond(401, {'error': 'authentication_required'})
@@ -63,6 +68,8 @@ class SampleApiHandler(BaseHTTPRequestHandler):
                 self._respond(403, {'error': 'invalid_token'})
             elif path == '/api/admin':
                 self._respond(403, {'error': 'insufficient_scope'})
+            elif path == '/api/profile':
+                self._respond(200, {'id': 7, 'avatar': None, 'newsletter': False})
             else:
                 self._respond(200, {'authenticated': True})
         elif path == '/api/echo':
