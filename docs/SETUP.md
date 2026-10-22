@@ -122,3 +122,43 @@ Verify the built interface with no persistent account or server:
 
 Keep port 8765 available. The check saves a report and desktop/mobile fixture
 screenshots under `artifacts/dashboard/` and cleans up its temporary storage.
+
+## Trusted Discovery Worker
+
+The dashboard dispatch core can now process one queued local discovery job from
+a separate terminal process:
+
+```powershell
+.\.venv\Scripts\python.exe -m adaptive_qa dashboard discovery-once
+```
+
+This command uses `artifacts/dashboard/projects.sqlite` by default, unlike the
+account/server commands whose database option selects the authentication database.
+Pass `--database` to select a trusted project database. No job is submitted by
+this command; an empty queue reports no work. Job submission through HTTP/UI is
+not implemented yet. Only the controlled root fixture on `127.0.0.1:8000` is
+supported, and the fixture must be running. No customer target is supported.
+
+The worker holds the project database's OS lock across claim, guarded child
+discovery and result commit. Discovery has a 30-second process deadline and polls
+persisted cancellation requests. Its reduced, non-executing plan report is stored
+atomically with completion. Selected definitions do not authorize test execution.
+
+After a worker crash, explicit operator recovery never replays interrupted work:
+
+```powershell
+.\.venv\Scripts\python.exe -m adaptive_qa dashboard recover-discovery
+```
+
+Recovery refuses an active worker lock. Interrupted running jobs become errors,
+pending cancellations become cancelled, and unclaimed queued jobs remain queued.
+
+Verify the separate worker against an owned temporary fixture and database:
+
+```powershell
+.\.venv\Scripts\python.exe scripts/check_dashboard_worker.py
+```
+
+Keep port 8000 available. The check starts/stops its fixture and worker, persists
+the reduced report under `artifacts/dashboard/worker.json`, and removes temporary
+storage. It does not run the selected UI cases or contact external sites.

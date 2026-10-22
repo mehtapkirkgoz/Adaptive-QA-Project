@@ -266,3 +266,31 @@ All 463 local unit tests and five guarded real-browser discovery scenarios passe
 The existing timeout mock was updated to represent a still-running child under
 the polling supervisor; real-child timeout/cancellation tests independently verify
 termination. Current-commit Linux/Windows CI remains pending after push.
+
+### Phase 7.5 separate discovery worker and reduced reports
+
+The trusted `dashboard discovery-once` command now holds the OS worker/recovery
+lock across claim, existing guarded child discovery and atomic completion. It
+rechecks the fixed root fixture before dispatch, polls persisted cancellation,
+and uses a 30-second process deadline. `recover-discovery` exposes explicit locked
+recovery. No automatic replay or startup recovery occurs.
+
+The parent rebuilds typed snapshots and the existing 75-definition plan using
+the frozen job policy; it ignores the child's own plan. Out-of-target pages and
+invalid/oversized evidence fail closed. Only bounded reduced reports are stored:
+catalog decisions/reasons, feature statuses, inspected-page count, generic coverage
+limitations and a configuration fingerprint. Raw snapshots, page labels/URLs,
+secret references and values are omitted. Execution authorization stays false.
+Cancellation wins the completion transaction and discards even a successful report.
+Reports are accessible only through the existing owner/project-constrained read.
+
+Six worker tests cover policy re-evaluation, raw-value omission, active cancellation,
+child errors, foreign pages, execution/recovery lock exclusion and empty queues.
+A separate worker CLI process completed real Chromium discovery against an owned
+temporary fixture and persisted a non-executing report; API/database definitions
+remained blocked. CI now repeats that integration and retains its reduced report.
+Previous commit 29c056b passed CI run 39707379230. Job HTTP endpoints, progress UI,
+discovery-backed panel review and test-run execution remain unfinished.
+
+All 469 local unit tests and the separate real-browser worker integration passed.
+Current-commit CI remains pending after push. Sprint acceptance is not complete.

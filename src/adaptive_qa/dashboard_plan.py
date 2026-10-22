@@ -22,10 +22,15 @@ def review_project_plan(projects, actor, project_id):
     definitions = TEST_CASES + tuple(case.definition for case in API_CASES) + tuple(case.definition for case in DATABASE_CASES)
     # Never invent discovery evidence or treat configured credentials as an adapter binding.
     plan = build_test_plan(CrawlResult((), 0, ('Discovery has not been run for this project.',)), definitions, config)
+    return serialize_plan(plan, definitions, project_id)
+
+
+def serialize_plan(plan, definitions, project_id, *, discovery_status='not_run',
+                   inspected_pages=0, configuration_source='saved_settings'):
     by_id = {case.case_id: case for case in definitions}
     return {'project_id': project_id, 'execution_authorized': plan.execution_authorized,
-            'discovery_status': 'not_run', 'scope': plan.scope, 'inspected_pages': 0,
-            'configuration_source': 'saved_settings',
+            'discovery_status': discovery_status, 'scope': plan.scope, 'inspected_pages': inspected_pages,
+            'configuration_source': configuration_source,
             'limitations': list(plan.assessment.limitations),
             'counts': {'catalog': len(definitions), **{decision: sum(item.decision == decision for item in plan.cases)
                        for decision in ('selected', 'skipped', 'blocked')}},

@@ -33,10 +33,16 @@ class DashboardDiscoveryQueue:
                 'configuration_json TEXT NOT NULL, claim_token TEXT)')
             connection.execute('CREATE INDEX IF NOT EXISTS dashboard_discovery_owner '
                 'ON dashboard_discovery_jobs(owner_id, sequence)')
+            columns = {row['name'] for row in connection.execute('PRAGMA table_info(dashboard_discovery_jobs)')}
+            if 'report_json' not in columns:
+                connection.execute('ALTER TABLE dashboard_discovery_jobs ADD COLUMN report_json TEXT')
 
     @staticmethod
     def _public(row):
-        return {'job_id': row['job_id'], 'project_id': row['project_id'], 'status': row['status']}
+        result = {'job_id': row['job_id'], 'project_id': row['project_id'], 'status': row['status']}
+        if row['status'] == 'completed' and row['report_json'] is not None:
+            result['report'] = json.loads(row['report_json'])
+        return result
 
     def _owned(self, connection, actor, project_id, job_id):
         self.projects._actor(actor)
@@ -110,9 +116,17 @@ class DashboardDiscoveryQueue:
             raise ValueError('Invalid worker claim.')
         return row['status'] == 'cancel_requested'
 
-    def finish(self, work, *, failed=False):
+    def finish(self, work, *, failed=False, report=None):
         if type(failed) is not bool:
             raise ValueError('Failure flag must be boolean.')
+        encoded = None
+        if report is not None:
+            if (not isinstance(report, dict) or report.get('execution_authorized') is not False
+                    or report.get('project_id') != work.project_id):
+                raise ValueError('A non-executing project report is required.')
+            encoded = json.dumps(report, allow_nan=False)
+            if len(encoded.encode('utf-8')) > 128000:
+                raise ValueError('Discovery report is too large.')
         with self.projects._connection() as connection:
             connection.execute('BEGIN IMMEDIATE')
             row = connection.execute('SELECT status, claim_token FROM dashboard_discovery_jobs WHERE job_id=?', (work.job_id,)).fetchone()
@@ -120,7 +134,8 @@ class DashboardDiscoveryQueue:
                     or not secrets.compare_digest(row['claim_token'] or '', work.claim_token)):
                 raise ValueError('Invalid or finalized worker claim.')
             status = 'cancelled' if row['status'] == 'cancel_requested' else ('error' if failed else 'completed')
-            connection.execute('UPDATE dashboard_discovery_jobs SET status=?, claim_token=NULL WHERE job_id=?', (status, work.job_id))
+            connection.execute('UPDATE dashboard_discovery_jobs SET status=?, claim_token=NULL, report_json=? WHERE job_id=?',
+                               (status, encoded if status == 'completed' else None, work.job_id))
             return status
 
     def recover_interrupted(self):

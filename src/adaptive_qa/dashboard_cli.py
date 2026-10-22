@@ -13,15 +13,26 @@ from adaptive_qa.web_app import create_app
 def configure_parser(subparsers):
     parser = subparsers.add_parser('dashboard', help='Manage the local dashboard')
     commands = parser.add_subparsers(dest='dashboard_command', required=True)
-    for name in ('create-user', 'serve'):
+    for name in ('create-user', 'serve', 'discovery-once', 'recover-discovery'):
         command = commands.add_parser(name)
-        command.add_argument('--database', type=Path, default=Path('artifacts/dashboard/auth.sqlite'))
+        command.add_argument('--database', type=Path, default=Path('artifacts/dashboard/projects.sqlite'
+            if name in ('discovery-once', 'recover-discovery') else 'artifacts/dashboard/auth.sqlite'))
         if name == 'serve':
             command.add_argument('--port', type=int, default=8765)
             command.add_argument('--ui-directory', type=Path, default=Path('frontend/dist'))
 
 
 def run(args):
+    if args.dashboard_command in ('discovery-once', 'recover-discovery'):
+        from adaptive_qa.dashboard_jobs import DashboardDiscoveryQueue
+        from adaptive_qa.project_store import ProjectStore
+        from adaptive_qa.dashboard_worker import process_discovery_once
+        queue = DashboardDiscoveryQueue(ProjectStore(args.database))
+        if args.dashboard_command == 'recover-discovery':
+            print(queue.recover_interrupted())
+        else:
+            print(process_discovery_once(queue) or 'No queued discovery work.')
+        return
     if args.dashboard_command == 'create-user':
         # Fail closed instead of getpass falling back to echoed stdin.
         if not sys.stdin.isatty() or not sys.stdout.isatty():

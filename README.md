@@ -54,7 +54,7 @@ Keep port 8000 available and run these scripts sequentially. They manage local s
 
 Current local results:
 
-- **451 unit tests passed locally:** platform rules, adapters, authentication and project/settings ownership, not website scenarios.
+- **469 unit tests passed locally:** platform rules, adapters, authentication and project/settings ownership, not website scenarios.
 - Real Chromium login/logout, project management and masked configuration checks passed (`scripts/check_web_auth.py`, owned port 8765).
 - **3 real OS lifecycle checks passed on Windows:** deadline, active cancellation, and crash lock release.
 - **9 real Chromium security checks passed:** forbidden canaries received no connections.
