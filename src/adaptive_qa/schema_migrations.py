@@ -25,6 +25,24 @@ ADDITIONS = {
 }
 
 
+def validate_runtime_schema(connection, database_name):
+    """Read-only gate before store initialization or operations; never migrates."""
+    if database_name not in ('auth.sqlite', 'projects.sqlite'):
+        raise ValueError('A known dashboard database kind is required.')
+    revision = connection.execute('PRAGMA user_version').fetchone()[0]
+    if revision not in (0, SCHEMA_REVISION):
+        raise ValueError('Database schema revision is unsupported; runtime access refused.')
+    if revision == 0:
+        return  # Retain the existing unversioned local initialization contract.
+    required = AUTH_COLUMNS if database_name == 'auth.sqlite' else PROJECT_COLUMNS
+    for table, columns in required.items():
+        definition = connection.execute('SELECT type FROM sqlite_master WHERE name=?', (table,)).fetchone()
+        actual = {row[1] for row in connection.execute(f'PRAGMA table_info({table})')}
+        expected = columns | {name for name, _ in ADDITIONS.get(table, ())}
+        if definition is None or definition[0] != 'table' or not expected <= actual:
+            raise ValueError('Versioned database schema is incomplete; runtime access refused.')
+
+
 def migrate_recovery_connection(connection, database_name):
     """Caller owns a disposable offline copy and a bounded SQLite progress handler."""
     if database_name not in ('auth.sqlite', 'projects.sqlite'):

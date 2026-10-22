@@ -3,7 +3,7 @@
   "workflow_run_id": 39785109938,
   "job": "Inactive release packaging",
   "job_conclusion": "success",
-  "overall_run_conclusion_at_review": "pending",
+  "overall_run_conclusion_at_review": "success",
   "artifact_id": 12428842277,
   "artifact_name": "inactive-release-0536b634a2a615e3947e2862dc910ecd31674272",
   "artifact_sha256": "5e1aa06975cbdde6d258efe86f50b2c42342a2439758bb2b96755e970c0f72cd",

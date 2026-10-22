@@ -122,9 +122,14 @@ rejected without a guessed downgrade. A revision-1 database missing a required
 column is rejected rather than silently repaired. Recovery metadata records each
 database's old/new revisions and added column names. No destructive migration,
 in-place upgrade, general SQL migration input or down-migration is supported.
-Revision checks currently protect recovery preparation; runtime stores have not
-yet adopted a version-gated startup contract. Do not activate a prepared copy or
-run an older release against it without a reviewed compatibility check.
+Authentication/project stores also check the revision on every connection before
+initialization or application operations. Unknown revisions are rejected before
+DDL or writes. Revision 1 requires all declared core/additive columns; incomplete
+versioned schemas are rejected instead of being repaired at startup. Revision 0
+retains legacy local initialization and is not silently stamped as migrated.
+This gate does not validate every SQL type/constraint or prove compatibility with
+an arbitrary older release. Do not activate a prepared copy or run an older
+release against it without a reviewed compatibility check.
 
 ## Inactive Release Packaging
 

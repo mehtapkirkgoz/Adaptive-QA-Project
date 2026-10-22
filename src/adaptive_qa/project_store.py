@@ -9,6 +9,7 @@ import sqlite3
 from uuid import uuid4
 
 from adaptive_qa.project_settings import validate_settings, public_settings
+from adaptive_qa.schema_migrations import validate_runtime_schema
 
 def _id(value):
     if not isinstance(value, str) or not re.fullmatch(r'[0-9a-f]{32}', value):
@@ -64,6 +65,7 @@ class ProjectStore:
     def _connection(self):
         with closing(sqlite3.connect(self.database, timeout=5)) as connection:
             connection.row_factory = sqlite3.Row
+            validate_runtime_schema(connection, 'projects.sqlite')
             with connection:
                 yield connection
 

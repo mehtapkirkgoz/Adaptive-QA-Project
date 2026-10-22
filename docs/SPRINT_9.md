@@ -149,3 +149,21 @@ Packaging job in run 39785109938 passed for 0536b63; its downloaded artifact
 The downloaded wheel installed outside the checkout and exposed all 100 cases.
 See evidence/sprint9-release.json. The overall packaging run was still pending
 at that artifact review; no full-run or staging acceptance is inferred.
+
+## Runtime Schema Gates
+
+Authentication and project stores validate schema revisions on each connection
+before initialization or operations. Unsupported revisions stop without DDL or
+application writes; revision 1 requires all core/additive columns and real
+tables. Inconsistent versioned schemas are not silently repaired. Unversioned
+local initialization is preserved without automatically marking it migrated.
+
+Five real-SQLite tests verify byte-identical rejection of future auth/project
+files, a revision changed after store construction, inconsistent queue schema,
+valid revision-1 stores and unchanged legacy revision markers. Four recovery
+tests also passed. Linux/Windows CI now runs the runtime gate tests explicitly.
+This does not implement runtime cutover or establish older-release compatibility.
+
+Packaging commit 0536b63 passed the complete eight-job CI run 39785109938.
+Runtime gate regression: 570 tests completed locally (569 passed, one Windows
+symlink-permission skip). Same-commit runtime CI is pending after push.

@@ -14,6 +14,7 @@ from uuid import uuid4
 
 from adaptive_qa.project_store import ProjectActor
 from adaptive_qa.secrets import SecretValue
+from adaptive_qa.schema_migrations import validate_runtime_schema
 
 
 _KDF_SLOTS = BoundedSemaphore(2)
@@ -92,6 +93,7 @@ class AuthStore:
     def _connection(self):
         with closing(sqlite3.connect(self.database, timeout=5)) as connection:
             connection.row_factory = sqlite3.Row
+            validate_runtime_schema(connection, 'auth.sqlite')
             connection.execute('PRAGMA foreign_keys=ON')
             with connection:
                 yield connection

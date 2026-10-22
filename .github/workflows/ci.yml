@@ -80,6 +80,7 @@ jobs:
         run: |
           python -m unittest discover -s tests -p "test_backup*.py" -v
           python -m unittest discover -s tests -p test_schema_migrations.py -v
+          python -m unittest discover -s tests -p test_runtime_schema.py -v
       - name: Upload lifecycle report
         if: always()
         uses: actions/upload-artifact@v7
