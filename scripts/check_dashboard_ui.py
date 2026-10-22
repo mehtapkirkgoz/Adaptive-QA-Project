@@ -125,6 +125,27 @@ def main():
                     assert worker.returncode == 0
                     expect(runs.get_by_text('passed', exact=True)).to_have_count(2)
                     expect(runs.get_by_text('2 of 2 test results recorded.', exact=False)).to_be_visible()
+                    expect(runs.get_by_role('link', name='View screenshot', exact=True)).to_have_count(2)
+                    link = runs.locator('.run-outcome').filter(has_text='LOGIN-001').get_by_role('link', name='View screenshot', exact=True)
+                    evidence_url = 'http://127.0.0.1:8765' + link.get_attribute('href')
+                    with page.expect_popup() as popup_info:
+                        link.click()
+                    popup = popup_info.value
+                    popup.wait_for_function("document.querySelector('img')?.complete && document.querySelector('img')?.naturalWidth > 0", timeout=10000)
+                    popup.close()
+                    evidence_response = page.context.request.get(evidence_url)
+                    assert evidence_response.status == 200
+                    assert evidence_response.headers['cache-control'] == 'no-store'
+                    assert evidence_response.body().startswith(b'\x89PNG\r\n\x1a\n')
+                    isolated = browser.new_context()
+                    try:
+                        assert isolated.request.get(evidence_url).status == 401
+                        grant = auth.login('other@example.test', 'Other dashboard password 123!')
+                        isolated.add_cookies([{'name': 'adaptive_session', 'value': grant.token.value,
+                            'url': 'http://127.0.0.1:8765/', 'httpOnly': True, 'sameSite': 'Strict'}])
+                        assert isolated.request.get(evidence_url).status == 404
+                    finally:
+                        isolated.close()
                     page.evaluate('window.scrollTo(0, 0)')
                     page.screenshot(path=str(output / 'workspace-desktop.png'), full_page=True)
                     page.set_viewport_size({'width': 390, 'height': 844})
@@ -163,6 +184,7 @@ def main():
         'discovery-backed plan review', 'historical policy mismatch denied',
         'explicit two-case selection', 'queued test-run cancellation',
         'separate test worker completion and two real passed outcomes',
+        'decoded authorized screenshot', 'anonymous screenshot denied', 'other-owner screenshot denied',
         'no script errors or external requests']}), encoding='utf-8')
     print('Built React dashboard browser checks passed.')
 

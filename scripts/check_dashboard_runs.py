@@ -54,6 +54,9 @@ def main():
             assert result['status'] == 'completed', result['status']
             assert [r['case_id'] for r in result['results']] == ['LOGIN-001', 'SEARCH-001']
             assert all(r['status'] == 'passed' for r in result['results']), result['results']
+            assert all('evidence_id' in r for r in result['results']), 'Actual screenshots were not attached.'
+            for recorded in result['results']:
+                assert queue.evidence(actor, project.project_id, run['run_id'], recorded['evidence_id']).startswith(b'\x89PNG\r\n\x1a\n')
             assert not discovery.get(actor, project.project_id, job['job_id'])['report']['execution_authorized']
             output = root / 'artifacts/dashboard/run-worker.json'
             output.parent.mkdir(parents=True, exist_ok=True)

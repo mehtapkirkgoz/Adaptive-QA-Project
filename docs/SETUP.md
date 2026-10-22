@@ -112,7 +112,7 @@ No CORS exceptions, external CDN or separate development server are needed.
 
 The panel supports sign-in/out, paginated projects, create/rename, target/host
 settings, data-change policy, masked references, discovery and explicit read-only
-UI test runs with per-case outcomes. Authorized screenshots remain unfinished.
+UI test runs with per-case outcomes and owner-authorized screenshots.
 The app does not write credentials to localStorage or other browser storage.
 
 Verify the built interface with no persistent account or server:
@@ -188,7 +188,10 @@ has at most 30 seconds and a run has a 120-second execution budget, followed by
 bounded process cleanup. Persistent cancellation/configuration changes are polled
 while waiting. Each accepted result commits in order, with actual outcome/duration
 and a generic message. Raw messages and filesystem paths are not exposed.
-Unattempted cases do not receive fabricated results. Evidence delivery is pending.
+Unattempted cases do not receive fabricated results. Valid optional screenshots
+are copied into run-bound local database storage and opened with View screenshot.
+Screenshot values/paths are not entered by the client. Missing/invalid optional
+PNGs do not change the actual test outcome.
 
 `recover-runs` refuses an active lock, marks interrupted work as error/cancelled,
 preserves earlier committed progress and never retries automatically.

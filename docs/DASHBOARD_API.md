@@ -141,5 +141,21 @@ enabled. It restores/polls history, supports cancellation and displays each
 actual outcome and duration. Completed job status is not a claim that all tests
 passed. Unattempted cases have no outcome. Results omit claim tokens, raw adapter
 messages and filesystem paths. Missing/other-owner/wrong-project runs share 404.
-Authenticated screenshot delivery remains unfinished. API/database and mutating
+Authenticated screenshot delivery is described below. API/database and mutating
 test runs are unsupported by these endpoints.
+
+## Screenshot Evidence
+
+`GET /api/projects/{project_id}/runs/{run_id}/evidence/{evidence_id}` requires the
+owner's session and exact project/run/evidence binding. Recorded outcomes contain
+an opaque `evidence_id` only when a validated optional screenshot was captured.
+Anonymous access returns 401; another owner, run or unknown ID returns 404.
+Path/query overrides are rejected. There are no public artifact URLs or upload APIs.
+
+The response is bounded image/png, with no-store, nosniff and a fixed display
+filename. The server reads a run-bound database BLOB, not a caller-specified path.
+Worker import accepts at most one UUID-named PNG from the trusted screenshot
+directory, with a 5 MiB byte cap, dimensions up to 20,000 per side/40 million pixels,
+regular-file/reparse checks and PNG structural/CRC checks. Unsupported text/EXIF
+metadata and animation are omitted. Invalid or absent optional evidence does not
+change assertion status. Retention and storage quotas are future Sprint 8 scope.

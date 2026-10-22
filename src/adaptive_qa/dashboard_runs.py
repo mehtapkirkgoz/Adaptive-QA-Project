@@ -12,6 +12,7 @@ from adaptive_qa.project_store import ProjectNotFound, _id
 from adaptive_qa.smoke_checks import SMOKE_CHECKS
 from adaptive_qa.models import TestResult
 from adaptive_qa.worker_lock import worker_lock
+from adaptive_qa.dashboard_evidence import validate_png
 
 
 @dataclass(frozen=True)
@@ -40,6 +41,8 @@ class DashboardRunQueue:
                 'project_id TEXT NOT NULL, owner_id TEXT NOT NULL, discovery_job_id TEXT NOT NULL, '
                 'case_ids_json TEXT NOT NULL, configuration_json TEXT NOT NULL, status TEXT NOT NULL)')
             connection.execute('CREATE INDEX IF NOT EXISTS dashboard_runs_owner ON dashboard_test_runs(owner_id, sequence)')
+            connection.execute('CREATE TABLE IF NOT EXISTS dashboard_run_evidence ('
+                'evidence_id TEXT PRIMARY KEY, run_id TEXT NOT NULL, case_id TEXT NOT NULL, png BLOB NOT NULL)')
             columns = {row['name'] for row in connection.execute('PRAGMA table_info(dashboard_test_runs)')}
             for name, declaration in (('claim_token', 'TEXT'), ('results_json', "TEXT NOT NULL DEFAULT '[]'")):
                 if name not in columns:
@@ -175,9 +178,11 @@ class DashboardRunQueue:
         snapshot = {key: saved[key] for key in ('base_url', 'allowed_hosts', 'allow_data_changes')}
         return configuration_fingerprint(snapshot) == configuration_fingerprint(work.configuration)
 
-    def record_result(self, work, result):
+    def record_result(self, work, result, *, evidence_png=None):
         if not isinstance(result, TestResult):
             raise ValueError('A typed test result is required.')
+        if evidence_png is not None:
+            validate_png(evidence_png)
         with self.projects._connection() as connection:
             connection.execute('BEGIN IMMEDIATE')
             row = self._claimed(connection, work)
@@ -193,9 +198,24 @@ class DashboardRunQueue:
             results.append({'case_id': result.case_id, 'status': result.status,
                             'duration_seconds': result.duration_seconds,
                             'message': f'Test execution outcome: {result.status.value}.'})
+            if evidence_png is not None:
+                evidence_id = uuid4().hex
+                connection.execute('INSERT INTO dashboard_run_evidence VALUES (?, ?, ?, ?)',
+                                   (evidence_id, work.run_id, result.case_id, evidence_png))
+                results[-1]['evidence_id'] = evidence_id
             connection.execute('UPDATE dashboard_test_runs SET results_json=? WHERE run_id=?',
                                (json.dumps(results, allow_nan=False), work.run_id))
             return True
+
+    def evidence(self, actor, project_id, run_id, evidence_id):
+        _id(evidence_id)
+        with self.projects._connection() as connection:
+            self._owned(connection, actor, project_id, run_id)
+            row = connection.execute('SELECT png FROM dashboard_run_evidence WHERE evidence_id=? AND run_id=?',
+                                     (evidence_id, run_id)).fetchone()
+        if row is None:
+            raise TestRunNotFound('Test run not found.')
+        return bytes(row['png'])
 
     def finish(self, work, *, failed=False):
         if type(failed) is not bool:

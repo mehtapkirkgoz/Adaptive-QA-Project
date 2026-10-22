@@ -12,7 +12,7 @@ Milestone: [#8](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/8
 - [x] 7.3: Expose authenticated project/configuration APIs with secret references.
 - [x] 7.4: Build the React/TypeScript dashboard for project and plan review.
 - [x] 7.5: Bridge authorized run start/cancel/progress to separate worker execution.
-- [ ] 7.6: Display owner-scoped history/results/evidence and test cross-owner denial.
+- [x] 7.6: Display owner-scoped history/results/evidence and test cross-owner denial.
 - [ ] 7.7: Demonstrate the integrated local MVP and review exact-commit CI/evidence.
 
 ## Phase 7.1 Delivered
@@ -410,3 +410,33 @@ All 493 local unit tests, strict TypeScript/Vite build and actual built React
 discovery/admission/test-worker/result acceptance passed. Mobile screenshots were
 visually reviewed. This delivers local run controls; evidence authorization and
 same-commit integrated sprint acceptance remain incomplete.
+
+### Owner-authorized PNG evidence delivery
+
+The run worker optionally imports one bounded PNG from its registered screenshot
+directory. UUID filenames, canonical parent containment, regular-file identity,
+single-link files and reparse/symlink checks exclude arbitrary filesystem paths.
+Nonblocking/no-follow flags protect supported platforms against special-file or
+symlink races. PNG header/chunk/CRC, dimension and 5 MiB limits apply; unsupported
+metadata/animation is rejected. Missing or invalid optional evidence leaves the
+actual test outcome unchanged.
+
+Validated PNG bytes are copied into the local project database and committed with
+their ordered result, bound to run/case by a new random evidence ID. Public JSON
+contains that ID, never a file path. Cancelled late results store neither PNG nor
+result. Existing committed evidence remains attached to its original run.
+The authenticated evidence endpoint checks owner/project/run/evidence membership,
+returns only image/png with no-store/nosniff and a fixed filename, and accepts no
+path/query override. React opens screenshots through that authorized endpoint.
+Local SQLite BLOB storage is a prototype; retention/storage quotas remain Sprint 8.
+
+Six import/storage tests cover valid/invalid PNGs, size/dimension/checksum/truncation,
+outside/traversal/non-regular paths, ownership/run isolation, atomic cancellation
+and rejected writes. A new HTTP test checks authorized bytes/headers, wrong owner,
+wrong run, anonymous and query override denials. Actual built React acceptance
+opens/decodes a real screenshot and repeats anonymous/other-owner HTTP denial.
+Both real UI assertions attach retrievable PNGs. All 500 local unit tests passed;
+the final non-regular/nonblocking import guard then passed all six evidence tests.
+TypeScript/Vite build and actual panel/worker/screenshot acceptance passed. Phase
+7.6 is locally delivered; exact-commit CI/artifact review and final acceptance
+remain pending. Prior 54eb857 passed CI run 39729304103.

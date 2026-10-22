@@ -17,6 +17,8 @@ from adaptive_qa.discovery import PageSnapshot, FormSnapshot, FieldSnapshot
 from adaptive_qa.dashboard_worker import process_discovery_once
 from adaptive_qa.dashboard_runs import DashboardRunQueue
 from adaptive_qa.models import TestResult, TestStatus
+from adaptive_qa.web_app import SESSION_COOKIE
+from png_fixture import png_bytes
 
 
 class WebProjectTests(unittest.TestCase):
@@ -282,3 +284,26 @@ class WebProjectTests(unittest.TestCase):
         self.assertEqual(response.json()['status'], 'cancel_requested')
         self.assertFalse(queue.record_result(work, TestResult('LOGIN-001', TestStatus.PASSED, .1, 'Late')))
         self.assertEqual(queue.finish(work), 'cancelled')
+
+    def test_screenshot_download_requires_owner_session_and_matching_run(self):
+        project, path, body = self.run_request()
+        self.client.post(path, headers=self.headers, json=body)
+        queue = DashboardRunQueue(self.projects)
+        work = queue.claim_next()
+        queue.record_result(work, TestResult('LOGIN-001', TestStatus.PASSED, .1, 'Raw'), evidence_png=png_bytes())
+        queue.finish(work)
+        eid = queue.get(self.alice, project.project_id, work.run_id)['results'][0]['evidence_id']
+        target = path + '/' + work.run_id + '/evidence/' + eid
+        response = self.client.get(target)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content, png_bytes())
+        self.assertEqual(response.headers['content-type'], 'image/png')
+        self.assertEqual(response.headers['cache-control'], 'no-store')
+        self.assertEqual(response.headers['x-content-type-options'], 'nosniff')
+        other = self.auth.login('bob@example.test', 'Local Bob password 123!')
+        self.assertEqual(self.client.get(target, headers={'cookie': f'{SESSION_COOKIE}={other.token.value}'}).status_code, 404)
+        second = self.client.post(path, headers=self.headers, json=body).json()
+        self.assertEqual(self.client.get(path + '/' + second['run_id'] + '/evidence/' + eid).status_code, 404)
+        self.assertEqual(self.client.get(target + '?path=private').status_code, 400)
+        self.client.cookies.clear()
+        self.assertEqual(self.client.get(target).status_code, 401)

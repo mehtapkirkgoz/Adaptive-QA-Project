@@ -10,7 +10,7 @@ import time
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from starlette.concurrency import run_in_threadpool
-from starlette.responses import JSONResponse, FileResponse
+from starlette.responses import JSONResponse, FileResponse, Response
 from starlette.staticfiles import StaticFiles
 
 from adaptive_qa.auth_store import AuthenticationError, AuthStore
@@ -98,6 +98,12 @@ def create_app(store: AuthStore, *, port=8765, projects=None, ui_directory=None)
         owner = await run_in_threadpool(actor, request, mutation=True)
         _object(await request.body(), ())
         return await run_in_threadpool(runs.cancel, owner, project_id, run_id)
+
+    @app.get('/api/projects/{project_id}/runs/{run_id}/evidence/{evidence_id}')
+    def run_evidence(project_id: str, run_id: str, evidence_id: str, request: Request):
+        data = runs.evidence(actor(request), project_id, run_id, evidence_id)
+        return Response(data, media_type='image/png', headers={
+            'Content-Disposition': 'inline; filename="test-evidence.png"'})
 
     @app.get('/api/projects/{project_id}/discovery')
     def list_discovery(project_id: str, request: Request):
@@ -250,7 +256,7 @@ def create_app(store: AuthStore, *, port=8765, projects=None, ui_directory=None)
                     message['headers'] = list(message.get('headers', [])) + [
                         (b'cache-control', b'no-store'),
                         (b'x-content-type-options', b'nosniff'),
-                        (b'content-security-policy', b"default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'"),
+                        (b'content-security-policy', b"default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'"),
                         (b'referrer-policy', b'no-referrer')]
                 await send(message)
             async def deny(status):

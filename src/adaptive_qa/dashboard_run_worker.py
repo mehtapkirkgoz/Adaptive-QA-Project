@@ -7,6 +7,7 @@ from adaptive_qa.catalog import TEST_CASES
 from adaptive_qa.models import TestResult, TestStatus
 from adaptive_qa.smoke_checks import SMOKE_CHECKS
 from adaptive_qa.worker_lock import worker_lock
+from adaptive_qa.dashboard_evidence import import_screenshot
 
 
 def process_run_once(queue):
@@ -36,7 +37,8 @@ def process_run_once(queue):
                     break
                 if stop() or not isinstance(result, TestResult) or result.case_id != case_id or result.status == TestStatus.CANCELLED:
                     raise ValueError('Run interrupted or returned an invalid result.')
-                if not queue.record_result(work, result):
+                evidence = import_screenshot(result.evidence_paths)
+                if not queue.record_result(work, result, evidence_png=evidence):
                     break
         except Exception:
             status = queue.finish(work, failed=True)
