@@ -210,3 +210,31 @@ passed CI run 39688525407; this increment requires current-commit CI.
 
 All 451 local unit tests, strict TypeScript/Vite build and the actual built React
 browser check passed. Current implementation CI will be checked after push.
+
+### Phase 7.5 foundation: owner-bound discovery dispatch
+
+A separate dashboard discovery queue now binds every job to its owner and project
+inside the project database. Submission atomically checks ownership, saved settings
+and admission, then stores an immutable configuration snapshot without secret
+references. Only the fixed `http://127.0.0.1:8000/` root fixture is admitted; arbitrary
+targets and routes remain disabled. At most five active jobs per owner and one
+hundred globally are admitted. These are local admission limits, not commercial
+quotas or a production capacity claim.
+
+Owner reads/cancels constrain both project and user inside SQL; missing and
+other-owner jobs share one error. Trusted workers claim queued work atomically
+with a random claim token that public job views and repr omit. Claim checks gate
+finalization. Queued cancellation prevents claiming; active cancellation persists
+and wins over success/error finalization. Finished claims cannot be reused. The
+legacy unowned test queue is unchanged and is not exposed by dashboard routes.
+
+Six real-storage tests cover persistence, frozen policy, excluded references,
+ownership, wrong-project denial, cancellation precedence, forged claims, concurrent
+claim uniqueness and bounded/local-only admission. No dashboard job HTTP endpoints,
+worker loop, discovery process, progress UI or report persistence is wired yet.
+Crash recovery and actual hard-deadline/cancellation integration remain necessary
+before this queue is used by a worker. Phase 7.5 remains incomplete. Previous
+implementation fd06142 passed CI run 39694904241.
+
+All 457 local unit tests passed for this dispatch-core increment. Current-commit
+CI remains pending after push. No browser flow changed in this increment.
