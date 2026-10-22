@@ -50,8 +50,8 @@ Output contains the bundle ID/environment/count, not records or credentials.
 The backup directory uses POSIX mode 0700 where supported; Windows operators
 must verify inherited private ACLs. Backups contain sensitive database content
 and must never be served as web assets or uploaded as CI artifacts. Checksums
-detect corruption, not authenticity, and do not encrypt/sign a backup. Retention,
-restore, session invalidation and a complete rollback drill are still pending.
+detect corruption, not authenticity, and do not encrypt/sign a backup. Backup
+retention and a complete runtime rollback drill are still pending.
 No real operator database was backed up during development; verification used
 disposable fixtures only.
 
@@ -75,6 +75,37 @@ The result explicitly reports `restored=false`. Checksums remain corruption chec
 not proof of authenticity or application/schema compatibility. Successful
 verification is a prerequisite for a future reviewed restore, not permission to
 replace running databases.
+
+### Prepare an Inactive Recovery Pair
+
+After stopping services and checking private storage permissions:
+
+```powershell
+python -m adaptive_qa deployment prepare-restore --environment staging --data-root "$((Get-Location).Path)/artifacts/environments" --origin https://staging.example.test --bundle-id <bundle-id> --offline-maintenance
+```
+
+Replace the ID placeholder as above. This command verifies the original bundle,
+copies its database pair with bounded time/size and digest checks, and publishes
+the copies together under `recovery/<recovery-id>` within the same environment.
+It never replaces auth.sqlite/projects.sqlite in the live environment. Temporary
+copies are removed on failure. A fresh recovery ID is used for every attempt.
+
+Within the copies, existing dashboard sessions are deleted so old session tokens
+cannot authenticate. Queued, running and cancel-requested discovery/test runs are
+cancelled and their claim tokens cleared. Completed results and project records
+remain available. Users must log in again after an eventual reviewed cutover.
+SQLite integrity and foreign-key checks must pass before publication. Unexpected
+application tables or missing core tables cannot be assumed compatible; required
+core tables are checked, triggers/views are rejected and this command performs
+no schema upgrades. Full release/schema compatibility review remains required.
+
+`recovery.json` records the source bundle, environment and safety actions without
+credentials. The result has `activation_enabled=false`. No service, worker,
+queued job or network request starts. The source backup and existing environment
+databases remain intact. The recovery directory contains sensitive data and
+requires the same private ACLs as backups; do not upload it as a CI artifact.
+This demonstrates offline data recovery, not an implemented live cutover,
+application release rollback, migration framework or staging deployment.
 
 ## Hosting Acceptance Requirements
 

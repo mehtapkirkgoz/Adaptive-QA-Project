@@ -27,7 +27,7 @@ def _unique_object(pairs):
     return result
 
 
-def verify_backup(plan, bundle_id):
+def _verified_manifest(plan, bundle_id):
     """Validate a private offline bundle without restoring or opening live stores."""
     if (not isinstance(plan, DeploymentPlan) or not isinstance(bundle_id, str)
             or re.fullmatch(r'[0-9a-f]{32}', bundle_id) is None):
@@ -97,5 +97,10 @@ def verify_backup(plan, bundle_id):
                 raise ValueError('Backup integrity verification failed.')
         if monotonic() >= deadline:
             raise ValueError('Backup verification deadline exceeded.')
+    return manifest
+
+
+def verify_backup(plan, bundle_id):
+    _verified_manifest(plan, bundle_id)
     return {'bundle_id': bundle_id, 'environment': plan.environment.value,
             'databases': 2, 'verified': True, 'restored': False}

@@ -86,3 +86,23 @@ Restore, session invalidation and rollback are still unfinished; 9.3 stays open.
 Local verification regression: 554 tests completed (553 passed, one Windows
 symlink-permission skip). Dependency compatibility and Python compilation passed.
 Exact-commit verification CI is pending after push.
+
+## Inactive Recovery Preparation
+
+`deployment prepare-restore` verifies and copies an offline bundle into a fresh
+private recovery directory. It never replaces the live pair or activates services.
+Copies have old sessions removed and active discovery/test work cancelled with
+claim tokens cleared. Completed results remain unchanged. Digest, integrity,
+foreign-key, size/time and core-table checks precede atomic pair publication;
+failed attempts remove partial recovery files. No schema upgrades are performed.
+
+Four recovery tests use real application stores to verify restored project data,
+login after session revocation, cancellation of active work, preservation of
+completed work, unchanged source/live bytes, distinct recovery IDs, CLI wiring,
+maintenance acknowledgement, unsupported-schema rejection and deadline cleanup.
+All 18 backup-related tests passed locally. This is an offline recovery drill;
+runtime cutover, migrations and release rollback remain unfinished, so 9.3 is
+still open. Domain/hosting requirements remain blocked on owner infrastructure.
+
+Recovery regression validation: 558 tests completed locally, with 557 passing and
+one Windows symlink-permission skip. Same-commit recovery CI remains pending.

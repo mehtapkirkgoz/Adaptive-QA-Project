@@ -2,7 +2,7 @@
 
 An AI-assisted QA platform under development for website discovery and applicable UI, API, and database tests.
 
-**Current sprint:** [Sprint 9](docs/SPRINT_9.md) is in progress. The first increment validates isolated local/staging/production deployment plans without creating files or starting services. Domain/server purchases and public hosting are not enabled. See [deployment preparation](docs/DEPLOYMENT.md).
+**Current sprint:** [Sprint 9](docs/SPRINT_9.md) is in progress. Validated environment plans, bounded offline SQLite backups, read-only backup verification and inactive recovery preparation are implemented. Recovery copies revoke old sessions and cancel active work without replacing live databases or starting services. Runtime packaging, migrations, release rollback and HTTPS hosting remain unfinished. Domain/server purchases and public hosting are not enabled. See [deployment preparation](docs/DEPLOYMENT.md).
 
 **Accepted Sprint 8 baseline:** All 100 scenarios (51 UI / 34 API / 15 database), 534 unit tests and seven CI jobs are verified on implementation `d72d2f5`. Reports include filters, JSON downloads, explicit reruns, historical comparison, consistency signals and seven-day owned screenshot retention. Its issue and milestone are closed. See [acceptance](docs/SPRINT_8_ACCEPTANCE.md), [full catalog](docs/evidence/sprint8-catalog.json) and [verified evidence](docs/evidence/sprint8-acceptance.json).
 
