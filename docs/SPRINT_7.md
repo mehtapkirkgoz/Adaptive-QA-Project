@@ -11,7 +11,7 @@ Milestone: [#8](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/8
 - [x] 7.2: Add credential/session authentication and local web security controls.
 - [x] 7.3: Expose authenticated project/configuration APIs with secret references.
 - [x] 7.4: Build the React/TypeScript dashboard for project and plan review.
-- [ ] 7.5: Bridge authorized run start/cancel/progress to separate worker execution.
+- [x] 7.5: Bridge authorized run start/cancel/progress to separate worker execution.
 - [ ] 7.6: Display owner-scoped history/results/evidence and test cross-owner denial.
 - [ ] 7.7: Demonstrate the integrated local MVP and review exact-commit CI/evidence.
 
@@ -379,3 +379,34 @@ views and authorized evidence delivery remain unfinished; Sprint 7 stays open.
 All 488 local unit tests passed. Separate-process Chromium acceptance verified
 two real passed assertions and preserved the discovery plan's non-executing flag.
 Current-commit CI remains pending after push.
+
+### Explicit test-run HTTP and React integration
+
+Session-bound run submit/list/read/cancel endpoints now connect the admitted queue
+to the React panel. Origin/CSRF and exact body fields gate mutations. HTTP only
+persists requests; the separate worker performs execution. Lists return at most
+twenty owner/project runs and at most ten recorded results each. Reads retain
+generic messages and actual status/duration without raw paths or claim tokens.
+
+The panel requires explicit checkbox selection from current discovery's selected,
+read-only local-root cases. It restores history, polls active jobs and supports
+queued/active cancellation. Job completion and individual test success/failure
+are separate. Unattempted cases are never shown as passed. Project/configuration
+changes clear candidate selections; backend admission/runtime checks remain
+authoritative. Distinct component keys prevent duplicated panels after settings
+changes, a regression caught by the real browser check.
+
+Five HTTP tests verify queue-only submission, cancel-before-claim, owner/project
+isolation, session/CSRF/exact-field checks, unsupported selections, stale evidence,
+masked failed results and active cancellation precedence. Built React acceptance
+now explicitly selects LOGIN-001 and SEARCH-001, cancels one queued run, starts a
+separate test worker and observes two actual passed outcomes. It also repeats
+mobile-width, settings/reload, stale-discovery and logout checks against the owned
+sample application. Phase 7.5 is locally delivered; authorized screenshot/evidence
+access and integrated sprint acceptance remain pending. Prior c5b5113 passed CI
+run 39726579907; current-commit CI will be checked after push.
+
+All 493 local unit tests, strict TypeScript/Vite build and actual built React
+discovery/admission/test-worker/result acceptance passed. Mobile screenshots were
+visually reviewed. This delivers local run controls; evidence authorization and
+same-commit integrated sprint acceptance remain incomplete.

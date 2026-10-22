@@ -111,8 +111,9 @@ No CORS exceptions, external CDN or separate development server are needed.
 `serve --ui-directory` selects a trusted build. Without a build, `/` returns 404.
 
 The panel supports sign-in/out, paginated projects, create/rename, target/host
-settings, data-change policy and masked references. Run controls and reports remain
-unfinished. Credentials are not saved in localStorage or other browser storage.
+settings, data-change policy, masked references, discovery and explicit read-only
+UI test runs with per-case outcomes. Authorized screenshots remain unfinished.
+The app does not write credentials to localStorage or other browser storage.
 
 Verify the built interface with no persistent account or server:
 
@@ -174,8 +175,11 @@ The separate run worker processes one explicitly admitted owned test run:
 ```
 
 Both use `artifacts/dashboard/projects.sqlite` unless `--database` selects a
-trusted project database. These commands submit no work. Test-run HTTP/UI
-submission is not wired yet; only the internal explicit admission path exists.
+trusted project database. These commands submit no work. In the panel, review a
+completed current discovery plan, explicitly check eligible UI tests and choose
+Start selected tests. Then invoke `run-once` in another terminal. The panel polls
+progress, supports cancellation and displays each outcome separately from job
+completion. Queued runs do not start until a worker claims them.
 The sample server on port 8000 must match the controlled root fixture.
 
 The worker holds the shared project OS lock, rechecks the current target/policy,

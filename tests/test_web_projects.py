@@ -12,6 +12,11 @@ from adaptive_qa.web_app import create_app, CSRF_COOKIE
 from adaptive_qa.dashboard_jobs import DashboardDiscoveryQueue
 from adaptive_qa.dashboard_worker import configuration_fingerprint
 from unittest.mock import patch
+from dataclasses import asdict
+from adaptive_qa.discovery import PageSnapshot, FormSnapshot, FieldSnapshot
+from adaptive_qa.dashboard_worker import process_discovery_once
+from adaptive_qa.dashboard_runs import DashboardRunQueue
+from adaptive_qa.models import TestResult, TestStatus
 
 
 class WebProjectTests(unittest.TestCase):
@@ -200,3 +205,80 @@ class WebProjectTests(unittest.TestCase):
         self.client.cookies.clear()
         self.assertEqual(self.client.get(path).status_code, 401)
         self.assertEqual(self.client.post(path, headers=self.headers, json={}).status_code, 401)
+
+    def run_request(self):
+        project, _, _ = self.discovery()
+        queue = DashboardDiscoveryQueue(self.projects)
+        job = queue.submit(self.alice, project.project_id)
+        page = PageSnapshot('http://127.0.0.1:8000/', forms=(FormSnapshot(fields=(
+            FieldSnapshot('email'), FieldSnapshot('password')), buttons=('Sign in',)),), collection_complete=True)
+        with patch('adaptive_qa.dashboard_worker.discover_local_sample', return_value={'pages': [asdict(page)], 'limitations': []}):
+            self.assertEqual(process_discovery_once(queue)['status'], 'completed')
+        return project, '/api/projects/' + project.project_id + '/runs', {
+            'discovery_job_id': job['job_id'], 'case_ids': ['LOGIN-001']}
+
+    def test_run_submission_only_queues_and_queued_cancel_prevents_execution(self):
+        project, path, body = self.run_request()
+        with patch('adaptive_qa.dashboard_run_worker.run_isolated_sample_test', side_effect=AssertionError('HTTP must not execute')):
+            response = self.client.post(path, headers=self.headers, json=body)
+        self.assertEqual(response.status_code, 202)
+        run = response.json()
+        self.assertEqual(run['status'], 'queued')
+        self.assertEqual(run['results'], [])
+        self.assertEqual(self.client.get(path).json()['runs'], [run])
+        self.assertEqual(self.client.get(path + '/' + run['run_id']).json(), run)
+        self.assertEqual(self.client.post(path + '/' + run['run_id'] + '/cancel', headers=self.headers, json={}).json()['status'], 'cancelled')
+        self.assertIsNone(DashboardRunQueue(self.projects).claim_next())
+
+    def test_run_other_owner_wrong_project_and_missing_run_are_denied(self):
+        _, path, body = self.run_request()
+        run = self.client.post(path, headers=self.headers, json=body).json()
+        other = self.projects.create(self.bob, 'Private run')
+        wrong = '/api/projects/' + other.project_id + '/runs'
+        self.assertEqual(self.client.get(wrong).status_code, 404)
+        self.assertEqual(self.client.post(wrong, headers=self.headers, json=body).status_code, 404)
+        for base, rid in ((wrong, run['run_id']), (path, '0' * 32)):
+            self.assertEqual(self.client.get(base + '/' + rid).status_code, 404)
+            self.assertEqual(self.client.post(base + '/' + rid + '/cancel', headers=self.headers, json={}).status_code, 404)
+
+    def test_run_mutations_require_csrf_session_and_exact_selection_body(self):
+        _, path, body = self.run_request()
+        headers = {k: v for k, v in self.headers.items() if k != 'x-csrf-token'}
+        self.assertEqual(self.client.post(path, headers=headers, json=body).status_code, 401)
+        for change in ({'execute': True}, {'owner_id': self.bob.user_id},
+                       {'case_ids': 'LOGIN-001'}, {'case_ids': []}, {'case_ids': ['API-001']},
+                       {'case_ids': ['LOGIN-001', 'LOGIN-001']}):
+            self.assertEqual(self.client.post(path, headers=self.headers, json=dict(body, **change)).status_code, 400)
+        self.assertEqual(self.client.get(path).json()['runs'], [])
+        self.client.cookies.clear()
+        self.assertEqual(self.client.get(path).status_code, 401)
+        self.assertEqual(self.client.post(path, headers=self.headers, json=body).status_code, 401)
+
+    def test_run_results_are_owned_masked_and_stale_report_cannot_start_another_run(self):
+        project, path, body = self.run_request()
+        self.client.post(path, headers=self.headers, json=body)
+        queue = DashboardRunQueue(self.projects)
+        work = queue.claim_next()
+        queue.record_result(work, TestResult('LOGIN-001', TestStatus.FAILED, .2, 'PRIVATE /disk/path'))
+        queue.finish(work)
+        response = self.client.get(path + '/' + work.run_id)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['status'], 'completed')
+        self.assertEqual(response.json()['results'][0]['status'], 'failed')
+        self.assertNotIn('PRIVATE', response.text)
+        self.assertNotIn('claim_token', response.text)
+        config = self.projects.configuration(self.alice, project.project_id)
+        self.projects.save_configuration(self.alice, project.project_id, {
+            'base_url': config['base_url'], 'allowed_hosts': config['allowed_hosts'],
+            'allow_data_changes': True, 'secret_references': {}})
+        self.assertEqual(self.client.post(path, headers=self.headers, json=body).status_code, 400)
+
+    def test_http_active_run_cancel_wins_over_completion(self):
+        _, path, body = self.run_request()
+        self.client.post(path, headers=self.headers, json=body)
+        queue = DashboardRunQueue(self.projects)
+        work = queue.claim_next()
+        response = self.client.post(path + '/' + work.run_id + '/cancel', headers=self.headers, json={})
+        self.assertEqual(response.json()['status'], 'cancel_requested')
+        self.assertFalse(queue.record_result(work, TestResult('LOGIN-001', TestStatus.PASSED, .1, 'Late')))
+        self.assertEqual(queue.finish(work), 'cancelled')

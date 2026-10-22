@@ -18,6 +18,7 @@ from adaptive_qa.project_store import ProjectStore, ProjectNotFound
 from adaptive_qa.dashboard_plan import review_project_plan, ConfigurationRequired
 from adaptive_qa.dashboard_jobs import DashboardDiscoveryQueue, DiscoveryJobNotFound
 from adaptive_qa.dashboard_worker import configuration_fingerprint
+from adaptive_qa.dashboard_runs import DashboardRunQueue, TestRunNotFound
 
 
 SESSION_COOKIE = 'adaptive_session'
@@ -53,6 +54,7 @@ def create_app(store: AuthStore, *, port=8765, projects=None, ui_directory=None)
     app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
     projects = projects if projects is not None else ProjectStore(store.database.with_name('projects.sqlite'))
     discovery = DashboardDiscoveryQueue(projects)
+    runs = DashboardRunQueue(projects)
     attempts, lock = deque(), Lock()
     if ui_directory is not None:
         ui_root = Path(ui_directory).resolve(strict=True)
@@ -70,8 +72,32 @@ def create_app(store: AuthStore, *, port=8765, projects=None, ui_directory=None)
 
     @app.exception_handler(ProjectNotFound)
     @app.exception_handler(DiscoveryJobNotFound)
+    @app.exception_handler(TestRunNotFound)
     async def missing_project(request, error):
         return JSONResponse({'detail': 'Project not found.'}, status_code=404)
+
+    @app.get('/api/projects/{project_id}/runs')
+    def list_runs(project_id: str, request: Request):
+        return {'runs': runs.list(actor(request), project_id)}
+
+    @app.post('/api/projects/{project_id}/runs', status_code=202)
+    async def submit_run(project_id: str, request: Request):
+        owner = await run_in_threadpool(actor, request, mutation=True)
+        data = _object(await request.body(), ('discovery_job_id', 'case_ids'))
+        if not isinstance(data['case_ids'], list):
+            raise ValueError()
+        return await run_in_threadpool(runs.submit, owner, project_id,
+                                       data['discovery_job_id'], tuple(data['case_ids']))
+
+    @app.get('/api/projects/{project_id}/runs/{run_id}')
+    def get_run(project_id: str, run_id: str, request: Request):
+        return runs.get(actor(request), project_id, run_id)
+
+    @app.post('/api/projects/{project_id}/runs/{run_id}/cancel')
+    async def cancel_run(project_id: str, run_id: str, request: Request):
+        owner = await run_in_threadpool(actor, request, mutation=True)
+        _object(await request.body(), ())
+        return await run_in_threadpool(runs.cancel, owner, project_id, run_id)
 
     @app.get('/api/projects/{project_id}/discovery')
     def list_discovery(project_id: str, request: Request):

@@ -4,11 +4,12 @@ import {createRoot} from 'react-dom/client';
 import './style.css';
 import './plan.css';
 import {DiscoveryPanel} from './DiscoveryPanel';
+import {RunPanel} from './RunPanel';
 
 type Project = {project_id: string; name: string};
-type Plan = {execution_authorized: false; inspected_pages: number; discovery_status: string;
+type Plan = {execution_authorized: false; inspected_pages: number; discovery_status: string; discovery_job_id?: string;
   counts: {catalog: number; selected: number; skipped: number; blocked: number};
-  cases: {case_id: string; name: string; test_type: string; decision: string; reason: string}[]};
+  cases: {case_id: string; name: string; test_type: string; decision: string; reason: string; target_binding?: string | null; changes_data?: boolean}[]};
 type Settings = {configured: boolean; base_url?: string; allowed_hosts?: string[];
   allow_data_changes?: boolean; available_secret_references: Record<string, string>;
   secret_references?: Record<string, {environment_variable: string; value: string}>};
@@ -119,7 +120,7 @@ function App() {
                 {slots.length > 0 && <details><summary>Environment variable names</summary>{slots.map(slot => <code key={slot}>{settings.available_secret_references[slot]}</code>)}</details>}
                 <div className="save-bar"><p className="hint">Saving configuration does not start a test.</p><button className="primary" type="submit">{busy ? 'Saving…' : 'Save configuration'}</button></div>
               </fieldset></form>
-              <DiscoveryPanel key={selected.project_id + JSON.stringify(settings)} projectId={selected.project_id} configured={settings.configured} request={api} onReport={setPlan}/>
+              <DiscoveryPanel key={'discovery:' + selected.project_id + JSON.stringify(settings)} projectId={selected.project_id} configured={settings.configured} request={api} onReport={(report, jobId) => setPlan({...report, discovery_job_id: jobId})}/>
               <section className="plan-review"><h3>Test plan review</h3><p className="hint">Review the saved configuration. Unsaved edits are not included. Reviewing never starts tests or visits your target.</p>
                 <button disabled={busy || !settings.configured} onClick={() => void perform(async () => {
                   setPlan(null); setPlan(await api<Plan>(`/api/projects/${selected.project_id}/plan`));
@@ -130,8 +131,9 @@ function App() {
                   <p className="hint">Execution authorized: No. Configured references do not establish API or database bindings.</p>
                   <div className="plan-cases">{plan.cases.map(item => <details key={item.case_id}><summary>{item.case_id} · {item.name} · {item.decision}</summary><p>{item.test_type} — {item.reason}</p></details>)}</div>
                 </div>}
-              </section></>}
-            </section></div><div className="roadmap"><span className="dot"/><p>Discovery and plan review are available. Test-run controls are coming next.</p></div></>}
+              </section><RunPanel key={'runs:' + selected.project_id + JSON.stringify(settings)} projectId={selected.project_id} discoveryJobId={plan?.discovery_job_id}
+                candidates={plan?.cases.filter(item => item.decision === 'selected' && item.test_type === 'ui' && item.target_binding === 'local_root' && item.changes_data === false).map(item => item.case_id) ?? []} request={api}/></>}
+            </section></div><div className="roadmap"><span className="dot"/><p>Local discovery and explicit UI test runs are available. Screenshot access is coming next.</p></div></>}
       </main><footer>ADAPTIVE QA <span>Controlled scope. Clear evidence.</span></footer>
     </div></div>;
 }

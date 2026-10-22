@@ -6,7 +6,7 @@ type Report = {execution_authorized: false; inspected_pages: number; discovery_s
   cases: {case_id: string; name: string; test_type: string; decision: string; reason: string}[]};
 type Props = {projectId: string; configured: boolean;
   request: <T>(path: string, method?: string, body?: unknown) => Promise<T>;
-  onReport: (report: Report) => void};
+  onReport: (report: Report, jobId: string) => void};
 const active = (job: Job) => ['queued', 'running', 'cancel_requested'].includes(job.status);
 
 export function DiscoveryPanel({projectId, configured, request, onReport}: Props) {
@@ -50,7 +50,7 @@ export function DiscoveryPanel({projectId, configured, request, onReport}: Props
       {job.status === 'completed' && <button disabled={busy} onClick={() => void action(async () => {
         const result = await request<{report: Report; configuration_current: boolean}>(`${base}/${job.job_id}`);
         if (!result.configuration_current) {setHistorical(true); return;}
-        onReport(result.report);
+        onReport(result.report, job.job_id);
       })}>Review discovery plan</button>}
     </div>)}
   </section>;

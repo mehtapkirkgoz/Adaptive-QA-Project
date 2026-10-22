@@ -118,6 +118,15 @@ class DashboardRunQueue:
         with self.projects._connection() as connection:
             return self._public(self._owned(connection, actor, project_id, run_id))
 
+    def list(self, actor, project_id):
+        self.projects.get(actor, project_id)
+        with self.projects._connection() as connection:
+            rows = connection.execute('SELECT r.* FROM dashboard_test_runs r '
+                'JOIN dashboard_projects p ON p.project_id=r.project_id AND p.owner_id=r.owner_id '
+                'WHERE r.project_id=? AND r.owner_id=? ORDER BY r.sequence DESC LIMIT 20',
+                (project_id, actor.user_id)).fetchall()
+        return tuple(self._public(row) for row in rows)
+
     def cancel(self, actor, project_id, run_id):
         with self.projects._connection() as connection:
             connection.execute('BEGIN IMMEDIATE')

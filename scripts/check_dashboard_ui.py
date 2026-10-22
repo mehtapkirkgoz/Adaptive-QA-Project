@@ -5,6 +5,7 @@ import os
 import subprocess
 import sys
 from http.server import ThreadingHTTPServer
+from functools import partial
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from threading import Thread
@@ -17,7 +18,7 @@ from adaptive_qa.auth_store import AuthStore
 from adaptive_qa.project_store import ProjectStore
 from adaptive_qa.web_app import create_app
 from adaptive_qa.browser_process import _terminate_process_tree
-from check_local_discovery import Handler
+from check_dashboard_runs import QuietHandler
 
 
 def main():
@@ -90,7 +91,7 @@ def main():
                     expect(discovery.get_by_text('cancelled', exact=True)).to_be_visible()
                     discovery.get_by_role('button', name='Queue local discovery', exact=True).click()
                     expect(discovery.get_by_text('queued', exact=True)).to_be_visible()
-                    fixture = ThreadingHTTPServer(('127.0.0.1', 8000), Handler)
+                    fixture = ThreadingHTTPServer(('127.0.0.1', 8000), partial(QuietHandler, directory=str(Path('samples/web').resolve())))
                     fixture_thread = Thread(target=fixture.serve_forever, daemon=True)
                     fixture_thread.start()
                     options = {'creationflags': subprocess.CREATE_NO_WINDOW | subprocess.CREATE_NEW_PROCESS_GROUP} if os.name == 'nt' else {'start_new_session': True}
@@ -104,6 +105,26 @@ def main():
                     expect(review).to_contain_text('Discovery completed.')
                     expect(review).not_to_contain_text('Selected: 0 ·')
                     expect(review).to_contain_text('Execution authorized: No.')
+                    runs = page.get_by_label('Test runs', exact=True)
+                    expect(runs.get_by_role('button', name='Start selected tests')).to_be_disabled()
+                    for case_id in ('LOGIN-001', 'SEARCH-001'):
+                        runs.get_by_label('Select ' + case_id, exact=True).check()
+                    runs.get_by_role('button', name='Start selected tests').click()
+                    expect(runs.get_by_text('Run queued', exact=True)).to_be_visible()
+                    runs.get_by_role('button', name='Cancel test run').click()
+                    expect(runs.get_by_text('Run cancelled', exact=True)).to_be_visible()
+                    for case_id in ('LOGIN-001', 'SEARCH-001'):
+                        runs.get_by_label('Select ' + case_id, exact=True).check()
+                    runs.get_by_role('button', name='Start selected tests').click()
+                    expect(runs.get_by_text('Run queued', exact=True)).to_be_visible()
+                    worker = subprocess.Popen([sys.executable, '-m', 'adaptive_qa', 'dashboard',
+                        'run-once', '--database', str(projects.database)],
+                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, **options)
+                    expect(runs.get_by_text('Run completed', exact=True)).to_be_visible(timeout=75000)
+                    worker.wait(timeout=5)
+                    assert worker.returncode == 0
+                    expect(runs.get_by_text('passed', exact=True)).to_have_count(2)
+                    expect(runs.get_by_text('2 of 2 test results recorded.', exact=False)).to_be_visible()
                     page.evaluate('window.scrollTo(0, 0)')
                     page.screenshot(path=str(output / 'workspace-desktop.png'), full_page=True)
                     page.set_viewport_size({'width': 390, 'height': 844})
@@ -140,6 +161,8 @@ def main():
         'conservative non-executing plan review', 'mobile width', 'logout persistence',
         'queue and cancel discovery', 'separate real worker and polled completion',
         'discovery-backed plan review', 'historical policy mismatch denied',
+        'explicit two-case selection', 'queued test-run cancellation',
+        'separate test worker completion and two real passed outcomes',
         'no script errors or external requests']}), encoding='utf-8')
     print('Built React dashboard browser checks passed.')
 

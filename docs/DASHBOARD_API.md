@@ -118,3 +118,28 @@ never authorize execution. Cancelled/error jobs do not expose a success report.
 The UI restores recent jobs, polls active states and supports cancellation/review.
 Polling stops on unmount, terminal state or error. This is read-only discovery;
 starting UI/API/database test runs remains unfinished.
+
+## Explicit UI Test Runs
+
+All paths below are under `/api/projects/{project_id}` and require the owner's session:
+
+| Method | Path | Behavior |
+|---|---|---|
+| POST | `/runs` | Exactly `discovery_job_id` and `case_ids`; queue an admitted run, return 202 |
+| GET | `/runs` | At most 20 newest owned runs with bounded per-case outcomes |
+| GET | `/runs/{run_id}` | Read owned status, requested IDs and recorded results |
+| POST | `/runs/{run_id}/cancel` | Exactly `{}`; cancel queued work or request active cancellation |
+
+Mutations require Origin/CSRF. `case_ids` must be an array of one to ten distinct
+selected read-only UI IDs bound to the local root in an owned completed, current
+discovery report. The server rejects stale/incompatible evidence, other owners,
+extra fields and unsupported cases. Admission never executes tests in HTTP.
+Run the separate `dashboard run-once` worker against the controlled fixture.
+
+The panel requires explicit checkbox selection before Start selected tests is
+enabled. It restores/polls history, supports cancellation and displays each
+actual outcome and duration. Completed job status is not a claim that all tests
+passed. Unattempted cases have no outcome. Results omit claim tokens, raw adapter
+messages and filesystem paths. Missing/other-owner/wrong-project runs share 404.
+Authenticated screenshot delivery remains unfinished. API/database and mutating
+test runs are unsupported by these endpoints.
