@@ -110,7 +110,13 @@ def main():
                         assert anonymous.request.get(origin+screenshot_path).status == 401
                     finally:
                         anonymous.close()
-                    organizations.set_member(alice, organization_id, bob.user_id, Role.VIEWER)
+                    access = panel.get_by_label('Organization access and usage', exact=True)
+                    access.get_by_label('Existing account email', exact=True).fill('bob@example.test')
+                    access.get_by_label('New member role', exact=True).select_option('viewer')
+                    access.get_by_role('button', name='Add existing member', exact=True).click()
+                    expect(access.get_by_text('bob@example.test · viewer', exact=True)).to_be_visible()
+                    access.get_by_role('button', name='Refresh access and usage', exact=True).click()
+                    expect(access.get_by_text('UTC daily admissions: 1 / 100', exact=False)).to_be_visible()
                     page.screenshot(path=str(output/'owner.png'), full_page=True)
                     page.get_by_role('button', name='Sign out', exact=True).click()
                     login('bob')
@@ -150,6 +156,7 @@ def main():
               'queued_runs': 0, 'scoped_discovery_completed': True, 'plan_execution_authorized': False,
               'actual_shared_cases_passed': 2, 'shared_pngs_persisted': 2,
               'anonymous_and_revoked_evidence_denied': True,
+              'member_added_through_authenticated_ui': True, 'usage_snapshot_verified': True,
               'external_requests': len(external), 'page_errors': errors,
               'demo_modified': False}
     (output/'ui.json').write_text(json.dumps(report, indent=2)+'\n', encoding='utf-8')

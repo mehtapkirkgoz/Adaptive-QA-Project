@@ -10,6 +10,20 @@ from adaptive_qa.project_store import ProjectStore, ProjectActor, ProjectNotFoun
 
 
 class OrganizationStoreTests(unittest.TestCase):
+    def test_owned_organizations_and_roster_have_bounded_creation(self):
+        for number in range(19):
+            self.store.create(self.owner,f'Organization {number}')
+        with self.assertRaises(ValueError):
+            self.store.create(self.owner,'Over capacity')
+        self.assertEqual(len(self.store.list(self.owner)),20)
+        for number in range(99):
+            self.store.set_member(self.owner,self.one,f'{number+1:032x}',Role.MEMBER)
+        with self.assertRaises(ValueError):
+            self.store.set_member(self.owner,self.one,'f'*32,Role.MEMBER)
+        self.assertEqual(len(self.store.members(self.owner,self.one)),100)
+        self.store.set_member(self.owner,self.one,f'{1:032x}',Role.VIEWER)
+        self.assertEqual(len(self.store.members(self.owner,self.one)),100)
+
     def setUp(self):
         self.temp = TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)

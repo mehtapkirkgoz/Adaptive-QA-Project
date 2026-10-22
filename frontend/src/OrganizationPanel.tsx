@@ -2,6 +2,7 @@ import {useEffect, useRef, useState} from 'react';
 import type {FormEvent} from 'react';
 import {DiscoveryPanel} from './DiscoveryPanel';
 import {OrganizationRunPanel} from './OrganizationRunPanel';
+import {OrganizationAccessPanel} from './OrganizationAccessPanel';
 
 type Request = <T>(path: string, method?: string, body?: unknown) => Promise<T>;
 type Organization = {organization_id: string; name: string; role: string};
@@ -96,6 +97,7 @@ function OrganizationWorkspace({request}: {request: Request}) {
     <div>{organizations.map(organization => <button key={organization.organization_id} disabled={busy}
       onClick={() => choose(organization)}>{organization.name} · {organization.role}</button>)}</div>
     {selected && <div><h3>{selected.name}</h3><p className="hint">Role: {selected.role} · Projects: {projects.length} / {maxProjects}</p>
+      <OrganizationAccessPanel key={selected.organization_id} base={`/api/organizations/${selected.organization_id}`} role={selected.role} request={request}/>
       {canConfigure && <form onSubmit={createProject}><fieldset disabled={busy} className="inline">
         <label>Organization project name<input name="name" required maxLength={100}/></label><button>Create shared project</button>
       </fieldset></form>}

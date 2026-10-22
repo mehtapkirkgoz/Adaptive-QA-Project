@@ -193,7 +193,7 @@ def create_app(store: AuthStore, *, port=8765, projects=None, ui_directory=None)
     def public_project(project):
         return {'project_id': project.project_id, 'name': project.name}
 
-    register_organization_routes(app, organizations, organization_projects, actor, _object)
+    register_organization_routes(app, organizations, organization_projects, actor, _object, store)
 
     @app.get('/api/projects')
     def list_projects(request: Request):

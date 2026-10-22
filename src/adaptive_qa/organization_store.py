@@ -58,6 +58,9 @@ class OrganizationStore:
         organization_id = uuid4().hex
         with self.projects._connection() as c:
             c.execute('BEGIN IMMEDIATE')
+            count = c.execute("SELECT count(*) FROM dashboard_organization_members WHERE user_id=? AND role='owner'", (actor.user_id,)).fetchone()[0]
+            if count >= 20:
+                raise ValueError('Local organization creation capacity reached.')
             c.execute('INSERT INTO dashboard_organizations VALUES (?, ?, ?, ?, ?, ?)',
                       (organization_id, name, quota.max_projects, quota.max_pending_runs,
                        quota.max_active_runs, quota.max_daily_runs))
@@ -88,6 +91,12 @@ class OrganizationStore:
             return OrganizationQuota(*(row[k] for k in ('max_projects', 'max_pending_runs',
                                                         'max_active_runs', 'max_daily_runs')))
 
+    def members(self, actor, organization_id):
+        with self.projects._connection() as c:
+            self._membership(c, actor, organization_id, Action.MANAGE_MEMBERS)
+            return [{'user_id':row['user_id'],'role':Role(row['role']).value} for row in c.execute(
+                'SELECT user_id,role FROM dashboard_organization_members WHERE organization_id=? ORDER BY user_id LIMIT 100', (organization_id,))]
+
     def set_member(self, actor, organization_id, user_id, role):
         """Owner/admin may assign non-owner roles; admins cannot create peers."""
         _id(user_id)
@@ -98,6 +107,8 @@ class OrganizationStore:
             caller = self._membership(c, actor, organization_id, Action.MANAGE_MEMBERS)
             target = c.execute('SELECT role FROM dashboard_organization_members '
                                'WHERE organization_id=? AND user_id=?', (organization_id, user_id)).fetchone()
+            if target is None and c.execute('SELECT count(*) FROM dashboard_organization_members WHERE organization_id=?', (organization_id,)).fetchone()[0] >= 100:
+                raise ValueError('Local organization membership capacity reached.')
             if (target and target['role'] == Role.OWNER.value) or (
                     caller.role is Role.ADMIN and (role is Role.ADMIN or
                         (target and target['role'] == Role.ADMIN.value))):

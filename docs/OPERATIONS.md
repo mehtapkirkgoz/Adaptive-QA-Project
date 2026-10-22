@@ -1,5 +1,24 @@
 # Local Operations and Published Demo
 
+## Local Organization Onboarding
+
+Create each account with the existing interactive dashboard create-user command;
+do not put passwords in CLI arguments, source files, screenshots or chat. Sign in
+locally, expand Organizations, create/select a team and open Access and usage.
+An owner/admin may add the existing account's email as member/viewer; only an owner
+may assign admin. This neither creates accounts nor sends email invitations.
+Owner transfer/removal is disabled; admins cannot edit/remove peer admins or owners.
+Members/viewers cannot read the managed roster. The local caps are twenty owned
+organizations per account and one hundred members per organization.
+
+Refresh access and usage to read pending/active/UTC daily admitted-run counts.
+These are snapshots; cancellation frees outstanding slots but not daily usage.
+Set explicit project target/host scope, review fresh controlled discovery and
+select eligible tests before dispatch. Never treat a saved URL or a non-executing
+plan as execution authorization. Removing a member denies subsequent reads and
+late worker publication; previously recorded organizational results remain for
+the other current members. The public static demo does not provide onboarding.
+
 ## Organization Discovery During Sprint 10
 
 The local Organizations panel supports shared project configuration and bounded

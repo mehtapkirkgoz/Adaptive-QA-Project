@@ -15,13 +15,13 @@ are authorized by this sprint start.
 - [x] 10.1a: Define typed organization roles and fail-closed quota decisions.
 - [x] 10.1b: Persist organization membership with transactional privilege/revocation checks.
 - [x] 10.1c: Implement atomic run admission, active claims and daily usage reservations.
-- [ ] 10.2: Integrate organization-scoped projects, API/UI access and worker controls.
+- [x] 10.2: Integrate organization-scoped projects, API/UI access and worker controls.
   - [x] Persist separate organization projects and enforce transactional project quotas.
   - [x] Add authenticated, CSRF-protected organization/project configuration API routes.
   - [x] Add local organization/project configuration UI with role-aware controls.
   - [x] Integrate scoped discovery queue/worker lifecycle and recovery.
   - [x] Integrate scoped test-run admission/results/evidence and recovery.
-  - [ ] Finish membership administration and scoped usage visibility for onboarding.
+  - [x] Finish membership administration and scoped usage visibility for onboarding.
 - [ ] 10.3: Verify isolation and concurrency against two disposable organizations.
 - [ ] 10.4: Implement and exercise authenticated outbound agent flow on controlled local fixtures.
 - [ ] 10.5: Document onboarding/support and prioritized pilot findings.
@@ -192,3 +192,35 @@ both cases and persisted two PNGs, and anonymous/revoked evidence requests were
 denied. Zero UI external requests/page errors occurred. Production build passed;
 full local regression completed 631 tests (630 passed, one Windows symlink
 permission skip). New exact-commit CI remains pending after push.
+
+## Membership Administration and Usage Visibility
+
+Owner/admin can now list scoped members and add or change an existing provisioned
+account by email through the authenticated local API/UI. Authorization precedes
+account lookup and is rechecked in the membership write transaction. Members and
+viewers cannot enumerate account emails. Admins cannot create/administer admin
+peers or change owners; owner transfer/removal remains disabled. Unknown emails
+do not create accounts or send invitations. Provisioning remains an interactive
+local administrator operation. Membership removal affects subsequent API reads,
+worker claims and result/evidence publication checks.
+
+Local creation is capped at twenty owned organizations per user and one hundred
+members per organization, including its owner. These checks share the write
+transaction and do not prevent editing an existing member at capacity. The
+bounded roster exposes only current organization's member emails/roles to its
+managers. No public user search or password/token data is returned.
+
+The access panel also displays pending, active and UTC daily admitted-run counts
+alongside organization limits. Counts are a consistent read snapshot at refresh;
+they never authorize work. Actual dispatch/claim still reserves quota atomically.
+Cancellation does not refund the daily admission counter; another organization's
+usage remains inaccessible. These counters are not billing or API-model costs.
+
+New tests cover bounded organization/member creation, scoped usage after
+cancellation, authorized existing-account resolution, owner/admin privilege
+boundaries and denial before account lookup. The real browser flow adds a viewer
+through the UI and verifies the daily snapshot after two actual UI assertions in
+one run. Production build and focused tests passed. Full local regression completed
+635 tests (634 passed, one Windows symlink-permission skip). Exact-commit CI remains
+pending after push. Sprint 10 is not yet ready for closure; agent/pilot and final
+consolidated acceptance remain unfinished.

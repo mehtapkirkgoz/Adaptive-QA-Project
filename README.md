@@ -2,7 +2,7 @@
 
 An AI-assisted QA platform under development for website discovery and applicable UI, API, and database tests.
 
-**Active work:** [Sprint 10](docs/SPRINT_10.md) started on 2026-10-23. Organization roles, persistent memberships, atomic reservation policy and shared projects/settings with local authenticated API/UI are implemented and tested. Queue/worker integration, recovery and the controlled agent pilot remain unfinished. Sprint 9 was accepted and its issue/milestone are closed. The delivery remains a public interface demo plus local automation; the demo is unchanged.
+**Active work:** [Sprint 10](docs/SPRINT_10.md) started on 2026-10-23. Organization roles/membership administration, scoped project configuration, quota/usage tracking, discovery and explicit UI runs/results/PNG evidence are integrated in the local authenticated API/UI and guarded workers. The controlled outbound-agent pilot, consolidated two-organization checks and final exact-commit acceptance remain unfinished. Sprint 9 was accepted and its issue/milestone are closed. The delivery remains a public interface demo plus local automation; the demo is unchanged.
 
 **Accepted Sprint 9:** The HTTPS interface demo is live on GitHub Pages; real automation runs in the guarded managed local runtime. Reviewed packages, backup/restoration, session revocation, bounded workers and actual binary rollback preserving current data passed exact-commit Linux/Windows CI: all twelve jobs and 588 unit tests. Twelve downloaded artifact digests/head SHAs were verified. See [acceptance and limits](docs/SPRINT_9_ACCEPTANCE.md), [evidence](docs/evidence/sprint9-acceptance.json) and [local commands](docs/LOCAL_RUNTIME.md). Public backend hosting and a custom domain remain deferred.
 

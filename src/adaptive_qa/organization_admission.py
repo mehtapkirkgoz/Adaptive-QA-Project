@@ -42,6 +42,17 @@ class OrganizationAdmission:
             raise OrganizationNotFound('Organization not found.')
         return OrganizationQuota(*tuple(row))
 
+    def usage(self, actor, organization_id):
+        """Scoped advisory snapshot; only transactional reserve/claim admit work."""
+        with self.organizations.projects._connection() as c:
+            c.execute('BEGIN')
+            self.organizations._membership(c, actor, organization_id, Action.READ)
+            day = self._day()
+            pending = c.execute("SELECT count(*) FROM dashboard_organization_admissions WHERE organization_id=? AND status='pending'", (organization_id,)).fetchone()[0]
+            active = c.execute("SELECT count(*) FROM dashboard_organization_admissions WHERE organization_id=? AND status='active'", (organization_id,)).fetchone()[0]
+            daily = c.execute('SELECT count(*) FROM dashboard_organization_admissions WHERE organization_id=? AND utc_day=?', (organization_id,day)).fetchone()[0]
+            return {'utc_day':day,'pending_runs':pending,'active_runs':active,'daily_admitted_runs':daily}
+
     def reserve(self, actor, organization_id):
         with self.organizations.projects._connection() as c:
             c.execute('BEGIN IMMEDIATE')

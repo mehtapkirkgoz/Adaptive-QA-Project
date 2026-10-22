@@ -6,11 +6,45 @@ from starlette.concurrency import run_in_threadpool
 from adaptive_qa.organization_discovery import OrganizationDiscoveryQueue
 from adaptive_qa.organization_runs import OrganizationRunQueue
 from starlette.responses import Response
+from adaptive_qa.organization_policy import OrganizationAction as Action, OrganizationRole as Role
+from adaptive_qa.organization_store import OrganizationNotFound
 
 
-def register_organization_routes(app, organizations, projects, actor, parse_object):
+def register_organization_routes(app, organizations, projects, actor, parse_object, auth):
     discovery = OrganizationDiscoveryQueue(projects)
     runs = OrganizationRunQueue(discovery)
+
+    @app.get('/api/organizations/{organization_id}/usage')
+    def usage(organization_id: str, request: Request):
+        return runs.admission.usage(actor(request), organization_id)
+
+    @app.get('/api/organizations/{organization_id}/members')
+    def members(organization_id: str, request: Request):
+        rows = organizations.members(actor(request), organization_id)
+        emails = auth.member_emails(tuple(row['user_id'] for row in rows))
+        return {'members':[{**row,'email':emails.get(row['user_id'],'Unavailable account')} for row in rows]}
+
+    @app.put('/api/organizations/{organization_id}/members')
+    async def set_member(organization_id: str, request: Request):
+        identity = await run_in_threadpool(actor, request, mutation=True)
+        data = parse_object(await request.body(), ('email','role'))
+        # Authorize before account lookup, then recheck under the write transaction.
+        def save():
+            with organizations.projects._connection() as c:
+                organizations._membership(c,identity,organization_id,Action.MANAGE_MEMBERS)
+            target = auth.existing_actor(data['email'])
+            if target is None:
+                raise OrganizationNotFound('Organization not found.')
+            organizations.set_member(identity,organization_id,target.user_id,Role(data['role']))
+            return {'user_id':target.user_id,'role':data['role']}
+        return await run_in_threadpool(save)
+
+    @app.post('/api/organizations/{organization_id}/members/{user_id}/remove')
+    async def remove_member(organization_id: str, user_id: str, request: Request):
+        identity = await run_in_threadpool(actor, request, mutation=True)
+        parse_object(await request.body(), ())
+        await run_in_threadpool(organizations.remove_member,identity,organization_id,user_id)
+        return {'removed':True}
 
     @app.get('/api/organizations/{organization_id}/projects/{project_id}/runs')
     def list_runs(organization_id: str, project_id: str, request: Request):

@@ -12,6 +12,20 @@ from adaptive_qa.project_store import ProjectStore, ProjectActor
 
 
 class OrganizationAdmissionTests(unittest.TestCase):
+    def test_usage_snapshot_is_scoped_and_counts_cancelled_admissions(self):
+        first = self.ledger.reserve(self.actor,self.org)
+        second = self.ledger.reserve(self.actor,self.org)
+        token = self.ledger.claim(self.actor,self.org,first)
+        self.assertEqual(self.ledger.usage(self.actor,self.org),
+                         {'utc_day':1,'pending_runs':1,'active_runs':1,'daily_admitted_runs':2})
+        self.ledger.cancel_pending(self.actor,self.org,second)
+        self.ledger.finish(self.actor,self.org,first,token)
+        self.assertEqual(self.ledger.usage(self.actor,self.org),
+                         {'utc_day':1,'pending_runs':0,'active_runs':0,'daily_admitted_runs':2})
+        with self.assertRaises(OrganizationNotFound):
+            self.ledger.usage(self.other,self.org)
+        self.assertEqual(self.ledger.usage(self.other,self.second)['daily_admitted_runs'],0)
+
     def setUp(self):
         self.temp = TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)

@@ -13,6 +13,45 @@ from adaptive_qa.web_app import create_app, CSRF_COOKIE
 
 
 class WebOrganizationTests(unittest.TestCase):
+    def test_membership_admin_resolves_existing_accounts_and_does_not_provision(self):
+        base = '/api/organizations/'+self.org
+        response = self.client.put(base+'/members',headers=self.headers,
+                                   json={'email':'BOB@example.test','role':'admin'})
+        self.assertEqual(response.status_code,200)
+        self.assertEqual(response.json()['user_id'],self.bob.user_id)
+        rows = self.client.get(base+'/members').json()['members']
+        self.assertEqual({row['email'] for row in rows},{'alice@example.test','bob@example.test'})
+        self.assertEqual(self.client.put(base+'/members',headers=self.headers,
+                         json={'email':'unknown@example.test','role':'viewer'}).status_code,404)
+        self.assertIsNone(self.auth.existing_actor('unknown@example.test'))
+        self.assertEqual(self.client.put(base+'/members',headers=self.headers,
+                         json={'email':'bob@example.test','role':'owner'}).status_code,400)
+        self.login('bob')
+        self.assertEqual(self.client.put(base+'/members',headers=self.headers,
+                         json={'email':'alice@example.test','role':'viewer'}).status_code,404)
+        self.assertEqual(self.client.put(base+'/members',headers=self.headers,
+                         json={'email':'bob@example.test','role':'admin'}).status_code,404)
+        self.login('alice')
+        self.assertEqual(self.client.post(base+'/members/'+self.alice.user_id+'/remove',
+                                         headers=self.headers,json={}).status_code,404)
+        self.assertEqual(self.client.post(base+'/members/'+self.bob.user_id+'/remove',
+                                         headers=self.headers,json={}).status_code,200)
+        self.assertEqual(self.client.get(base+'/usage').json()['daily_admitted_runs'],0)
+
+    def test_member_and_viewer_cannot_enumerate_accounts_or_manage_members(self):
+        base = '/api/organizations/'+self.org
+        self.organizations.set_member(self.alice,self.org,self.bob.user_id,Role.VIEWER)
+        self.login('bob')
+        self.assertEqual(self.client.get(base+'/members').status_code,404)
+        from unittest.mock import patch
+        with patch.object(self.auth,'existing_actor',side_effect=AssertionError('No account enumeration')):
+            self.assertEqual(self.client.put(base+'/members',headers=self.headers,
+                json={'email':'alice@example.test','role':'admin'}).status_code,404)
+        self.assertEqual(self.client.get(base+'/usage').status_code,200)
+        self.assertEqual(self.client.post(base+'/members/'+self.alice.user_id+'/remove',headers=self.headers,json={}).status_code,404)
+        self.client.cookies.clear()
+        self.assertEqual(self.client.get(base+'/members').status_code,401)
+
     def test_shared_run_admission_result_and_evidence_require_current_membership(self):
         from adaptive_qa.organization_projects import OrganizationProjects
         from adaptive_qa.organization_discovery import OrganizationDiscoveryQueue

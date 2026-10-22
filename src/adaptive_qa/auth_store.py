@@ -112,6 +112,23 @@ class AuthStore:
             raise ValueError('Account provisioning failed.') from None
         return actor
 
+    def existing_actor(self, email):
+        """Trusted membership administration lookup; never provisions accounts."""
+        with self._connection() as connection:
+            row = connection.execute('SELECT user_id FROM dashboard_users WHERE email=?', (_email(email),)).fetchone()
+        return None if row is None else ProjectActor(row['user_id'])
+
+    def member_emails(self, user_ids):
+        """Trusted bounded lookup; caller must authorize the scoped member list."""
+        if not isinstance(user_ids, tuple) or not 1 <= len(user_ids) <= 100:
+            raise ValueError('A bounded member identity collection is required.')
+        for user_id in user_ids:
+            ProjectActor(user_id)
+        placeholders = ','.join('?' for _ in user_ids)
+        with self._connection() as connection:
+            rows = connection.execute('SELECT user_id,email FROM dashboard_users WHERE user_id IN ('+placeholders+')', user_ids).fetchall()
+            return {row['user_id']:row['email'] for row in rows}
+
     def _admit(self, email, now):
         identity = hashlib.sha256(email.encode('ascii')).digest()
         with self._connection() as connection:
