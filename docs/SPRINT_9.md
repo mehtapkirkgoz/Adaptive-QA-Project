@@ -106,3 +106,24 @@ still open. Domain/hosting requirements remain blocked on owner infrastructure.
 
 Recovery regression validation: 558 tests completed locally, with 557 passing and
 one Windows symlink-permission skip. Same-commit recovery CI remains pending.
+
+## Inactive Release Packaging
+
+Added committed-source release builds: a Python wheel, compiled dashboard ZIP,
+dependency lock files and SHA-256/size manifest bound to the full source commit.
+Only `git archive HEAD` sources are built; ignored data/secrets and working-tree
+edits are excluded. Completed bundles are not overwritten and never activate
+services. CI has a separate packaging/install-verification job and retains the
+commit-named bundle for seven days.
+
+A real local build from 63f8fa7 compiled TypeScript/Vite and built/installed the
+wheel into a temporary directory outside the source checkout. Its installed
+status command verified all 100 definitions (51 UI / 34 API / 15 database).
+All four payload digests were verified. This uses existing locked interpreter
+dependencies; empty-OS/container installation, fixtures, Chromium, runtime
+configuration and public serving remain unfinished, so 9.2 remains open.
+
+Packaging regression: 561 tests completed (560 passed, one Windows permission
+skip), including three pre-installation tamper/commit/file-set rejection tests.
+The real local build/install check passed; packaging CI is pending after push.
+Backup commit 7aaf817 passed CI run 39783349779.

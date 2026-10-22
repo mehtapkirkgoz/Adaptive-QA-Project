@@ -107,6 +107,40 @@ requires the same private ACLs as backups; do not upload it as a CI artifact.
 This demonstrates offline data recovery, not an implemented live cutover,
 application release rollback, migration framework or staging deployment.
 
+## Inactive Release Packaging
+
+From the repository root, run:
+
+```powershell
+python scripts/build_release.py
+python scripts/check_release.py artifacts/releases/<full-commit-sha>
+```
+
+Replace the SHA placeholder with the commit printed by the build. The builder
+uses `git archive HEAD`: only committed sources are built, even if the working
+tree contains edits. It does not publish working-tree changes, ignored secrets,
+databases or test evidence. Commit reviewed changes before building their release.
+Build tools download dependencies through pip/npm; no paid service is used.
+
+The bundle contains one Python wheel, compiled dashboard.zip, both dependency
+lock files and release.json. The manifest binds each payload's SHA-256/size to
+the full source commit and records Python/Node versions. A completed bundle is
+published only after successful builds; an existing commit directory is never
+overwritten. Build timestamps/tool resolution can vary: byte-for-byte reproducible
+builds are not claimed. Checksums are corruption checks, not release signatures.
+
+The verifier checks the exact file set/digests, commit and dashboard ZIP, installs
+the wheel into a temporary directory away from the source checkout and invokes
+its real status/catalog entry point. All 100 definitions must be present. This
+uses the current interpreter's already installed locked runtime dependencies;
+it is not a proof of deployment in an empty operating system or container.
+Python/Node runtimes, OS libraries, Chromium and controlled fixtures are not
+bundled. Browser worker packaging and deployment activation remain unfinished.
+
+CI builds/verifies this bundle separately and retains its commit-named artifact
+for seven days. Downloaded artifacts still require digest/commit verification
+and owner review before use. No release is activated or deployed by CI.
+
 ## Hosting Acceptance Requirements
 
 - Separate staging/production data, accounts, secrets and backup policies.

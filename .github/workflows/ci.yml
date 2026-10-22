@@ -29,6 +29,32 @@ jobs:
       - name: Run unit tests
         run: python -m unittest discover -s tests -v
 
+  release:
+    name: Inactive release packaging
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+      - name: Install locked verification dependencies
+        run: python -m pip install -r requirements.lock.txt
+      - name: Build committed inactive release
+        run: python scripts/build_release.py
+      - name: Verify digests and installed wheel away from checkout
+        run: python scripts/check_release.py artifacts/releases/${{ github.sha }}
+      - name: Upload inactive release bundle
+        uses: actions/upload-artifact@v7
+        with:
+          name: inactive-release-${{ github.sha }}
+          path: artifacts/releases/${{ github.sha }}/
+          retention-days: 7
+          if-no-files-found: error
+
   processes:
     name: Process lifecycle (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
