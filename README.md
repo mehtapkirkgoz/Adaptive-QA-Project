@@ -2,9 +2,11 @@
 
 An AI-assisted QA platform under development for website discovery and applicable UI, API, and database tests.
 
-**Status:** Sprint 7 technical acceptance is complete; ready for owner review and closure. The local React dashboard supports authenticated projects, scoped configuration/references, guarded discovery, explicit read-only UI runs, progress/results and owner-authorized PNG evidence. The catalog remains 40 UI, 20 API and 15 database definitions. Customer-site execution and deployment are not enabled.
+**Current sprint:** [Sprint 8](docs/SPRINT_8.md) started on 2026-10-22 after owner acceptance and closure of Sprint 7. The first reporting increment provides owned result projections with status filters and separate catalog/requested/recorded counts. HTTP exports and report UI are pending. The Sprint 7 delivery evidence below remains the accepted baseline.
 
-Sprint 7 implementation `2608fc40919e8e530c07b434538f70ac4070f118` passed 500 unit tests and all seven CI jobs. Six downloaded archive digests/head SHAs, 184 retained PNGs and 178 filesystem references were verified. The real panel completed LOGIN-001/SEARCH-001 and decoded authorized evidence while denying anonymous/other-owner access. See [acceptance and limits](docs/SPRINT_7_ACCEPTANCE.md), [verification manifest](docs/evidence/sprint7-acceptance.json), and [CI](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/actions/runs/39742021256). Sprint closure and the next sprint start remain with the owner.
+**Accepted baseline:** Sprint 7 is accepted; its issue and milestone are closed. The local React dashboard supports authenticated projects, scoped configuration/references, guarded discovery, explicit read-only UI runs, progress/results and owner-authorized PNG evidence. The catalog remains 40 UI, 20 API and 15 database definitions. Customer-site execution and deployment are not enabled.
+
+Sprint 7 implementation `2608fc40919e8e530c07b434538f70ac4070f118` passed 500 unit tests and all seven CI jobs. Six downloaded archive digests/head SHAs, 184 retained PNGs and 178 filesystem references were verified. The real panel completed LOGIN-001/SEARCH-001 and decoded authorized evidence while denying anonymous/other-owner access. See [acceptance and limits](docs/SPRINT_7_ACCEPTANCE.md), [verification manifest](docs/evidence/sprint7-acceptance.json), and [CI](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/actions/runs/39742021256). The owner has authorized Sprint 8; future sprint starts and closures remain with the owner.
 
 Earlier [Sprint 6 acceptance](docs/SPRINT_6_ACCEPTANCE.md) verified free local Ollama/qwen3:4b without an API key. Its nine model fixtures scored 8/9 website kinds overall and 4/5 on the separate holdout; errors and abstentions remain recorded. These small-fixture measurements do not establish arbitrary-site accuracy. See [Ollama setup](docs/OLLAMA.md), [Sprint 5 acceptance](docs/SPRINT_5_ACCEPTANCE.md), [Sprint 7 progress](docs/SPRINT_7.md) and [dashboard API contracts](docs/DASHBOARD_API.md). Destination, data-change, deadline and non-executing plan policies remain authoritative.
 
@@ -21,8 +23,8 @@ Sprints follow goals and acceptance criteria without a fixed two-week commitment
 | 4 | API tests | Completed |
 | 5 | Database validation | Accepted; issue closed |
 | 6 | AI integration | Accepted; issue closed |
-| 7 | Web dashboard | Technical acceptance complete; ready for owner review/closure |
-| 8 | Reporting and catalog expansion | Planned |
+| 7 | Web dashboard | Accepted; issue and milestone closed |
+| 8 | Reporting and catalog expansion | In progress |
 | 9 | Domain and deployment | Planned |
 | 10 | Customer management and pilot | Planned |
 
