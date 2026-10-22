@@ -1,4 +1,5 @@
 import {useEffect, useState} from 'react';
+import {ReportPanel} from './ReportPanel';
 
 type Outcome = {case_id: string; status: string; duration_seconds: number; message: string; evidence_id?: string};
 type Run = {run_id: string; status: string; case_ids: string[]; results: Outcome[]};
@@ -52,6 +53,7 @@ export function RunPanel({projectId, discoveryJobId, candidates, request}: Props
       {run.results.map(result => <p className="run-outcome" key={result.case_id}><strong>{result.case_id}</strong> <span>{result.status}</span> <small>{result.duration_seconds.toFixed(2)}s</small>
         {result.evidence_id && <a href={`${base}/${run.run_id}/evidence/${result.evidence_id}`} target="_blank" rel="noopener noreferrer">View screenshot</a>}</p>)}
       {run.status === 'completed' && <p className="hint">The run finished. Check each test outcome; completion does not mean every test passed.</p>}
+      <ReportPanel base={`${base}/${run.run_id}`} revision={`${run.status}:${run.results.length}`} request={request}/>
     </article>)}
   </section>;
 }

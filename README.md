@@ -2,7 +2,7 @@
 
 An AI-assisted QA platform under development for website discovery and applicable UI, API, and database tests.
 
-**Current sprint:** [Sprint 8](docs/SPRINT_8.md) started on 2026-10-22 after owner acceptance and closure of Sprint 7. The first reporting increment provides owned result projections with status filters and separate catalog/requested/recorded counts. HTTP exports and report UI are pending. The Sprint 7 delivery evidence below remains the accepted baseline.
+**Current sprint:** [Sprint 8](docs/SPRINT_8.md) started on 2026-10-22 after owner acceptance and closure of Sprint 7. Owned reports now provide dashboard status filters, JSON downloads and separate catalog/requested/recorded counts. Historical comparisons, reruns, retention and catalog expansion are pending. The Sprint 7 delivery evidence below remains the accepted baseline.
 
 **Accepted baseline:** Sprint 7 is accepted; its issue and milestone are closed. The local React dashboard supports authenticated projects, scoped configuration/references, guarded discovery, explicit read-only UI runs, progress/results and owner-authorized PNG evidence. The catalog remains 40 UI, 20 API and 15 database definitions. Customer-site execution and deployment are not enabled.
 

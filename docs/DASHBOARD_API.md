@@ -144,7 +144,25 @@ messages and filesystem paths. Missing/other-owner/wrong-project runs share 404.
 Authenticated screenshot delivery is described below. API/database and mutating
 test runs are unsupported by these endpoints.
 
-## Screenshot Evidence
+## Run Reports and JSON Export
+
+Owner-session GET endpoints under `/api/projects/{project_id}/runs/{run_id}`:
+
+- `/report`: complete persisted-result report.
+- `/report/status/{status}`: filtered rows for passed, failed, skipped, blocked,
+  cancelled or error. Unknown filters return 400.
+- `/report/download`: complete JSON attachment named `test-run-report.json`.
+
+All three are read-only, no-store and enforce project/run ownership. Anonymous
+access returns 401 and other-owner/missing records return 404. Query parameters
+remain rejected. Filtering does not change aggregate counts. Lifecycle state,
+catalog size, requested cases, recorded outcomes and unrecorded cases are separate.
+No success/skip status is invented for an unattempted case. The report contains
+reduced persisted messages and optional opaque evidence IDs, never screenshot
+bytes, raw adapter text, credentials or filesystem paths. Export is a snapshot
+at download time; an active run may have additional outcomes later.
+
+## Screenshot Evidence Details
 
 `GET /api/projects/{project_id}/runs/{run_id}/evidence/{evidence_id}` requires the
 owner's session and exact project/run/evidence binding. Recorded outcomes contain

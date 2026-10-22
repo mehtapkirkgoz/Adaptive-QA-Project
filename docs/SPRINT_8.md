@@ -12,7 +12,7 @@ pre-start CI run 39743359671 passed on e7ac30da9bfed7990fc6c8c6fc39cf4a601e2dcf.
 
 - [x] 8.1: Add a read-only owned report projection with result-status filtering,
   unchanged aggregate counts and explicit unrecorded counts.
-- [ ] 8.2: Expose authenticated reports and exports, with dashboard filtering.
+- [x] 8.2: Expose authenticated JSON reports/exports, with dashboard status filtering.
 - [ ] 8.3: Add explicit rerun admission and comparable historical results.
 - [ ] 8.4: Record flaky-test signals with context and sufficient observations.
 - [ ] 8.5: Enforce evidence retention and access rules.
@@ -21,8 +21,8 @@ pre-start CI run 39743359671 passed on e7ac30da9bfed7990fc6c8c6fc39cf4a601e2dcf.
 
 ## Reporting contract
 
-The first increment is a Python service projection; no report HTTP endpoint or
-dashboard report UI is delivered yet. Authorization uses the existing owned
+The projection is exposed through authenticated report and JSON download endpoints
+and the dashboard's Review report section. Authorization uses the existing owned
 run lookup. Reports never enqueue work or re-run assertions. The lifecycle state
 is separate from assertion outcomes: a completed run may contain failed tests.
 Filtering changes visible rows only. Aggregate counts cover all persisted
@@ -40,3 +40,18 @@ without cosmetic duplicates or exposing unimplemented executors.
 
 Owner review and closure remain required after technical acceptance. Sprint 9,
 deployment, paid services and customer-site execution are not authorized.
+
+## Dashboard report delivery
+
+Report/status/download paths enforce the existing owner session and exact run
+binding; query overrides remain rejected. JSON downloads use a fixed attachment
+filename and no-store headers, without image bytes or raw adapter messages.
+The dashboard loads reports on demand, clears stale rows during filter changes,
+and refreshes open reports as run progress changes. Empty filtered views retain
+the complete status counts. Screenshot links use the existing guarded endpoint.
+
+Validation: all 506 unit tests passed (including 22 project/API tests), strict TypeScript/Vite build passed,
+and the real Chromium dashboard check passed including status filtering and a
+downloaded JSON file matching two actual passed outcomes. Mobile width and
+authorized screenshot delivery remain covered. Historical comparisons, reruns,
+retention and catalog expansion are still pending.

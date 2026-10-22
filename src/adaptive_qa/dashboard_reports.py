@@ -1,6 +1,8 @@
 """Read-only reports built exclusively from owner-authorized persisted results."""
 
 from adaptive_qa.catalog import TEST_CASES
+from adaptive_qa.api_catalog import API_CASES
+from adaptive_qa.database_catalog import DATABASE_CASES
 from adaptive_qa.models import TestStatus
 
 
@@ -20,7 +22,7 @@ def build_run_report(runs, actor, project_id, run_id, *, status=None):
         'run_id': run['run_id'],
         'project_id': run['project_id'],
         'run_status': run['status'],
-        'catalog_total': len(TEST_CASES),
+        'catalog_total': len(TEST_CASES) + len(API_CASES) + len(DATABASE_CASES),
         'requested_total': len(run['case_ids']),
         'recorded_total': len(results),
         'unrecorded_total': len(run['case_ids']) - len(results),

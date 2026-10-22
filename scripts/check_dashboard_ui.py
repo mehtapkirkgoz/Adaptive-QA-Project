@@ -126,6 +126,24 @@ def main():
                     expect(runs.get_by_text('passed', exact=True)).to_have_count(2)
                     expect(runs.get_by_text('2 of 2 test results recorded.', exact=False)).to_be_visible()
                     expect(runs.get_by_role('link', name='View screenshot', exact=True)).to_have_count(2)
+                    completed = runs.locator('article').filter(has_text='Run completed')
+                    completed.get_by_role('button', name='Review report', exact=True).click()
+                    report = completed.get_by_label('Run report', exact=True)
+                    expect(report).to_contain_text('Requested: 2. Recorded: 2. Unrecorded: 0.')
+                    expect(report).to_contain_text('Catalog: 75.')
+                    report.get_by_label('Result status').select_option('failed')
+                    expect(report).to_contain_text('No recorded outcomes match this filter.')
+                    expect(report).to_contain_text('passed: 2')
+                    report.get_by_label('Result status').select_option('passed')
+                    expect(report.get_by_role('link', name='Report screenshot', exact=True)).to_have_count(2)
+                    with page.expect_download() as download_info:
+                        report.get_by_role('link', name='Download JSON report', exact=True).click()
+                    download = download_info.value
+                    assert download.suggested_filename == 'test-run-report.json'
+                    exported = json.loads(Path(download.path()).read_text(encoding='utf-8'))
+                    assert exported['recorded_total'] == 2 and exported['status_counts']['passed'] == 2
+                    assert exported['catalog_total'] == 75
+                    assert len(exported['results']) == 2
                     link = runs.locator('.run-outcome').filter(has_text='LOGIN-001').get_by_role('link', name='View screenshot', exact=True)
                     evidence_url = 'http://127.0.0.1:8765' + link.get_attribute('href')
                     with page.expect_popup() as popup_info:
@@ -184,6 +202,7 @@ def main():
         'discovery-backed plan review', 'historical policy mismatch denied',
         'explicit two-case selection', 'queued test-run cancellation',
         'separate test worker completion and two real passed outcomes',
+        'report filters preserve aggregate totals', 'downloaded JSON agrees with real outcomes',
         'decoded authorized screenshot', 'anonymous screenshot denied', 'other-owner screenshot denied',
         'no script errors or external requests']}), encoding='utf-8')
     print('Built React dashboard browser checks passed.')

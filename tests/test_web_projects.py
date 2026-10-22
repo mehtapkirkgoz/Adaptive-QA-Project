@@ -38,6 +38,40 @@ class WebProjectTests(unittest.TestCase):
             json={'email': 'alice@example.test', 'password': 'Local Alice password 123!'})
         self.headers['x-csrf-token'] = self.client.cookies[CSRF_COOKIE]
 
+    def test_owned_report_filter_and_json_export_match_persisted_assertions(self):
+        _, path, body = self.run_request()
+        run = self.client.post(path, headers=self.headers, json=body).json()
+        queue = DashboardRunQueue(self.projects)
+        work = queue.claim_next()
+        queue.record_result(work, TestResult('LOGIN-001', TestStatus.FAILED, .25, 'private adapter message'))
+        queue.finish(work)
+        target = path + '/' + run['run_id'] + '/report'
+        report = self.client.get(target)
+        self.assertEqual(report.status_code, 200)
+        self.assertEqual(report.json()['status_counts']['failed'], 1)
+        filtered = self.client.get(target + '/status/passed').json()
+        self.assertEqual(filtered['results'], [])
+        self.assertEqual(filtered['recorded_total'], 1)
+        export = self.client.get(target + '/download')
+        self.assertEqual(export.json(), report.json())
+        self.assertEqual(export.headers['content-disposition'], 'attachment; filename="test-run-report.json"')
+        self.assertEqual(export.headers['cache-control'], 'no-store')
+        self.assertNotIn('private adapter message', export.text)
+        self.assertEqual(self.client.get(target + '/status/completed').status_code, 400)
+        self.assertEqual(self.client.get(target + '?status=passed').status_code, 400)
+
+    def test_report_and_export_require_owner_session(self):
+        _, path, body = self.run_request()
+        run = self.client.post(path, headers=self.headers, json=body).json()
+        target = path + '/' + run['run_id'] + '/report'
+        self.client.cookies.clear()
+        for suffix in ('', '/download', '/status/failed'):
+            self.assertEqual(self.client.get(target + suffix).status_code, 401)
+        grant = self.auth.login('bob@example.test', 'Local Bob password 123!')
+        self.client.cookies.set(SESSION_COOKIE, grant.token.value)
+        for suffix in ('', '/download', '/status/failed'):
+            self.assertEqual(self.client.get(target + suffix).status_code, 404)
+
     def test_create_list_get_rename_and_reopen(self):
         response = self.client.post('/api/projects', headers=self.headers, json={'name': 'Checkout'})
         self.assertEqual(response.status_code, 201)

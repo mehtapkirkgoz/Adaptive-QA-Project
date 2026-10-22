@@ -19,6 +19,7 @@ from adaptive_qa.dashboard_plan import review_project_plan, ConfigurationRequire
 from adaptive_qa.dashboard_jobs import DashboardDiscoveryQueue, DiscoveryJobNotFound
 from adaptive_qa.dashboard_worker import configuration_fingerprint
 from adaptive_qa.dashboard_runs import DashboardRunQueue, TestRunNotFound
+from adaptive_qa.dashboard_reports import build_run_report
 
 
 SESSION_COOKIE = 'adaptive_session'
@@ -92,6 +93,20 @@ def create_app(store: AuthStore, *, port=8765, projects=None, ui_directory=None)
     @app.get('/api/projects/{project_id}/runs/{run_id}')
     def get_run(project_id: str, run_id: str, request: Request):
         return runs.get(actor(request), project_id, run_id)
+
+    @app.get('/api/projects/{project_id}/runs/{run_id}/report')
+    def run_report(project_id: str, run_id: str, request: Request):
+        return build_run_report(runs, actor(request), project_id, run_id)
+
+    @app.get('/api/projects/{project_id}/runs/{run_id}/report/status/{status}')
+    def filtered_run_report(project_id: str, run_id: str, status: str, request: Request):
+        return build_run_report(runs, actor(request), project_id, run_id, status=status)
+
+    @app.get('/api/projects/{project_id}/runs/{run_id}/report/download')
+    def download_run_report(project_id: str, run_id: str, request: Request):
+        report = build_run_report(runs, actor(request), project_id, run_id)
+        return JSONResponse(report, headers={
+            'Content-Disposition': 'attachment; filename="test-run-report.json"'})
 
     @app.post('/api/projects/{project_id}/runs/{run_id}/cancel')
     async def cancel_run(project_id: str, run_id: str, request: Request):
