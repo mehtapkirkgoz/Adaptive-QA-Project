@@ -133,7 +133,7 @@ function App() {
                 </div>}
               </section><RunPanel key={'runs:' + selected.project_id + JSON.stringify(settings)} projectId={selected.project_id} discoveryJobId={plan?.discovery_job_id}
                 candidates={plan?.cases.filter(item => item.decision === 'selected' && item.test_type === 'ui' && item.target_binding === 'local_root' && item.changes_data === false).map(item => item.case_id) ?? []} request={api}/></>}
-            </section></div><div className="roadmap"><span className="dot"/><p>Local discovery and explicit UI test runs are available. Screenshot access is coming next.</p></div></>}
+            </section></div><div className="roadmap"><span className="dot"/><p>Local discovery, explicit UI runs and owner-authorized screenshots are available.</p></div></>}
       </main><footer>ADAPTIVE QA <span>Controlled scope. Clear evidence.</span></footer>
     </div></div>;
 }
