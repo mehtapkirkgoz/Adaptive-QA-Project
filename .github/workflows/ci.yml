@@ -50,6 +50,8 @@ jobs:
         run: python scripts/check_process_lifecycle.py
       - name: Verify cancellable discovery supervision
         run: python -m unittest discover -s tests -p test_discovery_process.py -v
+      - name: Verify offline deployment backup and bundle checks
+        run: python -m unittest discover -s tests -p "test_backup*.py" -v
       - name: Upload lifecycle report
         if: always()
         uses: actions/upload-artifact@v7

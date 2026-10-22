@@ -55,6 +55,27 @@ restore, session invalidation and a complete rollback drill are still pending.
 No real operator database was backed up during development; verification used
 disposable fixtures only.
 
+### Verify Before Planning a Restore
+
+Use the returned bundle ID to verify a private, offline bundle in its original
+environment:
+
+```powershell
+python -m adaptive_qa deployment verify-backup --environment staging --data-root "$((Get-Location).Path)/artifacts/environments" --origin https://staging.example.test --bundle-id <bundle-id>
+```
+
+Replace `<bundle-id>` with the lowercase 32-character ID; the placeholder is not
+a literal command argument. Verification requires the exact manifest/database
+pair, bounded manifest/file sizes, matching environment and checksums, and SQLite
+integrity checks. It rejects duplicate JSON keys, duplicate database entries,
+redirected files and extra WAL/SHM files. Snapshots open in read-only immutable
+mode; keep the bundle offline and privately controlled while it is checked.
+Verification does not restore data, invalidate sessions or change live databases.
+The result explicitly reports `restored=false`. Checksums remain corruption checks,
+not proof of authenticity or application/schema compatibility. Successful
+verification is a prerequisite for a future reviewed restore, not permission to
+replace running databases.
+
 ## Hosting Acceptance Requirements
 
 - Separate staging/production data, accounts, secrets and backup policies.

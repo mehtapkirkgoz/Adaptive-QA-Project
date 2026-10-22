@@ -71,3 +71,18 @@ running; no container build or staging deployment has been claimed or activated.
 Local regression validation: 547 tests completed, 546 passed and the Windows
 symlink-permission fixture was skipped. Backup-specific tests all passed.
 Same-commit backup CI evidence remains pending after push.
+
+## Read-only Backup Verification
+
+Added `deployment verify-backup` with environment/format binding, bounded manifest
+parsing, duplicate-key/file rejection, streaming checksums and SQLite integrity
+checks. It opens immutable offline snapshots, creates no SQLite sidecars and
+does not restore or replace live databases. Seven focused tests exercise the CLI
+against changed live records, tampered snapshots, checksum-valid corrupt SQLite,
+wrong environments, malformed manifests, traversal, deadlines and missing files.
+Backup/verification tests also run in the existing Linux/Windows lifecycle jobs.
+Restore, session invalidation and rollback are still unfinished; 9.3 stays open.
+
+Local verification regression: 554 tests completed (553 passed, one Windows
+symlink-permission skip). Dependency compatibility and Python compilation passed.
+Exact-commit verification CI is pending after push.
