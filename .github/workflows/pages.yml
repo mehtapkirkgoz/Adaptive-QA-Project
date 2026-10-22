@@ -2,6 +2,11 @@ name: Publish interface demo to GitHub Pages
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/pages.yml'
 
 permissions:
   contents: read

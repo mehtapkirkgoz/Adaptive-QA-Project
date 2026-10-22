@@ -221,3 +221,10 @@ and both production/demo frontend builds passed.
 Previous implementation 4db5e1e passed CI run 39786903454; runtime a71bc2c also
 passed CI run 39786355350. Earlier 6e28abb run 39785596059 was cancelled; it is
 not claimed as successful evidence. Later accepted CI includes those changes.
+
+The first demo implementation's core CI run 39788675051 passed its demo/UI
+checks but the long browser job reached its 15-minute limit during later UI
+isolation checks. It is recorded as cancelled, not accepted. Pages source was
+saved as GitHub Actions after the owner-authorized public visibility change.
+Added a main/frontend-scoped push trigger to register/bootstrap the Pages
+workflow and keep future demo-only changes publishable without backend hosting.

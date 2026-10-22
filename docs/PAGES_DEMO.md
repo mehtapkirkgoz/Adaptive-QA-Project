@@ -26,7 +26,8 @@ widths 390/768/1440 with zero API/external requests or page errors.
 2. Run the `Publish interface demo to GitHub Pages` workflow on main.
 3. Review its successful deployment and open the URL returned by GitHub.
 
-The workflow is manual to avoid silently publishing every development push.
+The workflow supports manual publication and publishes on main when frontend
+sources or the Pages workflow change. Backend/docs-only pushes do not publish it.
 It builds only the demo and uploads only frontend/dist-demo. It never deploys
 the Python API, databases, screenshots, credentials, workers or full repository.
 Making the repository public separately exposes its tracked source/history, as
