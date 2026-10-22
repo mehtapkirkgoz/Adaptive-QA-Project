@@ -134,7 +134,7 @@ class PlanningTests(unittest.TestCase):
 
     def test_catalog_selects_form_checks_and_skips_absent_navigation(self):
         plan = build_test_plan(self.crawl(self.page(forms=(self.login, self.search))), TEST_CASES, self.project)
-        self.assertEqual(sum(item.decision == PlanDecision.SELECTED for item in plan.cases), 34)
+        self.assertEqual(sum(item.decision == PlanDecision.SELECTED for item in plan.cases), 39)
         self.assertEqual(sum(item.decision == PlanDecision.SKIPPED for item in plan.cases), 6)
         self.assertFalse(plan.execution_authorized)
 

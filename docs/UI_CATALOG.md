@@ -1,8 +1,8 @@
 # Controlled UI Catalog
 
-The catalog contains 40 distinct definitions and registered sample executors:
+The catalog contains 45 distinct definitions and registered sample executors:
 ten login cases, eight search cases, sixteen native-form cases, and six navigation
-cases. Language and project-mapping variants exercise the same IDs and do not
+cases, plus five cross-site HTML document rules. Language and project-mapping variants exercise the same IDs and do not
 increase the scenario count. Definitions live in `catalog.py`/`extra_ui_checks.py`.
 
 | IDs | Behaviors |
@@ -15,6 +15,7 @@ increase the scenario count. Definitions live in `catalog.py`/`extra_ui_checks.p
 | FORM-008–013 | Numeric minimum/maximum/step/validity, disabled and read-only editing |
 | FORM-014–016 | Restoring defaults, blocked invalid submission, valid submission status |
 | NAV-001–006 | Section links, keyboard activation, named targets, retained input, browser history |
+| DOC-001–005 | Non-empty title, declared language, unique IDs, valid ARIA references, resolvable local fragments |
 
 Every added definition has concrete prerequisites, steps, and an explicit expected
 outcome. Every executor makes browser assertions; unsupported or ambiguous bindings
@@ -35,3 +36,26 @@ New action scenarios prepare and clear browser-local fake test data explicitly;
 screenshots retain the asserted state before cleanup. Cleanup failures are errors.
 All scenarios also run in fresh browser processes and pass reverse-order checks.
 Backend/customer data provisioning and deletion remain outside this local adapter.
+
+## Cross-site expansion
+
+The five document rules in `document_checks.py` do not assume login, search,
+commerce, English labels or a particular button name. They inspect HTML without
+submitting forms or following links. No inspected page means blocked planning.
+These are baseline quality expectations, not a full accessibility audit;
+language presence does not prove correctness. ID and reference invariants pass
+when no applicable attributes exist. Empty `#` links are permitted; missing
+non-empty fragment targets fail. Hash-based SPA routing requires an explicit
+project contract before arbitrary-site use.
+
+`scripts/check_document_catalog.py` verifies each rule on information, commerce
+and account HTML (15 checks), then verifies five deliberately broken pages fail.
+These are five unique scenarios, not twenty new cases. Checks are offline and
+do not contact customer sites, authentication backends or external URLs.
+
+The full catalog now has 80 definitions: 45 UI, 20 API and 15 database cases.
+Expansion toward 100 should add distinct registration, product/cart, pagination
+and account scenarios with feature prerequisites, explicit bindings, concrete
+outcomes and positive/negative controlled fixtures. Checkout, payment and account
+creation require authorized data-changing configuration and cleanup. A larger
+catalog does not establish arbitrary-site execution or universal compatibility.

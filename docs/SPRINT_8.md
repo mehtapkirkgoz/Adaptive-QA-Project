@@ -54,4 +54,22 @@ Validation: all 506 unit tests passed (including 22 project/API tests), strict T
 and the real Chromium dashboard check passed including status filtering and a
 downloaded JSON file matching two actual passed outcomes. Mobile width and
 authorized screenshot delivery remain covered. Historical comparisons, reruns,
-retention and catalog expansion are still pending.
+retention and further catalog expansion are still pending.
+
+## Cross-site catalog increment
+
+Added five read-only document rules (DOC-001–005): title, language declaration,
+unique IDs, ARIA references and local fragment targets. These do not require
+login, commerce or fixed button labels. No discovery still blocks planning.
+The full catalog is now 80 definitions (45 UI / 20 API / 15 database).
+Fifteen positive checks across three contrasting offline HTML fixtures passed;
+all five deliberate defects were detected. CI now runs this verification and
+retains its reduced report in the matching evidence archive. See UI_CATALOG.md
+for limits and further expansion areas. The goal of 100 verified distinct cases
+is not reached and step 8.6 remains unfinished.
+
+The complete local queued browser suite passed all 45 UI scenarios with matching
+persisted results and PNG evidence after this addition. The built dashboard
+browser verification also passed with the updated 80-case report/plan totals.
+All 508 unit tests passed. CI for this increment must still be verified before
+technical acceptance; these local checks do not close the sprint.

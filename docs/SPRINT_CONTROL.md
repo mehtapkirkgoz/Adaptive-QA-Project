@@ -8,6 +8,9 @@ Sprint 7 issue #8 and milestone #8 are verified closed. Its verified implementat
 2608fc40919e8e530c07b434538f70ac4070f118, CI run 39742021256 (seven successful jobs).
 Acceptance and artifact verification are in docs/SPRINT_7_ACCEPTANCE.md.
 Continue unfinished Sprint 8 work in docs/SPRINT_8.md. Do not start Sprint 9.
+Latest owner steering: expand meaningful test coverage for different site types,
+with applicability prerequisites and explicit unsupported/uncertain outcomes.
+The current catalog has 80 definitions; the Sprint 8 goal of 100 remains open.
 The owner selected Ollama with a real local model after completing scripted
 validation. Technical acceptance and exact-commit CI/artifact review are complete.
 No API key, paid cloud service, or cloud model is authorized.

@@ -2,6 +2,7 @@
 
 from adaptive_qa.models import TestCase, TestType
 from adaptive_qa.extra_ui_checks import EXTRA_CASES
+from adaptive_qa.document_checks import DOCUMENT_CASES
 
 
 LOGIN_FORM_VISIBLE = TestCase(
@@ -74,3 +75,4 @@ TEST_CASES: tuple[TestCase, ...] = (
 )
 
 TEST_CASES += EXTRA_CASES
+TEST_CASES += DOCUMENT_CASES

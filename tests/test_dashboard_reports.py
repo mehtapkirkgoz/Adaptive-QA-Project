@@ -48,7 +48,7 @@ class DashboardReportTests(unittest.TestCase):
         self.assertEqual(failed['results'][0]['duration_seconds'], .5)
         self.assertNotIn('Private adapter text', str(failed))
         self.assertGreater(failed['catalog_total'], failed['requested_total'])
-        self.assertEqual(failed['catalog_total'], 75)
+        self.assertEqual(failed['catalog_total'], 80)
 
     def test_other_owner_or_project_cannot_read_report(self):
         f = self.fixture

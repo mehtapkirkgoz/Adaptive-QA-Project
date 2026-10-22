@@ -40,7 +40,7 @@ class DashboardWorkerTests(unittest.TestCase):
         self.assertEqual(outcome['status'], 'completed')
         report = self.get()['report']
         self.assertFalse(report['execution_authorized'])
-        self.assertEqual(report['counts']['catalog'], 75)
+        self.assertEqual(report['counts']['catalog'], 80)
         self.assertGreater(report['counts']['selected'], 0)
         self.assertEqual(report['configuration_source'], 'job_snapshot')
         self.assertNotIn('PRIVATE_LABEL_SENTINEL', str(report))
