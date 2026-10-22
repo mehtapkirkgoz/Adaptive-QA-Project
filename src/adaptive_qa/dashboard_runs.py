@@ -4,6 +4,7 @@ import json
 import secrets
 import hashlib
 import time
+import re
 from dataclasses import asdict
 from dataclasses import dataclass, field
 from uuid import uuid4
@@ -57,7 +58,7 @@ class DashboardRunQueue:
                 'ON dashboard_run_evidence(coalesce(expires_at, 0), evidence_id)')
             columns = {row['name'] for row in connection.execute('PRAGMA table_info(dashboard_test_runs)')}
             for name, declaration in (('claim_token', 'TEXT'), ('results_json', "TEXT NOT NULL DEFAULT '[]'"),
-                                      ('rerun_of', 'TEXT'), ('contracts_json', 'TEXT')):
+                                      ('rerun_of', 'TEXT'), ('contracts_json', 'TEXT'), ('execution_context', 'TEXT')):
                 if name not in columns:
                     connection.execute(f'ALTER TABLE dashboard_test_runs ADD COLUMN {name} {declaration}')
 
@@ -146,7 +147,20 @@ class DashboardRunQueue:
         with self.projects._connection() as connection:
             row = self._owned(connection, actor, project_id, run_id)
             return {'configuration': configuration_fingerprint(json.loads(row['configuration_json'])),
-                    'contracts': json.loads(row['contracts_json']) if row['contracts_json'] else None}
+                    'contracts': json.loads(row['contracts_json']) if row['contracts_json'] else None,
+                    'execution_context': row['execution_context']}
+
+    def record_execution_context(self, work, context):
+        if not isinstance(context, str) or not re.fullmatch('[0-9a-f]{64}', context):
+            raise ValueError('A validated execution context digest is required.')
+        with self.projects._connection() as connection:
+            connection.execute('BEGIN IMMEDIATE')
+            row = self._claimed(connection, work)
+            if row['status'] == 'cancel_requested':
+                return False
+            connection.execute('UPDATE dashboard_test_runs SET execution_context=? WHERE run_id=?',
+                               (context, work.run_id))
+            return True
 
     def get(self, actor, project_id, run_id):
         with self.projects._connection() as connection:

@@ -10,6 +10,7 @@ from adaptive_qa.models import TestResult, TestStatus
 from adaptive_qa.smoke_checks import SMOKE_CHECKS
 from adaptive_qa.worker_lock import worker_lock
 from adaptive_qa.dashboard_evidence import import_screenshot
+from adaptive_qa.execution_context import capture_execution_context
 
 
 def process_run_once(queue):
@@ -24,6 +25,7 @@ def process_run_once(queue):
             return (queue.cancellation_requested(work) or not queue.configuration_current(work)
                     or monotonic() - started >= 120)
         try:
+            context = capture_execution_context()
             if work.configuration['base_url'] not in ('http://127.0.0.1:8000', 'http://127.0.0.1:8000/'):
                 raise ValueError('Unsupported controlled target.')
             for case_id in work.case_ids:
@@ -46,5 +48,7 @@ def process_run_once(queue):
         except Exception:
             status = queue.finish(work, failed=True)
         else:
+            if context is not None and capture_execution_context() == context:
+                queue.record_execution_context(work, context)
             status = queue.finish(work)
         return {'run_id': work.run_id, 'project_id': work.project_id, 'status': status}

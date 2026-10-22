@@ -14,7 +14,7 @@ pre-start CI run 39743359671 passed on e7ac30da9bfed7990fc6c8c6fc39cf4a601e2dcf.
   unchanged aggregate counts and explicit unrecorded counts.
 - [x] 8.2: Expose authenticated JSON reports/exports, with dashboard status filtering.
 - [x] 8.3: Add explicit rerun admission and qualified historical results in the API/dashboard.
-- [ ] 8.4: Record flaky-test signals with context and sufficient observations.
+- [x] 8.4: Record conservative advisory signals with context and sufficient observations.
 - [x] 8.5: Enforce owned screenshot expiry and bounded cleanup, preserving assertion history.
 - [ ] 8.6: Expand to at least 100 meaningful, implemented and fixture-verified cases.
 - [ ] 8.7: Verify integrated acceptance and exact-commit CI evidence.
@@ -154,3 +154,30 @@ cleanup, unknown-age migration behavior and temporary-directory cleanup on
 success/failure. The real dashboard rerun/report/screenshot flow and strict
 TypeScript/Vite build passed with temporary owned PNG capture. The expiry index
 change was rechecked with all six focused retention tests. CI remains pending.
+
+## Consistency observations
+
+The owned worker captures bounded SHA-256 fingerprints of the local fixture and
+relevant executor/guard sources, Python patch version, platform and Playwright
+package version before/after execution. Only an unchanged known context is
+stored. Missing/oversized sources remain unknown; old runs are not backfilled.
+
+GET `/api/projects/{project_id}/flaky-signals` and the dashboard's Review
+consistency view inspect at most the latest 20 owned runs. Only completed runs
+with known context/definition contracts and passed/failed assertions contribute.
+Groups require matching saved policy, case definition and execution context.
+At least five observations, at least two passes and two failures, and two outcome
+transitions are required for a potential-flakiness advisory. A single sustained
+regression/recovery, insufficient history and cross-context differences do not
+establish that signal. No assertion status, confidence threshold, retry count or
+authorization is modified. Timing and external state may still differ; this is
+an investigation cue, not a proven nondeterminism diagnosis.
+
+Focused tests cover observation thresholds, context separation, excluded legacy
+runs, execution errors, ownership and bounded context capture. The real browser
+flow confirms that two actual outcomes produce insufficient-history information
+without an invented flaky verdict. The hourly follow-up now records Sprint 8 and
+the owner's instruction to notify after each commit and continue without waiting.
+
+All 532 unit tests, the strict frontend build and the real dashboard browser
+workflow passed after this increment. Same-commit CI is still required.

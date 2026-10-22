@@ -1,6 +1,7 @@
 import {useEffect, useState} from 'react';
 import {ReportPanel} from './ReportPanel';
 import {HistoryPanel} from './HistoryPanel';
+import {ConsistencyPanel} from './ConsistencyPanel';
 
 type Outcome = {case_id: string; status: string; duration_seconds: number; message: string; evidence_id?: string; evidence_expired?: boolean};
 type Run = {run_id: string; status: string; case_ids: string[]; results: Outcome[]; rerun_of: string | null};
@@ -45,6 +46,7 @@ export function RunPanel({projectId, discoveryJobId, candidates, request}: Props
       })}>Start selected tests</button>
     {error && <p role="alert" className="message error">{error}</p>}
     {!runs.length && <p className="hint">No test runs yet.</p>}
+    <ConsistencyPanel projectId={projectId} revision={runs.map(run => `${run.run_id}:${run.status}`).join(',')} request={request}/>
     {runs.map(run => <article className="run-card" data-run-id={run.run_id} key={run.run_id}><div className="discovery-job"><span><code>{run.run_id.slice(0, 8)}</code><strong>Run {run.status.replaceAll('_', ' ')}</strong></span>
       {active(run) && <button disabled={busy || run.status === 'cancel_requested'} onClick={() => void action(async () => {
         const updated = await request<Run>(`${base}/${run.run_id}/cancel`, 'POST', {});

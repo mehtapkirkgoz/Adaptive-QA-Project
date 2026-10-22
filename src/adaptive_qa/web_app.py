@@ -20,6 +20,7 @@ from adaptive_qa.dashboard_jobs import DashboardDiscoveryQueue, DiscoveryJobNotF
 from adaptive_qa.dashboard_worker import configuration_fingerprint
 from adaptive_qa.dashboard_runs import DashboardRunQueue, TestRunNotFound
 from adaptive_qa.dashboard_reports import build_run_report, compare_runs
+from adaptive_qa.flaky_signals import build_flaky_report
 
 
 SESSION_COOKIE = 'adaptive_session'
@@ -80,6 +81,10 @@ def create_app(store: AuthStore, *, port=8765, projects=None, ui_directory=None)
     @app.get('/api/projects/{project_id}/runs')
     def list_runs(project_id: str, request: Request):
         return {'runs': runs.list(actor(request), project_id)}
+
+    @app.get('/api/projects/{project_id}/flaky-signals')
+    def flaky_signals(project_id: str, request: Request):
+        return build_flaky_report(runs, actor(request), project_id)
 
     @app.post('/api/projects/{project_id}/runs', status_code=202)
     async def submit_run(project_id: str, request: Request):

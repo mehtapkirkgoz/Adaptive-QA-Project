@@ -104,6 +104,19 @@ class WebProjectTests(unittest.TestCase):
         self.assertEqual(self.client.get(path + '/' + work.run_id + '/evidence/' + result['evidence_id']).status_code, 404)
         self.assertEqual(self.client.get(path + '/' + work.run_id).json()['results'][0]['status'], 'passed')
 
+    def test_consistency_endpoint_requires_owner_session_and_is_advisory(self):
+        project = self.projects.create(self.alice, 'Consistency')
+        target = '/api/projects/' + project.project_id + '/flaky-signals'
+        response = self.client.get(target)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['signals'], [])
+        self.assertEqual(response.json()['minimum_observations'], 5)
+        self.client.cookies.clear()
+        self.assertEqual(self.client.get(target).status_code, 401)
+        grant = self.auth.login('bob@example.test', 'Local Bob password 123!')
+        self.client.cookies.set(SESSION_COOKIE, grant.token.value)
+        self.assertEqual(self.client.get(target).status_code, 404)
+
     def test_create_list_get_rename_and_reopen(self):
         response = self.client.post('/api/projects', headers=self.headers, json={'name': 'Checkout'})
         self.assertEqual(response.status_code, 201)

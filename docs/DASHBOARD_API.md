@@ -180,7 +180,22 @@ comparisons return 400; anonymous/other-owner access remains 401/404. Neither
 comparison nor export executes tests. Fixture state may differ; this API does
 not infer flaky tests or performance regressions.
 
-## Screenshot Evidence Storage
+## Test Consistency Signals
+
+`GET /api/projects/{project_id}/flaky-signals` requires the owner's session and
+reads at most 20 newest owned runs. Anonymous/other-owner access returns 401/404.
+Only completed passed/failed observations with known matching saved policy,
+definition hashes and captured execution context are grouped. Legacy/missing
+context is excluded. The local context fingerprints bounded fixture/runtime
+sources and runtime versions; it contains no credentials or raw site content.
+
+Potential flakiness requires five observations, two passes, two failures and two
+transitions within one group. Smaller groups report insufficient history; a
+single transition reports mixed outcomes. Signals include opaque context IDs,
+counts and owned run IDs. They are advisory, not proof or automatic retries.
+Results, deadlines and target/data-change authorization remain unchanged.
+
+## Screenshot Evidence Bytes and Cleanup
 
 `GET /api/projects/{project_id}/runs/{run_id}/evidence/{evidence_id}` requires the
 owner's session and exact project/run/evidence binding. Recorded outcomes contain

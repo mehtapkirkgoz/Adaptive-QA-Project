@@ -155,6 +155,10 @@ def main():
                     completed.get_by_label('Compare with run', exact=True).select_option(child_id)
                     expect(completed.get_by_test_id('comparison-row').filter(has_text='LOGIN-001')).to_contain_text('unrecorded')
                     expect(completed.get_by_label('Run comparison')).to_contain_text('do not establish flakiness')
+                    runs.get_by_role('button', name='Review consistency', exact=True).click()
+                    consistency = runs.get_by_label('Test consistency', exact=True)
+                    expect(consistency).to_contain_text('insufficient history')
+                    expect(consistency).to_contain_text('Minimum observations per context: 5')
                     link = runs.locator('.run-outcome').filter(has_text='LOGIN-001').get_by_role('link', name='View screenshot', exact=True)
                     evidence_url = 'http://127.0.0.1:8765' + link.get_attribute('href')
                     with page.expect_popup() as popup_info:
@@ -215,6 +219,7 @@ def main():
         'separate test worker completion and two real passed outcomes',
         'report filters preserve aggregate totals', 'downloaded JSON agrees with real outcomes',
         'explicit subset rerun queues without execution', 'cancelled rerun lineage and historical comparison',
+        'insufficient real history does not invent a flaky-test verdict',
         'decoded authorized screenshot', 'anonymous screenshot denied', 'other-owner screenshot denied',
         'no script errors or external requests']}), encoding='utf-8')
     print('Built React dashboard browser checks passed.')
