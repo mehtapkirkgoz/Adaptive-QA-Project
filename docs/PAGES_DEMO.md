@@ -1,5 +1,10 @@
 # Public Interface Demo
 
+Live: https://mehtapkirkgoz.github.io/Adaptive-QA-Project/
+Deployment run: 39825476044, successful, commit 3bd3709.
+The live HTTPS page returned 200; catalog/API filter, illustrative report label,
+mobile layout and zero API/external requests were verified by check_live_demo.py.
+
 The owner selected a GitHub-hosted interface demo while real automation remains
 local, and explicitly authorized making Adaptive-QA-Project public. No domain,
 paid plan, external backend or customer-site execution is required for this demo.

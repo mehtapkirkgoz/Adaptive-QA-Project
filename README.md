@@ -2,7 +2,7 @@
 
 An AI-assisted QA platform under development for website discovery and applicable UI, API, and database tests.
 
-**Current sprint:** [Sprint 9](docs/SPRINT_9.md) is in progress. Validated environment plans, bounded offline SQLite backups, backup verification and inactive recovery preparation are implemented. Recovery copies revoke old sessions, cancel active work and apply versioned additive migrations without replacing live databases or starting services. Runtime stores reject unsupported or incomplete versioned schemas before writing. Committed-source release bundles include a verified wheel, compiled dashboard and dependency locks. Environment runtime configuration, release rollback and HTTPS hosting remain unfinished. Domain/server purchases and public hosting are not enabled. See [deployment preparation](docs/DEPLOYMENT.md).
+**Current sprint:** [Sprint 9](docs/SPRINT_9.md) is in progress. Validated environment plans, bounded offline SQLite backups, backup verification and inactive recovery preparation are implemented. Recovery copies revoke old sessions, cancel active work and apply versioned additive migrations without replacing live databases or starting services. Runtime stores reject unsupported or incomplete versioned schemas before writing. Committed-source release bundles include a verified wheel, compiled dashboard and dependency locks. The static HTTPS interface demo is live on GitHub Pages. Environment runtime configuration, actual release rollback and backend hosting remain unfinished; no domain or server has been purchased. See [deployment preparation](docs/DEPLOYMENT.md).
 
 **Accepted Sprint 8 baseline:** All 100 scenarios (51 UI / 34 API / 15 database), 534 unit tests and seven CI jobs are verified on implementation `d72d2f5`. Reports include filters, JSON downloads, explicit reruns, historical comparison, consistency signals and seven-day owned screenshot retention. Its issue and milestone are closed. See [acceptance](docs/SPRINT_8_ACCEPTANCE.md), [full catalog](docs/evidence/sprint8-catalog.json) and [verified evidence](docs/evidence/sprint8-acceptance.json).
 
@@ -23,8 +23,10 @@ The owner selected GitHub Pages for a public, non-executing interface demo;
 real automation continues locally. The demo includes sample projects, the
 100-case catalog and explicitly illustrative reports. No credentials or API
 connection are needed, and no test is started. See [demo build and publication](docs/PAGES_DEMO.md).
-The owner authorized making this repository public; Pages publication/URL
-verification is in progress. This does not mark backend deployment complete.
+Live demo: [Adaptive QA](https://mehtapkirkgoz.github.io/Adaptive-QA-Project/).
+This repository is public at the owner's request. HTTPS, catalog filtering,
+illustrative report labels and mobile layout were verified on the live page.
+This does not mark backend deployment complete.
 
 ## Project Plans
 

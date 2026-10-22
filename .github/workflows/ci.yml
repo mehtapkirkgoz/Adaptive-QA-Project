@@ -198,28 +198,6 @@ jobs:
         run: python scripts/check_dashboard_worker.py
       - name: Verify separate owned UI test worker
         run: python scripts/check_dashboard_runs.py
-      - name: Verify structural page collection
-        run: python scripts/check_page_collector.py
-      - name: Verify deterministic element matching
-        run: python scripts/check_element_matching.py
-      - name: Verify cross-site document rules and negative fixtures
-        run: python scripts/check_document_catalog.py
-      - name: Verify reusable UI checks across fixture names
-        run: python scripts/check_reusable_ui.py
-      - name: Verify fixture cleanup and reverse-order independence
-        run: python scripts/check_ui_isolation.py
-      - name: Verify UI API database record creation and readback
-        run: python scripts/check_database_bridge.py
-      - name: Verify free local AI integration and fallback boundaries
-        run: python scripts/check_ai_acceptance.py
-      - name: Verify explicit UI and API validation binding
-        run: python scripts/check_ui_api_bridge.py
-      - name: Verify bounded local discovery
-        run: python scripts/check_local_discovery.py
-      - name: Verify contrasting discovery fixtures and test plans
-        run: python scripts/check_discovery_acceptance.py
-      - name: Run controlled local browser check
-        run: python scripts/check_local_browser.py
       - name: Upload browser results and screenshots
         if: always()
         uses: actions/upload-artifact@v7
@@ -239,5 +217,85 @@ jobs:
             artifacts/dashboard/*.png
             artifacts/demo/*.json
             artifacts/demo/*.png
+          retention-days: 7
+          if-no-files-found: warn
+
+  ui_catalog:
+    name: UI catalog and isolation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - name: Install dependencies and package
+        run: |
+          python -m pip install -r requirements.lock.txt
+          python -m pip install --no-deps -e .
+      - name: Install Chromium and system dependencies
+        run: python -m playwright install --with-deps chromium
+      - name: Verify structural page collection
+        run: python scripts/check_page_collector.py
+      - name: Verify deterministic element matching
+        run: python scripts/check_element_matching.py
+      - name: Verify cross-site document rules and negative fixtures
+        run: python scripts/check_document_catalog.py
+      - name: Verify reusable UI checks across fixture names
+        run: python scripts/check_reusable_ui.py
+      - name: Verify fixture cleanup and reverse-order independence
+        run: python scripts/check_ui_isolation.py
+      - name: Upload catalog and isolation evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ui-catalog-evidence
+          path: |
+            artifacts/results/*.json
+            artifacts/screenshots/*.png
+            artifacts/matching/*.json
+          retention-days: 7
+          if-no-files-found: warn
+
+  browser_integrations:
+    name: Browser integration checks
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - name: Install dependencies and package
+        run: |
+          python -m pip install -r requirements.lock.txt
+          python -m pip install --no-deps -e .
+      - name: Install Chromium and system dependencies
+        run: python -m playwright install --with-deps chromium
+      - name: Verify UI API database record creation and readback
+        run: python scripts/check_database_bridge.py
+      - name: Verify free local AI integration and fallback boundaries
+        run: python scripts/check_ai_acceptance.py
+      - name: Verify explicit UI and API validation binding
+        run: python scripts/check_ui_api_bridge.py
+      - name: Verify bounded local discovery
+        run: python scripts/check_local_discovery.py
+      - name: Verify contrasting discovery fixtures and test plans
+        run: python scripts/check_discovery_acceptance.py
+      - name: Run controlled local browser check
+        run: python scripts/check_local_browser.py
+      - name: Upload browser integration evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: browser-integration-evidence
+          path: |
+            artifacts/results/*.json
+            artifacts/screenshots/*.png
+            artifacts/smoke/*.json
+            artifacts/discovery/*.json
+            artifacts/bridge/*.json
+            artifacts/database/bridge.json
+            artifacts/ai/*.json
           retention-days: 7
           if-no-files-found: warn

@@ -228,3 +228,24 @@ isolation checks. It is recorded as cancelled, not accepted. Pages source was
 saved as GitHub Actions after the owner-authorized public visibility change.
 Added a main/frontend-scoped push trigger to register/bootstrap the Pages
 workflow and keep future demo-only changes publishable without backend hosting.
+
+Split the previous monolithic browser CI job into dashboard/security, UI
+catalog/isolation and browser integrations. Each retains its 15-minute job limit,
+all previous scripts and unchanged runtime child deadlines/target policies.
+Independent jobs no longer spend a shared browser budget. Evidence is retained
+under separate artifact names; no check or scenario was removed. Full same-commit
+CI remains required before acceptance.
+
+## Live Demo Verification
+
+Pages deployment run 39825476044 succeeded for commit
+3bd37092fef9c22920120e2696e2a3da5a5d8547. GitHub Settings displayed the live
+HTTPS URL https://mehtapkirkgoz.github.io/Adaptive-QA-Project/ and enforced HTTPS.
+The live page was opened in the owner's right-side browser panel.
+
+`check_live_demo.py` contacts only that explicitly authorized public demo. It
+verified HTTP 200 over HTTPS, all 100 catalog definitions, the 34-case API filter,
+synthetic report labels and mobile width, with zero API/external requests or page
+errors. The test engine was not executed. Safe live report and desktop/mobile
+screenshots are in artifacts/demo. See evidence/sprint9-pages.json. This verifies
+the static UI publication, not an online Python/worker runtime or Sprint 9 closure.

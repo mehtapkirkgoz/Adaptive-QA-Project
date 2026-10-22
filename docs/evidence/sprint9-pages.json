@@ -1,0 +1,18 @@
+{
+  "source_commit": "3bd37092fef9c22920120e2696e2a3da5a5d8547",
+  "deployment_run": 39825476044,
+  "deployment_conclusion": "success",
+  "url": "https://mehtapkirkgoz.github.io/Adaptive-QA-Project/",
+  "repository_visibility": "public",
+  "visibility_authorized_by_owner": true,
+  "pages_source": "GitHub Actions",
+  "https_status": 200,
+  "catalog_definitions": 100,
+  "api_filter_definitions": 34,
+  "illustrative_report_label_verified": true,
+  "mobile_overflow": false,
+  "api_or_external_requests": 0,
+  "page_errors": [],
+  "test_engine_execution": false,
+  "limitation": "Static interface demo; real automation and persistent data remain local."
+}
