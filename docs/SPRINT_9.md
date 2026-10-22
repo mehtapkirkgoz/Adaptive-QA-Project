@@ -297,3 +297,9 @@ runtime tests and the real final drill passed after the last runtime changes.
 Full local regression completed 588 tests (587 passed, one Windows symlink
 permission skip). Previous implementation 15f2bc0 passed the split ten-job CI run
 39826529115. New managed-runtime exact-commit Linux/Windows evidence is pending.
+
+The first managed-runtime CI attempt exposed a Windows test-fixture path alias:
+the runner's temporary root used a short filename while DeploymentPlan had
+canonicalized it. The fixture now resolves its temporary root before constructing
+candidate paths. Runtime rejection of redirected/noncanonical candidates is
+unchanged. The failed attempt is not accepted as cross-platform evidence.

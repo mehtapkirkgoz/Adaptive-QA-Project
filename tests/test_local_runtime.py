@@ -20,7 +20,7 @@ class LocalRuntimeTests(unittest.TestCase):
     def setUp(self):
         self.temp = TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
-        self.root = Path(self.temp.name)
+        self.root = Path(self.temp.name).resolve()
         self.plan = DeploymentPlan(Environment.LOCAL, self.root, 'http://127.0.0.1:8877')
         AuthStore(self.plan.directory / 'auth.sqlite')
         DashboardRunQueue(ProjectStore(self.plan.directory / 'projects.sqlite'))
