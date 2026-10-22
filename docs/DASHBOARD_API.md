@@ -194,4 +194,20 @@ Worker import accepts at most one UUID-named PNG from the trusted screenshot
 directory, with a 5 MiB byte cap, dimensions up to 20,000 per side/40 million pixels,
 regular-file/reparse checks and PNG structural/CRC checks. Unsupported text/EXIF
 metadata and animation are omitted. Invalid or absent optional evidence does not
-change assertion status. Retention and storage quotas are future Sprint 8 scope.
+change assertion status.
+
+Owned PNG BLOBs expire seven days after result commit. Expired and unknown-age
+legacy evidence returns 404 immediately; reports omit stale links and retain
+actual outcomes. Worker screenshots are created in a per-invocation temporary
+directory and removed after import, including failure/cancellation cleanup.
+The trusted operator command below removes expired/unknown-age database BLOBs
+in bounded batches; workers also prune one batch per invocation:
+
+```powershell
+adaptive-qa dashboard prune-evidence --database artifacts/dashboard/projects.sqlite --limit 100
+```
+
+`--limit` accepts 1–1000. There is no HTTP purge endpoint or hosted cleanup
+scheduler. Inactive installations require the operator command. Development
+CLI artifacts and offline backups are separately controlled by the operator;
+deleting live database rows does not promise forensic backup erasure.

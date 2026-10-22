@@ -114,7 +114,7 @@ def _read_result(path: Path, expected_case_id: str = "LOGIN-001") -> TestResult:
 
 def run_isolated_sample_test(
     case_id: str, timeout_seconds: float = 30, *, should_cancel: Callable[[], bool] | None = None,
-    site: str = 'root'
+    site: str = 'root', evidence_directory: Path | None = None
 ) -> TestResult:
     """Return a result, terminating the child tree if its deadline expires."""
     if (
@@ -142,6 +142,8 @@ def run_isolated_sample_test(
         command = [sys.executable, "-m", "adaptive_qa.browser_process", "--child-result", str(output), "--case", case_id]
         if site != 'root':
             command += ['--site', site]
+        if evidence_directory is not None:
+            command += ['--evidence-directory', str(evidence_directory.absolute())]
         process = subprocess.Popen(
             command,
             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, **options,
@@ -197,8 +199,12 @@ def main() -> None:
     parser.add_argument("--child-result", type=Path, required=True)
     parser.add_argument("--case", choices=sorted(SMOKE_CHECKS), default="LOGIN-001")
     parser.add_argument('--site', choices=('root', 'english', 'turkish', 'mapped'), default='root')
+    parser.add_argument('--evidence-directory', type=Path)
     args = parser.parse_args()
-    result = run_sample_test(args.case, site=args.site) if args.site != 'root' else run_sample_test(args.case)
+    if args.evidence_directory is not None:
+        result = run_sample_test(args.case, site=args.site, evidence_directory=args.evidence_directory)
+    else:
+        result = run_sample_test(args.case, site=args.site) if args.site != 'root' else run_sample_test(args.case)
     args.child_result.write_text(json.dumps(asdict(result)), encoding="utf-8")
 
 

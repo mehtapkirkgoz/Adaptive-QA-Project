@@ -2,7 +2,7 @@ import {useEffect, useState} from 'react';
 
 type Report = {run_status: string; catalog_total: number; requested_total: number;
   recorded_total: number; unrecorded_total: number; status_counts: Record<string, number>;
-  results: {case_id: string; status: string; duration_seconds: number; message: string; evidence_id?: string}[]};
+  results: {case_id: string; status: string; duration_seconds: number; message: string; evidence_id?: string; evidence_expired?: boolean}[]};
 type Props = {base: string; revision: string;
   request: <T>(path: string, method?: string, body?: unknown) => Promise<T>};
 
@@ -31,10 +31,12 @@ export function ReportPanel({base, revision, request}: Props) {
       {report && <>
         <p>Catalog: {report.catalog_total}. Requested: {report.requested_total}. Recorded: {report.recorded_total}. Unrecorded: {report.unrecorded_total}.</p>
         <p className="hint">Catalog size does not mean every case applies to this project. Totals include outcomes hidden by the filter.</p>
+        <p className="hint">Screenshots expire after seven days. Recorded assertion outcomes remain available.</p>
         <p>{Object.entries(report.status_counts).map(([status, count]) => `${status}: ${count}`).join(' · ')}</p>
         {!report.results.length && <p>No recorded outcomes match this filter.</p>}
         {report.results.map(result => <p key={result.case_id}><strong>{result.case_id}</strong> {result.status} ({result.duration_seconds.toFixed(2)}s). {result.message}
-          {result.evidence_id && <> <a href={`${base}/evidence/${result.evidence_id}`} target="_blank" rel="noopener noreferrer">Report screenshot</a></>}</p>)}
+          {result.evidence_id && <> <a href={`${base}/evidence/${result.evidence_id}`} target="_blank" rel="noopener noreferrer">Report screenshot</a></>}
+          {result.evidence_expired && <> Screenshot expired.</>}</p>)}
       </>}
     </>}
   </section>;

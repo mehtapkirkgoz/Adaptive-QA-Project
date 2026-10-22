@@ -135,7 +135,7 @@ def _verify_sample_page(evidence_path: Path, case_id: str = "LOGIN-001", *, site
             browser.close()
 
 
-def run_sample_test(case_id: str, *, site: str = "root") -> TestResult:
+def run_sample_test(case_id: str, *, site: str = "root", evidence_directory=None) -> TestResult:
     """Execute a registered sample check in a fresh browser context."""
     definition = next((case for case in TEST_CASES if case.case_id == case_id), None)
     if site not in SITE_PATHS or (site != 'root' and case_id not in VARIANT_CHECKS):
@@ -146,7 +146,7 @@ def run_sample_test(case_id: str, *, site: str = "root") -> TestResult:
         return TestResult(case_id, TestStatus.BLOCKED, 0.0, "Data-changing sample tests are disabled.")
     started_at = perf_counter()
 
-    evidence_directory = Path("artifacts/screenshots")
+    evidence_directory = Path("artifacts/screenshots") if evidence_directory is None else Path(evidence_directory)
     evidence_directory.mkdir(parents=True, exist_ok=True)
     evidence_path = evidence_directory / f"{uuid4().hex}.png"
 

@@ -2,7 +2,7 @@ import {useEffect, useState} from 'react';
 import {ReportPanel} from './ReportPanel';
 import {HistoryPanel} from './HistoryPanel';
 
-type Outcome = {case_id: string; status: string; duration_seconds: number; message: string; evidence_id?: string};
+type Outcome = {case_id: string; status: string; duration_seconds: number; message: string; evidence_id?: string; evidence_expired?: boolean};
 type Run = {run_id: string; status: string; case_ids: string[]; results: Outcome[]; rerun_of: string | null};
 type Props = {projectId: string; discoveryJobId?: string; candidates: string[];
   request: <T>(path: string, method?: string, body?: unknown) => Promise<T>};
@@ -52,7 +52,8 @@ export function RunPanel({projectId, discoveryJobId, candidates, request}: Props
       })}>Cancel test run</button>}</div>
       <p className="hint">{run.results.length} of {run.case_ids.length} test results recorded. Unattempted cases have no result.</p>
       {run.results.map(result => <p className="run-outcome" key={result.case_id}><strong>{result.case_id}</strong> <span>{result.status}</span> <small>{result.duration_seconds.toFixed(2)}s</small>
-        {result.evidence_id && <a href={`${base}/${run.run_id}/evidence/${result.evidence_id}`} target="_blank" rel="noopener noreferrer">View screenshot</a>}</p>)}
+        {result.evidence_id && <a href={`${base}/${run.run_id}/evidence/${result.evidence_id}`} target="_blank" rel="noopener noreferrer">View screenshot</a>}
+        {result.evidence_expired && <small>Screenshot expired</small>}</p>)}
       {run.status === 'completed' && <p className="hint">The run finished. Check each test outcome; completion does not mean every test passed.</p>}
       {run.rerun_of && <p className="hint">Rerun of {run.rerun_of.slice(0, 8)}</p>}
       {!active(run) && <>

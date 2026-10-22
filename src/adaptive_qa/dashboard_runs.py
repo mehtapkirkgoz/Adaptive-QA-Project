@@ -3,6 +3,7 @@
 import json
 import secrets
 import hashlib
+import time
 from dataclasses import asdict
 from dataclasses import dataclass, field
 from uuid import uuid4
@@ -34,8 +35,12 @@ class TestRunNotFound(LookupError):
 class DashboardRunQueue:
     """Owned dispatch and result lifecycle; HTTP integration remains separate."""
 
-    def __init__(self, projects):
+    def __init__(self, projects, *, clock=None, retention_seconds=7 * 86400):
+        if type(retention_seconds) is not int or not 60 <= retention_seconds <= 30 * 86400:
+            raise ValueError('Evidence retention must be 60 seconds to 30 days.')
         self.projects = projects
+        self.clock = clock or time.time
+        self.retention_seconds = retention_seconds
         DashboardDiscoveryQueue(projects)
         with projects._connection() as connection:
             connection.execute('CREATE TABLE IF NOT EXISTS dashboard_test_runs ('
@@ -45,17 +50,26 @@ class DashboardRunQueue:
             connection.execute('CREATE INDEX IF NOT EXISTS dashboard_runs_owner ON dashboard_test_runs(owner_id, sequence)')
             connection.execute('CREATE TABLE IF NOT EXISTS dashboard_run_evidence ('
                 'evidence_id TEXT PRIMARY KEY, run_id TEXT NOT NULL, case_id TEXT NOT NULL, png BLOB NOT NULL)')
+            evidence_columns = {row['name'] for row in connection.execute('PRAGMA table_info(dashboard_run_evidence)')}
+            if 'expires_at' not in evidence_columns:
+                connection.execute('ALTER TABLE dashboard_run_evidence ADD COLUMN expires_at REAL')
+            connection.execute('CREATE INDEX IF NOT EXISTS dashboard_evidence_expiry '
+                'ON dashboard_run_evidence(coalesce(expires_at, 0), evidence_id)')
             columns = {row['name'] for row in connection.execute('PRAGMA table_info(dashboard_test_runs)')}
             for name, declaration in (('claim_token', 'TEXT'), ('results_json', "TEXT NOT NULL DEFAULT '[]'"),
                                       ('rerun_of', 'TEXT'), ('contracts_json', 'TEXT')):
                 if name not in columns:
                     connection.execute(f'ALTER TABLE dashboard_test_runs ADD COLUMN {name} {declaration}')
 
-    @staticmethod
-    def _public(row):
+    def _public(self, row):
+        results = json.loads(row['results_json'])
+        for result in results:
+            if result.get('evidence_id') and result.get('evidence_expires_at', 0) <= self.clock():
+                result.pop('evidence_id')
+                result['evidence_expired'] = True
         return {'run_id': row['run_id'], 'project_id': row['project_id'],
                 'discovery_job_id': row['discovery_job_id'], 'case_ids': json.loads(row['case_ids_json']),
-                'status': row['status'], 'results': json.loads(row['results_json']), 'rerun_of': row['rerun_of']}
+                'status': row['status'], 'results': results, 'rerun_of': row['rerun_of']}
 
     def _owned(self, connection, actor, project_id, run_id):
         self.projects._actor(actor)
@@ -217,9 +231,12 @@ class DashboardRunQueue:
                             'message': f'Test execution outcome: {result.status.value}.'})
             if evidence_png is not None:
                 evidence_id = uuid4().hex
-                connection.execute('INSERT INTO dashboard_run_evidence VALUES (?, ?, ?, ?)',
-                                   (evidence_id, work.run_id, result.case_id, evidence_png))
+                expires_at = self.clock() + self.retention_seconds
+                connection.execute('INSERT INTO dashboard_run_evidence '
+                    '(evidence_id, run_id, case_id, png, expires_at) VALUES (?, ?, ?, ?, ?)',
+                    (evidence_id, work.run_id, result.case_id, evidence_png, expires_at))
                 results[-1]['evidence_id'] = evidence_id
+                results[-1]['evidence_expires_at'] = expires_at
             connection.execute('UPDATE dashboard_test_runs SET results_json=? WHERE run_id=?',
                                (json.dumps(results, allow_nan=False), work.run_id))
             return True
@@ -228,11 +245,22 @@ class DashboardRunQueue:
         _id(evidence_id)
         with self.projects._connection() as connection:
             self._owned(connection, actor, project_id, run_id)
-            row = connection.execute('SELECT png FROM dashboard_run_evidence WHERE evidence_id=? AND run_id=?',
+            row = connection.execute('SELECT png, expires_at FROM dashboard_run_evidence WHERE evidence_id=? AND run_id=?',
                                      (evidence_id, run_id)).fetchone()
-        if row is None:
+        if row is None or row['expires_at'] is None or row['expires_at'] <= self.clock():
             raise TestRunNotFound('Test run not found.')
         return bytes(row['png'])
+
+    def prune_expired_evidence(self, *, limit=100):
+        """Trusted operator cleanup; expired access is denied even before pruning."""
+        if type(limit) is not int or not 1 <= limit <= 1000:
+            raise ValueError('Cleanup batch size must be between 1 and 1000.')
+        with self.projects._connection() as connection:
+            connection.execute('BEGIN IMMEDIATE')
+            removed = connection.execute('DELETE FROM dashboard_run_evidence WHERE evidence_id IN '
+                '(SELECT evidence_id FROM dashboard_run_evidence WHERE coalesce(expires_at, 0)<=? '
+                'ORDER BY coalesce(expires_at, 0), evidence_id LIMIT ?)', (self.clock(), limit)).rowcount
+        return {'removed': removed}
 
     def finish(self, work, *, failed=False):
         if type(failed) is not bool:

@@ -15,7 +15,7 @@ pre-start CI run 39743359671 passed on e7ac30da9bfed7990fc6c8c6fc39cf4a601e2dcf.
 - [x] 8.2: Expose authenticated JSON reports/exports, with dashboard status filtering.
 - [x] 8.3: Add explicit rerun admission and qualified historical results in the API/dashboard.
 - [ ] 8.4: Record flaky-test signals with context and sufficient observations.
-- [ ] 8.5: Enforce evidence retention and access rules.
+- [x] 8.5: Enforce owned screenshot expiry and bounded cleanup, preserving assertion history.
 - [ ] 8.6: Expand to at least 100 meaningful, implemented and fixture-verified cases.
 - [ ] 8.7: Verify integrated acceptance and exact-commit CI evidence.
 
@@ -126,3 +126,31 @@ the real Chromium dashboard flow verified explicit subset rerun admission,
 cancelled-child lineage and a historical comparison without invented outcomes.
 The mobile report/comparison screenshot was inspected. Same-commit CI remains
 required before sprint acceptance.
+
+## Owned evidence retention
+
+New owned screenshots expire seven days after result commit. Expired IDs return
+the same 404 as missing evidence, even before cleanup. Public run/report projections
+remove expired links and indicate expiry without changing actual assertion outcomes.
+Legacy evidence without a known expiry is unavailable; no creation time is invented.
+The schema migration preserves results and old BLOBs until bounded cleanup.
+
+`dashboard prune-evidence --database <projects.sqlite> --limit 100` is a trusted
+operator command, not a web endpoint. It deletes at most 1,000 expired/unknown-age
+BLOBs per call (default 100), using an indexed expiry order. Each owned worker
+invocation also performs one default cleanup batch. Inactive installations need
+the operator command; there is no hosted scheduler yet. These deletions remove
+live database records, not forensic copies in backups or storage snapshots.
+
+The owned worker uses its own temporary evidence directory, imports validated
+PNG bytes into the owned database and cleans the temporary directory on success,
+failure or cancellation after child termination. Legacy standalone CLI artifacts
+remain operator-local development evidence and are not exposed by the dashboard;
+their separate retention is an operator responsibility. GitHub evidence still
+uses seven-day artifact retention. No customer/deployed storage is enabled.
+
+Validation: all 526 unit tests passed, including expiry, bounded/idempotent
+cleanup, unknown-age migration behavior and temporary-directory cleanup on
+success/failure. The real dashboard rerun/report/screenshot flow and strict
+TypeScript/Vite build passed with temporary owned PNG capture. The expiry index
+change was rechecked with all six focused retention tests. CI remains pending.

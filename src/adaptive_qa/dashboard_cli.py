@@ -13,16 +13,23 @@ from adaptive_qa.web_app import create_app
 def configure_parser(subparsers):
     parser = subparsers.add_parser('dashboard', help='Manage the local dashboard')
     commands = parser.add_subparsers(dest='dashboard_command', required=True)
-    for name in ('create-user', 'serve', 'discovery-once', 'recover-discovery', 'run-once', 'recover-runs'):
+    for name in ('create-user', 'serve', 'discovery-once', 'recover-discovery', 'run-once', 'recover-runs', 'prune-evidence'):
         command = commands.add_parser(name)
         command.add_argument('--database', type=Path, default=Path('artifacts/dashboard/projects.sqlite'
-            if name in ('discovery-once', 'recover-discovery', 'run-once', 'recover-runs') else 'artifacts/dashboard/auth.sqlite'))
+            if name in ('discovery-once', 'recover-discovery', 'run-once', 'recover-runs', 'prune-evidence') else 'artifacts/dashboard/auth.sqlite'))
+        if name == 'prune-evidence':
+            command.add_argument('--limit', type=int, default=100)
         if name == 'serve':
             command.add_argument('--port', type=int, default=8765)
             command.add_argument('--ui-directory', type=Path, default=Path('frontend/dist'))
 
 
 def run(args):
+    if args.dashboard_command == 'prune-evidence':
+        from adaptive_qa.dashboard_runs import DashboardRunQueue
+        from adaptive_qa.project_store import ProjectStore
+        print(DashboardRunQueue(ProjectStore(args.database)).prune_expired_evidence(limit=args.limit))
+        return
     if args.dashboard_command in ('run-once', 'recover-runs'):
         from adaptive_qa.dashboard_runs import DashboardRunQueue
         from adaptive_qa.dashboard_run_worker import process_run_once

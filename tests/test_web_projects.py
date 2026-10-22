@@ -91,6 +91,19 @@ class WebProjectTests(unittest.TestCase):
         self.client.cookies.clear()
         self.assertEqual(self.client.get(path + '/' + child['run_id'] + '/compare/' + original['run_id']).status_code, 401)
 
+    def test_expired_screenshot_is_unavailable_without_changing_assertion(self):
+        project, path, body = self.run_request()
+        self.client.post(path, headers=self.headers, json=body)
+        queue = DashboardRunQueue(self.projects)
+        work = queue.claim_next()
+        queue.record_result(work, TestResult('LOGIN-001', TestStatus.PASSED, .1, 'x'), evidence_png=png_bytes())
+        queue.finish(work)
+        result = queue.get(self.alice, project.project_id, work.run_id)['results'][0]
+        with self.projects._connection() as connection:
+            connection.execute('UPDATE dashboard_run_evidence SET expires_at=0 WHERE evidence_id=?', (result['evidence_id'],))
+        self.assertEqual(self.client.get(path + '/' + work.run_id + '/evidence/' + result['evidence_id']).status_code, 404)
+        self.assertEqual(self.client.get(path + '/' + work.run_id).json()['results'][0]['status'], 'passed')
+
     def test_create_list_get_rename_and_reopen(self):
         response = self.client.post('/api/projects', headers=self.headers, json={'name': 'Checkout'})
         self.assertEqual(response.status_code, 201)
