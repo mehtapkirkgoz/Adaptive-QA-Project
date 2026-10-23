@@ -1,0 +1,170 @@
+{
+  "run_id": 40018710391,
+  "implementation_commit": "799e390f1bcaaf419b62f4c40c22886f5c9f29b8",
+  "jobs": [
+    {
+      "name": "Inactive release packaging",
+      "conclusion": "success"
+    },
+    {
+      "name": "Controlled API checks",
+      "conclusion": "success"
+    },
+    {
+      "name": "scaffold",
+      "conclusion": "success"
+    },
+    {
+      "name": "Packaged local runtime (windows-2025)",
+      "conclusion": "success"
+    },
+    {
+      "name": "Local browser check",
+      "conclusion": "success"
+    },
+    {
+      "name": "Process lifecycle (windows-2025)",
+      "conclusion": "success"
+    },
+    {
+      "name": "UI catalog and isolation",
+      "conclusion": "success"
+    },
+    {
+      "name": "Packaged local runtime (ubuntu-24.04)",
+      "conclusion": "success"
+    },
+    {
+      "name": "Process lifecycle (ubuntu-24.04)",
+      "conclusion": "success"
+    },
+    {
+      "name": "Controlled database checks (ubuntu-24.04)",
+      "conclusion": "success"
+    },
+    {
+      "name": "Controlled database checks (windows-2025)",
+      "conclusion": "success"
+    },
+    {
+      "name": "Browser integration checks",
+      "conclusion": "success"
+    }
+  ],
+  "artifacts": [
+    {
+      "id": 12530335413,
+      "name": "process-lifecycle-windows-2025",
+      "digest": "sha256:fb5d47c148204d79049116628e3a725d7f824c68912fd1d154957ae6d5e78f65",
+      "sha": "799e390f1bcaaf419b62f4c40c22886f5c9f29b8",
+      "download_verified": true,
+      "validated_pngs": 0
+    },
+    {
+      "id": 12530190757,
+      "name": "local-browser-evidence",
+      "digest": "sha256:87721dc52b39df37e8b898d7dcbf9159401782322f90d8dc80136eb314538828",
+      "sha": "799e390f1bcaaf419b62f4c40c22886f5c9f29b8",
+      "download_verified": true,
+      "validated_pngs": 6
+    },
+    {
+      "id": 12530065856,
+      "name": "local-runtime-ubuntu-24.04",
+      "digest": "sha256:671415e597d37843749d3321f98f90bec5ef245bbd596370b368c48511cdfc7d",
+      "sha": "799e390f1bcaaf419b62f4c40c22886f5c9f29b8",
+      "download_verified": true,
+      "validated_pngs": 0
+    },
+    {
+      "id": 12529936054,
+      "name": "inactive-release-799e390f1bcaaf419b62f4c40c22886f5c9f29b8",
+      "digest": "sha256:4b88f4ae3d7247694d8756d4c74b26ef8e3e4877e3fd69d5de07673ff15b06f2",
+      "sha": "799e390f1bcaaf419b62f4c40c22886f5c9f29b8",
+      "download_verified": true,
+      "validated_pngs": 0,
+      "release_files_verified": 4
+    },
+    {
+      "id": 12529906083,
+      "name": "local-api-evidence",
+      "digest": "sha256:0a32c3e29450bf61fe8d17c885540f595ff39c7e6f8d37a8bf08f19a60f471bf",
+      "sha": "799e390f1bcaaf419b62f4c40c22886f5c9f29b8",
+      "download_verified": true,
+      "validated_pngs": 0
+    },
+    {
+      "id": 12529806365,
+      "name": "local-database-evidence-ubuntu-24.04",
+      "digest": "sha256:dfe3983a8a148a98a0ea16b0b149932d6a6f9394bed4ba917e4a81dd7255ebbc",
+      "sha": "799e390f1bcaaf419b62f4c40c22886f5c9f29b8",
+      "download_verified": true,
+      "validated_pngs": 0
+    },
+    {
+      "id": 12529766458,
+      "name": "process-lifecycle-ubuntu-24.04",
+      "digest": "sha256:d67422bd8a3763aefaa852744ea1cd3f0d15384872a1e93a603a9ba5c2a56f59",
+      "sha": "799e390f1bcaaf419b62f4c40c22886f5c9f29b8",
+      "download_verified": true,
+      "validated_pngs": 0
+    },
+    {
+      "id": 12529746679,
+      "name": "browser-integration-evidence",
+      "digest": "sha256:b49198b1ce5213e3a99df5bcf67e2f2112660ecd25674734dd300263e71be92d",
+      "sha": "799e390f1bcaaf419b62f4c40c22886f5c9f29b8",
+      "download_verified": true,
+      "validated_pngs": 53
+    },
+    {
+      "id": 12529527348,
+      "name": "local-runtime-windows-2025",
+      "digest": "sha256:975d2a6d9f710bc87ffe06b3d6ee319363b2099e35e4f87b235decbf8c77e8b2",
+      "sha": "799e390f1bcaaf419b62f4c40c22886f5c9f29b8",
+      "download_verified": true,
+      "validated_pngs": 0
+    },
+    {
+      "id": 12529457475,
+      "name": "ui-catalog-evidence",
+      "digest": "sha256:7004cf9179a18e5a6b021c389858c1058abe1ff062a78be94d591a4ee0fc7f5d",
+      "sha": "799e390f1bcaaf419b62f4c40c22886f5c9f29b8",
+      "download_verified": true,
+      "validated_pngs": 147
+    },
+    {
+      "id": 12529023758,
+      "name": "inactive-rollback-plan-799e390f1bcaaf419b62f4c40c22886f5c9f29b8",
+      "digest": "sha256:a10f9f7df687b74b50fb03057b9b26ff4679ece515e7b26ce8a2770b3e3ca7e9",
+      "sha": "799e390f1bcaaf419b62f4c40c22886f5c9f29b8",
+      "download_verified": true,
+      "validated_pngs": 0
+    },
+    {
+      "id": 12528724445,
+      "name": "local-database-evidence-windows-2025",
+      "digest": "sha256:a1596316ff07e28e1f5fc5cc2aa67711ba97f1a99edae4d5ca1202078cb79f22",
+      "sha": "799e390f1bcaaf419b62f4c40c22886f5c9f29b8",
+      "download_verified": true,
+      "validated_pngs": 0
+    }
+  ],
+  "all_artifact_downloads_verified": true,
+  "verified_installed_browser_report": {
+    "local_only": true,
+    "upgrade_preserved": true,
+    "valid_import": true,
+    "invalid_import_preserved": true,
+    "authenticated_reload": true,
+    "recovery_requires_fresh_login": true,
+    "recovered_results_and_license": true,
+    "installed_wheel": true,
+    "licensed_cli_discovery_and_login_passed": true,
+    "page_errors": [],
+    "external_requests": 0
+  },
+  "owner_product_accepted": false,
+  "validated_pngs": 206,
+  "technical_local_conversion_accepted": true
+}

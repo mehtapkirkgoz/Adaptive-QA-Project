@@ -32,9 +32,9 @@ completion percentage is not a measured estimate for this changed scope.
   verification; no issuer private key or developer bypass shipped to customers.
 - [x] Bind paid administration and multi-project entitlements to verified licenses;
   preserve existing local projects during upgrade and define safe expiry behavior.
-- [ ] Add customer-facing local startup/install and license import/status UX, plus
-  packaged-release/backup/rollback compatibility checks for both editions.
-- [ ] Verify free/paid isolation, malformed/expired/tampered licenses, concurrency,
+- [x] Add customer-facing local commands and license import/status UX, plus
+  packaged release/recovery checks; legacy managed licensed switching fails closed.
+- [x] Verify free/paid isolation, malformed/expired/tampered licenses, concurrency,
   data locality and complete local acceptance with exact-commit CI/artifacts.
 - [ ] Resume the remaining interactive/API/database product work under this model.
 
@@ -284,3 +284,14 @@ Managed legacy binary switching stays unsupported and fails closed for licensing
 state. Next required acceptance work is exact-commit CI/artifact inspection, not
 a claim that legacy management or customer deployment was enabled. Keep overall
 product acceptance pending and continue the remaining authorized work afterward.
+
+## Remote Conversion Acceptance Verified
+
+Implementation 799e390 passed all twelve CI jobs in run 40018710391 and 739 unit
+tests. All twelve artifact downloads/head SHAs/digests, 206 PNGs and inner release
+digests were verified. Installed licensed execution/recovery evidence passed. See
+LOCAL_FIRST_ACCEPTANCE.md and evidence/local-first-ci-799e390.json. Overall product
+acceptance remains pending; unsupported legacy managed licensed switching remains
+explicit. Continue the remaining controlled interactive form implementation in
+INTERACTIVE_FORMS.md, then broader reusable execution work. Existing public/customer
+submission restrictions and non-executing plans remain authoritative.

@@ -1,8 +1,8 @@
 # Local-First Edition: Local Acceptance Record
 
 Implementation under review: 1c3704ce312679821133310b0536bdd1af74d7cf.
-This is post-sprint conversion work; Sprint 10 remains closed. Product/remote CI
-acceptance is pending. Evidence is limited to controlled local fixtures, temporary
+This is post-sprint conversion work; Sprint 10 remains closed. Local conversion technical CI acceptance is verified below; overall owner
+product acceptance remains pending. Evidence is limited to controlled local fixtures, temporary
 accounts/keys and the committed inactive package, not customer deployment.
 
 ## Verified Behavior
@@ -69,3 +69,23 @@ the preserved valid license and passed result. There were zero external browser
 requests or page errors. No owner server/session was restarted. CI now repeats the
 installed drill and uploads its value-free report; exact-commit remote results
 remain pending. No managed legacy binary cutover is implied.
+
+## Exact-Commit Remote Technical Acceptance
+
+Commit 799e390f1bcaaf419b62f4c40c22886f5c9f29b8 passed all twelve jobs in
+[Core checks 40018710391](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/actions/runs/40018710391).
+The scaffold log reports 739 passing unit tests. All twelve artifact ZIPs were
+downloaded and their GitHub SHA-256 digests/exact head SHAs verified. ZIP integrity,
+206 PNG files and all four inner inactive-release file digests were validated.
+The downloaded installed browser report confirms a real licensed CLI fixture run,
+offline recovery, fresh password login, preserved license/results, zero external
+browser requests and no page errors. Full machine-readable evidence is in
+evidence/local-first-ci-799e390.json.
+
+Earlier e27f476/67f6f85 runs were superseded/cancelled; they are not claimed successful.
+The local conversion command path is technically verified within the documented
+single-device scope. Legacy managed licensed binary switching remains unsupported;
+no owner acceptance, new sprint closure, live customer deployment or external form
+submission is implied. Remaining product work continues with controlled interactive
+form execution under INTERACTIVE_FORMS.md. Historical pending notes above describe
+their earlier checkpoint and are superseded by this exact-commit record.
