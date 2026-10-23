@@ -7,6 +7,7 @@ import {DiscoveryPanel} from './DiscoveryPanel';
 import {RunPanel} from './RunPanel';
 import {DemoWorkspace} from './DemoWorkspace';
 import {OrganizationPanel} from './OrganizationPanel';
+import {ExecutionScope, supportsLocalDiscovery} from './ExecutionScope';
 
 type Project = {project_id: string; name: string};
 type Plan = {execution_authorized: false; inspected_pages: number; discovery_status: string; discovery_job_id?: string;
@@ -122,7 +123,8 @@ function App() {
                 {slots.length > 0 && <details><summary>Environment variable names</summary>{slots.map(slot => <code key={slot}>{settings.available_secret_references[slot]}</code>)}</details>}
                 <div className="save-bar"><p className="hint">Saving configuration does not start a test.</p><button className="primary" type="submit">{busy ? 'Saving…' : 'Save configuration'}</button></div>
               </fieldset></form>
-              <DiscoveryPanel key={'discovery:' + selected.project_id + JSON.stringify(settings)} projectId={selected.project_id} configured={settings.configured} request={api} onReport={(report, jobId) => setPlan({...report, discovery_job_id: jobId})}/>
+              <ExecutionScope settings={settings}/>
+              <DiscoveryPanel key={'discovery:' + selected.project_id + JSON.stringify(settings)} projectId={selected.project_id} configured={supportsLocalDiscovery(settings)} request={api} onReport={(report, jobId) => setPlan({...report, discovery_job_id: jobId})}/>
               <section className="plan-review"><h3>Test plan review</h3><p className="hint">Review the saved configuration. Unsaved edits are not included. Reviewing never starts tests or visits your target.</p>
                 <button disabled={busy || !settings.configured} onClick={() => void perform(async () => {
                   setPlan(null); setPlan(await api<Plan>(`/api/projects/${selected.project_id}/plan`));

@@ -3,6 +3,7 @@ import type {FormEvent} from 'react';
 import {DiscoveryPanel} from './DiscoveryPanel';
 import {OrganizationRunPanel} from './OrganizationRunPanel';
 import {OrganizationAccessPanel} from './OrganizationAccessPanel';
+import {ExecutionScope, supportsLocalDiscovery} from './ExecutionScope';
 
 type Request = <T>(path: string, method?: string, body?: unknown) => Promise<T>;
 type Organization = {organization_id: string; name: string; role: string};
@@ -104,7 +105,7 @@ function OrganizationWorkspace({request}: {request: Request}) {
       {projects.map(value => <button key={value.project_id} disabled={busy} onClick={() => chooseProject(value)}>{value.name}</button>)}
       {project && settings && <><form onSubmit={save}><h3>{project.name}</h3><fieldset disabled={busy || !canConfigure}>
         <label>Organization target URL<input type="url" required maxLength={512} value={target} onChange={e => setTarget(e.target.value)}/></label>
-        <label>Organization allowed hosts<textarea required rows={3} value={hosts} onChange={e => setHosts(e.target.value)}/></label>
+        <label>Organization allowed hosts<textarea aria-label="Organization allowed hosts" required rows={3} value={hosts} onChange={e => setHosts(e.target.value)}/></label>
         <p className="hint">One exact hostname per line. Existing data-change policy is retained; new shared projects default to read-only.</p>
         <h4>Organization secret references</h4>
         {Object.keys(settings.available_secret_references).map(slot => <label className="check" key={slot}>
@@ -114,8 +115,9 @@ function OrganizationWorkspace({request}: {request: Request}) {
           {slots.map(slot => <code key={slot}>{settings.available_secret_references[slot]}</code>)}</details>}
         {canConfigure && <button>Save shared configuration</button>}
       </fieldset><p className="hint">Saving does not visit the target or queue tests. Review current discovery before explicitly starting selected tests.</p></form>
+        <ExecutionScope settings={settings}/>
         <DiscoveryPanel key={'shared-discovery:' + project.project_id + JSON.stringify(settings)} projectId={project.project_id}
-          basePath={`${path}/${project.project_id}`} configured={settings.configured}
+          basePath={`${path}/${project.project_id}`} configured={supportsLocalDiscovery(settings)}
           canExecute={['owner', 'admin', 'member'].includes(selected.role)} request={request}
           onReport={(report, jobId) => {
             setPlanSummary(`Inspected pages: ${report.inspected_pages}. Catalog: ${report.counts.catalog}. Selected: ${report.counts.selected}. Execution authorized: No.`);

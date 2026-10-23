@@ -15,7 +15,8 @@ This follow-up does not enable purchases, public backend hosting or customer tes
 - [x] Verify actual discovery, two-case execution, report/evidence, roles and
   revocation after the UI changes; zero external requests/page errors.
 - [ ] Verify same-commit CI for this follow-up.
-- [ ] Make saved target execution eligibility explicit before queue submission.
+- [x] Make saved target execution eligibility explicit before queue submission;
+  verify unsupported saved targets never dispatch in personal/shared browser flows.
 - [ ] Extend reusable execution beyond fixed sample bindings using contrasting
   controlled fixtures before enabling any owner-authorized external targets.
 - [ ] Address operator enrollment/agent startup and bounded unattended maintenance
@@ -37,3 +38,19 @@ build passed; personal/shared browser checks passed locally.
 check_dashboard_ui.py accepts an optional --port for isolated verification when
 the owner's normal server is already listening on 8765. It uses disposable
 accounts/storage and never stops the owner's server.
+
+## Saved Target Support
+
+The local app now explains whether the saved URL/host settings match the current
+controlled root worker. Unsupported targets remain configurable and reviewable;
+their discovery action is disabled with a concrete explanation. This UI mirrors
+the current restriction but grants no authorization: server/worker checks remain
+authoritative. API/database bindings are not inferred from a URL. The message
+uses saved settings so unsaved edits cannot imply an executable configuration.
+
+Both browser flows saved https://example.test/ without visiting it, verified the
+unavailable explanation and disabled dispatch, then restored the controlled
+fixture and completed actual discovery/UI tests. The shared host textarea has
+an explicit accessible name so repeated saved-setting edits remain addressable.
+The demo regression passed at 390/768/1440 pixels with zero API/external requests
+and no enabled execution. No public demo behavior was changed.

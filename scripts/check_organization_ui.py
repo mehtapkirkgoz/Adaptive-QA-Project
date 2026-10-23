@@ -80,6 +80,11 @@ def main():
                     panel.get_by_label('Organization project name', exact=True).fill('Shared UI fixture')
                     panel.get_by_role('button', name='Create shared project', exact=True).click()
                     panel.get_by_role('button', name='Shared UI fixture', exact=True).click()
+                    panel.get_by_label('Organization target URL', exact=True).fill('https://example.test/')
+                    panel.get_by_label('Organization allowed hosts', exact=True).fill('example.test')
+                    panel.get_by_role('button', name='Save shared configuration', exact=True).click()
+                    expect(panel.get_by_label('Saved target execution support', exact=True)).to_contain_text('Execution is unavailable')
+                    expect(panel.get_by_role('button', name='Queue local discovery', exact=True)).to_be_disabled()
                     panel.get_by_label('Organization target URL', exact=True).fill('http://127.0.0.1:8000/')
                     panel.get_by_label('Organization allowed hosts', exact=True).fill('127.0.0.1')
                     panel.get_by_role('button', name='Save shared configuration', exact=True).click()
@@ -160,6 +165,7 @@ def main():
               'anonymous_and_revoked_evidence_denied': True,
               'member_added_through_authenticated_ui': True, 'usage_snapshot_verified': True,
               'named_filtered_bounded_selection_verified': True,
+              'unsupported_saved_target_explained_without_dispatch': True,
               'external_requests': len(external), 'page_errors': errors,
               'demo_modified': False}
     (output/'ui.json').write_text(json.dumps(report, indent=2)+'\n', encoding='utf-8')
