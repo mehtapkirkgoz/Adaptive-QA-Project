@@ -19,8 +19,9 @@ from adaptive_qa.document_checks import DOCUMENT_CHECKS
 from adaptive_qa.egress import DestinationGuard, EgressProxy, chromium_proxy_options
 from adaptive_qa.models import TestResult, TestStatus
 from adaptive_qa.form_checks import FORM_CHECKS, FORM_DEFAULTS
+from adaptive_qa.form_configuration import decode_form_mappings as _decode_mappings
 from adaptive_qa.ui_bindings import ElementBindingError
-from adaptive_qa.element_models import MatchStatus, ProjectElementMappings, ElementMapping, LocatorSpec, LocatorStrategy
+from adaptive_qa.element_models import MatchStatus, ProjectElementMappings
 
 
 def _validate(case_id, project, profile, *, family='document', mappings=None):
@@ -36,24 +37,6 @@ def _validate(case_id, project, profile, *, family='document', mappings=None):
             raise ValueError('Unknown form mapping key.')
 
 
-def _decode_mappings(data):
-    if data is None:
-        return None
-    if not isinstance(data, dict) or set(data) != {'project_id', 'mappings'} or not isinstance(data['mappings'], list):
-        raise ValueError('Invalid form mappings.')
-    mappings = []
-    for item in data['mappings']:
-        if not isinstance(item, dict) or set(item) != {'logical_name', 'locators', 'scope_test_id'}:
-            raise ValueError('Invalid element mapping.')
-        if not isinstance(item['locators'], list):
-            raise ValueError('Invalid locator alternatives.')
-        locators = tuple(LocatorSpec(LocatorStrategy(spec['strategy']), spec['value'], spec['role'])
-                         for spec in item['locators']
-                         if isinstance(spec, dict) and set(spec) == {'strategy', 'value', 'role'})
-        if len(locators) != len(item['locators']):
-            raise ValueError('Invalid locator fields.')
-        mappings.append(ElementMapping(item['logical_name'], locators, item['scope_test_id']))
-    return ProjectElementMappings(data['project_id'], tuple(mappings))
 
 
 def _execute(case_id, project, profile, evidence_root, *, family='document', mappings=None):

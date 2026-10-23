@@ -1,4 +1,5 @@
 """Scoped UI dispatch with atomic quota, result and evidence lifecycle."""
+from adaptive_qa.form_configuration import runtime_configuration
 
 import json
 import secrets
@@ -75,7 +76,7 @@ class OrganizationRunQueue:
             if project['settings_json'] is None or job['status'] != 'completed' or not job['report_json'] or not self.discovery._current(c, job):
                 raise ValueError('Current saved settings and completed discovery are required.')
             saved = json.loads(project['settings_json'])
-            snapshot = {key: saved[key] for key in ('base_url', 'allowed_hosts', 'allow_data_changes')}
+            snapshot = runtime_configuration(saved)
             report = json.loads(job['report_json'])
             configured_discovery(snapshot)
             if (report.get('execution_authorized') is not False or report.get('project_id') != project_id
@@ -122,7 +123,7 @@ class OrganizationRunQueue:
         try:
             project = self.scoped._row(c, ProjectActor(row['user_id']), row['organization_id'], row['project_id'], Action.EXECUTE)
             settings = json.loads(project['settings_json'])
-            return {k: settings[k] for k in ('base_url','allowed_hosts','allow_data_changes')} == json.loads(row['configuration_json'])
+            return runtime_configuration(settings) == json.loads(row['configuration_json'])
         except (LookupError, TypeError):
             return False
 

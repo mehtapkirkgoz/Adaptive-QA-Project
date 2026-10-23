@@ -1,4 +1,5 @@
 """Loopback-only dashboard authentication; no test execution endpoints."""
+from adaptive_qa.form_configuration import runtime_configuration
 
 import asyncio
 from collections import deque
@@ -31,7 +32,7 @@ SESSION_COOKIE = 'adaptive_session'
 CSRF_COOKIE = 'adaptive_csrf'
 
 
-def _object(body, fields):
+def _object(body, fields, *, optional=()):
     def unique(pairs):
         result = {}
         for key, value in pairs:
@@ -46,7 +47,7 @@ def _object(body, fields):
                           parse_constant=invalid_constant)
     except (UnicodeError, RecursionError):
         raise ValueError() from None
-    if not isinstance(data, dict) or set(data) != set(fields):
+    if not isinstance(data, dict) or (not set(fields) <= set(data) or not set(data) <= set(fields) | set(optional)):
         raise ValueError()
     return data
 
@@ -165,7 +166,7 @@ def create_app(store: AuthStore, *, port=8765, projects=None, ui_directory=None)
         job = discovery.get(owner, project_id, job_id)
         if 'report' in job:
             saved = projects.configuration(owner, project_id)
-            snapshot = {key: saved[key] for key in ('base_url', 'allowed_hosts', 'allow_data_changes')} if saved['configured'] else {}
+            snapshot = runtime_configuration(saved) if saved['configured'] else {}
             job['configuration_current'] = configuration_fingerprint(snapshot) == job['report'].get('configuration_fingerprint')
         return job
 
@@ -233,7 +234,7 @@ def create_app(store: AuthStore, *, port=8765, projects=None, ui_directory=None)
     async def put_configuration(project_id: str, request: Request):
         owner = await run_in_threadpool(actor, request, mutation=True)
         data = _object(await request.body(), ('base_url', 'allowed_hosts',
-                                            'allow_data_changes', 'secret_references'))
+                                            'allow_data_changes', 'secret_references'), optional=('form_mappings',))
         return await run_in_threadpool(projects.save_configuration, owner, project_id, data)
 
     @app.patch('/api/projects/{project_id}')

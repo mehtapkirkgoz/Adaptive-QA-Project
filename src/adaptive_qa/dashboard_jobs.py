@@ -1,4 +1,5 @@
 """Owner-bound local discovery dispatch, separate from legacy unowned test jobs."""
+from adaptive_qa.form_configuration import runtime_configuration
 
 from dataclasses import dataclass, field
 import json
@@ -79,7 +80,7 @@ class DashboardDiscoveryQueue:
             if count >= 100 or owned >= 5:
                 raise ValueError('Discovery admission limit reached.')
             # Secret references are not needed for read-only local discovery and are excluded.
-            snapshot = {key: settings[key] for key in ('base_url', 'allowed_hosts', 'allow_data_changes')}
+            snapshot = runtime_configuration(settings)
             job_id = uuid4().hex
             connection.execute('INSERT INTO dashboard_discovery_jobs '
                 '(job_id, project_id, owner_id, status, configuration_json) VALUES (?, ?, ?, ?, ?)',

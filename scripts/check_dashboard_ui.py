@@ -82,15 +82,27 @@ def main(port=8765):
                     expect(page.get_by_label('Saved target execution support', exact=True)).to_contain_text('Execution is unavailable')
                     expect(page.get_by_role('button', name='Queue local discovery', exact=True)).to_be_disabled()
                     page.get_by_label('Target URL', exact=True).fill('https://example.test/')
+                    page.get_by_text('Custom form controls', exact=True).click()
+                    page.get_by_label('Login username alternatives', exact=True).fill('Account code')
+                    page.get_by_label('Login password alternatives', exact=True).fill('Access key')
+                    page.get_by_label('Login submit alternatives', exact=True).fill('Continue')
+                    page.get_by_label('Search query matching', exact=True).select_option('test_id')
+                    page.get_by_label('Search query scope test ID', exact=True).fill('search-form')
+                    page.get_by_label('Search query alternatives', exact=True).fill('custom-query')
                     page.get_by_role('button', name='Save configuration', exact=True).click()
                     expect(page.get_by_label('Saved target execution support', exact=True)).to_contain_text('Read-only HTTPS discovery is available')
+                    page.get_by_role('button', name='Storefront regression Project configuration').click()
+                    page.get_by_text('Custom form controls', exact=True).click()
+                    expect(page.get_by_label('Login submit alternatives', exact=True)).to_have_value('Continue')
+                    expect(page.get_by_label('Search query matching', exact=True)).to_have_value('test_id')
+                    expect(page.get_by_label('Search query scope test ID', exact=True)).to_have_value('search-form')
                     page.get_by_role('button', name='Queue HTTPS discovery', exact=True).click()
                     expect(page.get_by_text('queued', exact=True)).to_be_visible()
                     page.get_by_role('button', name='Cancel discovery', exact=True).click()
                     expect(page.get_by_text('cancelled', exact=True)).to_be_visible()
                     page.get_by_role('button', name='Queue HTTPS discovery', exact=True).click()
                     expect(page.get_by_text('queued', exact=True)).to_be_visible()
-                    forms = (FormSnapshot(fields=(FieldSnapshot('text', 'Username'), FieldSnapshot('password', 'Password')), buttons=('Sign in',)),
+                    forms = (FormSnapshot(fields=(FieldSnapshot('text', 'Account code'), FieldSnapshot('password', 'Access key')), buttons=('Continue',)),
                              FormSnapshot(role='search', fields=(FieldSnapshot('search', 'Search products'),), buttons=('Search',)))
                     payload = {'pages': [asdict(PageSnapshot('https://example.test/', forms, (), True))], 'limitations': []}
                     with patch('adaptive_qa.dashboard_worker.discover_configured_target', return_value=payload):
@@ -103,6 +115,10 @@ def main(port=8765):
                     public_runs.get_by_role('button', name='Start selected tests', exact=True).click()
                     public_runs.get_by_role('button', name='Cancel test run', exact=True).click()
                     expect(public_runs.get_by_text('Run cancelled', exact=True)).to_be_visible()
+                    page.get_by_label('Login username alternatives', exact=True).fill('')
+                    page.get_by_label('Login password alternatives', exact=True).fill('')
+                    page.get_by_label('Login submit alternatives', exact=True).fill('')
+                    page.get_by_label('Search query alternatives', exact=True).fill('')
                     page.get_by_label('Target URL').fill('http://127.0.0.1:8000/')
                     page.get_by_label('Allowed hosts').fill('127.0.0.1')
                     page.get_by_label('login password', exact=True).check()
@@ -112,7 +128,7 @@ def main(port=8765):
                     page.get_by_role('button', name='Storefront regression Project configuration').click()
                     expect(page.get_by_label('Target URL')).to_have_value('http://127.0.0.1:8000/')
                     expect(page.get_by_label('Allow tests that change data')).not_to_be_checked()
-                    expect(page.get_by_label('login password', exact=False)).to_be_checked()
+                    expect(page.get_by_role('checkbox', name='login password', exact=False)).to_be_checked()
                     expect(page.get_by_text('[REDACTED]', exact=True)).to_be_visible()
                     page.get_by_role('button', name='Review saved plan', exact=True).click()
                     review = page.get_by_label('Plan review results')
@@ -276,7 +292,7 @@ def main(port=8765):
                 raise RuntimeError('Owned dashboard server did not stop.')
     (output / 'ui.json').write_text(json.dumps({'status': 'passed', 'checks': [
         'invalid login', 'password cleared', 'login', 'owner-filtered list', 'create',
-        'rename', 'save settings', 'reload persistence', 'masked reference',
+        'rename', 'saved custom control names and test-ID strategy/scope reload correctly', 'save settings', 'reload persistence', 'masked reference',
         'conservative non-executing plan review', 'mobile width', 'logout persistence',
         'queue and cancel discovery', 'HTTPS admission cancelled without external dispatch',
         'five public document and two read-only form choices with explicit run cancellation without external traffic', 'separate real worker and polled completion',

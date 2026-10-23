@@ -51,7 +51,7 @@ class TestPlan:
     execution_authorized: bool = field(default=False, init=False)
 
 
-def assess_discovery(crawl: CrawlResult) -> DiscoveryAssessment:
+def assess_discovery(crawl: CrawlResult, *, action_names=None) -> DiscoveryAssessment:
     """Positive evidence wins; limited or uncertain coverage cannot prove absence."""
     if (not isinstance(crawl, CrawlResult) or not isinstance(crawl.pages, tuple)
             or any(not isinstance(page, PageSnapshot) for page in crawl.pages)
@@ -60,7 +60,7 @@ def assess_discovery(crawl: CrawlResult) -> DiscoveryAssessment:
         raise ValueError('crawl must contain typed pages and limitation reasons.')
     if len({page.url for page in crawl.pages}) != len(crawl.pages):
         raise ValueError('Discovery page URLs must be unique.')
-    findings = tuple(finding for page in crawl.pages for finding in detect_page_features(page))
+    findings = tuple(finding for page in crawl.pages for finding in detect_page_features(page, action_names=action_names))
     features = []
     for feature in FEATURES:
         relevant = tuple(item for item in findings if item.feature == feature)
@@ -83,7 +83,7 @@ def assess_discovery(crawl: CrawlResult) -> DiscoveryAssessment:
 
 
 def build_test_plan(crawl: CrawlResult, cases: tuple[TestCase, ...],
-                    project: ProjectConfig) -> TestPlan:
+                    project: ProjectConfig, *, action_names=None) -> TestPlan:
     """Select applicable UI definitions, without executing or approving them.
 
     Selected definitions still require a compatible executor and runtime policy
@@ -94,7 +94,7 @@ def build_test_plan(crawl: CrawlResult, cases: tuple[TestCase, ...],
         raise ValueError('cases must be a tuple of uniquely identified TestCase instances.')
     if not isinstance(project, ProjectConfig):
         raise ValueError('project must be a ProjectConfig.')
-    assessment = assess_discovery(crawl)
+    assessment = assess_discovery(crawl, action_names=action_names)
     if any(not project.is_url_allowed(page.url) for page in crawl.pages):
         raise ValueError('Discovery contains a page outside the project hostname allowlist.')
     statuses = {feature.feature: feature.status for feature in assessment.features}

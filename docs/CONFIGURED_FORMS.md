@@ -1,7 +1,7 @@
 # Configured Read-Only Form Checks
 
 Status: supervised worker and dashboard form bindings are integrated. Saved
-mapping configuration/UI and exact-commit integration CI remain unfinished.
+mapping configuration/UI is implemented; exact-commit integration CI is pending.
 This does not authenticate, submit a search, fill credentials or mutate form data.
 
 ## Supported Assertions
@@ -68,5 +68,26 @@ is enabled. Login first anchors to a unique password field; remaining controls
 must match within that form, so unrelated registration email fields are excluded.
 Search anchors to its unique query field. Multiple password/query forms or multiple
 alternatives within one form remain blocked unless a valid explicit mapping exists.
-The dashboard uses defaults: it does not yet save or edit custom mapping overrides.
+The dashboard saves custom mappings using the editor described below.
 General-form runs have unknown comparison context rather than a sample fingerprint.
+
+## Saving Custom Controls
+
+Open Custom form controls in personal/shared project settings. Enter one exact
+alternative per line (maximum 20) for a known login/search field or submit action.
+Choose Field label/Button name or Test ID; optionally supply a scope test ID.
+Save configuration, queue fresh discovery, review the current plan and explicitly
+select supported checks. Blank names restore defaults. Saving never visits a site.
+Organization viewers can read but cannot edit or save these settings.
+
+Mappings are replacement alternatives, not fallback guesses. Within-form ambiguity
+remains blocked. Configured button names can support discovery only with observed
+field/action structure. Test-ID-only overrides may not establish feature presence
+from collected snapshots; the plan can remain unknown. No custom scripts, CSS/XPath
+or credentials are accepted. Changing a mapping invalidates historical report
+admission and prevents pending work from using stale settings. Defaults preserve
+legacy fingerprints; full PUT clients omitting form_mappings restore defaults.
+
+Old managed binaries lacking form_configuration cannot start or be selected against
+saved/historical mapped settings. Install a reviewed compatible release rather
+than bypassing this guard. Fixed pilot agents do not execute custom-mapped runs.

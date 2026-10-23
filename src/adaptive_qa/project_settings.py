@@ -1,6 +1,9 @@
 """Bounded dashboard settings; validating references never resolves secrets."""
 
 from urllib.parse import urlsplit
+from dataclasses import asdict
+import json
+from adaptive_qa.form_configuration import saved_form_mappings
 
 from adaptive_qa.config import ProjectConfig, extract_hostname
 from adaptive_qa.secrets import SecretReference
@@ -18,7 +21,7 @@ def reference_name(owner_id, project_id, slot):
 
 def validate_settings(project, data):
     fields = {'base_url', 'allowed_hosts', 'allow_data_changes', 'secret_references'}
-    if not isinstance(data, dict) or set(data) != fields:
+    if not isinstance(data, dict) or set(data) not in (fields, fields | {'form_mappings'}):
         raise ValueError('Exact project settings fields are required.')
     url, hosts, references = data['base_url'], data['allowed_hosts'], data['secret_references']
     if not isinstance(url, str) or len(url) > 512:
@@ -40,7 +43,8 @@ def validate_settings(project, data):
         if slot not in SECRET_SLOTS or name != reference_name(project.owner_id, project.project_id, slot):
             raise ValueError('Secret references must belong to this owner, project and slot.')
         SecretReference(name)  # Syntax only: never read process environment here.
-    return {'base_url': config.base_url, 'allowed_hosts': list(config.allowed_hosts),
+    mappings = saved_form_mappings(data.get('form_mappings', []), project.project_id)
+    return {'form_mappings': json.loads(json.dumps([asdict(item) for item in mappings.mappings])), 'base_url': config.base_url, 'allowed_hosts': list(config.allowed_hosts),
             'allow_data_changes': config.allow_data_changes, 'secret_references': dict(references)}
 
 
@@ -49,6 +53,7 @@ def public_settings(project, data):
     if data is None:
         return {'configured': False, 'available_secret_references': available, 'discovery_support': discovery_support(None)}
     return {'configured': True, 'base_url': data['base_url'],
+            'form_mappings': data.get('form_mappings', []),
             'discovery_support': discovery_support(data),
             'allowed_hosts': data['allowed_hosts'], 'allow_data_changes': data['allow_data_changes'],
             'secret_references': {slot: {'environment_variable': name, 'value': '[REDACTED]'}

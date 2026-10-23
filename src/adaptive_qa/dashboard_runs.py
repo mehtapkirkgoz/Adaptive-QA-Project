@@ -1,4 +1,5 @@
 """Explicit owned test-run admission, separate from non-executing discovery plans."""
+from adaptive_qa.form_configuration import runtime_configuration
 
 import json
 import secrets
@@ -109,7 +110,7 @@ class DashboardRunQueue:
             if row['settings_json'] is None:
                 raise ValueError('Saved settings are required.')
             saved = json.loads(row['settings_json'])
-            snapshot = {key: saved[key] for key in ('base_url', 'allowed_hosts', 'allow_data_changes')}
+            snapshot = runtime_configuration(saved)
             configured_discovery(snapshot)
             discovery = connection.execute('SELECT report_json FROM dashboard_discovery_jobs '
                 "WHERE job_id=? AND project_id=? AND owner_id=? AND status='completed'",
@@ -225,7 +226,7 @@ class DashboardRunQueue:
         if row is None:
             return False
         saved = json.loads(row['settings_json'])
-        snapshot = {key: saved[key] for key in ('base_url', 'allowed_hosts', 'allow_data_changes')}
+        snapshot = runtime_configuration(saved)
         return configuration_fingerprint(snapshot) == configuration_fingerprint(work.configuration)
 
     def record_result(self, work, result, *, evidence_png=None):

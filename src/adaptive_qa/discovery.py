@@ -123,10 +123,12 @@ _ADD_NAMES = {"add to cart", "add to basket", "sepete ekle"}
 _CHECKOUT_NAMES = {"checkout", "proceed to checkout", "odemeye gec", "siparisi tamamla"}
 
 
-def detect_page_features(snapshot: PageSnapshot) -> tuple[FeatureFinding, ...]:
+def detect_page_features(snapshot: PageSnapshot, *, action_names=None) -> tuple[FeatureFinding, ...]:
     """Detect supported visible features; absence applies only to this page."""
     if not isinstance(snapshot, PageSnapshot):
         raise ValueError("snapshot must be a PageSnapshot instance.")
+    login_names = {_normalize(name) for name in action_names['login']} if action_names and 'login' in action_names else _LOGIN_NAMES
+    search_names = {_normalize(name) for name in action_names['search']} if action_names and 'search' in action_names else _SEARCH_NAMES
     present: dict[str, str] = {}
     hints: dict[str, list[str]] = {name: [] for name in
                                   ("login", "search", "registration", "product", "cart", "forms", "navigation")}
@@ -139,9 +141,9 @@ def detect_page_features(snapshot: PageSnapshot) -> tuple[FeatureFinding, ...]:
             present.setdefault('forms', reference)
         types = {item.input_type.casefold() for item in fields}
         buttons = {_normalize(button) for button in form.buttons if button.strip()}
-        if buttons & _LOGIN_NAMES:
+        if buttons & login_names:
             hints["login"].append(reference + ": login action")
-        if buttons & _SEARCH_NAMES:
+        if buttons & search_names:
             hints["search"].append(reference + ": search action")
         if buttons & _REGISTER_NAMES:
             hints["registration"].append(reference + ": registration action")
@@ -159,12 +161,12 @@ def detect_page_features(snapshot: PageSnapshot) -> tuple[FeatureFinding, ...]:
                 and "new-password" not in item.autocomplete.casefold().split()
                 for item in fields
             )
-            if current_password and types & {"text", "email", "tel"} and buttons & _LOGIN_NAMES:
+            if current_password and types & {"text", "email", "tel"} and buttons & login_names:
                 present.setdefault("login", reference)
         query = "search" in types or (form.role.casefold() == "search" and "text" in types)
         if query:
             hints["search"].append(reference + ": query field")
-            if buttons & _SEARCH_NAMES or (form.role.casefold() == "search" and buttons):
+            if buttons & search_names or (form.role.casefold() == "search" and buttons):
                 present.setdefault("search", reference)
 
     for index, link in enumerate(snapshot.links):

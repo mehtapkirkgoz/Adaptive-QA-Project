@@ -33,6 +33,8 @@ def main():
         '/blocked': login+'<script src="http://127.0.0.1:8001/forbidden.js"></script>',
         '/write': login+'<script>fetch("/forbidden-write",{method:"POST",body:"must-not-arrive"}).catch(()=>{});</script>',
         '/custom': '<form><input data-testid="login.username"><input data-testid="login.password" type="password"><button data-testid="login.submit">Continue</button></form>'}
+    pages['/custom-labels'] = login.replace('Username', 'Account code').replace('Password', 'Access key').replace('Sign in', 'Continue')
+    pages['/custom-search'] = search.replace('Search products', 'Catalog words').replace('>Search<', '>Go find<')
     contacts = {'canary': 0, 'writes': 0, 'interactions': 0}
     class Handler(BaseHTTPRequestHandler):
         def log_message(self, *args):
@@ -87,15 +89,18 @@ def main():
             projects = ProjectStore(Path(temporary)/'projects.sqlite')
             actor = ProjectActor('a'*32)
             personal = projects.create(actor, 'Independent login')
-            settings = {'base_url': 'http://127.0.0.1:8000/account', 'allowed_hosts': ['127.0.0.1'],
+            settings = {'base_url': 'http://127.0.0.1:8000/custom-labels', 'allowed_hosts': ['127.0.0.1'],
                         'allow_data_changes': False, 'secret_references': {}}
+            def mapping(key, value, role=None):
+                return {'logical_name': key, 'scope_test_id': None, 'locators': [{'strategy': 'role' if role else 'label', 'value': value, 'role': role}]}
+            settings['form_mappings'] = [mapping('login.username', 'Account code'), mapping('login.password', 'Access key'), mapping('login.submit', 'Continue', 'button')]
             projects.save_configuration(actor, personal.project_id, settings)
             discovery = DashboardDiscoveryQueue(projects)
             organizations = OrganizationStore(projects)
             organization = organizations.create(actor, 'Independent form team')
             scoped = OrganizationProjects(organizations)
             shared = scoped.create(actor, organization, 'Independent search')['project_id']
-            scoped.save_configuration(actor, organization, shared, dict(settings, base_url='http://127.0.0.1:8000/search'))
+            scoped.save_configuration(actor, organization, shared, dict(settings, base_url='http://127.0.0.1:8000/custom-search', form_mappings=[mapping('search.query', 'Catalog words'), mapping('search.submit', 'Go find', 'button')]))
             shared_discovery = OrganizationDiscoveryQueue(scoped)
             scoped_runs = ((discovery, DashboardRunQueue(projects), (actor, personal.project_id), 'LOGIN-001'),
                            (shared_discovery, OrganizationRunQueue(shared_discovery), (actor, organization, shared), 'SEARCH-001'))
@@ -119,7 +124,7 @@ def main():
     output = Path('artifacts/matching')
     output.mkdir(parents=True, exist_ok=True)
     report = {'outcomes': outcomes, 'contacts': contacts, 'screenshots_validated': len(outcomes),
-              'admitted_personal_login_and_shared_search_passed': True, 'admitted_scoped_pngs': 2,
+              'admitted_personal_login_and_shared_search_passed': True, 'saved_custom_mappings_used': True, 'admitted_scoped_pngs': 2,
               'external_form_site_tested': False, 'credential_use': False, 'catalog_cases_added': 0}
     (output/'configured-forms.json').write_text(json.dumps(report, indent=2)+'\n', encoding='utf-8')
     print(json.dumps({'scenarios': len(outcomes), 'contacts': contacts}))

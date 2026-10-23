@@ -4,6 +4,7 @@ import hashlib
 import json
 
 from adaptive_qa.api_catalog import API_CASES
+from adaptive_qa.form_configuration import mapping_action_names
 from adaptive_qa.catalog import TEST_CASES
 from adaptive_qa.crawler import CrawlBudget, CrawlResult
 from adaptive_qa.database_catalog import DATABASE_CASES
@@ -43,7 +44,7 @@ def _report(work, payload):
     reasons = ('Discovery coverage is limited; inspected pages do not establish site-wide absence.',) if limitations else ()
     crawl = CrawlResult(tuple(snapshots), len(snapshots), reasons)
     definitions = TEST_CASES + tuple(case.definition for case in API_CASES) + tuple(case.definition for case in DATABASE_CASES)
-    plan = build_test_plan(crawl, definitions, config)
+    plan = build_test_plan(crawl, definitions, config, action_names=mapping_action_names(work.configuration, work.project_id))
     report = serialize_plan(plan, definitions, work.project_id, discovery_status='completed',
                             inspected_pages=len(snapshots), configuration_source='job_snapshot')
     report['configuration_fingerprint'] = configuration_fingerprint(work.configuration)

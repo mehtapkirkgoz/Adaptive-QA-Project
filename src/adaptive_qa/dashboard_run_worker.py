@@ -16,6 +16,7 @@ from adaptive_qa.document_target import controlled_start_path
 from adaptive_qa.discovery_target import configured_discovery
 from adaptive_qa.document_process import run_isolated_document_test, run_isolated_form_test
 from adaptive_qa.form_checks import FORM_CHECKS
+from adaptive_qa.form_configuration import saved_form_mappings
 
 
 def process_run_once(queue):
@@ -35,7 +36,7 @@ def process_run_once(queue):
             profile, project = configured_discovery(work.configuration, project_id=work.project_id)
             document_path = controlled_start_path(work.configuration) if profile == 'controlled_local' else None
             context = capture_execution_context() if (profile == 'controlled_local' and document_path == '/'
-                and not any(case in DOCUMENT_CHECKS for case in work.case_ids)) else None
+                and not work.configuration.get('form_mappings') and not any(case in DOCUMENT_CHECKS for case in work.case_ids)) else None
             for case_id in work.case_ids:
                 if queue.cancellation_requested(work):
                     break
@@ -47,9 +48,10 @@ def process_run_once(queue):
                 if document_path != '/' and case_id not in DOCUMENT_CHECKS and case_id not in FORM_CHECKS:
                     raise ValueError('Only independent read-only cases support this path.')
                 deadline = min(30, 120 - (monotonic() - started))
-                if case_id in FORM_CHECKS and (profile == 'public_https' or document_path != '/'):
+                if case_id in FORM_CHECKS and (profile == 'public_https' or document_path != '/' or work.configuration.get('form_mappings')):
                     result = run_isolated_form_test(case_id, project, profile=profile, timeout_seconds=deadline,
-                        should_cancel=stop, evidence_directory=evidence_root)
+                        should_cancel=stop, evidence_directory=evidence_root,
+                        mappings=saved_form_mappings(work.configuration.get('form_mappings', []), work.project_id))
                 elif profile == 'public_https':
                     result = run_isolated_document_test(case_id, project, timeout_seconds=deadline,
                         should_cancel=stop, evidence_directory=evidence_root)

@@ -1,4 +1,5 @@
 """Membership-bound discovery queue using the existing bounded local worker."""
+from adaptive_qa.form_configuration import runtime_configuration
 
 from dataclasses import dataclass, field
 import json
@@ -69,7 +70,7 @@ class OrganizationDiscoveryQueue:
                               (organization_id,)).fetchone()[0]
             if total >= 100 or count >= min(5, quota):
                 raise ValueError('Discovery admission capacity reached.')
-            snapshot = {key: settings[key] for key in ('base_url', 'allowed_hosts', 'allow_data_changes')}
+            snapshot = runtime_configuration(settings)
             job_id = uuid4().hex
             c.execute('INSERT INTO dashboard_organization_discovery '
                       '(job_id, organization_id, project_id, user_id, status, configuration_json) VALUES (?, ?, ?, ?, ?, ?)',
@@ -104,7 +105,7 @@ class OrganizationDiscoveryQueue:
             if project['settings_json'] is None:
                 return False
             settings = json.loads(project['settings_json'])
-            return {key: settings[key] for key in ('base_url', 'allowed_hosts', 'allow_data_changes')} == json.loads(row['configuration_json'])
+            return runtime_configuration(settings) == json.loads(row['configuration_json'])
         except LookupError:
             return False
 

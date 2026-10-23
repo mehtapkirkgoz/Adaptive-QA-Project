@@ -138,5 +138,5 @@ def register_organization_routes(app, organizations, projects, actor, parse_obje
     async def save_configuration(organization_id: str, project_id: str, request: Request):
         identity = await run_in_threadpool(actor, request, mutation=True)
         data = parse_object(await request.body(), ('base_url', 'allowed_hosts',
-                                                 'allow_data_changes', 'secret_references'))
+                                                 'allow_data_changes', 'secret_references'), optional=('form_mappings',))
         return await run_in_threadpool(projects.save_configuration, identity, organization_id, project_id, data)

@@ -89,15 +89,27 @@ def main():
                     expect(panel.get_by_label('Saved target execution support', exact=True)).to_contain_text('Execution is unavailable')
                     expect(panel.get_by_role('button', name='Queue local discovery', exact=True)).to_be_disabled()
                     panel.get_by_label('Organization target URL', exact=True).fill('https://example.test/')
+                    panel.get_by_text('Custom form controls', exact=True).click()
+                    panel.get_by_label('Login username alternatives', exact=True).fill('Account code')
+                    panel.get_by_label('Login password alternatives', exact=True).fill('Access key')
+                    panel.get_by_label('Login submit alternatives', exact=True).fill('Continue')
+                    panel.get_by_label('Search query matching', exact=True).select_option('test_id')
+                    panel.get_by_label('Search query scope test ID', exact=True).fill('search-form')
+                    panel.get_by_label('Search query alternatives', exact=True).fill('custom-query')
                     panel.get_by_role('button', name='Save shared configuration', exact=True).click()
                     expect(panel.get_by_label('Saved target execution support', exact=True)).to_contain_text('Read-only HTTPS discovery is available')
+                    panel.get_by_role('button', name='Shared UI fixture', exact=True).click()
+                    panel.get_by_text('Custom form controls', exact=True).click()
+                    expect(panel.get_by_label('Login submit alternatives', exact=True)).to_have_value('Continue')
+                    expect(panel.get_by_label('Search query matching', exact=True)).to_have_value('test_id')
+                    expect(panel.get_by_label('Search query scope test ID', exact=True)).to_have_value('search-form')
                     panel.get_by_role('button', name='Queue HTTPS discovery', exact=True).click()
                     expect(panel.get_by_text('queued', exact=True)).to_be_visible()
                     panel.get_by_role('button', name='Cancel discovery', exact=True).click()
                     expect(panel.get_by_text('cancelled', exact=True)).to_be_visible()
                     panel.get_by_role('button', name='Queue HTTPS discovery', exact=True).click()
                     expect(panel.get_by_text('queued', exact=True)).to_be_visible()
-                    forms = (FormSnapshot(fields=(FieldSnapshot('text', 'Username'), FieldSnapshot('password', 'Password')), buttons=('Sign in',)),
+                    forms = (FormSnapshot(fields=(FieldSnapshot('text', 'Account code'), FieldSnapshot('password', 'Access key')), buttons=('Continue',)),
                              FormSnapshot(role='search', fields=(FieldSnapshot('search', 'Search products'),), buttons=('Search',)))
                     payload = {'pages': [asdict(PageSnapshot('https://example.test/', forms, (), True))], 'limitations': []}
                     queue = OrganizationDiscoveryQueue(OrganizationProjects(organizations))
@@ -111,6 +123,10 @@ def main():
                     public_runs.get_by_role('button', name='Start shared tests', exact=True).click()
                     public_runs.get_by_role('button', name='Cancel shared run', exact=True).click()
                     expect(public_runs.get_by_text('Shared run cancelled', exact=False)).to_be_visible()
+                    panel.get_by_label('Login username alternatives', exact=True).fill('')
+                    panel.get_by_label('Login password alternatives', exact=True).fill('')
+                    panel.get_by_label('Login submit alternatives', exact=True).fill('')
+                    panel.get_by_label('Search query alternatives', exact=True).fill('')
                     panel.get_by_label('Organization target URL', exact=True).fill('http://127.0.0.1:8000/')
                     panel.get_by_label('Organization allowed hosts', exact=True).fill('127.0.0.1')
                     panel.get_by_role('button', name='Save shared configuration', exact=True).click()
@@ -185,7 +201,7 @@ def main():
             fixture.shutdown()
             fixture.server_close()
             fixture_thread.join(timeout=5)
-    report = {'owner_create_and_save': True, 'viewer_read_only': True,
+    report = {'owner_create_and_save': True, 'saved_custom_mappings_reloaded': True, 'viewer_read_only': True,
               'revocation_after_reload': True, 'other_organization_hidden': True,
               'queued_runs': 0, 'scoped_discovery_completed': True, 'plan_execution_authorized': False,
               'actual_shared_cases_passed': 2, 'shared_pngs_persisted': 2,

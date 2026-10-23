@@ -370,3 +370,48 @@ still proves a discovered login path cannot silently execute against the root.
 All 96 existing reusable fixture runs across English, Turkish and mapped variants
 passed after the matcher change. README now separates current form capabilities
 from historical sprint acceptance and corrects the closed Sprint 9/10 table rows.
+
+## Saved Project Form Mappings
+
+Personal/shared project settings now persist up to five known logical mappings,
+with bounded exact label, button-role or test-ID alternatives and optional test-ID
+scope. The panel's Custom form controls editor saves these with normal scoped
+configuration; viewing/reloading preserves names, strategy and scope. Empty names
+restore defaults. Omitted form_mappings in a legacy full configuration PUT also
+restores defaults. No raw credential or arbitrary selector/script is supported.
+
+Non-empty mappings are part of secret-free discovery/run snapshots and fingerprints.
+Changing an override invalidates prior report admission and prevents stale pending
+execution. Empty mappings retain historical fingerprints, without a database DDL
+migration. The worker receives typed mappings for its project and validates them
+again in the child. Controlled root form runs with overrides use the generic form
+worker rather than the fixed sample binding and retain unknown comparison context.
+
+Configured button-role names participate in structural discovery only when the
+observed form contains the actual action and required field types. A configured
+Continue name does not invent a form or change an assertion. Test-ID-only custom
+actions do not prove feature applicability from snapshots; they may remain unknown
+until additional structural evidence exists. Public plans remain non-executing.
+
+The fixed pilot agent refuses custom-mapped or non-root/public configurations;
+those runs remain available to the supported local worker. Managed selection and
+component startup refuse older releases lacking form_configuration when saved or
+historical run configuration contains non-empty mappings. Compatibility inspection
+is bounded and read-only. This supplements schema compatibility; a schema-only
+rollback plan does not itself approve this feature compatibility check.
+
+Both real dashboard browser flows saved custom names and a test-ID strategy/scope,
+reopened the project to verify persistence, reviewed controlled snapshot evidence,
+queued/cancelled without external traffic, then cleared overrides and passed prior
+local fixture flows. Owned HTTP acceptance used saved custom labels/button names
+through personal login/shared search discovery, admission, child execution and two
+scoped PNGs. Canary/write/interaction contacts stayed zero. The full regression
+passed 703 tests (702 passed, one Windows permission skip); affected mapping and
+runtime compatibility checks were repeated after final changes. Static demo
+behavior remained unchanged. Exact-commit CI remains pending after push.
+
+Next product work: validate the resulting local UX with the owner, then implement
+separately bounded interactive login/search contracts with explicit secret
+references and data-change policy. Structural form checks still never fill fields,
+resolve a credential, sign in or submit a search. Overall product acceptance is
+pending; closed sprint tracking is not reopened.

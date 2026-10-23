@@ -240,6 +240,32 @@ def prepare_local(plan, candidate, candidate_commit, *, maintenance_confirmed=Fa
     return {'release_id': candidate_commit, 'prepared': True, 'service_started': False}
 
 
+def _check_form_mapping_support(release, data):
+    """Older selected binaries must not silently ignore saved execution mappings."""
+    if (release / 'site/adaptive_qa/form_configuration.py').is_file():
+        return
+    with closing(sqlite3.connect((data/'projects.sqlite').as_uri()+'?mode=ro', uri=True, timeout=1)) as connection:
+        steps = [0]
+        def budget():
+            steps[0] += 1
+            return int(steps[0] > 200)
+        connection.set_progress_handler(budget, 1000)
+        for table, column in (('dashboard_project_settings', 'settings_json'),
+                              ('dashboard_organization_projects', 'settings_json'),
+                              ('dashboard_test_runs', 'configuration_json'),
+                              ('dashboard_organization_runs', 'configuration_json')):
+            if not connection.execute('SELECT 1 FROM sqlite_master WHERE type=\'table\' AND name=?', (table,)).fetchone():
+                continue
+            rows = connection.execute(f'SELECT CASE WHEN length({column})>65536 THEN NULL ELSE {column} END '
+                                      f'FROM {table} WHERE {column} IS NOT NULL LIMIT 1001').fetchall()
+            if len(rows) > 1000:
+                raise ValueError('Mapping compatibility cannot be established within the inspection budget.')
+            for (raw,) in rows:
+                value = json.loads(raw) if raw is not None else None
+                if not isinstance(value, dict) or value.get('form_mappings'):
+                    raise ValueError('The selected release cannot interpret saved form mappings.')
+
+
 def select_local(plan, release_id, *, recovery_id=None, use_live_data=False, expected_selection=None, maintenance_confirmed=False):
     if maintenance_confirmed is not True:
         raise ValueError('Explicit offline-maintenance confirmation is required.')
@@ -254,6 +280,7 @@ def select_local(plan, release_id, *, recovery_id=None, use_live_data=False, exp
             recovery_id = previous.get('recovery_id')
         release = _release(root, release_id)
         data = _data(plan, recovery_id)
+        _check_form_mapping_support(release, data)
         supported = _read(release / 'release.json').get('database_schema_revisions', [])
         for name in ('auth.sqlite', 'projects.sqlite'):
             with closing(sqlite3.connect((data / name).as_uri() + '?mode=ro', uri=True, timeout=1)) as connection:
@@ -283,6 +310,7 @@ def component_lease(plan, role, expected_selection):
                 raise ValueError('Selected release changed before component startup.')
             release = _release(root, selected.get('release_id'))
             data = _data(plan, selected.get('recovery_id'))
+            _check_form_mapping_support(release, data)
         yield selected, release, data
 
 

@@ -1,3 +1,5 @@
+import {FormMappingsEditor} from './FormMappingsEditor';
+import type {FormMapping} from './FormMappingsEditor';
 import {useEffect, useRef, useState} from 'react';
 import type {FormEvent} from 'react';
 import {DiscoveryPanel} from './DiscoveryPanel';
@@ -8,7 +10,7 @@ import {ExecutionScope, supportsDiscovery, matchesSavedTarget} from './Execution
 type Request = <T>(path: string, method?: string, body?: unknown) => Promise<T>;
 type Organization = {organization_id: string; name: string; role: string};
 type Project = {project_id: string; organization_id: string; name: string};
-type Settings = {discovery_support?: {supported: boolean; profile: string | null; execution_scope: string}; configured: boolean; base_url?: string; allowed_hosts?: string[];
+type Settings = {form_mappings?: FormMapping[]; discovery_support?: {supported: boolean; profile: string | null; execution_scope: string}; configured: boolean; base_url?: string; allowed_hosts?: string[];
   allow_data_changes?: boolean;
   available_secret_references: Record<string, string>;
   secret_references?: Record<string, {environment_variable: string; value: string}>};
@@ -30,6 +32,7 @@ function OrganizationWorkspace({request}: {request: Request}) {
   const [maxProjects, setMaxProjects] = useState<number | null>(null);
   const [planSummary, setPlanSummary] = useState('');
   const [runPlan, setRunPlan] = useState<{jobId: string; candidates: string[]; names: Record<string, string>} | null>(null);
+  const [formMappings, setFormMappings] = useState<FormMapping[]>([]);
   const generation = useRef(0);
   const canConfigure = selected?.role === 'owner' || selected?.role === 'admin';
   const path = selected ? `/api/organizations/${selected.organization_id}/projects` : '';
@@ -61,7 +64,7 @@ function OrganizationWorkspace({request}: {request: Request}) {
       const data = await request<Settings>(`${path}/${value.project_id}/configuration`);
       if (epoch !== generation.current) return;
       setProject(value); setSettings(data); setTarget(data.base_url ?? ''); setHosts(data.allowed_hosts?.join('\n') ?? '');
-      setSlots(Object.keys(data.secret_references ?? {}));
+      setSlots(Object.keys(data.secret_references ?? {})); setFormMappings(data.form_mappings ?? []);
     });
   }
   function createOrganization(event: FormEvent<HTMLFormElement>) {
@@ -81,7 +84,7 @@ function OrganizationWorkspace({request}: {request: Request}) {
     void perform(async () => {
       setSettings(await request<Settings>(`${path}/${project.project_id}/configuration`, 'PUT', {
         base_url: target, allowed_hosts: hosts.split('\n').map(h => h.trim()).filter(Boolean),
-        allow_data_changes: settings.allow_data_changes ?? false, secret_references}));
+        allow_data_changes: settings.allow_data_changes ?? false, secret_references, form_mappings: formMappings}));
       setNotice('Organization configuration saved. No work was started.');
       setPlanSummary('');
       setRunPlan(null);
@@ -107,6 +110,7 @@ function OrganizationWorkspace({request}: {request: Request}) {
         <label>Organization target URL<input type="url" required maxLength={512} value={target} onChange={e => setTarget(e.target.value)}/></label>
         <label>Organization allowed hosts<textarea aria-label="Organization allowed hosts" required rows={3} value={hosts} onChange={e => setHosts(e.target.value)}/></label>
         <p className="hint">One exact hostname per line. Existing data-change policy is retained; new shared projects default to read-only.</p>
+        <FormMappingsEditor key={project.project_id + JSON.stringify(settings)} value={formMappings} onChange={setFormMappings}/>
         <h4>Organization secret references</h4>
         {Object.keys(settings.available_secret_references).map(slot => <label className="check" key={slot}>
           <input type="checkbox" checked={slots.includes(slot)} onChange={e => setSlots(e.target.checked ? [...slots, slot] : slots.filter(s => s !== slot))}/>

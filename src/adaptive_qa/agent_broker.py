@@ -41,6 +41,10 @@ class AgentBroker:
                     self.runs._release(c,row,'cancelled')
                     c.execute("UPDATE dashboard_organization_runs SET status='cancelled' WHERE run_id=?",(row['run_id'],))
                     continue
+                configuration = json.loads(row['configuration_json'])
+                if (configuration.get('form_mappings') or configuration.get('base_url') not in
+                        ('http://127.0.0.1:8000', 'http://127.0.0.1:8000/')):
+                    continue
                 cases = tuple(json.loads(row['case_ids_json']))
                 if not set(cases)<=PILOT_CASES:
                     continue
