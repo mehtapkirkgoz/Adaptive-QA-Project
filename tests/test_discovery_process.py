@@ -8,6 +8,8 @@ from unittest.mock import patch
 
 from adaptive_qa.crawler import CrawlBudget
 from adaptive_qa.local_discovery import discover_local_sample
+from adaptive_qa.local_discovery import discover_configured_target
+from adaptive_qa.config import ProjectConfig
 
 
 class DiscoveryProcessTests(unittest.TestCase):
@@ -18,7 +20,7 @@ class DiscoveryProcessTests(unittest.TestCase):
         self.assertIn('cancelled', result['limitations'])
         self.assertFalse(result['plan']['execution_authorized'])
 
-    def run_owned_child(self, *, cancel=False, broken=False):
+    def run_owned_child(self, *, cancel=False, broken=False, configured=False):
         original = subprocess.Popen
         children = []
         start = monotonic()
@@ -34,7 +36,11 @@ class DiscoveryProcessTests(unittest.TestCase):
             return cancel and monotonic() - start > 0.2
         try:
             with patch('adaptive_qa.local_discovery.subprocess.Popen', side_effect=spawn):
-                result = discover_local_sample(CrawlBudget(timeout_seconds=0.4), should_cancel=callback)
+                if configured:
+                    project = ProjectConfig('public', 'Public profile', 'https://qa.example.test/', ('qa.example.test',))
+                    result = discover_configured_target(project, CrawlBudget(timeout_seconds=0.4), should_cancel=callback)
+                else:
+                    result = discover_local_sample(CrawlBudget(timeout_seconds=0.4), should_cancel=callback)
             self.assertEqual(result['pages'], [])
             self.assertIn('cancelled' if cancel else 'time_limit', result['limitations'])
             self.assertTrue(result['partial_results_discarded'])
@@ -56,3 +62,9 @@ class DiscoveryProcessTests(unittest.TestCase):
     def test_callback_failure_still_cleans_up_real_child(self):
         with self.assertRaisesRegex(RuntimeError, 'cancellation source'):
             self.run_owned_child(broken=True)
+
+    def test_configured_public_profile_deadline_stops_owned_child_without_target_traffic(self):
+        self.run_owned_child(configured=True)
+
+    def test_configured_public_profile_cancellation_stops_owned_child_without_target_traffic(self):
+        self.run_owned_child(configured=True, cancel=True)

@@ -36,6 +36,11 @@ This follow-up does not enable purchases, public backend hosting or customer tes
   with existing public-address validation, pinned egress and process deadlines.
   External validation still requires an owner-authorized target; no external site
   has been contacted by these local fixture checks.
+  - [x] Add typed public HTTPS/controlled-local discovery profiles and a shared
+    supervised collector; verify static validation, mixed DNS refusal, cancellation
+    and configured local starts without external traffic.
+  - [ ] Connect the public profile to authenticated dashboard admission/report scope.
+  - [ ] Validate a concrete owner-authorized external HTTPS target and exact-commit CI.
 - [ ] Address operator enrollment/agent startup and bounded unattended maintenance
   from PILOT_FINDINGS.md with separately verified increments.
   - [x] Add an explicit bounded maintenance-once operator command for expired
@@ -173,3 +178,13 @@ skip); the later redirect guard was also exercised by the real HTTP drill.
 Maintenance commits 875adac and a017781 have successful Core checks. The non-root
 increment requires its own exact-commit CI after push. The general public-host
 profile is still unfinished; this feature does not authorize external execution.
+
+## Configured Discovery Foundation
+
+The internal configured worker is documented in CONFIGURED_DISCOVERY.md. It
+preserves the local wrapper, uses bounded temporary configuration instead of
+target values in command arguments, and keeps the existing process deadline and
+pinned egress. Resource route denials now explicitly limit coverage, preventing
+false absence. Three configured fixture runs, the existing real document drill
+and 678 unit tests completed locally (677 passed, one Windows permission skip).
+The dashboard public profile and real external HTTPS acceptance remain pending.
