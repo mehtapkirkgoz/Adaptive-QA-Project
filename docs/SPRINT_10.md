@@ -1,7 +1,7 @@
 # Sprint 10 — Customer Management and Pilot Testing
 
 Started: 2026-10-23
-Status: In progress; explicitly started by the owner.
+Status: Technical acceptance ready for owner review; issue/milestone remain open.
 Tracking: [issue #11](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/11)
 Milestone: [#11](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/11)
 
@@ -23,12 +23,12 @@ are authorized by this sprint start.
   - [x] Integrate scoped test-run admission/results/evidence and recovery.
   - [x] Finish membership administration and scoped usage visibility for onboarding.
 - [x] 10.3: Verify isolation and concurrency against two disposable organizations locally; repeat in CI.
-- [x] 10.4: Implement and exercise authenticated outbound agent flow on controlled local fixtures; remote CI confirmation pending.
+- [x] 10.4: Implement and exercise authenticated outbound agent flow on controlled local fixtures; remote CI confirmed.
   - [x] Add project-bound, expiring/revocable credential core and replay checks.
   - [x] Add signed-message authentication and project-bound work leases/results.
   - [x] Add authenticated outbound transport, scoped leases/results and actual local agent drill.
 - [x] 10.5: Document onboarding/support and prioritized synthetic pilot findings.
-- [ ] 10.6: Verify exact-commit CI/artifacts and report readiness for owner review.
+- [x] 10.6: Verify exact-commit CI/artifacts and report readiness for owner review.
 
 ## First Increment
 
@@ -310,4 +310,8 @@ Full transport-increment regression: 656 tests, 655 passed and one Windows
 symlink-permission skip. See ONBOARDING_SUPPORT.md for roles, setup, quotas and
 support triage, and PILOT_FINDINGS.md for prioritized synthetic observations and
 deferred customer-deployment prerequisites. Final same-commit CI/artifact review
-is still required before technical readiness is reported.
+is complete: implementation c6c5678ed8606987dfe80993cc406a9c2d1469cb,
+run 39905039071, all twelve jobs successful, 656 passing Linux unit tests,
+twelve downloaded artifact digests/head SHAs and 206 PNGs verified.
+See SPRINT_10_ACCEPTANCE.md and evidence/sprint10-acceptance.json.
+This final record supersedes historical pending notes above. Await owner review.

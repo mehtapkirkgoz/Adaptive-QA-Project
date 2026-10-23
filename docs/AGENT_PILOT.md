@@ -1,7 +1,7 @@
 # Controlled Local Agent Pilot
 
 Status: Signed outbound transport and real controlled local execution implemented;
-final exact-commit CI/artifact acceptance pending.
+exact-commit CI/artifact acceptance verified in SPRINT_10_ACCEPTANCE.md.
 This prototype is not a deployed customer agent or a public agent endpoint.
 
 ## Intended Connection Model
