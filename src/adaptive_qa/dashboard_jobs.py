@@ -1,5 +1,6 @@
 """Owner-bound local discovery dispatch, separate from legacy unowned test jobs."""
 from adaptive_qa.form_configuration import runtime_configuration
+from adaptive_qa.licensing import LicenseError
 
 from dataclasses import dataclass, field
 import json
@@ -63,6 +64,8 @@ class DashboardDiscoveryQueue:
         _id(project_id)
         with self.projects._connection() as connection:
             connection.execute('BEGIN IMMEDIATE')
+            if hasattr(self.projects, 'admit_execution'):
+                self.projects.admit_execution(connection)
             row = connection.execute('SELECT s.settings_json FROM dashboard_projects p '
                 'LEFT JOIN dashboard_project_settings s ON s.project_id=p.project_id '
                 'WHERE p.project_id=? AND p.owner_id=?', (project_id, actor.user_id)).fetchone()
@@ -116,16 +119,27 @@ class DashboardDiscoveryQueue:
             row = connection.execute("SELECT * FROM dashboard_discovery_jobs WHERE status='queued' ORDER BY sequence LIMIT 1").fetchone()
             if row is None:
                 return None
+            if hasattr(self.projects, 'admit_execution'):
+                try:
+                    self.projects.admit_execution(connection, starting=True)
+                except LicenseError:
+                    return None
             token = secrets.token_urlsafe(32)
             connection.execute("UPDATE dashboard_discovery_jobs SET status='running', claim_token=? WHERE job_id=?", (token, row['job_id']))
             return DiscoveryWork(row['job_id'], row['project_id'], json.loads(row['configuration_json']), token)
 
     def cancellation_requested(self, work):
         with self.projects._connection() as connection:
+            licensed = hasattr(self.projects, 'execution_allowed')
+            if licensed:
+                connection.execute('BEGIN IMMEDIATE')
             row = connection.execute('SELECT status, claim_token FROM dashboard_discovery_jobs WHERE job_id=?', (work.job_id,)).fetchone()
-        if row is None or not secrets.compare_digest(row['claim_token'] or '', work.claim_token):
-            raise ValueError('Invalid worker claim.')
-        return row['status'] == 'cancel_requested'
+            if row is None or not secrets.compare_digest(row['claim_token'] or '', work.claim_token):
+                raise ValueError('Invalid worker claim.')
+            if licensed and not self.projects.execution_allowed():
+                connection.execute("UPDATE dashboard_discovery_jobs SET status='cancel_requested' WHERE job_id=?", (work.job_id,))
+                return True
+            return row['status'] == 'cancel_requested'
 
     def finish(self, work, *, failed=False, report=None):
         if type(failed) is not bool:

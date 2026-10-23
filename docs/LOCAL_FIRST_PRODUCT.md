@@ -119,3 +119,39 @@ and worker enforcement remain unfinished; existing free/account behavior is inta
 Commit 3357c70 passed Core checks in run 40005490997, including the corrected
 free-interface build and execution step. Exact-commit CI for this persistence
 increment is pending after push.
+
+## Licensed Workspace Integration
+
+An explicitly provisioned password administrator maps to the same internal local
+workspace identity as the free edition. Other valid accounts cannot inherit that
+workspace. Password hashing, opaque sessions, CSRF and login throttling reuse the
+existing authentication implementation. No customer ID is accepted as a password.
+The internal licensed app composition omits organization routes for this narrow
+single-device edition. No customer-facing licensed startup command is shipped yet.
+
+Licensed project creation checks the current signed limit inside the project
+database write transaction. Concurrent creation respects the cap. Upgrading leaves
+existing project IDs/ownership intact; expiry or a reduced limit preserves readable
+projects and history but refuses further licensed creation. No data is deleted.
+
+Personal discovery/run admission and worker claims recheck the license. Claims
+share a transactional concurrent execution count across both queues, capped by the
+signed entitlement (at most four). Expired licenses leave queued work unclaimed;
+active workers observe cancellation through their existing polling/deadline path.
+Running work is stopped cooperatively, not at an impossible instantaneous expiry
+boundary. Existing independent process deadlines remain in force. Authentication
+remains available after expiry for reading local records.
+
+These hooks apply when workers use LicensedLocalProjects. Customer CLI/runtime
+composition must still ensure every customer worker selects that store rather
+than the legacy development store; therefore commercial enforcement/packaging is
+not declared complete. Import/status UX and backup/rollback compatibility remain
+unfinished. Existing development and free compositions retain prior behavior.
+
+Verification: the full regression completed 719 tests (718 passed, one Windows
+permission skip). Five licensed integration checks passed after the final changes,
+including password/CSRF-protected HTTP upgrade, expiry-preserved reads, parallel
+creation, reduced limits and shared discovery/run worker capacity. Expiry polling
+records cancel_requested so finalization cannot report an empty successful run.
+Affected dashboard queue/worker tests were repeated after this change. Exact-commit
+CI is pending after push.

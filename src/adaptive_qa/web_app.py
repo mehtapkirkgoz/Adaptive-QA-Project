@@ -194,7 +194,7 @@ def create_app(store: AuthStore, *, port=8765, projects=None, ui_directory=None)
     def public_project(project):
         return {'project_id': project.project_id, 'name': project.name}
 
-    if not getattr(store, 'local_free', False):
+    if not (getattr(store, 'local_free', False) or getattr(store, 'local_licensed', False)):
         register_organization_routes(app, organizations, organization_projects, actor, _object, store)
 
     @app.get('/api/projects')

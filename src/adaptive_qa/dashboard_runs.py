@@ -1,5 +1,6 @@
 """Explicit owned test-run admission, separate from non-executing discovery plans."""
 from adaptive_qa.form_configuration import runtime_configuration
+from adaptive_qa.licensing import LicenseError
 
 import json
 import secrets
@@ -96,6 +97,8 @@ class DashboardRunQueue:
             raise ValueError('Select one to ten distinct test case IDs.')
         with self.projects._connection() as connection:
             connection.execute('BEGIN IMMEDIATE')
+            if hasattr(self.projects, 'admit_execution'):
+                self.projects.admit_execution(connection)
             if rerun_of is not None:
                 parent = self._owned(connection, actor, project_id, rerun_of)
                 if parent['status'] not in ('completed', 'cancelled', 'error'):
@@ -195,6 +198,11 @@ class DashboardRunQueue:
             row = connection.execute("SELECT * FROM dashboard_test_runs WHERE status='queued' ORDER BY sequence LIMIT 1").fetchone()
             if row is None:
                 return None
+            if hasattr(self.projects, 'admit_execution'):
+                try:
+                    self.projects.admit_execution(connection, starting=True)
+                except LicenseError:
+                    return None
             token = secrets.token_urlsafe(32)
             connection.execute("UPDATE dashboard_test_runs SET status='running', claim_token=? WHERE run_id=?", (token, row['run_id']))
             return RunWork(row['run_id'], row['project_id'], row['owner_id'],
@@ -211,6 +219,12 @@ class DashboardRunQueue:
 
     def cancellation_requested(self, work):
         with self.projects._connection() as connection:
+            if hasattr(self.projects, 'execution_allowed'):
+                connection.execute('BEGIN IMMEDIATE')
+                self._claimed(connection, work)
+                if not self.projects.execution_allowed():
+                    connection.execute("UPDATE dashboard_test_runs SET status='cancel_requested' WHERE run_id=?", (work.run_id,))
+                    return True
             return self._claimed(connection, work)['status'] == 'cancel_requested'
 
     def configuration_current(self, work):
