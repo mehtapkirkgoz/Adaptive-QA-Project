@@ -1,0 +1,135 @@
+{
+  "schema_version": 1,
+  "implementation_sha": "2e2b8bd9cae181c9fc9436972d74d2f0d5bce244",
+  "ci_run_id": 39915903166,
+  "ci_conclusion": "success",
+  "unit_tests_passed": 660,
+  "jobs": [
+    {
+      "name": "Packaged local runtime (windows-2025)",
+      "id": 120289312345,
+      "conclusion": "success"
+    },
+    {
+      "name": "Controlled database checks (ubuntu-24.04)",
+      "id": 120289312590,
+      "conclusion": "success"
+    },
+    {
+      "name": "scaffold",
+      "id": 120289312603,
+      "conclusion": "success"
+    },
+    {
+      "name": "Controlled API checks",
+      "id": 120289312644,
+      "conclusion": "success"
+    },
+    {
+      "name": "Process lifecycle (windows-2025)",
+      "id": 120289312648,
+      "conclusion": "success"
+    },
+    {
+      "name": "Browser integration checks",
+      "id": 120289312694,
+      "conclusion": "success"
+    },
+    {
+      "name": "Controlled database checks (windows-2025)",
+      "id": 120289312726,
+      "conclusion": "success"
+    },
+    {
+      "name": "UI catalog and isolation",
+      "id": 120289312730,
+      "conclusion": "success"
+    },
+    {
+      "name": "Local browser check",
+      "id": 120289312731,
+      "conclusion": "success"
+    },
+    {
+      "name": "Process lifecycle (ubuntu-24.04)",
+      "id": 120289312775,
+      "conclusion": "success"
+    },
+    {
+      "name": "Inactive release packaging",
+      "id": 120289312812,
+      "conclusion": "success"
+    },
+    {
+      "name": "Packaged local runtime (ubuntu-24.04)",
+      "id": 120289312863,
+      "conclusion": "success"
+    }
+  ],
+  "downloaded_artifacts": [
+    {
+      "name": "local-runtime-windows-2025",
+      "id": 12485400549,
+      "digest": "sha256:9ff06d701bfecdf9ae93891bf73111660445ddee17f650b96f7c3f0a3676a986",
+      "head_sha": "2e2b8bd9cae181c9fc9436972d74d2f0d5bce244",
+      "downloaded_digest_verified": true
+    },
+    {
+      "name": "ui-catalog-evidence",
+      "id": 12484932917,
+      "digest": "sha256:c3dec8e26ba89b772b4a869395265bba3326135d9397895311d82f6daeff0932",
+      "head_sha": "2e2b8bd9cae181c9fc9436972d74d2f0d5bce244",
+      "downloaded_digest_verified": true
+    },
+    {
+      "name": "local-runtime-ubuntu-24.04",
+      "id": 12484723301,
+      "digest": "sha256:6c0d454e2e955d37b327d20176174f919df3a9830272d80774fda870fcc2b503",
+      "head_sha": "2e2b8bd9cae181c9fc9436972d74d2f0d5bce244",
+      "downloaded_digest_verified": true
+    },
+    {
+      "name": "local-browser-evidence",
+      "id": 12484698406,
+      "digest": "sha256:5b7d8b8be940221ca7b4a7d9099deedd3f8ec3a855eea727a74c5e2c666789b3",
+      "head_sha": "2e2b8bd9cae181c9fc9436972d74d2f0d5bce244",
+      "downloaded_digest_verified": true
+    }
+  ],
+  "scope": "controlled_local_post_sprint_review",
+  "public_target_execution_enabled": false,
+  "document_execution": {
+    "controlled_local_only": true,
+    "sample_title_required": false,
+    "unique_cases": 5,
+    "positive_executions": 15,
+    "negative_defects_detected": 5,
+    "validated_pngs": 20,
+    "forbidden_canary_contacts": 0,
+    "write_requests_received": 0,
+    "discovery_backed_personal_cases_passed": 5,
+    "discovery_backed_shared_cases_passed": 5,
+    "scoped_persisted_pngs": 10,
+    "shared_active_capacity_released": true,
+    "public_target_execution_enabled": false
+  },
+  "organization_ui": {
+    "owner_create_and_save": true,
+    "viewer_read_only": true,
+    "revocation_after_reload": true,
+    "other_organization_hidden": true,
+    "queued_runs": 0,
+    "scoped_discovery_completed": true,
+    "plan_execution_authorized": false,
+    "actual_shared_cases_passed": 2,
+    "shared_pngs_persisted": 2,
+    "anonymous_and_revoked_evidence_denied": true,
+    "member_added_through_authenticated_ui": true,
+    "usage_snapshot_verified": true,
+    "named_filtered_bounded_selection_verified": true,
+    "unsupported_saved_target_explained_without_dispatch": true,
+    "external_requests": 0,
+    "page_errors": [],
+    "demo_modified": false
+  }
+}

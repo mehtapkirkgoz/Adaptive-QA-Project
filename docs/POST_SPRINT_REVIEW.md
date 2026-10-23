@@ -14,7 +14,8 @@ This follow-up does not enable purchases, public backend hosting or customer tes
   clear selections explicitly. Reset stale shared selections when candidates change.
 - [x] Verify actual discovery, two-case execution, report/evidence, roles and
   revocation after the UI changes; zero external requests/page errors.
-- [ ] Verify same-commit CI for this follow-up.
+- [x] Verify same-commit CI for the selection/target/document increments through
+  2e2b8bd: all twelve jobs passed; four downloaded artifact digests and reports verified.
 - [x] Make saved target execution eligibility explicit before queue submission;
   verify unsupported saved targets never dispatch in personal/shared browser flows.
 - [ ] Extend reusable execution beyond fixed sample bindings using contrasting
@@ -32,6 +33,8 @@ This follow-up does not enable purchases, public backend hosting or customer tes
       before exposing additional target scopes through the dashboard.
 - [ ] Address operator enrollment/agent startup and bounded unattended maintenance
   from PILOT_FINDINGS.md with separately verified increments.
+  - [x] Add an explicit bounded maintenance-once operator command for expired
+    agent leases and personal/shared evidence pruning; automatic supervision is pending.
 
 The last three items are future engineering work, not accepted capabilities.
 Do not remove destination guards, infer ownership from a public URL or count
@@ -106,3 +109,20 @@ content can be bound to it; differing documents must not be pooled into flaky
 signals based only on a sample source fingerprint. Worker/consistency regressions
 cover this conservative behavior. The context source inventory also includes the
 new document-path validator. Non-root admission/UI support remains unfinished.
+
+## Verified Follow-Up Evidence
+
+Implementation 2e2b8bd9cae181c9fc9436972d74d2f0d5bce244 passed all twelve
+jobs in run 39915903166 and 660 Linux unit tests. Earlier 9588cce, 42db9b4 and
+892c190 Core checks also succeeded. Four downloaded archives (UI catalog,
+organization/browser and both packaged runtimes) passed SHA-256/head verification.
+Their actual reports confirm document execution, named/filtered selection,
+unsupported-target non-dispatch and both-platform runtime/rollback. See
+evidence/post-review-2e2b8bd.json. This supersedes the historical pending CI notes.
+
+The maintenance increment has its own tests/CI requirement and does not inherit
+acceptance from that earlier commit. No unattended service has been installed.
+Its local full regression completed 666 tests: 665 passed and one Windows
+symlink-permission skip. Six maintenance tests include an actual CLI subprocess,
+live/expired lease handling, partial-outcome preservation, bounded evidence
+cleanup and worker-lock refusal. Both-platform CI repeats these checks.

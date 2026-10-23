@@ -1,5 +1,26 @@
 # Local Operations and Published Demo
 
+## Explicit Bounded Maintenance
+
+Run one operator pass against the trusted project database:
+
+```powershell
+python -m adaptive_qa dashboard maintenance-once --database artifacts/dashboard/projects.sqlite --limit 100
+```
+
+This holds the existing worker lock and examines at most 100 active agent leases,
+cancelling expired/revoked/invalid work through the broker's transactional scope
+checks. It then removes at most the chosen limit of expired personal evidence
+and the same limit of expired shared evidence. The limit is 1–100. Live valid
+leases remain active, earlier outcomes remain recorded and abandoned work is
+never replayed. Database operations commit individually; this is not one global
+transaction. Repeated passes are safe. Output contains counts only.
+
+The command dispatches no tests, resolves no credentials and opens no listener
+or application connection. It refuses an active local worker lock. It is an
+explicit bounded batch, not a hard-deadline supervisor or unattended service.
+No system scheduler/service is installed or activated by this increment.
+
 ## Local Organization Onboarding
 
 Create each account with the existing interactive dashboard create-user command;

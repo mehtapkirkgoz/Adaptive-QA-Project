@@ -1,6 +1,7 @@
 """Trusted local dashboard provisioning and single-process loopback serving."""
 
 import getpass
+import json
 from pathlib import Path
 import sqlite3
 import sys
@@ -13,11 +14,11 @@ from adaptive_qa.web_app import create_app
 def configure_parser(subparsers):
     parser = subparsers.add_parser('dashboard', help='Manage the local dashboard')
     commands = parser.add_subparsers(dest='dashboard_command', required=True)
-    for name in ('create-user', 'serve', 'discovery-once', 'recover-discovery', 'recover-organization-discovery', 'run-once', 'recover-runs', 'recover-organization-runs', 'prune-evidence'):
+    for name in ('create-user', 'serve', 'discovery-once', 'recover-discovery', 'recover-organization-discovery', 'run-once', 'recover-runs', 'recover-organization-runs', 'prune-evidence', 'maintenance-once'):
         command = commands.add_parser(name)
         command.add_argument('--database', type=Path, default=Path('artifacts/dashboard/projects.sqlite'
-            if name in ('discovery-once', 'recover-discovery', 'recover-organization-discovery', 'run-once', 'recover-runs', 'recover-organization-runs', 'prune-evidence') else 'artifacts/dashboard/auth.sqlite'))
-        if name == 'prune-evidence':
+            if name in ('discovery-once', 'recover-discovery', 'recover-organization-discovery', 'run-once', 'recover-runs', 'recover-organization-runs', 'prune-evidence', 'maintenance-once') else 'artifacts/dashboard/auth.sqlite'))
+        if name in ('prune-evidence', 'maintenance-once'):
             command.add_argument('--limit', type=int, default=100)
         if name == 'serve':
             command.add_argument('--port', type=int, default=8765)
@@ -25,6 +26,14 @@ def configure_parser(subparsers):
 
 
 def run(args):
+    if args.dashboard_command == 'maintenance-once':
+        from adaptive_qa.project_store import ProjectStore
+        from adaptive_qa.maintenance import maintenance_once
+        # Reject invalid batches before creating/opening the selected database.
+        if type(args.limit) is not int or not 1 <= args.limit <= 100:
+            raise ValueError('Maintenance limit must be between 1 and 100.')
+        print(json.dumps(maintenance_once(ProjectStore(args.database), limit=args.limit)))
+        return
     if args.dashboard_command == 'recover-organization-runs':
         from adaptive_qa.project_store import ProjectStore
         from adaptive_qa.organization_store import OrganizationStore
