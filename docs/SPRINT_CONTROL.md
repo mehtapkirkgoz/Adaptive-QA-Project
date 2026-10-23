@@ -4,7 +4,13 @@ Updated: 2026-10-23
 
 ## Current Authorization
 
-Active sprint: 10 — Customer Management and Pilot Testing; in progress.
+Active sprint: 10 — Customer Management and Pilot Testing; awaiting owner review.
+Technical acceptance is recorded in SPRINT_10_ACCEPTANCE.md for implementation
+c6c5678ed8606987dfe80993cc406a9c2d1469cb and successful CI run 39905039071.
+All twelve jobs, twelve downloaded artifact digests/head SHAs and 206 PNGs were
+verified. No unfinished implementation remains within the documented local pilot
+scope. Keep issue/milestone open. Remain quiet while awaiting owner decisions;
+do not repeat accepted drills without a new reason or claim customer deployment.
 The owner explicitly started Sprint 10 on 2026-10-23 after requesting closure of
 Sprint 9 issue #10. Sprint 9 milestone #10 was verified closed in GitHub.
 Follow docs/SPRINT_10.md. Commit/push small verified increments and notify after
