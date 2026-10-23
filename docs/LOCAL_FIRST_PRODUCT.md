@@ -28,7 +28,7 @@ completion percentage is not a measured estimate for this changed scope.
   unchanged Host/Origin/CSRF guards and no account/password database creation.
 - [x] Enforce one free local project transactionally and show the free edition UI;
   prove restart persistence, concurrent creation and real local execution.
-- [ ] Add typed signed-license claims, explicit trusted public keys, expiry and
+- [x] Add typed signed-license claims, explicit trusted public keys, expiry and
   verification; no issuer private key or developer bypass shipped to customers.
 - [ ] Bind paid administration and multi-project entitlements to verified licenses;
   preserve existing local projects during upgrade and define safe expiry behavior.
@@ -72,3 +72,30 @@ Local regression completed 706 tests (705 passed, one Windows permission skip).
 The free browser execution, legacy authenticated browser flow and static demo
 checks passed. Cross-site bootstrap refusal and expiry checks also passed after
 the final session guard change. Exact-commit CI is pending after push.
+
+## Offline License Verification Foundation
+
+Ed25519 signatures verify a versioned, strictly typed entitlement payload against
+explicit caller-supplied trusted public keys. The signed message binds the key ID
+and canonical payload to this product. Unknown keys, modified payloads, duplicate
+JSON fields, oversized documents, unsupported claims and invalid validity windows
+fail closed with a generic error. Expiry is exclusive; no grace is inferred.
+
+Claims contain customer/license IDs, validity and project/concurrent-run limits
+only. They cannot carry target URLs, credentials or test records. Verification
+uses no network and ships no issuer private key or production trust anchor. Tests
+use ephemeral signing keys. The pinned cryptography dependency supplies Ed25519.
+Offline verification depends on the local clock; immediate remote revocation and
+tamper-proof offline enforcement are not provided.
+
+This foundation does not yet unlock paid projects. Licensed authentication,
+transactional admission/worker enforcement, import UX and packaging remain open.
+The full regression completed 711 tests (710 passed, one Windows permission skip);
+five focused licensing tests also cover tampering, issuer trust, malformed signed
+claims, bounded parsing and exact validity boundaries. The timestamp bound was
+then hardened and the focused tests repeated. Dependency checks passed.
+
+Previous free-edition commit 6f10a1d passed Pages and eleven Core jobs; the UI
+catalog job failed because its new free-workspace check had no frontend build.
+This increment adds the locked Node install/build before that check and uploads
+its value-free report. Exact-commit CI is pending after push.

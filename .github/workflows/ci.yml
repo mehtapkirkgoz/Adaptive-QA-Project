@@ -224,6 +224,7 @@ jobs:
             artifacts/smoke/*.json
             artifacts/discovery/*.json
             artifacts/matching/*.json
+            artifacts/local-free/*.json
             artifacts/bridge/*.json
             artifacts/database/bridge.json
             artifacts/ai/*.json
@@ -306,6 +307,14 @@ jobs:
         run: python scripts/check_configured_document.py
       - name: Verify general read-only form checks without sample bindings
         run: python scripts/check_general_forms.py
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+      - name: Build real local interface for account-free verification
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run build
       - name: Verify account-free local workspace and one-site execution
         run: python scripts/check_local_free.py
       - name: Verify supervised configured form checks on owned HTTP fixtures
@@ -323,6 +332,7 @@ jobs:
             artifacts/results/*.json
             artifacts/screenshots/*.png
             artifacts/matching/*.json
+            artifacts/local-free/*.json
           retention-days: 7
           if-no-files-found: warn
 
