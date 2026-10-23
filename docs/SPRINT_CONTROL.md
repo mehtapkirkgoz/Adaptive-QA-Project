@@ -4,6 +4,14 @@ Updated: 2026-10-23
 
 ## Current Authorization
 
+Latest owner direction: convert to the narrow local-first product described in
+LOCAL_FIRST_PRODUCT.md while preserving existing implementation and sessions.
+Prioritize account-free one-project local use, then signed paid licensing and
+licensed local administration. Continue verified increments whenever usage permits;
+report only completed commits or a failure/required decision blocking progress.
+The older post-sprint notes below provide technical context, not a competing plan.
+
+
 Latest owner instruction (2026-10-23): Sprint 10 milestone is closed; continue
 remaining product work. Issue #11 and milestone #11 are verified closed.
 Current phase is the post-sprint local product review in POST_SPRINT_REVIEW.md.

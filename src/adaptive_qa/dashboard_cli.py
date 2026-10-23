@@ -14,14 +14,16 @@ from adaptive_qa.web_app import create_app
 def configure_parser(subparsers):
     parser = subparsers.add_parser('dashboard', help='Manage the local dashboard')
     commands = parser.add_subparsers(dest='dashboard_command', required=True)
-    for name in ('create-user', 'serve', 'discovery-once', 'recover-discovery', 'recover-organization-discovery', 'run-once', 'recover-runs', 'recover-organization-runs', 'prune-evidence', 'maintenance-once'):
+    for name in ('create-user', 'serve', 'free-serve', 'discovery-once', 'recover-discovery', 'recover-organization-discovery', 'run-once', 'recover-runs', 'recover-organization-runs', 'prune-evidence', 'maintenance-once'):
         command = commands.add_parser(name)
         command.add_argument('--database', type=Path, default=Path('artifacts/dashboard/projects.sqlite'
             if name in ('discovery-once', 'recover-discovery', 'recover-organization-discovery', 'run-once', 'recover-runs', 'recover-organization-runs', 'prune-evidence', 'maintenance-once') else 'artifacts/dashboard/auth.sqlite'))
         if name in ('prune-evidence', 'maintenance-once'):
             command.add_argument('--limit', type=int, default=100)
-        if name == 'serve':
-            command.add_argument('--port', type=int, default=8765)
+        if name == 'free-serve':
+            command.set_defaults(database=Path('artifacts/local-free/projects.sqlite'))
+        if name in ('serve', 'free-serve'):
+            command.add_argument('--port', type=int, default=8766 if name == 'free-serve' else 8765)
             command.add_argument('--ui-directory', type=Path, default=Path('frontend/dist'))
 
 
@@ -113,8 +115,12 @@ def run(args):
         raise ValueError('Port must be an integer in [1024, 65535].')
     import uvicorn
     ui_directory = getattr(args, 'ui_directory', Path('frontend/dist'))
-    app = create_app(AuthStore(args.database), port=args.port,
-                     ui_directory=ui_directory if ui_directory.is_dir() else None)
+    if args.dashboard_command == 'free-serve':
+        from adaptive_qa.local_free import create_free_app
+        app = create_free_app(args.database, port=args.port, ui_directory=ui_directory if ui_directory.is_dir() else None)
+    else:
+        app = create_app(AuthStore(args.database), port=args.port,
+                         ui_directory=ui_directory if ui_directory.is_dir() else None)
     print(f'Local authentication API: http://127.0.0.1:{args.port}/api/auth/me')
     if ui_directory.is_dir():
         print(f'Dashboard: http://127.0.0.1:{args.port}/')

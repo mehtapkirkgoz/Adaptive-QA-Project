@@ -194,7 +194,8 @@ def create_app(store: AuthStore, *, port=8765, projects=None, ui_directory=None)
     def public_project(project):
         return {'project_id': project.project_id, 'name': project.name}
 
-    register_organization_routes(app, organizations, organization_projects, actor, _object, store)
+    if not getattr(store, 'local_free', False):
+        register_organization_routes(app, organizations, organization_projects, actor, _object, store)
 
     @app.get('/api/projects')
     def list_projects(request: Request):
@@ -267,6 +268,18 @@ def create_app(store: AuthStore, *, port=8765, projects=None, ui_directory=None)
 
     @app.get('/api/auth/me')
     def me(request: Request):
+        if getattr(store, 'local_free', False):
+            if (request.headers.get('sec-fetch-site') == 'cross-site'
+                    or request.headers.get('origin') not in (None, origin)):
+                return JSONResponse({'detail': 'Request rejected.'}, status_code=403)
+            grant = store.bootstrap(request.cookies.get(SESSION_COOKIE))
+            response = JSONResponse({'user_id': grant.actor.user_id, 'edition': 'free',
+                                     'account_required': False, 'max_projects': 1, 'test_data_location': 'local'})
+            for name, value, hidden in ((SESSION_COOKIE, grant.token.value, True),
+                                        (CSRF_COOKIE, grant.csrf_token.value, False)):
+                response.set_cookie(name, value, max_age=store.session_seconds,
+                                    httponly=hidden, samesite='strict', secure=False, path='/')
+            return response
         try:
             actor = store.actor_for_session(request.cookies.get(SESSION_COOKIE))
         except AuthenticationError:

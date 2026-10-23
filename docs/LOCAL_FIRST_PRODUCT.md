@@ -1,0 +1,74 @@
+# Local-First Product Conversion
+
+Owner authorization: 2026-10-23. Preserve the working engine and existing local
+sessions while delivering a narrow single-device edition first. Sprint 10 remains
+closed; this is product conversion work, not a reopened sprint. The prior rough
+completion percentage is not a measured estimate for this changed scope.
+
+## Target Model
+
+- Free: no registered account; one active local site/project.
+- Paid: a verified signed license unlocks multiple local projects; licensed local
+  administration uses existing authentication rather than a customer-controlled ID
+  as an authentication secret.
+- Discovery, browser/API/database execution, targets, credentials, screenshots and
+  reports stay in the customer environment. The central licensing boundary must
+  never ingest those records or resolve the customer's target credentials.
+- Future central services may retain account/password hashes, customer/license IDs
+  and entitlement validity only. No central service or payment system is activated
+  by this conversion. Initial offline license issuance/verification is acceptable.
+- Multiple sites does not remove concurrent browser, queue, process or memory bounds.
+- A user controlling the local files/runtime can bypass a free local cap. Do not
+  claim an unbreakable offline or one-site-lifetime restriction.
+
+## Delivery Sequence
+
+- [x] Define the local/central boundary and retain legacy local authentication.
+- [x] Add opt-in account-free local composition with ephemeral browser sessions,
+  unchanged Host/Origin/CSRF guards and no account/password database creation.
+- [x] Enforce one free local project transactionally and show the free edition UI;
+  prove restart persistence, concurrent creation and real local execution.
+- [ ] Add typed signed-license claims, explicit trusted public keys, expiry and
+  verification; no issuer private key or developer bypass shipped to customers.
+- [ ] Bind paid administration and multi-project entitlements to verified licenses;
+  preserve existing local projects during upgrade and define safe expiry behavior.
+- [ ] Add customer-facing local startup/install and license import/status UX, plus
+  packaged-release/backup/rollback compatibility checks for both editions.
+- [ ] Verify free/paid isolation, malformed/expired/tampered licenses, concurrency,
+  data locality and complete local acceptance with exact-commit CI/artifacts.
+- [ ] Resume the remaining interactive/API/database product work under this model.
+
+## First Free Edition Increment
+
+Start a separate free workspace after building the React UI:
+
+```powershell
+python -m adaptive_qa dashboard free-serve --port 8766
+```
+
+Default local storage is artifacts/local-free/projects.sqlite. Existing account
+mode and its database/port are not changed. The free UI opens directly without
+registration, hides account/organization actions and disables creating a second
+project. The server also checks capacity under BEGIN IMMEDIATE, so concurrent
+creation cannot bypass the one-project cap. Changing the one saved target is
+permitted: this is one active project, not a lifetime single-domain license.
+
+Browser session/CSRF tokens are generated in memory, bounded to sixteen sessions
+with eight-hour expiry. They are not registered accounts and disappear on server
+restart; project data persists under the internal local identity. The account-free
+app remains loopback-only and retains the existing HTTP request/egress guards.
+No license endpoint, telemetry or external account service is called. Local
+worker commands continue to process this local project database explicitly.
+
+Verification: unit tests cover no-account bootstrap, missing CSRF, foreign Origin,
+project persistence, one winner under concurrent creation and session expiry.
+check_local_free.py verifies the built browser UI plus actual controlled local
+discovery/LOGIN-001 execution, no auth.sqlite/dashboard_users creation, no central
+requests and no script errors. These checks do not claim licensing is implemented.
+The existing development account mode remains a compatibility path; customer
+licensing enforcement and packaging are unfinished until the later milestones.
+
+Local regression completed 706 tests (705 passed, one Windows permission skip).
+The free browser execution, legacy authenticated browser flow and static demo
+checks passed. Cross-site bootstrap refusal and expiry checks also passed after
+the final session guard change. Exact-commit CI is pending after push.

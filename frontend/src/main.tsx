@@ -35,6 +35,7 @@ async function api<T>(path: string, method = 'GET', body?: unknown): Promise<T> 
 }
 
 function App() {
+  const [freeEdition, setFreeEdition] = useState(false);
   const [signedIn, setSignedIn] = useState(false), [checking, setChecking] = useState(true);
   const [busy, setBusy] = useState(false), [error, setError] = useState(''), [notice, setNotice] = useState('');
   const [projects, setProjects] = useState<Project[]>([]), [offset, setOffset] = useState(0);
@@ -54,7 +55,8 @@ function App() {
     setProjects(data.projects); setOffset(page);
   }
   useEffect(() => {let alive = true;
-    (async () => {try {await api('/api/auth/me');
+    (async () => {try {const session = await api<{edition?: string}>('/api/auth/me');
+      if (alive) setFreeEdition(session.edition === 'free');
       const data = await api<{projects: Project[]}>('/api/projects');
       if (alive) {setProjects(data.projects); setSignedIn(true);}
     } catch (e) {if (alive && !(e instanceof ApiError && e.status === 401)) fail(e);}
@@ -99,8 +101,8 @@ function App() {
       <p className="eyebrow">WORKSPACE</p><div className="nav-item">Projects <span aria-hidden="true">●</span></div>
       <div className="sidebar-note"><span className="dot"/> Local workspace<p>Configure with confidence.<br/>Keep every project in scope.</p></div>
     </aside>
-    <div className="workspace"><header><span>Workspace <span className="slash">/</span> Projects</span><div className="header-actions"><span className="badge">LOCAL</span>
-      {signedIn && <button className="quiet" disabled={busy} onClick={() => void perform(async () => {await api('/api/auth/logout', 'POST', {}); clear();})}>Sign out</button>}</div></header>
+    <div className="workspace"><header><span>Workspace <span className="slash">/</span> Projects</span><div className="header-actions"><span className="badge">{freeEdition ? 'FREE · LOCAL' : 'LOCAL'}</span>
+      {signedIn && !freeEdition && <button className="quiet" disabled={busy} onClick={() => void perform(async () => {await api('/api/auth/logout', 'POST', {}); clear();})}>Sign out</button>}</div></header>
       <main><div className="page-title"><div><p className="eyebrow">ADAPTIVE TESTING</p><h1>{signedIn ? 'Project workspace' : 'Welcome to your workspace'}</h1>
         <p className="subtitle">{signedIn ? 'Manage your projects and define what is in scope.' : 'Sign in to manage your QA projects.'}</p></div><span className="step">LOCAL WORKSPACE</span></div>
         {error && <div role="alert" className="message error">{error}</div>}
@@ -109,8 +111,9 @@ function App() {
           <form onSubmit={login}><fieldset disabled={busy}><label>Email<input name="email" type="email" autoComplete="username" required maxLength={254}/></label>
             <label>Password<input name="password" type="password" autoComplete="current-password" required/></label>
             <button className="primary" type="submit">{busy ? 'Signing in…' : 'Sign in'}</button></fieldset></form><p className="hint">Use the account created by your local workspace administrator.</p></section>
-        : <><OrganizationPanel request={api}/><section className="card create"><div><h2>Your projects</h2><p className="hint">Start with a name. Add target settings when you are ready.</p></div>
-          <form onSubmit={create}><fieldset disabled={busy} className="inline"><label className="sr-only" htmlFor="new-project">New project name</label><input id="new-project" name="name" placeholder="New project name" required maxLength={100}/><button className="primary">+ Create project</button></fieldset></form></section>
+        : <>{!freeEdition && <OrganizationPanel request={api}/>}
+            {freeEdition && <p className="hint">Free local edition: one active site/project. No account required. Targets and results stay on this computer.</p>}<section className="card create"><div><h2>Your projects</h2><p className="hint">Start with a name. Add target settings when you are ready.</p></div>
+          <form onSubmit={create}><fieldset disabled={busy} className="inline"><label className="sr-only" htmlFor="new-project">New project name</label><input id="new-project" name="name" placeholder="New project name" required maxLength={100}/><button className="primary" disabled={freeEdition && projects.length > 0}>+ Create project</button></fieldset></form></section>
           <div className="columns"><section className="card project-list"><div className="section-label"><h2>Projects</h2><span className="count">{projects.length} on this page</span></div>
             {!projects.length && <div className="empty"><h3>No projects here yet</h3><p>Create a project to define your first testing scope.</p></div>}
             {projects.map(project => <button className={`project-row ${selected?.project_id === project.project_id ? 'selected' : ''}`} key={project.project_id} disabled={busy} onClick={() => void choose(project)}><span className="project-icon">▣</span><span>{project.name}<small>Project configuration</small></span><span className="arrow">→</span></button>)}
