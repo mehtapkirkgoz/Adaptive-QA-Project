@@ -8,6 +8,7 @@ from adaptive_qa.dashboard_runs import RunWork
 from adaptive_qa.organization_runs import OrganizationRunQueue
 from adaptive_qa.models import TestResult, TestStatus
 from adaptive_qa.worker_lock import worker_lock
+from adaptive_qa.project_store import _id
 
 
 PILOT_CASES = frozenset(('LOGIN-001','SEARCH-001'))
@@ -77,6 +78,7 @@ class AgentBroker:
                        json.loads(row['configuration_json']),row['claim_token'])
 
     def _guarded(self,identity,lease_id):
+        _id(lease_id)
         broker = self
         class GuardedRuns(OrganizationRunQueue):
             def _claimed(self,c,work):

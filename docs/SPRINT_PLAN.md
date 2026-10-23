@@ -218,6 +218,13 @@ by the repository owner.
 
 ## Sprint 10 — Customer Management and Pilot Testing
 
+Current owner-authorized environment is a controlled local pilot, with real
+automation kept local and the Pages demo unchanged. Agent acceptance demonstrates
+authenticated outbound execution between local processes and controlled fixtures.
+It does not establish customer private-network access, hosted TLS or customer
+feedback. Those require separately authorized infrastructure and later acceptance.
+See AGENT_PILOT.md, ONBOARDING_SUPPORT.md and PILOT_FINDINGS.md for boundaries.
+
 Scope:
 
 - Introduce organizations, roles, quotas, and usage tracking.
@@ -229,7 +236,7 @@ Scope:
 Acceptance criteria:
 
 - Isolation and quotas are verified using at least two sample organizations.
-- Private network execution is demonstrated through the agent.
+- Controlled local fixture execution is demonstrated through the authenticated outbound agent; customer private-network deployment remains deferred.
 - Pilot findings are recorded in a prioritized backlog.
 - Customer onboarding and support procedures are documented.
 

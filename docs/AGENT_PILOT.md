@@ -1,7 +1,7 @@
 # Controlled Local Agent Pilot
 
-Status: Credentials, signed-message authentication and scoped work leases implemented;
-network transport and actual outbound execution drill pending.
+Status: Signed outbound transport and real controlled local execution implemented;
+final exact-commit CI/artifact acceptance pending.
 This prototype is not a deployed customer agent or a public agent endpoint.
 
 ## Intended Connection Model
@@ -45,15 +45,33 @@ sequence and bytes with HMAC-SHA256 using a derived credential key; the raw toke
 need not cross the connection. Responses use a separate direction prefix. Stored
 digests therefore also act as verification keys and must be protected as secret
 credentials, not treated as safe-to-share password hashes. Invalid body/path,
-response reflection and replay fail closed. No HTTP endpoint is exposed yet.
+response reflection and replay fail closed. A strict loopback HTTP coordinator
+factory now implements these exchanges; no public endpoint is activated.
 
-- Implement bounded, redirect/proxy-resistant outbound transport and explicit coordinator authentication.
-- Exercise the implemented project-bound claims and result publication over the outbound transport.
-- Reject revoked/expired/replayed/cross-project messages and terminal duplicate acknowledgements.
-- Demonstrate real UI execution against local fixtures with no agent listener or arbitrary target access.
-- Record only synthetic pilot findings; never present them as actual customer feedback.
+The outbound client accepts only an explicit numeric loopback origin, ignores
+environment proxies, rejects redirects and validates signed responses. Exchanges
+have a five-second total deadline and no automatic retry. A supervised separate
+agent process has a 150-second process-tree deadline and a 110-second execution
+budget. Browser descendants do not inherit the token environment variable.
+
+Run `python scripts/check_outbound_agent.py` for disposable enrollment,
+coordinator startup and real local fixture execution. The drill verified two
+passed UI cases, two validated PNGs, foreign-agent refusal, replay refusal,
+zero proxy-canary contacts and released active capacity. Its safe report is
+`artifacts/organizations/agent-pilot.json`. CI repeats this demonstration.
+
+Trusted operators can invoke `python -m adaptive_qa.agent_worker --coordinator
+http://127.0.0.1:8871 --agent-id <enrolled-agent-id>` after internal enrollment
+and coordinator startup. Supply the token only through the
+`ADAPTIVE_QA_AGENT_TOKEN` environment variable. There is no public enrollment
+endpoint or finished operator setup UI. After an uncertain exchange, revoke and
+re-enroll instead of guessing the consumed sequence or retrying work.
+
+This verifies controlled local execution, not customer private-network access,
+cross-machine connectivity, hosted TLS or remote attestation. Sweeping remains
+explicit/on poll; no unattended cleanup service is claimed. Pilot findings must
+be labeled synthetic rather than actual customer feedback.
 
 Do not mark Sprint 10 complete until these behaviors and exact-commit CI/artifacts
-are verified. Current implementation and tests are agent_registry.py and
-test_agent_registry.py, agent_broker.py and test_agent_broker.py. These internal
-components alone do not satisfy the outbound pilot.
+are verified. Registry, broker, transport, client and worker tests cover the
+internal boundaries; the separate-process drill verifies their integration.

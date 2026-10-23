@@ -23,11 +23,11 @@ are authorized by this sprint start.
   - [x] Integrate scoped test-run admission/results/evidence and recovery.
   - [x] Finish membership administration and scoped usage visibility for onboarding.
 - [x] 10.3: Verify isolation and concurrency against two disposable organizations locally; repeat in CI.
-- [ ] 10.4: Implement and exercise authenticated outbound agent flow on controlled local fixtures.
+- [x] 10.4: Implement and exercise authenticated outbound agent flow on controlled local fixtures; remote CI confirmation pending.
   - [x] Add project-bound, expiring/revocable credential core and replay checks.
   - [x] Add signed-message authentication and project-bound work leases/results.
-  - [ ] Add authenticated outbound transport, scoped leases/results and actual local agent drill.
-- [ ] 10.5: Document onboarding/support and prioritized pilot findings.
+  - [x] Add authenticated outbound transport, scoped leases/results and actual local agent drill.
+- [x] 10.5: Document onboarding/support and prioritized synthetic pilot findings.
 - [ ] 10.6: Verify exact-commit CI/artifacts and report readiness for owner review.
 
 ## First Increment
@@ -291,3 +291,23 @@ still remain unfinished, so the pilot is not marked complete.
 
 Lease/signature increment regression completed 647 local tests (646 passed, one
 Windows symlink-permission skip). Exact-commit CI remains pending after push.
+
+## Outbound Transport Verification
+
+The signed loopback HTTP coordinator and outbound-only supervised CLI agent now
+execute LOGIN-001 and SEARCH-001 in a separate process against controlled local
+fixtures. The local drill verified two passed assertions, two validated PNGs,
+foreign-agent refusal, replay refusal, no proxy canary contacts and released
+active capacity. Request/response signatures bind exact bytes and direction.
+The client has a five-second exchange deadline and no redirects or retries;
+the supervised agent has a 150-second process-tree deadline. These checks are
+now included in CI; exact-commit remote evidence remains pending.
+
+Enrollment and coordinator startup are trusted internal APIs exercised by the
+pilot harness. This is not a customer deployment or finished enrollment UI.
+
+Full transport-increment regression: 656 tests, 655 passed and one Windows
+symlink-permission skip. See ONBOARDING_SUPPORT.md for roles, setup, quotas and
+support triage, and PILOT_FINDINGS.md for prioritized synthetic observations and
+deferred customer-deployment prerequisites. Final same-commit CI/artifact review
+is still required before technical readiness is reported.
