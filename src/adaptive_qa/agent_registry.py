@@ -41,6 +41,23 @@ def _digest(token):
     return hashlib.sha256(token.encode('ascii')).digest()
 
 
+AGENT_PATHS = frozenset(('/agent/poll','/agent/check','/agent/result','/agent/finish'))
+
+
+def message_signature(key,path,sequence,payload,*,response=False):
+    """Authenticate exact protocol direction/path/sequence/body without sending the token."""
+    if (not isinstance(key,bytes) or len(key)!=32 or path not in AGENT_PATHS
+            or type(sequence) is not int or not 1<=sequence<=2147483647
+            or not isinstance(payload,bytes) or len(payload)>1024*1024 or type(response) is not bool):
+        raise AgentAuthenticationError('Agent authentication failed.')
+    prefix = 'adaptive-agent-v1-response' if response else 'adaptive-agent-v1-request'
+    return hmac.new(key,(prefix+'\n'+path+'\n'+str(sequence)+'\n').encode()+payload,'sha256').hexdigest()
+
+
+def token_signing_key(token):
+    return _digest(token)
+
+
 class AgentRegistry:
     def __init__(self, scoped_projects, *, clock=time.time):
         self.scoped = scoped_projects
@@ -119,6 +136,27 @@ class AgentRegistry:
         if current!=identity:
             raise AgentAuthenticationError('Agent authentication failed.')
         return current
+
+    def authenticate_message(self,agent_id,sequence,path,payload,signature):
+        """Internal transport authentication; return a private response-signing key."""
+        try:
+            _id(agent_id)
+        except ValueError:
+            raise AgentAuthenticationError('Agent authentication failed.') from None
+        if not isinstance(signature,str) or not re.fullmatch(r'[0-9a-f]{64}',signature):
+            raise AgentAuthenticationError('Agent authentication failed.')
+        with self.projects._connection() as c:
+            c.execute('BEGIN IMMEDIATE')
+            row = c.execute('SELECT * FROM dashboard_agents WHERE agent_id=?',(agent_id,)).fetchone()
+            if row is None:
+                raise AgentAuthenticationError('Agent authentication failed.')
+            key = bytes(row['token_hash'])
+            expected = message_signature(key,path,sequence,payload)
+            if not hmac.compare_digest(expected,signature) or sequence<=row['last_sequence']:
+                raise AgentAuthenticationError('Agent authentication failed.')
+            identity = self._current(c,row)
+            c.execute('UPDATE dashboard_agents SET last_sequence=? WHERE agent_id=?',(sequence,agent_id))
+            return identity,key
 
     def revoke(self,actor,organization_id,agent_id):
         _id(agent_id)

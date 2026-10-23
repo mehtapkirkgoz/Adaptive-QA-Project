@@ -74,6 +74,8 @@ def prepare_restore(plan, bundle_id, *, maintenance_confirmed=False):
                     if 'dashboard_agents' in tables:
                         # Restoring an older sequence counter must never revive credentials.
                         connection.execute('UPDATE dashboard_agents SET revoked=1')
+                    if 'dashboard_agent_leases' in tables:
+                        connection.execute("UPDATE dashboard_agent_leases SET status='cancelled' WHERE status='active'")
                 connection.commit()
                 if connection.execute('PRAGMA quick_check').fetchall() != [('ok',)]:
                     raise ValueError('Recovered database integrity check failed.')

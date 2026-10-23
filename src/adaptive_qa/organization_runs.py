@@ -247,6 +247,9 @@ class OrganizationRunQueue:
         counts = {'cancelled':0,'error':0}
         with worker_lock(self.projects.database), self.projects._connection() as c:
             c.execute('BEGIN IMMEDIATE')
+            if c.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='dashboard_agent_leases'").fetchone():
+                if c.execute("SELECT 1 FROM dashboard_agent_leases WHERE status='active' AND deadline>? LIMIT 1",(self.clock(),)).fetchone():
+                    raise ValueError('Live agent leases must stop or expire before recovery.')
             for row in c.execute("SELECT * FROM dashboard_organization_runs WHERE status IN ('running','cancel_requested')").fetchall():
                 status = 'cancelled' if row['status']=='cancel_requested' else 'error'
                 self._release(c,row,status)

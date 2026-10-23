@@ -25,6 +25,7 @@ are authorized by this sprint start.
 - [x] 10.3: Verify isolation and concurrency against two disposable organizations locally; repeat in CI.
 - [ ] 10.4: Implement and exercise authenticated outbound agent flow on controlled local fixtures.
   - [x] Add project-bound, expiring/revocable credential core and replay checks.
+  - [x] Add signed-message authentication and project-bound work leases/results.
   - [ ] Add authenticated outbound transport, scoped leases/results and actual local agent drill.
 - [ ] 10.5: Document onboarding/support and prioritized pilot findings.
 - [ ] 10.6: Verify exact-commit CI/artifacts and report readiness for owner review.
@@ -266,3 +267,27 @@ and seven backup/recovery tests passed locally; Linux/Windows CI includes these.
 This core does not listen, poll, dispatch or execute. HTTP transport, scoped work
 leases/result acknowledgement, credential handoff and the real outbound-only
 local agent demonstration remain unfinished; no customer agent deployment is claimed.
+
+## Agent Leases and Signed Messages
+
+AgentBroker atomically activates only matching project runs and their quota
+reservations, returning a 120-second scoped lease without private claim tokens or
+submitter identities. The initial pilot permits only LOGIN-001/SEARCH-001. All
+result/evidence/finish operations recheck the active agent, deadline and project
+inside the existing queue transaction. Terminal duplicate acknowledgements, other
+agent leases, stale work and invalid PNGs are rejected. Cancellation discards late
+outcomes; expiry/revocation sweep releases exact linked capacity without retry and
+preserves partial results. Live leases block operator recovery. Offline restore
+cancels active lease copies in addition to revoking credentials and run claims.
+
+Signed authentication binds direction, endpoint, monotonic sequence and exact
+body bytes. It avoids sending the raw token; the stored digest is a secret
+verification key and requires the same private-store protection. Request signatures
+cannot be reflected as valid response signatures or reused for another body/path.
+Six credential and five lease tests passed locally, including concurrent replay,
+cross-agent refusal, incomplete outcomes and expired lease cleanup. Both-platform
+CI includes these checks. HTTP/client transport and actual outbound-only execution
+still remain unfinished, so the pilot is not marked complete.
+
+Lease/signature increment regression completed 647 local tests (646 passed, one
+Windows symlink-permission skip). Exact-commit CI remains pending after push.

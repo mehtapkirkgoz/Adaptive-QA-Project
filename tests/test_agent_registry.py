@@ -5,7 +5,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 import unittest
 
-from adaptive_qa.agent_registry import AgentRegistry,AgentAuthenticationError,AgentIdentity
+from adaptive_qa.agent_registry import AgentRegistry,AgentAuthenticationError,AgentIdentity,message_signature,token_signing_key
 from adaptive_qa.project_store import ProjectStore,ProjectActor
 from adaptive_qa.organization_store import OrganizationStore,OrganizationNotFound
 from adaptive_qa.organization_projects import OrganizationProjects
@@ -13,6 +13,21 @@ from adaptive_qa.organization_policy import OrganizationRole as Role
 
 
 class AgentRegistryTests(unittest.TestCase):
+    def test_signed_protocol_binds_body_path_sequence_and_response_direction(self):
+        grant = self.registry.issue(self.owner,self.org,self.project)
+        key = token_signing_key(grant.token.value)
+        payload = b'{}'
+        signature = message_signature(key,'/agent/poll',1,payload)
+        for path,body in (('/agent/result',payload),('/agent/poll',b'{"extra":true}')):
+            with self.assertRaises(AgentAuthenticationError):
+                self.registry.authenticate_message(grant.agent_id,1,path,body,signature)
+        identity,response_key = self.registry.authenticate_message(grant.agent_id,1,'/agent/poll',payload,signature)
+        self.assertEqual(identity.project_id,self.project)
+        self.assertEqual(key,response_key)
+        with self.assertRaises(AgentAuthenticationError):
+            self.registry.authenticate_message(grant.agent_id,1,'/agent/poll',payload,signature)
+        self.assertNotEqual(signature,message_signature(key,'/agent/poll',1,payload,response=True))
+
     def setUp(self):
         self.temp = TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
