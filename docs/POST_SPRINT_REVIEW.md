@@ -19,6 +19,13 @@ This follow-up does not enable purchases, public backend hosting or customer tes
   verify unsupported saved targets never dispatch in personal/shared browser flows.
 - [ ] Extend reusable execution beyond fixed sample bindings using contrasting
   controlled fixtures before enabling any owner-authorized external targets.
+  - [x] Add an explicit canonical document-path binding for the existing five
+    independent document cases; remove sample title/heading assumptions only
+    for those bound cases, retaining pinned egress and process deadlines.
+  - [x] Verify three contrasting HTTP documents and five real negative defects
+    through separate child processes, including denied write/canary requests.
+  - [ ] Integrate reviewed discovered document bindings into admission/planning
+    before widening dashboard execution scope.
 - [ ] Address operator enrollment/agent startup and bounded unattended maintenance
   from PILOT_FINDINGS.md with separately verified increments.
 
@@ -54,3 +61,28 @@ fixture and completed actual discovery/UI tests. The shared host textarea has
 an explicit accessible name so repeated saved-setting edits remain addressable.
 The demo regression passed at 390/768/1440 pixels with zero API/external requests
 and no enabled execution. No public demo behavior was changed.
+
+## Independent Document Worker Foundation
+
+run_isolated_sample_test now accepts an explicit document_path for DOC-001 through
+DOC-005 only. This binding visits a canonical path on the existing controlled
+127.0.0.1:8000 fixture origin and evaluates the registered rule without requiring
+the Adaptive QA Sample title or heading. It cannot redirect another case into an
+arbitrary executor, add hosts, change methods or enable customer execution.
+Paths with authority/scheme escapes, query/fragment, percent encoding, traversal,
+controls or non-ASCII text are rejected before process creation. The existing
+proxy/route guards, fresh context, bounded process tree, cancellation and evidence
+validation remain in force. No dashboard target restriction was widened.
+
+check_document_execution.py executes five existing cases on information, commerce
+and account documents with unrelated titles (15 passed executions), then verifies
+five specific broken documents produce failed assertions rather than success or
+generic loading errors. Twenty PNGs are validated; a forbidden destination canary
+and POST receiver remain untouched. These fixture variations do not increase the
+100-case catalog. CI repeats the drill in the UI catalog job. Discovery-backed
+general document admission/UI integration remains the next unfinished step.
+
+Foundation local regression completed 659 tests: 658 passed and one Windows
+symlink-permission skip. The earlier selection increment 9588cce passed Core
+checks run 39914643399; saved-target increment 42db9b4 CI remains in progress.
+The document foundation requires its own same-commit CI after push.

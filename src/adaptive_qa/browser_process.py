@@ -114,7 +114,7 @@ def _read_result(path: Path, expected_case_id: str = "LOGIN-001") -> TestResult:
 
 def run_isolated_sample_test(
     case_id: str, timeout_seconds: float = 30, *, should_cancel: Callable[[], bool] | None = None,
-    site: str = 'root', evidence_directory: Path | None = None
+    site: str = 'root', evidence_directory: Path | None = None, document_path: str | None = None
 ) -> TestResult:
     """Return a result, terminating the child tree if its deadline expires."""
     if (
@@ -125,6 +125,9 @@ def run_isolated_sample_test(
     ):
         raise ValueError("timeout_seconds must be a positive finite number.")
 
+    if document_path is not None:
+        from adaptive_qa.document_target import validate_document_path
+        validate_document_path(case_id, document_path, site=site)
     if case_id not in SMOKE_CHECKS:
         return TestResult(case_id, TestStatus.BLOCKED, 0.0, "No sample executor is registered.")
 
@@ -144,6 +147,8 @@ def run_isolated_sample_test(
             command += ['--site', site]
         if evidence_directory is not None:
             command += ['--evidence-directory', str(evidence_directory.absolute())]
+        if document_path is not None:
+            command += ['--document-path', document_path]
         process = subprocess.Popen(
             command,
             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, **options,
@@ -200,8 +205,12 @@ def main() -> None:
     parser.add_argument("--case", choices=sorted(SMOKE_CHECKS), default="LOGIN-001")
     parser.add_argument('--site', choices=('root', 'english', 'turkish', 'mapped'), default='root')
     parser.add_argument('--evidence-directory', type=Path)
+    parser.add_argument('--document-path')
     args = parser.parse_args()
-    if args.evidence_directory is not None:
+    if args.document_path is not None:
+        result = run_sample_test(args.case, site=args.site, evidence_directory=args.evidence_directory,
+                                 document_path=args.document_path)
+    elif args.evidence_directory is not None:
         result = run_sample_test(args.case, site=args.site, evidence_directory=args.evidence_directory)
     else:
         result = run_sample_test(args.case, site=args.site) if args.site != 'root' else run_sample_test(args.case)

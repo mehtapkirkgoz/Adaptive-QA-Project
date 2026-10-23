@@ -17,6 +17,7 @@ from adaptive_qa.ui_bindings import ElementBindingError, REUSABLE_CHECKS, SITE_P
 from adaptive_qa.element_models import MatchStatus
 from adaptive_qa.extra_ui_checks import EXTRA_CHECKS
 from adaptive_qa.sample_data import sample_test_data
+from adaptive_qa.document_target import validate_document_path
 from pathlib import Path
 from uuid import uuid4
 
@@ -40,7 +41,9 @@ def _capture_evidence(page: Page, evidence_path: Path) -> None:
             pass
 
 
-def _verify_sample_page(evidence_path: Path, case_id: str = "LOGIN-001", *, site: str = "root") -> None:
+def _verify_sample_page(evidence_path: Path, case_id: str = "LOGIN-001", *, site: str = "root", document_path=None) -> None:
+    if document_path is not None:
+        validate_document_path(case_id, document_path, site=site)
     project = ProjectConfig(
         project_id="local-demo",
         name="Local Sample Application",
@@ -85,7 +88,7 @@ def _verify_sample_page(evidence_path: Path, case_id: str = "LOGIN-001", *, site
                 page = context.new_page()
                 try:
                     response = page.goto(
-                        project.base_url + SITE_PATHS[site],
+                        project.base_url + (document_path if document_path is not None else SITE_PATHS[site]),
                         wait_until="domcontentloaded",
                     )
 
@@ -94,14 +97,15 @@ def _verify_sample_page(evidence_path: Path, case_id: str = "LOGIN-001", *, site
                             "Sample page did not return HTTP 200."
                         )
 
-                    expect(page).to_have_title("Adaptive QA Sample")
-                    expect(
-                        page.get_by_role(
-                            "heading",
-                            name="Adaptive QA Sample",
-                            exact=True,
-                        )
-                    ).to_be_visible()
+                    if document_path is None:
+                        expect(page).to_have_title("Adaptive QA Sample")
+                        expect(
+                            page.get_by_role(
+                                "heading",
+                                name="Adaptive QA Sample",
+                                exact=True,
+                            )
+                        ).to_be_visible()
 
                     scope = sample_test_data(page) if case_id in EXTRA_CHECKS else nullcontext()
                     with scope:
@@ -135,8 +139,10 @@ def _verify_sample_page(evidence_path: Path, case_id: str = "LOGIN-001", *, site
             browser.close()
 
 
-def run_sample_test(case_id: str, *, site: str = "root", evidence_directory=None) -> TestResult:
+def run_sample_test(case_id: str, *, site: str = "root", evidence_directory=None, document_path=None) -> TestResult:
     """Execute a registered sample check in a fresh browser context."""
+    if document_path is not None:
+        validate_document_path(case_id, document_path, site=site)
     definition = next((case for case in TEST_CASES if case.case_id == case_id), None)
     if site not in SITE_PATHS or (site != 'root' and case_id not in VARIANT_CHECKS):
         return TestResult(case_id, TestStatus.BLOCKED, 0.0, 'No controlled fixture executor binding is registered.')
@@ -151,7 +157,9 @@ def run_sample_test(case_id: str, *, site: str = "root", evidence_directory=None
     evidence_path = evidence_directory / f"{uuid4().hex}.png"
 
     try:
-        if site != 'root':
+        if document_path is not None:
+            _verify_sample_page(evidence_path, case_id=case_id, document_path=document_path)
+        elif site != 'root':
             _verify_sample_page(evidence_path, case_id=case_id, site=site)
         elif case_id == "LOGIN-001":
             _verify_sample_page(evidence_path)
