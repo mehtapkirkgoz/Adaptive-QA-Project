@@ -32,6 +32,10 @@ This follow-up does not enable purchases, public backend hosting or customer tes
     - [x] Bind non-root cases to the exact saved/discovered canonical local path;
       keep cross-document execution context unknown rather than infer comparability.
     - [ ] Add actual page-content context binding before comparing general document runs.
+  - [x] Add URL-independent read-only login/search assertions with deterministic
+    label/role alternatives and typed project overrides; verify contrasting DOMs.
+  - [ ] Integrate those assertions into a supervised configured form executor,
+    then review discovery bindings, admission, UI selection and exact-commit CI.
 - [ ] Implement a configuration-driven public-target discovery/execution profile
   with existing public-address validation, pinned egress and process deadlines.
   External validation still requires an owner-authorized target; no external site
@@ -266,3 +270,24 @@ This public demo observation is not customer-site or private-network acceptance.
 No API/database/login/form executor is inferred from the URL. The full regression
 completed 689 tests (688 passed, one Windows permission skip). This increment's
 exact-commit CI remains pending after push.
+
+## Independent Login and Search Form Assertions
+
+form_checks.py provides read-only LOGIN-001 and SEARCH-001 assertions without
+sample URL, title, heading or mandatory sample test IDs. Existing deterministic
+matching unions all role/label alternatives; missing/ambiguous controls raise a
+typed ElementBindingError instead of selecting the first candidate. Explicit
+ProjectElementMappings replace alternatives and enforce project identity. Bound
+controls must be connected to the same form; unrelated sign-up/search/login
+fields cannot be combined. Input types, password masking and enabled submit
+controls are checked. No control is filled, clicked, reset or submitted.
+
+Sixteen real Chromium DOM scenarios passed: English/Turkish labels, alternate
+names, explicit mappings, foreign mapping refusal, hidden duplicates, ambiguous
+forms/buttons, missing fields, exposed password, split forms, disabled controls
+and a non-submit search button. There were zero network requests and zero input,
+click or submit events. Thirteen existing element-contract unit tests also passed.
+CI includes this owned-DOM drill; catalog count remains 100. These are assertion
+foundations, not yet new public worker bindings, credentials/login execution or
+proven external form compatibility. The next increment is supervised configured
+form execution and controlled HTTP acceptance before dashboard activation.
