@@ -225,6 +225,7 @@ jobs:
             artifacts/discovery/*.json
             artifacts/matching/*.json
             artifacts/local-free/*.json
+            artifacts/local-license/*.json
             artifacts/bridge/*.json
             artifacts/database/bridge.json
             artifacts/ai/*.json
@@ -317,6 +318,8 @@ jobs:
           npm run build
       - name: Verify account-free local workspace and one-site execution
         run: python scripts/check_local_free.py
+      - name: Verify licensed local interface and signed import
+        run: python scripts/check_licensed_ui.py
       - name: Verify supervised configured form checks on owned HTTP fixtures
         run: python scripts/check_configured_forms.py
       - name: Verify reusable UI checks across fixture names
@@ -333,6 +336,7 @@ jobs:
             artifacts/screenshots/*.png
             artifacts/matching/*.json
             artifacts/local-free/*.json
+            artifacts/local-license/*.json
           retention-days: 7
           if-no-files-found: warn
 

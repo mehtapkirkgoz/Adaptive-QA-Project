@@ -66,5 +66,6 @@ These are bounded one-shot workers, not an installed background service. No work
 executed by license import/status or a dashboard page load. Queued work waits while
 the license is absent/expired or capacity is occupied. Existing deadlines and
 cancellation continue to govern active child processes. Targets, credentials,
-results and screenshots stay local. UI license import/status controls and packaged
-customer startup/backup/rollback verification remain unfinished.
+results and screenshots stay local. The licensed dashboard also supports signed-document import and status after
+password login. Packaged customer startup/backup/rollback verification remains
+unfinished.

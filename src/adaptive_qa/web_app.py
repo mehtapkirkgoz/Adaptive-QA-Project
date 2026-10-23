@@ -266,6 +266,32 @@ def create_app(store: AuthStore, *, port=8765, projects=None, ui_directory=None)
                                 httponly=hidden, samesite='strict', secure=False, path='/')
         return response
 
+    if getattr(store, 'local_licensed', False):
+        def license_status():
+            from adaptive_qa.licensing import LicenseError
+            try:
+                claims = projects.licenses.current()
+            except LicenseError:
+                return {'status': 'invalid_or_expired', 'execution_allowed': False}
+            return {'status': 'valid' if claims else 'absent', 'execution_allowed': claims is not None,
+                    'max_projects': claims.max_projects if claims else 0,
+                    'max_concurrent_runs': claims.max_concurrent_runs if claims else 0,
+                    'expires_at': claims.expires_at if claims else None}
+
+        @app.get('/api/local/license')
+        def local_license(request: Request):
+            actor(request)
+            return license_status()
+
+        @app.post('/api/local/license')
+        async def install_local_license(request: Request):
+            await run_in_threadpool(actor, request, mutation=True)
+            data = _object(await request.body(), ('document',))
+            if not isinstance(data['document'], str) or len(data['document']) > 8192:
+                raise ValueError()
+            await run_in_threadpool(projects.licenses.install, data['document'].encode('utf-8'))
+            return await run_in_threadpool(license_status)
+
     @app.get('/api/auth/me')
     def me(request: Request):
         if getattr(store, 'local_free', False):
@@ -284,7 +310,7 @@ def create_app(store: AuthStore, *, port=8765, projects=None, ui_directory=None)
             actor = store.actor_for_session(request.cookies.get(SESSION_COOKIE))
         except AuthenticationError:
             return JSONResponse({'detail': 'Authentication failed.'}, status_code=401)
-        return JSONResponse({'user_id': actor.user_id})
+        return JSONResponse({'user_id': actor.user_id, **({'edition': 'professional'} if getattr(store, 'local_licensed', False) else {})})
 
     @app.post('/api/auth/logout')
     def logout(request: Request):

@@ -113,14 +113,25 @@ class LocalLicensedTests(unittest.TestCase):
         origin = 'http://127.0.0.1:8767'
         with TestClient(create_licensed_app(self.database, auth, administrator, self.licenses), base_url=origin) as client:
             self.assertEqual(client.get('/api/auth/me').status_code, 401)
+            self.assertEqual(client.get('/api/local/license').status_code, 401)
             response = client.post('/api/auth/login', json={'email':'owner@example.test', 'password':'long owner password'}, headers={'Origin':origin})
             self.assertEqual(response.status_code, 200)
             headers = {'Origin':origin, 'X-CSRF-Token':client.cookies['adaptive_csrf']}
             self.assertEqual(client.get('/api/auth/me').json()['user_id'], LOCAL_ACTOR.user_id)
             self.assertEqual(client.get('/api/projects').json()['projects'][0]['project_id'], free_project.project_id)
             self.assertEqual(client.get('/api/organizations').status_code, 404)
+            self.assertEqual(client.get('/api/auth/me').json()['edition'], 'professional')
+            self.assertEqual(client.get('/api/local/license').json()['status'], 'valid')
+            self.assertEqual(client.post('/api/local/license', json={'document':'{}'}, headers={'Origin':origin}).status_code, 401)
+            self.assertEqual(client.post('/api/local/license', json={'document':'{}'}, headers={**headers,'Origin':'https://foreign.test'}).status_code, 403)
+            self.assertEqual(client.post('/api/local/license', json={'document':'{}'}, headers=headers).status_code, 400)
+            self.assertEqual(client.get('/api/local/license').json()['status'], 'valid')
+            with self.licenses._connection() as connection:
+                document = connection.execute('SELECT document FROM local_license').fetchone()[0].decode()
+            self.assertEqual(client.post('/api/local/license', json={'document':document}, headers=headers).json()['status'], 'valid')
             self.assertEqual(client.post('/api/projects', json={'name':'Second'}, headers={'Origin':origin}).status_code, 401)
             self.assertEqual(client.post('/api/projects', json={'name':'Second'}, headers=headers).status_code, 201)
             self.now = 200
             self.assertEqual(client.post('/api/projects', json={'name':'Expired'}, headers=headers).status_code, 400)
             self.assertEqual(len(client.get('/api/projects').json()['projects']), 2)
+            self.assertEqual(client.get('/api/local/license').json()['status'], 'invalid_or_expired')

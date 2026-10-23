@@ -171,3 +171,22 @@ and licensed worker composition. Six legacy dashboard CLI tests also passed.
 These tests do not yet demonstrate packaged licensed browser execution or graphical
 license management. Those acceptance and packaging tasks remain open. Exact-commit
 CI is pending after push; prior c57a2c0 was still running when inspected.
+
+## Graphical Local License Management
+
+The authenticated licensed workspace now shows current license status, project and
+concurrent-run limits, expiry and a signed-document import form. The server exposes
+license routes only for the licensed composition. Reads require the designated
+administrator session; imports also require the existing Origin and CSRF checks.
+No public key, customer ID or test record is returned. Invalid imports preserve
+the previously installed document. Status refreshes every thirty seconds; worker
+and admission checks still verify current validity independently of UI status.
+
+A real built-interface browser check on an owned temporary loopback server passed:
+password login, preserved free project, absent status, valid import, invalid import
+rejection and authenticated reload. It observed zero external requests/page errors.
+The existing free UI/discovery/browser execution also passed unchanged. Eight
+focused free/licensed HTTP tests passed, including unauthenticated/CSRF/foreign
+Origin rejection, exact expiry and license routes absent in free mode. The new
+browser check runs in CI and uploads a value-free report. Customer packaging and
+licensed execution acceptance remain open; exact-commit CI is pending after push.

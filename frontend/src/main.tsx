@@ -8,6 +8,7 @@ import './plan.css';
 import {DiscoveryPanel} from './DiscoveryPanel';
 import {RunPanel} from './RunPanel';
 import {DemoWorkspace} from './DemoWorkspace';
+import {LicensePanel} from './LicensePanel';
 import {OrganizationPanel} from './OrganizationPanel';
 import {ExecutionScope, supportsDiscovery, matchesSavedTarget} from './ExecutionScope';
 
@@ -36,6 +37,7 @@ async function api<T>(path: string, method = 'GET', body?: unknown): Promise<T> 
 
 function App() {
   const [freeEdition, setFreeEdition] = useState(false);
+  const [licensedEdition, setLicensedEdition] = useState(false);
   const [signedIn, setSignedIn] = useState(false), [checking, setChecking] = useState(true);
   const [busy, setBusy] = useState(false), [error, setError] = useState(''), [notice, setNotice] = useState('');
   const [projects, setProjects] = useState<Project[]>([]), [offset, setOffset] = useState(0);
@@ -56,7 +58,7 @@ function App() {
   }
   useEffect(() => {let alive = true;
     (async () => {try {const session = await api<{edition?: string}>('/api/auth/me');
-      if (alive) setFreeEdition(session.edition === 'free');
+      if (alive) {setFreeEdition(session.edition === 'free'); setLicensedEdition(session.edition === 'professional');}
       const data = await api<{projects: Project[]}>('/api/projects');
       if (alive) {setProjects(data.projects); setSignedIn(true);}
     } catch (e) {if (alive && !(e instanceof ApiError && e.status === 401)) fail(e);}
@@ -77,6 +79,7 @@ function App() {
     const email = String(data.get('email')), password = String(data.get('password'));
     form.reset();
     void perform(async () => {await api('/api/auth/login', 'POST', {email, password});
+      const session = await api<{edition?: string}>('/api/auth/me'); setLicensedEdition(session.edition === 'professional');
       setSignedIn(true); await load();});
   }
   function create(event: FormEvent<HTMLFormElement>) {
@@ -111,7 +114,8 @@ function App() {
           <form onSubmit={login}><fieldset disabled={busy}><label>Email<input name="email" type="email" autoComplete="username" required maxLength={254}/></label>
             <label>Password<input name="password" type="password" autoComplete="current-password" required/></label>
             <button className="primary" type="submit">{busy ? 'Signing in…' : 'Sign in'}</button></fieldset></form><p className="hint">Use the account created by your local workspace administrator.</p></section>
-        : <>{!freeEdition && <OrganizationPanel request={api}/>}
+        : <>{!freeEdition && !licensedEdition && <OrganizationPanel request={api}/>}
+            {licensedEdition && <LicensePanel request={api}/>}
             {freeEdition && <p className="hint">Free local edition: one active site/project. No account required. Targets and results stay on this computer.</p>}<section className="card create"><div><h2>Your projects</h2><p className="hint">Start with a name. Add target settings when you are ready.</p></div>
           <form onSubmit={create}><fieldset disabled={busy} className="inline"><label className="sr-only" htmlFor="new-project">New project name</label><input id="new-project" name="name" placeholder="New project name" required maxLength={100}/><button className="primary" disabled={freeEdition && projects.length > 0}>+ Create project</button></fieldset></form></section>
           <div className="columns"><section className="card project-list"><div className="section-label"><h2>Projects</h2><span className="count">{projects.length} on this page</span></div>

@@ -34,6 +34,7 @@ class LocalFreeTests(unittest.TestCase):
         self.assertEqual(self.client.post('/api/projects', json={'name': 'Second'}, headers=headers).status_code, 400)
         self.assertEqual(len(self.client.get('/api/projects').json()['projects']), 1)
         self.assertEqual(self.client.get('/api/organizations').status_code, 404)
+        self.assertEqual(self.client.get('/api/local/license').status_code, 404)
         with TestClient(create_free_app(self.path), base_url='http://127.0.0.1:8766') as reopened:
             reopened.get('/api/auth/me')
             self.assertEqual(len(reopened.get('/api/projects').json()['projects']), 1)
