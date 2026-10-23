@@ -93,3 +93,18 @@ controlled snapshot data, without external traffic. A separate owner-authorized
 Books to Scrape drill completed all five real document checks with scoped evidence.
 External login/form/API/database execution remains unsupported. Historical notes
 above describe the worker foundation before this integration, not current limits.
+
+## Internal Read-Only Form Worker
+
+run_isolated_form_test supports only LOGIN-001 and SEARCH-001 structural checks.
+It shares pinned egress, fresh browser isolation, GET/HEAD methods, bounded input
+and output, evidence path validation and process-tree deadlines with document
+execution. Explicit typed mappings are serialized privately and revalidated by
+project and known logical key in the child. Missing or ambiguous controls are
+blocked, not guessed. Assertions inspect matching connected controls in one form;
+no filling, clicking, authentication or submission occurs. The document wrapper
+continues to reject login/search cases. Dashboard activation is separate.
+
+Run python scripts/check_configured_forms.py for owned HTTP acceptance. No public
+site is contacted by the script or CI. Existing catalog definitions are reused;
+fixture scenarios do not increase the accepted 100-case count.

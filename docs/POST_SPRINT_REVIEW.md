@@ -34,8 +34,9 @@ This follow-up does not enable purchases, public backend hosting or customer tes
     - [ ] Add actual page-content context binding before comparing general document runs.
   - [x] Add URL-independent read-only login/search assertions with deterministic
     label/role alternatives and typed project overrides; verify contrasting DOMs.
-  - [ ] Integrate those assertions into a supervised configured form executor,
-    then review discovery bindings, admission, UI selection and exact-commit CI.
+  - [x] Integrate those assertions into a supervised configured form executor;
+    verify contrasting HTTP fixtures, explicit mapping transport and lifecycle.
+  - [ ] Review form discovery bindings, admission, UI selection and exact-commit CI.
 - [ ] Implement a configuration-driven public-target discovery/execution profile
   with existing public-address validation, pinned egress and process deadlines.
   External validation still requires an owner-authorized target; no external site
@@ -291,3 +292,29 @@ CI includes this owned-DOM drill; catalog count remains 100. These are assertion
 foundations, not yet new public worker bindings, credentials/login execution or
 proven external form compatibility. The next increment is supervised configured
 form execution and controlled HTTP acceptance before dashboard activation.
+
+## Supervised Configured Form Worker
+
+run_isolated_form_test uses the existing bounded document-process supervisor with
+an explicit form family. The document entry point still refuses form cases;
+the form entry point accepts only read-only LOGIN-001 and SEARCH-001 assertions.
+Typed project mappings travel through the bounded private configuration file,
+are reconstructed and revalidated inside the child, and cannot belong to another
+project or introduce unknown mapping keys. No credential is resolved or supplied.
+Missing/ambiguous controls produce BLOCKED, a violated assertion produces FAILED,
+and destination/coverage/loading failures produce ERROR. General form execution
+is not yet exposed through dashboard admission by this increment.
+
+Twelve real owned HTTP child runs verified English/Turkish login, search, explicit
+mapping, missing/ambiguous controls, password masking, disabled submit, split forms,
+blocked external resource, blocked POST and redirect refusal. Twelve PNGs decoded;
+canary/write/input/click/submit contacts remained zero. Twelve focused process
+checks passed, including real child cancellation, deadlines and callback failures.
+The existing 17-scenario document HTTP drill also passed after the shared helper
+change. CI runs these on owned fixtures only, without public-site traffic.
+Core checks for ea8bba2 (run 39940043476) passed. Core checks for e817cf0 were
+superseded/cancelled; ea8bba2 includes that integration and passed the full workflow.
+This worker increment requires its own exact-commit CI after push.
+
+The complete local regression passed 696 tests (695 passed, one Windows permission
+skip). See CONFIGURED_FORMS.md for supported assertions and current limits.

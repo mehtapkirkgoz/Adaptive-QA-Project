@@ -9,7 +9,8 @@ import unittest
 from unittest.mock import patch
 
 from adaptive_qa.config import ProjectConfig
-from adaptive_qa.document_process import run_isolated_document_test
+from adaptive_qa.document_process import run_isolated_document_test, run_isolated_form_test, _decode_mappings
+from adaptive_qa.element_models import ProjectElementMappings
 from adaptive_qa.models import TestStatus
 
 
@@ -81,3 +82,24 @@ class DocumentProcessTests(unittest.TestCase):
 
     def test_callback_exception_terminates_owned_child(self):
         self.owned_child('broken')
+
+
+class FormProcessTests(DocumentProcessTests):
+    def run_case(self, **kwargs):
+        return run_isolated_form_test('LOGIN-001', self.project, evidence_directory=self.root, **kwargs)
+
+    def test_wrong_case_or_foreign_mapping_is_rejected_before_dispatch(self):
+        with patch('adaptive_qa.document_process.subprocess.Popen') as spawn:
+            for case in ('DOC-001', 'LOGIN-002', 'FORM-001'):
+                with self.assertRaises(ValueError):
+                    run_isolated_form_test(case, self.project, evidence_directory=self.root)
+            with self.assertRaises(ValueError):
+                self.run_case(mappings=ProjectElementMappings('foreign'))
+            spawn.assert_not_called()
+
+    def test_child_mapping_decoder_rejects_unknown_fields_and_untyped_collections(self):
+        for data in ({}, {'project_id': 'document', 'mappings': {}},
+                     {'project_id': 'document', 'mappings': [{'logical_name': 'login.username'}]},
+                     {'project_id': 'document', 'mappings': [], 'extra': True}):
+            with self.assertRaises(ValueError):
+                _decode_mappings(data)

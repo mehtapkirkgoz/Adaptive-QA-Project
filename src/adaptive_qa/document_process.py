@@ -1,4 +1,4 @@
-"""Internal, supervised document checks; dashboard activation is separate."""
+"""Supervised read-only document/form checks with separate admission contracts."""
 
 import argparse
 from dataclasses import asdict
@@ -18,15 +18,45 @@ from adaptive_qa.discovery_target import validate_discovery_project, validate_di
 from adaptive_qa.document_checks import DOCUMENT_CHECKS
 from adaptive_qa.egress import DestinationGuard, EgressProxy, chromium_proxy_options
 from adaptive_qa.models import TestResult, TestStatus
+from adaptive_qa.form_checks import FORM_CHECKS, FORM_DEFAULTS
+from adaptive_qa.ui_bindings import ElementBindingError
+from adaptive_qa.element_models import MatchStatus, ProjectElementMappings, ElementMapping, LocatorSpec, LocatorStrategy
 
 
-def _validate(case_id, project, profile):
-    if case_id not in DOCUMENT_CHECKS:
-        raise ValueError('Only independent document checks are supported.')
+def _validate(case_id, project, profile, *, family='document', mappings=None):
+    checks = DOCUMENT_CHECKS if family == 'document' else FORM_CHECKS if family == 'form' else {}
+    if case_id not in checks:
+        raise ValueError('A supported independent check is required.')
     validate_discovery_project(project, profile)
+    if mappings is not None:
+        if (family != 'form' or not isinstance(mappings, ProjectElementMappings)
+                or mappings.project_id != project.project_id):
+            raise ValueError('Form mappings must belong to the configured project.')
+        if any(item.logical_name not in FORM_DEFAULTS for item in mappings.mappings):
+            raise ValueError('Unknown form mapping key.')
 
 
-def _execute(case_id, project, profile, evidence_root):
+def _decode_mappings(data):
+    if data is None:
+        return None
+    if not isinstance(data, dict) or set(data) != {'project_id', 'mappings'} or not isinstance(data['mappings'], list):
+        raise ValueError('Invalid form mappings.')
+    mappings = []
+    for item in data['mappings']:
+        if not isinstance(item, dict) or set(item) != {'logical_name', 'locators', 'scope_test_id'}:
+            raise ValueError('Invalid element mapping.')
+        if not isinstance(item['locators'], list):
+            raise ValueError('Invalid locator alternatives.')
+        locators = tuple(LocatorSpec(LocatorStrategy(spec['strategy']), spec['value'], spec['role'])
+                         for spec in item['locators']
+                         if isinstance(spec, dict) and set(spec) == {'strategy', 'value', 'role'})
+        if len(locators) != len(item['locators']):
+            raise ValueError('Invalid locator fields.')
+        mappings.append(ElementMapping(item['logical_name'], locators, item['scope_test_id']))
+    return ProjectElementMappings(data['project_id'], tuple(mappings))
+
+
+def _execute(case_id, project, profile, evidence_root, *, family='document', mappings=None):
     from playwright.sync_api import sync_playwright, Error
     from adaptive_qa.local_browser import _capture_evidence
     started = perf_counter()
@@ -60,16 +90,23 @@ def _execute(case_id, project, profile, evidence_root):
                         if (response is None or response.status != 200 or page.url != project.base_url
                                 or 'text/html' not in response.headers.get('content-type', '').lower()):
                             raise RuntimeError('The bound HTML document was not loaded.')
-                        DOCUMENT_CHECKS[case_id](page)
+                        if family == 'form':
+                            FORM_CHECKS[case_id](page, project_id=project.project_id, mappings=mappings)
+                        else:
+                            DOCUMENT_CHECKS[case_id](page)
                         # Missing resources must never produce a passing document verdict.
                         if denied or guard.denied or page.url != project.base_url:
                             raise RuntimeError('Network coverage is incomplete.')
                     finally:
                         _capture_evidence(page, evidence)
+                        if denied or guard.denied or page.url != project.base_url:
+                            raise RuntimeError('Network coverage or the bound target changed.')
                 finally:
                     context.close()
             finally:
                 browser.close()
+    except ElementBindingError as error:
+        status = TestStatus.BLOCKED if error.result.status in (MatchStatus.MISSING, MatchStatus.AMBIGUOUS) else TestStatus.ERROR
     except AssertionError:
         status = TestStatus.ERROR if denied or guard.denied else TestStatus.FAILED
     except (Error, RuntimeError, OSError, ValueError):
@@ -78,15 +115,34 @@ def _execute(case_id, project, profile, evidence_root):
         status = TestStatus.PASSED
     messages = {TestStatus.PASSED: 'The independent document check passed.',
                 TestStatus.FAILED: 'The independent document assertion failed.',
-                TestStatus.ERROR: 'Document loading, coverage or execution was incomplete.'}
+                TestStatus.ERROR: 'Document loading, coverage or execution was incomplete.',
+                TestStatus.BLOCKED: 'Configured form controls are missing or ambiguous.'}
+    if family == 'form':
+        messages[TestStatus.PASSED] = 'The read-only form check passed; no form was submitted.'
+        messages[TestStatus.FAILED] = 'The read-only form assertion failed.'
     return TestResult(case_id, status, perf_counter()-started, messages[status],
                       evidence_paths=(evidence.as_posix(),) if evidence.is_file() else ())
 
 
 def run_isolated_document_test(case_id, project, *, profile='public_https', timeout_seconds=30,
                                should_cancel=None, evidence_directory):
+    """Execute only the independently registered document checks."""
+    return _run_isolated_check(case_id, project, profile=profile, timeout_seconds=timeout_seconds,
+                              should_cancel=should_cancel, evidence_directory=evidence_directory)
+
+
+def run_isolated_form_test(case_id, project, *, profile='public_https', timeout_seconds=30,
+                           should_cancel=None, evidence_directory, mappings=None):
+    """Inspect form structure without filling credentials, clicking or submitting."""
+    return _run_isolated_check(case_id, project, profile=profile, timeout_seconds=timeout_seconds,
+        should_cancel=should_cancel, evidence_directory=evidence_directory, family='form', mappings=mappings)
+
+
+def _run_isolated_check(case_id, project, *, profile, timeout_seconds,
+                        should_cancel, evidence_directory, family='document', mappings=None):
     """Trusted orchestration only; validates without DNS before starting a child."""
-    _validate(case_id, project, profile)
+    _validate(case_id, project, profile, family=family, mappings=mappings)
+    label = 'Form' if family == 'form' else 'Document'
     if (isinstance(timeout_seconds, bool) or not isinstance(timeout_seconds, (int, float))
             or not math.isfinite(timeout_seconds) or not 0 < timeout_seconds <= 120):
         raise ValueError('A finite deadline of at most 120 seconds is required.')
@@ -97,10 +153,13 @@ def run_isolated_document_test(case_id, project, *, profile='public_https', time
     def outcome(status, message):
         return TestResult(case_id, status, perf_counter()-started, message)
     if should_cancel is not None and should_cancel():
-        return outcome(TestStatus.CANCELLED, 'Document execution was cancelled.')
+        return outcome(TestStatus.CANCELLED, f'{label} execution was cancelled.')
     with TemporaryDirectory(prefix='adaptive-qa-document-') as temporary:
         config, output = Path(temporary)/'input.json', Path(temporary)/'result.json'
-        data = json.dumps({'project': asdict(project), 'profile': profile}, ensure_ascii=True)
+        payload = {'project': asdict(project), 'profile': profile}
+        if family == 'form':
+            payload['mappings'] = asdict(mappings) if mappings is not None else None
+        data = json.dumps(payload, ensure_ascii=True)
         if len(data.encode('utf-8')) > 16384:
             raise ValueError('Document configuration is too large.')
         config.write_text(data, encoding='utf-8')
@@ -108,21 +167,23 @@ def run_isolated_document_test(case_id, project, *, profile='public_https', time
             'creationflags': subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.CREATE_NO_WINDOW}
         command = [sys.executable, '-m', 'adaptive_qa.document_process', '--input', str(config),
                    '--output', str(output), '--case', case_id, '--evidence', str(root)]
+        if family != 'document':
+            command += ['--family', family]
         process = subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, **options)
         try:
             while True:
                 if should_cancel is not None and should_cancel():
-                    return outcome(TestStatus.CANCELLED, 'Document execution was cancelled.')
+                    return outcome(TestStatus.CANCELLED, f'{label} execution was cancelled.')
                 remaining = timeout_seconds - (perf_counter()-started)
                 if remaining <= 0:
-                    return outcome(TestStatus.ERROR, 'Document execution exceeded its deadline.')
+                    return outcome(TestStatus.ERROR, f'{label} execution exceeded its deadline.')
                 try:
                     process.wait(timeout=min(0.2, remaining))
                     break
                 except subprocess.TimeoutExpired:
                     continue
             if process.returncode != 0:
-                return outcome(TestStatus.ERROR, 'Document child exited unexpectedly.')
+                return outcome(TestStatus.ERROR, f'{label} child exited unexpectedly.')
             try:
                 if output.stat().st_size > 16384:
                     raise ValueError('Oversized result.')
@@ -133,7 +194,7 @@ def run_isolated_document_test(case_id, project, *, profile='public_https', time
                         raise ValueError('Evidence escaped the private directory.')
                 return result
             except (OSError, ValueError, TypeError, KeyError):
-                return outcome(TestStatus.ERROR, 'Document child returned an invalid result.')
+                return outcome(TestStatus.ERROR, f'{label} child returned an invalid result.')
         finally:
             if process.poll() is None:
                 _terminate_process_tree(process)
@@ -143,22 +204,25 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--input', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
-    parser.add_argument('--case', choices=tuple(DOCUMENT_CHECKS), required=True)
+    parser.add_argument('--case', choices=tuple(DOCUMENT_CHECKS)+tuple(FORM_CHECKS), required=True)
+    parser.add_argument('--family', choices=('document', 'form'), default='document')
     parser.add_argument('--evidence', type=Path, required=True)
     args = parser.parse_args()
     if args.input.stat().st_size > 16384:
         raise ValueError('Oversized configuration.')
     data = json.loads(args.input.read_text(encoding='utf-8'))
-    if set(data) != {'project', 'profile'}:
+    fields = {'project', 'profile', 'mappings'} if args.family == 'form' else {'project', 'profile'}
+    if set(data) != fields:
         raise ValueError('Invalid configuration.')
     project_data = data['project']
     project_data['allowed_hosts'] = tuple(project_data['allowed_hosts'])
     project = ProjectConfig(**project_data)
-    _validate(args.case, project, data['profile'])
+    mappings = _decode_mappings(data.get('mappings'))
+    _validate(args.case, project, data['profile'], family=args.family, mappings=mappings)
     root = args.evidence.resolve(strict=True)
     if not root.is_dir():
         raise ValueError('Invalid evidence directory.')
-    result = _execute(args.case, project, data['profile'], root)
+    result = _execute(args.case, project, data['profile'], root, family=args.family, mappings=mappings)
     args.output.write_text(json.dumps(asdict(result)), encoding='utf-8')
 
 
