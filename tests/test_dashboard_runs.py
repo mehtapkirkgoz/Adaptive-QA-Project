@@ -81,7 +81,8 @@ class DashboardRunsTests(unittest.TestCase):
         report = self.discovery.get(self.actor, self.pid, job)['report']
         login = next(case for case in report['cases'] if case['case_id'] == 'LOGIN-001')
         self.assertEqual(login['decision'], 'selected')
-        self.assertIsNone(login['target_binding'])
+        self.assertEqual(login['target_binding'], 'local_form')
+        self.assertEqual(login['document_path'], '/login')
         with self.assertRaises(ValueError):
             self.submit(job=job)
 

@@ -63,4 +63,4 @@ def discovery_support(settings):
     except ValueError:
         return {'supported': False, 'profile': None, 'execution_scope': 'none'}
     return {'supported': True, 'profile': profile,
-            'execution_scope': 'controlled_ui' if profile == 'controlled_local' else 'document_ui'}
+            'execution_scope': 'controlled_ui' if profile == 'controlled_local' else 'document_and_form_ui'}

@@ -108,3 +108,14 @@ continues to reject login/search cases. Dashboard activation is separate.
 Run python scripts/check_configured_forms.py for owned HTTP acceptance. No public
 site is contacted by the script or CI. Existing catalog definitions are reused;
 fixture scenarios do not increase the accepted 100-case count.
+
+## Read-Only Login and Search Binding
+
+The current profile also supports local_form/public_form for discovered LOGIN-001
+and SEARCH-001, requiring the exact saved path/URL and current scoped report.
+execution_scope=document_and_form_ui signals these two additional read-only
+choices. This does not enable other login cases, credentials, submission or custom
+mapping persistence. The controlled root sample executor remains unchanged;
+non-root local/public form cases use the independent configured form worker.
+Login's unique password field anchors its form, so another registration form's
+email input cannot be combined or create an unrelated username ambiguity.

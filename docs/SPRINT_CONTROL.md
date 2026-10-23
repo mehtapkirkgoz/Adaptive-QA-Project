@@ -10,7 +10,9 @@ Current phase is the post-sprint local product review in POST_SPRINT_REVIEW.md.
 Continue its unfinished authorized increments, commit/push verified changes and
 report each commit. Preserve the public demo, owner sessions and all execution
 guards. No purchases, public backend or customer-site execution are authorized.
-The Sprint 10 readiness/awaiting-review notes below are historical and do not
+The owner subsequently authorized bounded read-only validation on public demo
+test sites. This does not authorize credential submission or public backend
+activation. The Sprint 10 readiness/awaiting-review notes below are historical and do not
 override this newer instruction. The entire product is not yet accepted.
 
 Active sprint: 10 — Customer Management and Pilot Testing; awaiting owner review.

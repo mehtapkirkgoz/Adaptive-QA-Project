@@ -36,7 +36,9 @@ This follow-up does not enable purchases, public backend hosting or customer tes
     label/role alternatives and typed project overrides; verify contrasting DOMs.
   - [x] Integrate those assertions into a supervised configured form executor;
     verify contrasting HTTP fixtures, explicit mapping transport and lifecycle.
-  - [ ] Review form discovery bindings, admission, UI selection and exact-commit CI.
+  - [x] Integrate exact saved-URL form bindings, personal/shared admission and
+    UI selection; verify controlled HTTP execution and both dashboard flows.
+  - [ ] Verify exact-commit CI/artifacts for the configured form integration.
 - [ ] Implement a configuration-driven public-target discovery/execution profile
   with existing public-address validation, pinned egress and process deadlines.
   External validation still requires an owner-authorized target; no external site
@@ -318,3 +320,53 @@ This worker increment requires its own exact-commit CI after push.
 
 The complete local regression passed 696 tests (695 passed, one Windows permission
 skip). See CONFIGURED_FORMS.md for supported assertions and current limits.
+
+## Read-Only Form Admission and Selection
+
+LOGIN-001 and SEARCH-001 now expose a local_form/public_form binding only when
+supported by discovery. Admission requires the exact saved path/URL, current
+configuration fingerprint, selected UI status and the correct read-only case
+family. LOGIN-002 and other interactive cases remain excluded. The shared worker
+routes only those two generic form checks to run_isolated_form_test; controlled
+root sample execution remains unchanged. General form/document runs retain unknown
+comparison context. Current quotas, role checks, cancellation and scoped evidence
+are shared with the existing run pipeline. No credential is resolved or supplied.
+
+Login matching first binds one password field and uses its connected form as the
+scope for username/email and submit alternatives. This prevents a separate email
+registration form from creating a false ambiguity while preserving ambiguity
+within the selected form and between multiple password forms. Search anchors to
+its unique query field. Cross-form controls cannot combine; missing submit in the
+anchored form is BLOCKED. Explicit project mapping persistence/UI is unfinished;
+the dashboard currently uses default alternatives, while the internal worker
+supports typed overrides. Custom names may therefore remain blocked.
+
+The personal browser drill exposes five document plus two form choices on a
+non-root English fixture and executes DOC-001/LOGIN-001 with separate real children.
+Both public UI scenarios use controlled snapshots to show seven choices and queue
+then cancel a login-form run without external traffic. No external form execution
+or authenticated login is claimed by these tests. Public Pages remains unchanged.
+
+The configured HTTP drill also completed admitted personal LOGIN-001 and shared
+SEARCH-001 runs through actual discovery, quota admission and separate child
+execution. Both scoped PNGs decoded; canary/write/interaction contacts stayed zero.
+The full personal/shared browser flows passed with no external requests or page
+errors, and the static demo regression remained unchanged. Seventeen direct DOM
+scenarios passed after adding anchored form filtering, including an unrelated
+registration email field. The affected admission/binding unit checks were repeated.
+Next: persist/review explicit project form mappings before supporting arbitrary
+custom names from the dashboard; credentials and data-changing tests remain out
+of this read-only profile. Exact-commit CI/artifact acceptance remains pending.
+
+Historical CI assertion evidence is recorded in docs/evidence/form-foundation-ea8bba2.json:
+all twelve jobs passed, and the downloaded UI catalog artifact digest/head commit
+and sixteen original form scenarios were independently verified. That record does
+not claim acceptance of the later worker or dashboard integration.
+
+After updating the historical non-root binding expectation, the complete local
+regression passed 698 tests (697 passed, one Windows permission skip). The test
+still proves a discovered login path cannot silently execute against the root.
+
+All 96 existing reusable fixture runs across English, Turkish and mapped variants
+passed after the matcher change. README now separates current form capabilities
+from historical sprint acceptance and corrects the closed Sprint 9/10 table rows.

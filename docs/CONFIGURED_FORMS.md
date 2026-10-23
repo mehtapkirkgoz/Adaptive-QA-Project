@@ -1,7 +1,7 @@
 # Configured Read-Only Form Checks
 
-Status: supervised worker verified on owned local HTTP fixtures. Dashboard form
-binding and saved mapping configuration are separate unfinished integration work.
+Status: supervised worker and dashboard form bindings are integrated. Saved
+mapping configuration/UI and exact-commit integration CI remain unfinished.
 This does not authenticate, submit a search, fill credentials or mutate form data.
 
 ## Supported Assertions
@@ -51,10 +51,22 @@ No environment secret is resolved by these checks.
 
 ## Verification
 
-python scripts/check_general_forms.py exercises sixteen real Chromium DOM cases
+python scripts/check_general_forms.py exercises seventeen real Chromium DOM cases
 without network or interaction events. python scripts/check_configured_forms.py
 executes twelve separate owned HTTP child runs with decoded PNGs, contrasting
 languages, explicit mapping, negative assertions, missing/ambiguous controls,
 redirect refusal and denied network/write probes. Canary, write and interaction
 contacts remain zero. CI never runs these scripts against public sites. Scenario
 variants reuse existing catalog definitions and do not inflate its 100-case count.
+
+## Dashboard Integration
+
+Current discovery may expose local_form/public_form for LOGIN-001/SEARCH-001.
+Personal/shared admission requires exact saved path/URL and current report policy;
+explicit selection queues the separate read-only form worker. No other login case
+is enabled. Login first anchors to a unique password field; remaining controls
+must match within that form, so unrelated registration email fields are excluded.
+Search anchors to its unique query field. Multiple password/query forms or multiple
+alternatives within one form remain blocked unless a valid explicit mapping exists.
+The dashboard uses defaults: it does not yet save or edit custom mapping overrides.
+General-form runs have unknown comparison context rather than a sample fingerprint.

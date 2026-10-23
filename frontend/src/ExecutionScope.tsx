@@ -14,12 +14,12 @@ export function supportsLocalDiscovery(settings: Settings) {
 }
 
 export function matchesSavedTarget(settings: Settings, binding: {target_binding?: string | null; document_path?: string | null; document_url?: string | null}) {
-  if (settings.discovery_support?.profile === 'public_https') return settings.discovery_support.execution_scope === 'document_ui'
-    && binding.target_binding === 'public_document' && binding.document_url === settings.base_url;
+  if (settings.discovery_support?.profile === 'public_https') return ['document_ui', 'document_and_form_ui'].includes(settings.discovery_support.execution_scope)
+    && (binding.target_binding === 'public_document' || (settings.discovery_support.execution_scope === 'document_and_form_ui' && binding.target_binding === 'public_form')) && binding.document_url === settings.base_url;
   if (!supportsLocalDiscovery(settings)) return false;
   const path = settings.base_url?.slice('http://127.0.0.1:8000'.length) || '/';
   return path === '/' ? binding.target_binding === 'local_root'
-    : binding.target_binding === 'local_document' && binding.document_path === path;
+    : ['local_document', 'local_form'].includes(binding.target_binding ?? '') && binding.document_path === path;
 }
 
 export function ExecutionScope({settings}: {settings: Settings}) {
@@ -28,10 +28,10 @@ export function ExecutionScope({settings}: {settings: Settings}) {
     {!settings.configured ? <p>Save target settings to check available execution.</p>
       : settings.discovery_support?.profile === 'public_https'
       ? <p>Read-only HTTPS discovery is available for this saved host scope. It does not sign in or submit forms.
-        The five independent document checks can run after matching discovery and explicit selection.
-        Login, form, API and database execution are not enabled by this profile.</p> : supportsLocalDiscovery(settings)
+        The five independent document checks and read-only login/search form checks can run after matching discovery and explicit selection.
+        Form checks do not fill fields, sign in or submit a search. API and database execution require separate contracts.</p> : supportsLocalDiscovery(settings)
       ? <p>This saved target supports controlled local discovery. Non-root paths support the five
-        independent document checks; other UI checks still require a compatible root binding.</p>
+        independent document checks and discovered read-only login/search form checks; other UI checks still require a compatible root binding.</p>
       : <p>Execution is unavailable for this saved target. Supported discovery profiles are public HTTPS on port 443
         with explicit allowed hosts, or canonical controlled documents at http://127.0.0.1:8000/.
         Other targets can be saved and reviewed but cannot be discovered by this worker.</p>}

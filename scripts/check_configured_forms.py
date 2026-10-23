@@ -10,6 +10,15 @@ from adaptive_qa.config import ProjectConfig
 from adaptive_qa.dashboard_evidence import validate_png
 from adaptive_qa.document_process import run_isolated_form_test
 from adaptive_qa.element_models import ElementMapping, LocatorSpec, LocatorStrategy, ProjectElementMappings
+from adaptive_qa.project_store import ProjectStore, ProjectActor
+from adaptive_qa.dashboard_jobs import DashboardDiscoveryQueue
+from adaptive_qa.dashboard_runs import DashboardRunQueue
+from adaptive_qa.dashboard_worker import process_discovery_once
+from adaptive_qa.dashboard_run_worker import process_run_once
+from adaptive_qa.organization_store import OrganizationStore
+from adaptive_qa.organization_projects import OrganizationProjects
+from adaptive_qa.organization_discovery import OrganizationDiscoveryQueue
+from adaptive_qa.organization_runs import OrganizationRunQueue
 
 
 def main():
@@ -64,7 +73,7 @@ def main():
                 ('SEARCH-001', '/search', 'passed', None), ('LOGIN-001', '/custom', 'passed', mappings),
                 ('LOGIN-001', '/ambiguous', 'blocked', None), ('LOGIN-001', '/missing', 'blocked', None),
                 ('LOGIN-001', '/exposed', 'failed', None), ('SEARCH-001', '/disabled', 'failed', None),
-                ('LOGIN-001', '/split', 'failed', None), ('LOGIN-001', '/blocked', 'error', None),
+                ('LOGIN-001', '/split', 'blocked', None), ('LOGIN-001', '/blocked', 'error', None),
                 ('LOGIN-001', '/write', 'error', None), ('LOGIN-001', '/redirect', 'error', None),
             )
             for case, path, expected, override in scenarios:
@@ -75,6 +84,32 @@ def main():
                 assert len(result.evidence_paths) == 1
                 validate_png(Path(result.evidence_paths[0]).read_bytes())
                 outcomes.append({'case_id': case, 'fixture': path, 'status': expected})
+            projects = ProjectStore(Path(temporary)/'projects.sqlite')
+            actor = ProjectActor('a'*32)
+            personal = projects.create(actor, 'Independent login')
+            settings = {'base_url': 'http://127.0.0.1:8000/account', 'allowed_hosts': ['127.0.0.1'],
+                        'allow_data_changes': False, 'secret_references': {}}
+            projects.save_configuration(actor, personal.project_id, settings)
+            discovery = DashboardDiscoveryQueue(projects)
+            organizations = OrganizationStore(projects)
+            organization = organizations.create(actor, 'Independent form team')
+            scoped = OrganizationProjects(organizations)
+            shared = scoped.create(actor, organization, 'Independent search')['project_id']
+            scoped.save_configuration(actor, organization, shared, dict(settings, base_url='http://127.0.0.1:8000/search'))
+            shared_discovery = OrganizationDiscoveryQueue(scoped)
+            scoped_runs = ((discovery, DashboardRunQueue(projects), (actor, personal.project_id), 'LOGIN-001'),
+                           (shared_discovery, OrganizationRunQueue(shared_discovery), (actor, organization, shared), 'SEARCH-001'))
+            for queue, runs, args, case in scoped_runs:
+                job = queue.submit(*args)
+                assert process_discovery_once(queue)['status'] == 'completed'
+                report = queue.get(*args, job['job_id'])['report']
+                assert next(item for item in report['cases'] if item['case_id'] == case)['target_binding'] == 'local_form'
+                run = runs.submit(*args, job['job_id'], (case,))
+                assert run['status'] == 'queued' and not run['results']
+                assert process_run_once(runs)['status'] == 'completed'
+                result = runs.get(*args, run['run_id'])['results'][0]
+                assert result['status'] == 'passed'
+                validate_png(runs.evidence(*args, run['run_id'], result['evidence_id']))
         assert contacts == {'canary': 0, 'writes': 0, 'interactions': 0}, contacts
     finally:
         for server in servers:
@@ -84,7 +119,8 @@ def main():
     output = Path('artifacts/matching')
     output.mkdir(parents=True, exist_ok=True)
     report = {'outcomes': outcomes, 'contacts': contacts, 'screenshots_validated': len(outcomes),
-              'public_form_activation': False, 'credential_use': False, 'catalog_cases_added': 0}
+              'admitted_personal_login_and_shared_search_passed': True, 'admitted_scoped_pngs': 2,
+              'external_form_site_tested': False, 'credential_use': False, 'catalog_cases_added': 0}
     (output/'configured-forms.json').write_text(json.dumps(report, indent=2)+'\n', encoding='utf-8')
     print(json.dumps({'scenarios': len(outcomes), 'contacts': contacts}))
 

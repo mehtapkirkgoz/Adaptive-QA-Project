@@ -4,7 +4,7 @@ import argparse
 import json
 from dataclasses import asdict
 from unittest.mock import patch
-from adaptive_qa.discovery import PageSnapshot
+from adaptive_qa.discovery import PageSnapshot, FormSnapshot, FieldSnapshot
 import os
 import subprocess
 import sys
@@ -90,14 +90,16 @@ def main(port=8765):
                     expect(page.get_by_text('cancelled', exact=True)).to_be_visible()
                     page.get_by_role('button', name='Queue HTTPS discovery', exact=True).click()
                     expect(page.get_by_text('queued', exact=True)).to_be_visible()
-                    payload = {'pages': [asdict(PageSnapshot('https://example.test/', (), (), True))], 'limitations': []}
+                    forms = (FormSnapshot(fields=(FieldSnapshot('text', 'Username'), FieldSnapshot('password', 'Password')), buttons=('Sign in',)),
+                             FormSnapshot(role='search', fields=(FieldSnapshot('search', 'Search products'),), buttons=('Search',)))
+                    payload = {'pages': [asdict(PageSnapshot('https://example.test/', forms, (), True))], 'limitations': []}
                     with patch('adaptive_qa.dashboard_worker.discover_configured_target', return_value=payload):
                         assert process_discovery_once(DashboardDiscoveryQueue(projects))['status'] == 'completed'
                     page.get_by_role('button', name='Review discovery plan', exact=True).first.click()
                     public_runs = page.get_by_label('Test runs', exact=True)
-                    expect(public_runs.get_by_role('group', name='Eligible tests').get_by_role('checkbox')).to_have_count(5)
-                    expect(public_runs.get_by_label('Select LOGIN-001', exact=True)).to_have_count(0)
-                    public_runs.get_by_label('Select DOC-001', exact=True).check()
+                    expect(public_runs.get_by_role('group', name='Eligible tests').get_by_role('checkbox')).to_have_count(7)
+                    expect(public_runs.get_by_label('Select LOGIN-001', exact=True)).to_have_count(1)
+                    public_runs.get_by_label('Select LOGIN-001', exact=True).check()
                     public_runs.get_by_role('button', name='Start selected tests', exact=True).click()
                     public_runs.get_by_role('button', name='Cancel test run', exact=True).click()
                     expect(public_runs.get_by_text('Run cancelled', exact=True)).to_be_visible()
@@ -237,9 +239,10 @@ def main(port=8765):
                     assert worker.returncode == 0
                     discovery.get_by_role('button', name='Review discovery plan', exact=True).first.click()
                     choices = runs.get_by_role('group', name='Eligible tests', exact=True)
-                    expect(choices.get_by_role('checkbox')).to_have_count(5)
-                    expect(choices.get_by_label('Select LOGIN-001', exact=True)).to_have_count(0)
+                    expect(choices.get_by_role('checkbox')).to_have_count(7)
+                    expect(choices.get_by_label('Select LOGIN-001', exact=True)).to_have_count(1)
                     choices.get_by_label('Select DOC-001', exact=True).check()
+                    choices.get_by_label('Select LOGIN-001', exact=True).check()
                     runs.get_by_role('button', name='Start selected tests', exact=True).click()
                     document_run = runs.locator('article.run-card').first
                     expect(document_run).to_contain_text('Run queued')
@@ -249,8 +252,9 @@ def main(port=8765):
                     expect(document_run).to_contain_text('Run completed', timeout=45000)
                     worker.wait(timeout=5)
                     assert worker.returncode == 0
-                    expect(document_run.locator('.run-outcome')).to_contain_text('DOC-001')
-                    expect(document_run.locator('.run-outcome')).to_contain_text('passed')
+                    expect(document_run.locator('.run-outcome')).to_have_count(2)
+                    for case in ('DOC-001', 'LOGIN-001'):
+                        expect(document_run.locator('.run-outcome').filter(has_text=case)).to_contain_text('passed')
                     page.get_by_role('button', name='Sign out', exact=True).click()
                     expect(page.get_by_role('heading', name='Sign in', exact=True)).to_be_visible()
                     page.reload()
@@ -275,11 +279,11 @@ def main(port=8765):
         'rename', 'save settings', 'reload persistence', 'masked reference',
         'conservative non-executing plan review', 'mobile width', 'logout persistence',
         'queue and cancel discovery', 'HTTPS admission cancelled without external dispatch',
-        'five public document choices and explicit run cancellation without external traffic', 'separate real worker and polled completion',
+        'five public document and two read-only form choices with explicit run cancellation without external traffic', 'separate real worker and polled completion',
         'discovery-backed plan review', 'historical policy mismatch denied',
         'explicit two-case selection', 'queued test-run cancellation',
         'case names and search preserve hidden selections and enforce the ten-case limit',
-        'non-root saved URL discovery exposes only five correctly bound document cases and executes one',
+        'non-root saved URL discovery exposes five document and two read-only form choices and executes document/login checks',
         'separate test worker completion and two real passed outcomes',
         'report filters preserve aggregate totals', 'downloaded JSON agrees with real outcomes',
         'explicit subset rerun queues without execution', 'cancelled rerun lineage and historical comparison',

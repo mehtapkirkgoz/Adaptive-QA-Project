@@ -1,6 +1,7 @@
 """Explicit path binding for title-independent checks on controlled documents."""
 
 from adaptive_qa.document_checks import DOCUMENT_CHECKS
+from adaptive_qa.form_checks import FORM_CHECKS
 
 LOCAL_ORIGIN = 'http://127.0.0.1:8000'
 
@@ -30,13 +31,14 @@ def controlled_start_path(settings):
 def serialize_target_binding(case_id, target_url):
     if target_url in (LOCAL_ORIGIN, LOCAL_ORIGIN+'/'):
         return {'target_binding': 'local_root'}
-    if case_id in DOCUMENT_CHECKS:
+    if case_id in DOCUMENT_CHECKS or case_id in FORM_CHECKS:
         try:
             path = controlled_start_path({'base_url': target_url, 'allowed_hosts': ['127.0.0.1']})
         except ValueError:
             pass
         else:
-            return {'target_binding': 'local_document', 'document_path': path}
+            return {'target_binding': 'local_document' if case_id in DOCUMENT_CHECKS else 'local_form',
+                    'document_path': path}
         if isinstance(target_url, str):
             from urllib.parse import urlsplit
             from adaptive_qa.discovery_target import configured_discovery
@@ -47,7 +49,8 @@ def serialize_target_binding(case_id, target_url):
                 pass
             else:
                 if profile == 'public_https':
-                    return {'target_binding': 'public_document', 'document_url': target_url}
+                    return {'target_binding': 'public_document' if case_id in DOCUMENT_CHECKS else 'public_form',
+                            'document_url': target_url}
     return {'target_binding': None}
 
 
@@ -61,12 +64,19 @@ def validate_runtime_binding(settings, case_id, decision):
         if (case_id in DOCUMENT_CHECKS and decision.get('target_binding') == 'public_document'
                 and decision.get('document_url') == project.base_url):
             return
+        if (case_id in FORM_CHECKS and decision.get('target_binding') == 'public_form'
+                and decision.get('document_url') == project.base_url):
+            return
         raise ValueError('Only an independently checked document bound to the saved HTTPS URL is supported.')
     path = controlled_start_path(settings)
     if path == '/' and decision.get('target_binding') == 'local_root':
         return
     if (path != '/' and case_id in DOCUMENT_CHECKS
             and decision.get('target_binding') == 'local_document'
+            and decision.get('document_path') == path):
+        return
+    if (path != '/' and case_id in FORM_CHECKS
+            and decision.get('target_binding') == 'local_form'
             and decision.get('document_path') == path):
         return
     raise ValueError('The selected case is not bound to the saved document.')

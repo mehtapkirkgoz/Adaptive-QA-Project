@@ -1,0 +1,15 @@
+{
+  "implementation_sha": "ea8bba2718813bb09ccb4142ca8ffbebb2c455fb",
+  "ci_run_id": 39940043476,
+  "ci_conclusion": "success",
+  "all_jobs_successful": 12,
+  "downloaded_artifact": {
+    "id": 12496156282,
+    "name": "ui-catalog-evidence",
+    "digest": "sha256:1eef81b9fe756186e1b43f8c3d4d1f7a6e2e0589309fe65bbb985c64e465e1e8"
+  },
+  "verified_form_scenarios": 16,
+  "network_requests": 0,
+  "input_click_submit_events": 0,
+  "scope": "Historical assertion foundation only; not acceptance of later form worker or admission changes."
+}

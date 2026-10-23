@@ -29,20 +29,29 @@ def _controls(page, keys, *, project_id, mappings):
     if mappings is not None and not isinstance(mappings, ProjectElementMappings):
         raise ValueError('Typed project mappings are required.')
     with ExitStack() as stack:
-        handles = []
-        for key in keys:
+        handles = {}
+        anchor = 'login.password' if 'login.password' in keys else keys[0]
+        order = (anchor,) + tuple(key for key in keys if key != anchor)
+        form = None
+        for key in order:
             mapping = FORM_DEFAULTS[key]
             if mappings is not None:
                 mapping = mappings.resolve(mapping, project_id=project_id)
-            bound = match_element(page, mapping)
+            bound = match_element(page, mapping, within_form=form)
             stack.callback(bound.close)
             if bound.result.status != MatchStatus.MATCHED:
                 raise ElementBindingError(bound.result)
-            handles.append(bound.handle)
+            handles[key] = bound.handle
+            if key == anchor:
+                form_handle = bound.handle.evaluate_handle('el => el.form')
+                stack.callback(form_handle.dispose)
+                form = form_handle.as_element()
+                assert form is not None, 'The bound input must belong to a connected form.'
+        ordered = [handles[key] for key in keys]
         # Avoid combining unrelated sign-up/login/search controls from distinct forms.
         assert page.evaluate('''elements => elements.every(el => el.isConnected && el.form) &&
-            elements.every(el => el.form === elements[0].form)''', handles), 'Controls must belong to one connected form.'
-        yield handles
+            elements.every(el => el.form === elements[0].form)''', ordered), 'Controls must belong to one connected form.'
+        yield ordered
 
 
 def check_login_form(page, *, project_id=None, mappings=None):

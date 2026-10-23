@@ -19,7 +19,8 @@ class DocumentTargetTests(unittest.TestCase):
                               ('DOC-001', dict(decision, decision='blocked'))):
             with self.subTest(case=case, changed=changed), self.assertRaises(ValueError):
                 validate_runtime_binding(settings, case, changed)
-        self.assertEqual(serialize_target_binding('LOGIN-001', settings['base_url']), {'target_binding': None})
+        self.assertEqual(serialize_target_binding('LOGIN-001', settings['base_url']),
+                         {'target_binding': 'local_form', 'document_path': '/information.html'})
 
     def test_controlled_start_path_cannot_change_origin_or_bypass_host_scope(self):
         for url in ('https://example.test/', 'http://127.0.0.1:8001/a',
@@ -64,3 +65,18 @@ class DocumentTargetTests(unittest.TestCase):
                 validate_runtime_binding(settings, case, changed)
         for url in ('https://127.0.0.1/', 'http://qa.example.test/', 'https://qa.example.test:8443/'):
             self.assertIsNone(serialize_target_binding('DOC-001', url)['target_binding'])
+
+    def test_read_only_forms_require_matching_case_family_and_exact_saved_document(self):
+        for url, binding_name in (('http://127.0.0.1:8000/account', 'local_form'),
+                                  ('https://qa.example.test/account', 'public_form')):
+            settings = {'base_url': url, 'allowed_hosts': ['127.0.0.1', 'qa.example.test'], 'allow_data_changes': False}
+            binding = serialize_target_binding('LOGIN-001', url)
+            self.assertEqual(binding['target_binding'], binding_name)
+            decision = dict(binding, decision='selected', test_type='ui')
+            validate_runtime_binding(settings, 'LOGIN-001', decision)
+            with self.assertRaises(ValueError):
+                validate_runtime_binding(settings, 'LOGIN-002', decision)
+            with self.assertRaises(ValueError):
+                validate_runtime_binding(dict(settings, base_url=url+'/other'), 'LOGIN-001', decision)
+            with self.assertRaises(ValueError):
+                validate_runtime_binding(settings, 'DOC-001', decision)

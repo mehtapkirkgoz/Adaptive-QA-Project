@@ -2,7 +2,9 @@
 
 An AI-assisted QA platform under development for website discovery and applicable UI, API, and database tests.
 
-**Sprint 10:** Technical acceptance is ready for owner review within the controlled local pilot scope. Organizations, scoped projects/discovery/UI runs, quotas, two-organization isolation and signed outbound agent execution passed all twelve CI jobs and 656 unit tests. Twelve downloaded artifact digests/head SHAs and 206 PNGs were verified. See [acceptance and limits](docs/SPRINT_10_ACCEPTANCE.md), [onboarding/support](docs/ONBOARDING_SUPPORT.md) and [synthetic findings](docs/PILOT_FINDINGS.md). The owner closed issue/milestone 11. [Post-sprint product work](docs/POST_SPRINT_REVIEW.md) is in progress. The public demo is unchanged; customer private-network deployment and public backend activation remain deferred.
+**Current local product work:** Configured HTTPS discovery and explicit execution support five independent document checks plus discovered read-only login/search form checks at the exact saved target. Form checks inspect controls without filling fields, signing in or submitting searches. Personal/shared scopes, process deadlines and evidence access remain enforced. Custom mapping configuration in the dashboard is unfinished; typed internal overrides are supported. See [form capabilities and limits](docs/CONFIGURED_FORMS.md) and [post-sprint review](docs/POST_SPRINT_REVIEW.md). The static Pages demo does not execute these checks.
+
+**Accepted Sprint 10 (controlled local pilot):** Organizations, scoped projects/discovery/UI runs, quotas, two-organization isolation and signed outbound agent execution passed all twelve CI jobs and 656 unit tests. Twelve downloaded artifact digests/head SHAs and 206 PNGs were verified. See [acceptance and limits](docs/SPRINT_10_ACCEPTANCE.md), [onboarding/support](docs/ONBOARDING_SUPPORT.md) and [synthetic findings](docs/PILOT_FINDINGS.md). The owner closed issue/milestone 11. [Post-sprint product work](docs/POST_SPRINT_REVIEW.md) is in progress. The public demo is unchanged; customer private-network deployment and public backend activation remain deferred.
 
 **Accepted Sprint 9:** The HTTPS interface demo is live on GitHub Pages; real automation runs in the guarded managed local runtime. Reviewed packages, backup/restoration, session revocation, bounded workers and actual binary rollback preserving current data passed exact-commit Linux/Windows CI: all twelve jobs and 588 unit tests. Twelve downloaded artifact digests/head SHAs were verified. See [acceptance and limits](docs/SPRINT_9_ACCEPTANCE.md), [evidence](docs/evidence/sprint9-acceptance.json) and [local commands](docs/LOCAL_RUNTIME.md). Public backend hosting and a custom domain remain deferred.
 
@@ -47,8 +49,8 @@ Sprints follow goals and acceptance criteria without a fixed two-week commitment
 | 6 | AI integration | Accepted; issue closed |
 | 7 | Web dashboard | Accepted; issue and milestone closed |
 | 8 | Reporting and catalog expansion | Accepted; issue and milestone closed |
-| 9 | Domain and deployment | Technical acceptance complete; owner review pending |
-| 10 | Customer management and pilot | Planned |
+| 9 | Domain and deployment | Accepted local runtime/demo scope; issue and milestone closed |
+| 10 | Customer management and pilot | Accepted controlled local pilot; issue and milestone closed |
 
 See [architecture](docs/ARCHITECTURE.md), [sprint plan](docs/SPRINT_PLAN.md), [Sprint 1](docs/SPRINT_1.md), [GitHub workflow](docs/GITHUB_WORKFLOW.md), and [security contract](docs/SECURITY_CONTRACT.md).
 

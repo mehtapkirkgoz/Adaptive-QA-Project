@@ -14,7 +14,8 @@ from adaptive_qa.execution_context import capture_execution_context
 from adaptive_qa.document_checks import DOCUMENT_CHECKS
 from adaptive_qa.document_target import controlled_start_path
 from adaptive_qa.discovery_target import configured_discovery
-from adaptive_qa.document_process import run_isolated_document_test
+from adaptive_qa.document_process import run_isolated_document_test, run_isolated_form_test
+from adaptive_qa.form_checks import FORM_CHECKS
 
 
 def process_run_once(queue):
@@ -31,9 +32,10 @@ def process_run_once(queue):
                     or monotonic() - started >= 120)
         try:
             # General document content is not yet fingerprinted for comparison.
-            context = None if any(case in DOCUMENT_CHECKS for case in work.case_ids) else capture_execution_context()
             profile, project = configured_discovery(work.configuration, project_id=work.project_id)
             document_path = controlled_start_path(work.configuration) if profile == 'controlled_local' else None
+            context = capture_execution_context() if (profile == 'controlled_local' and document_path == '/'
+                and not any(case in DOCUMENT_CHECKS for case in work.case_ids)) else None
             for case_id in work.case_ids:
                 if queue.cancellation_requested(work):
                     break
@@ -42,10 +44,13 @@ def process_run_once(queue):
                 definition = catalog.get(case_id)
                 if definition is None or definition.changes_data or case_id not in SMOKE_CHECKS:
                     raise ValueError('Unsupported runtime case.')
-                if document_path != '/' and case_id not in DOCUMENT_CHECKS:
-                    raise ValueError('Only independent document cases support this path.')
+                if document_path != '/' and case_id not in DOCUMENT_CHECKS and case_id not in FORM_CHECKS:
+                    raise ValueError('Only independent read-only cases support this path.')
                 deadline = min(30, 120 - (monotonic() - started))
-                if profile == 'public_https':
+                if case_id in FORM_CHECKS and (profile == 'public_https' or document_path != '/'):
+                    result = run_isolated_form_test(case_id, project, profile=profile, timeout_seconds=deadline,
+                        should_cancel=stop, evidence_directory=evidence_root)
+                elif profile == 'public_https':
                     result = run_isolated_document_test(case_id, project, timeout_seconds=deadline,
                         should_cancel=stop, evidence_directory=evidence_root)
                 else:

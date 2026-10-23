@@ -27,7 +27,7 @@ _VISIBLE = """el => el.isConnected && !el.closest('[hidden], [inert], [aria-hidd
     el.getClientRects().length > 0"""
 
 
-def match_element(page: Page, mapping: ElementMapping) -> BoundElement:
+def match_element(page: Page, mapping: ElementMapping, *, within_form: ElementHandle | None = None) -> BoundElement:
     """Bind one current visible DOM element; callers own total process deadlines.
 
     A static handle cannot silently retarget after DOM replacement. Matching does
@@ -35,6 +35,8 @@ def match_element(page: Page, mapping: ElementMapping) -> BoundElement:
     """
     if not isinstance(mapping, ElementMapping):
         raise ValueError('mapping must be an ElementMapping.')
+    if within_form is not None and not isinstance(within_form, ElementHandle):
+        raise ValueError('within_form must be a bound form element.')
     handles = []
     selected = None
     started = monotonic()
@@ -68,7 +70,8 @@ def match_element(page: Page, mapping: ElementMapping) -> BoundElement:
         for handle in handles:
             if monotonic() - started > 5:
                 return outcome(MatchStatus.ERROR, 0, 'Matching operation budget exceeded.')
-            if handle.is_visible() and handle.evaluate(_VISIBLE):
+            if (handle.is_visible() and handle.evaluate(_VISIBLE)
+                    and (within_form is None or handle.evaluate('(el, form) => form.isConnected && el.form === form', within_form))):
                 visible.append(handle)
         if not visible:
             return outcome(MatchStatus.MISSING, 0, 'No visible candidate matches the configured alternatives.')
