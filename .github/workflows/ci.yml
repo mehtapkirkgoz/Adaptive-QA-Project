@@ -302,6 +302,8 @@ jobs:
         run: python scripts/check_document_execution.py
       - name: Verify configuration-driven discovery and incomplete network coverage
         run: python scripts/check_configured_discovery.py
+      - name: Verify supervised configured document rules on owned fixtures
+        run: python scripts/check_configured_document.py
       - name: Verify reusable UI checks across fixture names
         run: python scripts/check_reusable_ui.py
       - name: Verify fixture cleanup and reverse-order independence

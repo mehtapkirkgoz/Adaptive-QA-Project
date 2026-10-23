@@ -39,8 +39,11 @@ This follow-up does not enable purchases, public backend hosting or customer tes
   - [x] Add typed public HTTPS/controlled-local discovery profiles and a shared
     supervised collector; verify static validation, mixed DNS refusal, cancellation
     and configured local starts without external traffic.
-  - [ ] Connect the public profile to authenticated dashboard admission/report scope.
-  - [ ] Validate a concrete owner-authorized external HTTPS target and exact-commit CI.
+  - [x] Connect the public profile to authenticated dashboard admission/report scope.
+  - [x] Validate bounded discovery on an owner-authorized demo HTTPS target; Core
+    checks for dashboard admission 1d202d0 passed (run 39938002105).
+  - [ ] Integrate configured document execution into reviewed dashboard bindings;
+    retain current external non-execution until that admission change is verified.
 - [ ] Address operator enrollment/agent startup and bounded unattended maintenance
   from PILOT_FINDINGS.md with separately verified increments.
   - [x] Add an explicit bounded maintenance-once operator command for expired
@@ -207,3 +210,33 @@ Exact-commit CI for this admission increment remains pending after push.
 Local regression: 681 tests completed (680 passed, one Windows permission skip).
 Personal/shared browser flows and the static demo check passed with zero external
 requests and no JavaScript errors.
+
+## Configured Document Worker Foundation
+
+The internal document_process worker accepts typed project configuration for the
+existing DOC-001–DOC-005 rules. It shares discovery profile validation and pinned
+egress, allows only GET/HEAD, blocks WebSockets/service workers/downloads and uses
+fresh contexts. It refuses non-HTML/non-200 responses, target-changing redirects
+and passing verdicts with policy-denied resources. Child configuration/output are
+bounded; timeout, cancellation and callback failure terminate the owned process
+tree. No dashboard public execution binding has been enabled by this increment.
+
+The configured local drill passed ten checks on two contrasting document paths,
+detected five distinct defects, rejected a redirect and incomplete resource
+coverage, and observed zero canary/write contacts. Five focused supervisor tests
+passed. These fixture variants do not add catalog cases.
+
+After explicit owner authorization, Books to Scrape (https://books.toscrape.com/)
+was used as a public sandbox. Discovery inspected five pages with 21 guarded
+requests, stopped at page_limit and retained a non-executing plan. A separate
+explicit DOC-001 run passed with one screenshot. This is a bounded public demo
+observation, not broad customer acceptance or proof of all five external rules.
+The earlier owner-supplied site produced no usable page; an additional bounded
+HEAD check returned HTTP 403 with no guard denial. No access control bypass or
+retry loop was attempted. Raw external reports/screenshots remain ignored local
+artifacts. Public dashboard activation and exact-commit CI for this new worker
+remain unfinished.
+
+Regression completed 686 tests (685 passed, one Windows permission skip). The
+17-case owned HTTP drill passed again after evidence-path validation was added.
+CI runs that drill on owned fixtures only, never against the public demo.

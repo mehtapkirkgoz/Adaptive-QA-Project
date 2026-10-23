@@ -1,7 +1,7 @@
 # Configuration-Driven Discovery Worker
 
 Status: Personal and organization dashboard admission is connected to the
-configuration-driven worker. No external site has been tested by this increment.
+configuration-driven worker. A subsequent owner-authorized demo observation is recorded below.
 
 `discover_configured_target(project, budget, profile='public_https')` accepts a
 typed ProjectConfig and CrawlBudget from trusted orchestration. It produces a
@@ -55,7 +55,25 @@ foreign-host snapshots are rejected and public cases have no execution binding.
 Actual browser checks queued and cancelled HTTPS jobs without dispatching them,
 then completed existing local fixture flows in both scopes.
 
-Next: validate an owner-authorized external HTTPS target before claiming real
-public-site acceptance. External test execution remains a separate unfinished step.
+Owner-authorized demo observation: https://books.toscrape.com/ yielded five
+inspected pages and 21 requests with page_limit, without executing the plan.
+This is a bounded demo observation, not general customer acceptance.
+External dashboard test execution remains a separate unfinished step.
 Public discovery does not by itself enable login, general UI execution, API or
 database contracts. Pages remains a static demo and no backend is hosted publicly.
+
+## Internal Document Execution
+
+run_isolated_document_test in document_process.py supports only the existing five
+independent document rules, with an existing private evidence directory and a
+finite deadline of at most 120 seconds (default 30). It validates the typed
+profile before starting a child, uses a bounded private input file, rechecks the
+configuration inside the child and validates result identity/evidence scope.
+The controlled-local fixture profile is explicit; it cannot widen public egress.
+Redirected/non-HTML documents and denied coverage yield errors, not passing
+verdicts. This internal API is not a dashboard execution authorization contract.
+
+Run owned-fixture acceptance with python scripts/check_configured_document.py.
+Public sites are never contacted by this script or by CI. A separate authorized
+DOC-001 observation on Books to Scrape passed with one screenshot; the remaining
+external rules and dashboard bindings are not claimed accepted.
