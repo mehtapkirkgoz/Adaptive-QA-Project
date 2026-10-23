@@ -99,3 +99,23 @@ Previous free-edition commit 6f10a1d passed Pages and eleven Core jobs; the UI
 catalog job failed because its new free-workspace check had no frontend build.
 This increment adds the locked Node install/build before that check and uploads
 its value-free report. Exact-commit CI is pending after push.
+
+## Local License Persistence Increment
+
+LicenseStore keeps one bounded signed document in a separate local SQLite file.
+Imports verify inside a write transaction; invalid imports leave the prior license
+intact. Each read verifies the signature and current validity again, so a cached
+startup decision cannot extend an expired license. Expired documents remain on
+disk for diagnosis/replacement and do not grant entitlements. Trusted public keys
+are supplied separately by the application composition and copied at construction;
+imported documents never establish issuer trust. No production key is shipped.
+
+Four persistence checks verify restart/expiry behavior, rejected replacement and
+local tampering, trust separation and eight concurrent imports yielding one whole
+signed record. The five verifier tests also passed. This is internal persistence,
+not yet an exposed import endpoint or paid-mode activation. Project/run admission
+and worker enforcement remain unfinished; existing free/account behavior is intact.
+
+Commit 3357c70 passed Core checks in run 40005490997, including the corrected
+free-interface build and execution step. Exact-commit CI for this persistence
+increment is pending after push.
