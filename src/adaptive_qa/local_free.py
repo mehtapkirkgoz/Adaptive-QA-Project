@@ -82,6 +82,9 @@ class LocalFreeProjects(ProjectStore):
 
 
 def create_free_app(database, *, port=8766, ui_directory=None):
+    license_path = Path(database).absolute().with_name('license.sqlite')
+    if license_path.exists() or license_path.is_symlink():
+        raise ValueError('This workspace contains licensing state; open it with the licensed local commands.')
     from adaptive_qa.web_app import create_app
     projects = LocalFreeProjects(database)
     return create_app(LocalFreeSessions(database), projects=projects, port=port, ui_directory=ui_directory)

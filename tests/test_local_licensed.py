@@ -135,3 +135,8 @@ class LocalLicensedTests(unittest.TestCase):
             self.assertEqual(client.post('/api/projects', json={'name':'Expired'}, headers=headers).status_code, 400)
             self.assertEqual(len(client.get('/api/projects').json()['projects']), 2)
             self.assertEqual(client.get('/api/local/license').json()['status'], 'invalid_or_expired')
+
+    def test_free_server_does_not_silently_open_a_licensed_workspace(self):
+        from adaptive_qa.local_free import create_free_app
+        with self.assertRaisesRegex(ValueError,'contains licensing state'):
+            create_free_app(self.database)

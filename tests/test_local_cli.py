@@ -77,3 +77,17 @@ class LocalCliTests(unittest.TestCase):
         self.assertEqual(serve.call_args.kwargs['host'],'127.0.0.1')
         self.assertEqual(serve.call_args.kwargs['workers'],1)
         with self.assertRaises(ValueError): self.invoke('serve','--administrator','missing@example.test')
+
+    def test_backup_and_restore_commands_do_not_require_trust_or_activate_runtime(self):
+        from adaptive_qa.local_free import create_free_app
+        workspace = self.root/'workspace'
+        create_free_app(workspace/'projects.sqlite')
+        snapshot,recovered = self.root/'snapshot',self.root/'recovered'
+        for command,extra in (('backup',[]),('restore',['--snapshot',str(snapshot)])):
+            destination = snapshot if command=='backup' else recovered
+            args = self.parser.parse_args(['local',command,'--workspace',str(workspace),
+                '--destination',str(destination),'--maintenance-confirmed',*extra])
+            out = io.StringIO()
+            with redirect_stdout(out): run(args)
+            self.assertFalse(json.loads(out.getvalue())['activation_enabled'])
+        self.assertTrue((recovered/'projects.sqlite').is_file())

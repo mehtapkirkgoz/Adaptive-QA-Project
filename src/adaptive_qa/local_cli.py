@@ -43,12 +43,17 @@ def load_trusted_keys(path):
 def configure_parser(subparsers):
     parser = subparsers.add_parser('local', help='Manage a single-device licensed workspace')
     commands = parser.add_subparsers(dest='local_command', required=True)
-    for name in ('create-admin', 'license-import', 'license-status', 'serve', 'discovery-once', 'run-once'):
+    for name in ('create-admin', 'license-import', 'license-status', 'serve', 'discovery-once', 'run-once', 'backup', 'restore'):
         command = commands.add_parser(name)
         command.add_argument('--workspace', type=Path, default=Path('artifacts/local-free'))
-        if name != 'create-admin':
+        if name not in ('create-admin', 'backup', 'restore'):
             command.add_argument('--trusted-keys', type=Path, required=True,
                 help='Publisher public-key JSON file; never an issuer private key')
+        if name in ('backup', 'restore'):
+            command.add_argument('--destination', type=Path, required=True)
+            command.add_argument('--maintenance-confirmed', action='store_true', help='Confirm local servers/workers are stopped')
+        if name == 'restore':
+            command.add_argument('--snapshot', type=Path, required=True)
         if name == 'license-import':
             command.add_argument('--license-file', type=Path, required=True)
         if name == 'serve':
@@ -59,6 +64,14 @@ def configure_parser(subparsers):
 
 def run(args):
     root = args.workspace.resolve()
+    if args.local_command in ('backup', 'restore'):
+        from adaptive_qa.local_backup import create_local_backup, restore_local_backup
+        if args.local_command == 'backup':
+            result = create_local_backup(root, args.destination.absolute(), maintenance_confirmed=args.maintenance_confirmed)
+        else:
+            result = restore_local_backup(args.snapshot.absolute(), args.destination.absolute(), maintenance_confirmed=args.maintenance_confirmed)
+        print(json.dumps(result))
+        return
     if args.local_command == 'create-admin':
         from adaptive_qa.dashboard_cli import run as dashboard_run
         dashboard_run(SimpleNamespace(dashboard_command='create-user', database=root/'auth.sqlite'))

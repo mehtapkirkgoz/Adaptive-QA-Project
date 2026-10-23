@@ -69,3 +69,30 @@ cancellation continue to govern active child processes. Targets, credentials,
 results and screenshots stay local. The licensed dashboard also supports signed-document import and status after
 password login. Packaged customer startup/backup/rollback verification remains
 unfinished.
+
+## Complete Offline Workspace Backup
+
+Stop every server and worker using this workspace, then explicitly confirm
+maintenance. Choose a fresh backup directory outside the workspace:
+
+```powershell
+python -m adaptive_qa local backup --workspace artifacts/local-free --destination C:/QA/backups/workspace-001 --maintenance-confirmed
+python -m adaptive_qa local restore --snapshot C:/QA/backups/workspace-001 --destination C:/QA/recovered/workspace-001 --maintenance-confirmed
+```
+
+The edition-aware snapshot always includes projects.sqlite and includes auth.sqlite
+and license.sqlite when present. Free mode does not gain an account database.
+Checksums and SQLite integrity are verified; concurrent writes or unexpected files
+reject the operation. Restoration publishes only a fresh directory and never
+overwrites the live workspace. It invalidates saved login sessions, cancels pending
+work/leases and preserves project IDs, results and the original signed license.
+Restore never extends validity: the original issuer trust and current clock are
+checked again when the licensed application accesses it.
+
+Snapshots contain private credentials/password hashes, targets and test evidence;
+keep them in customer-controlled protected storage. They are not encrypted by this
+command. Environment-variable secret values and publisher trust files are outside
+the databases; restore those separately through your existing local secret setup.
+Start the recovered directory explicitly with --workspace after reviewing it.
+No runtime starts or switches automatically. The older deployment backup command
+handles its legacy database pair and refuses licensed workspaces.

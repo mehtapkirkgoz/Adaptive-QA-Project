@@ -211,3 +211,30 @@ data selection refuses those workspaces because its worker composition does not
 enforce licensing. The dedicated local licensed commands remain available.
 Nineteen backup/runtime tests passed. A complete edition-aware backup/restore path
 is still required; refusing an incomplete old backup is not backup completion.
+
+## Edition-Aware Offline Backup and Recovery
+
+The local backup/restore commands snapshot the project database plus authentication
+and signed-license databases when present, using the SQLite backup API. Free-only
+workspaces remain account-free. Operations require explicit offline-maintenance
+confirmation, bounded regular files, integrity/checksum validation and a fresh
+publication directory. Concurrent writes/file-set changes reject publication.
+Snapshots do not contain issuer trust files or environment-variable secret values.
+
+Recovery never overwrites the live workspace or activates a runtime. It preserves
+project IDs/results/evidence and the raw signed document, invalidates sessions,
+cancels pending work/leases and revokes restored agent credentials. License checks
+remain external to recovery: current time and separately configured publisher keys
+are required again, so restoring does not renew a license. Snapshot contents are
+private and unencrypted; protect them with customer-controlled storage.
+
+Five recovery checks cover free/paid file sets, session/queue sanitization, original
+license expiry, tampering, existing destinations and writes during backup. CLI
+backup/restore also passed. Free server startup now refuses an existing licensing
+state file instead of silently reopening a licensed workspace without its policy.
+The dedicated licensed server still permits authenticated reads after expiry.
+
+Commit 25d64e4 passed both Core and Pages CI. General regression completed 730 tests (729 passed, one Windows permission
+skip). All 51 local-edition/runtime checks passed after final changes;
+exact-commit CI will follow push. Managed licensed binary switching
+and a complete packaged recovery/browser drill remain unfinished.

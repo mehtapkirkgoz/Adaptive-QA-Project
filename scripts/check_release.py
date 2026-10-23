@@ -100,6 +100,15 @@ except LicenseError:
 else:
     raise AssertionError('Installed release granted expired license access')
 assert len(paid.list(LOCAL_ACTOR)) == 2
+from adaptive_qa.local_free import create_free_app
+from adaptive_qa.local_backup import create_local_backup, restore_local_backup
+workspace = Path('edition-workspace').resolve()
+create_free_app(workspace/'projects.sqlite')
+LocalFreeProjects(workspace/'projects.sqlite').create(LOCAL_ACTOR,'Recovered free project')
+create_local_backup(workspace,Path('edition-backup').resolve(),maintenance_confirmed=True)
+restore_local_backup(Path('edition-backup').resolve(),Path('edition-recovered').resolve(),maintenance_confirmed=True)
+assert len(LocalFreeProjects(Path('edition-recovered/projects.sqlite')).list(LOCAL_ACTOR)) == 1
+assert not Path('edition-recovered/auth.sqlite').exists()
 from adaptive_qa.__main__ import main
 sys.argv = ['adaptive-qa', '--status']
 main()
