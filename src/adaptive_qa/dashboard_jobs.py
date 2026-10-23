@@ -7,7 +7,7 @@ from uuid import uuid4
 
 from adaptive_qa.project_store import ProjectStore, ProjectNotFound, _id
 from adaptive_qa.worker_lock import worker_lock
-from adaptive_qa.document_target import controlled_start_path
+from adaptive_qa.discovery_target import configured_discovery
 
 
 class DiscoveryJobNotFound(LookupError):
@@ -70,7 +70,7 @@ class DashboardDiscoveryQueue:
             if row['settings_json'] is None:
                 raise ValueError('Saved configuration is required.')
             settings = json.loads(row['settings_json'])
-            controlled_start_path(settings)
+            configured_discovery(settings, project_id=project_id)
             active = "status IN ('queued', 'running', 'cancel_requested')"
             count = connection.execute('SELECT count(*) FROM dashboard_discovery_jobs WHERE ' + active).fetchone()[0]
             if connection.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='dashboard_organization_discovery'").fetchone():

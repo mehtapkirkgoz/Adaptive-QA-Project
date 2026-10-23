@@ -187,4 +187,23 @@ target values in command arguments, and keeps the existing process deadline and
 pinned egress. Resource route denials now explicitly limit coverage, preventing
 false absence. Three configured fixture runs, the existing real document drill
 and 678 unit tests completed locally (677 passed, one Windows permission skip).
-The dashboard public profile and real external HTTPS acceptance remain pending.
+The following increment connects the dashboard public profile; real external
+HTTPS acceptance remains pending.
+
+## Authenticated HTTPS Discovery Admission
+
+Personal and organization settings now explain public HTTPS discovery capability.
+Saving and queuing never resolve DNS or execute tests. The separate bounded
+worker uses saved exact-host scope, pinned public egress and cancellation checks.
+Reports reject foreign snapshots and rebuild the non-executing 100-case plan;
+public targets have no runnable UI/API/database binding. Existing local document
+execution remains available. Both real dashboard browser checks queued/cancelled
+HTTPS jobs without dispatch or external requests, then passed local worker flows.
+The static Pages demo passed unchanged. Real external HTTPS acceptance awaits a
+concrete owner-authorized target; this increment does not claim that acceptance.
+Core checks for 99002c8 completed successfully (run 39935492689).
+Exact-commit CI for this admission increment remains pending after push.
+
+Local regression: 681 tests completed (680 passed, one Windows permission skip).
+Personal/shared browser flows and the static demo check passed with zero external
+requests and no JavaScript errors.

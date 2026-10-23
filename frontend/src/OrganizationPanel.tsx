@@ -3,12 +3,12 @@ import type {FormEvent} from 'react';
 import {DiscoveryPanel} from './DiscoveryPanel';
 import {OrganizationRunPanel} from './OrganizationRunPanel';
 import {OrganizationAccessPanel} from './OrganizationAccessPanel';
-import {ExecutionScope, supportsLocalDiscovery, matchesSavedTarget} from './ExecutionScope';
+import {ExecutionScope, supportsDiscovery, matchesSavedTarget} from './ExecutionScope';
 
 type Request = <T>(path: string, method?: string, body?: unknown) => Promise<T>;
 type Organization = {organization_id: string; name: string; role: string};
 type Project = {project_id: string; organization_id: string; name: string};
-type Settings = {configured: boolean; base_url?: string; allowed_hosts?: string[];
+type Settings = {discovery_support?: {supported: boolean; profile: string | null; execution_scope: string}; configured: boolean; base_url?: string; allowed_hosts?: string[];
   allow_data_changes?: boolean;
   available_secret_references: Record<string, string>;
   secret_references?: Record<string, {environment_variable: string; value: string}>};
@@ -117,7 +117,7 @@ function OrganizationWorkspace({request}: {request: Request}) {
       </fieldset><p className="hint">Saving does not visit the target or queue tests. Review current discovery before explicitly starting selected tests.</p></form>
         <ExecutionScope settings={settings}/>
         <DiscoveryPanel key={'shared-discovery:' + project.project_id + JSON.stringify(settings)} projectId={project.project_id}
-          basePath={`${path}/${project.project_id}`} configured={supportsLocalDiscovery(settings)}
+          basePath={`${path}/${project.project_id}`} configured={supportsDiscovery(settings)} publicTarget={settings.discovery_support?.profile === 'public_https'}
           canExecute={['owner', 'admin', 'member'].includes(selected.role)} request={request}
           onReport={(report, jobId) => {
             setPlanSummary(`Inspected pages: ${report.inspected_pages}. Catalog: ${report.counts.catalog}. Selected: ${report.counts.selected}. Execution authorized: No.`);

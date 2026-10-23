@@ -1,4 +1,9 @@
-type Settings = {configured: boolean; base_url?: string; allowed_hosts?: string[]};
+type Settings = {configured: boolean; base_url?: string; allowed_hosts?: string[];
+  discovery_support?: {supported: boolean; profile: string | null; execution_scope: string}};
+
+export function supportsDiscovery(settings: Settings) {
+  return settings.discovery_support?.supported ?? supportsLocalDiscovery(settings);
+}
 
 export function supportsLocalDiscovery(settings: Settings) {
   const origin = 'http://127.0.0.1:8000', url = settings.base_url ?? '';
@@ -18,14 +23,17 @@ export function matchesSavedTarget(settings: Settings, binding: {target_binding?
 export function ExecutionScope({settings}: {settings: Settings}) {
   return <section className="execution-scope" aria-label="Saved target execution support">
     <h3>Execution support</h3>
-    {!settings.configured ? <p>Save target settings to check available execution.</p> : supportsLocalDiscovery(settings)
+    {!settings.configured ? <p>Save target settings to check available execution.</p>
+      : settings.discovery_support?.profile === 'public_https'
+      ? <p>Read-only HTTPS discovery is available for this saved host scope. It does not sign in or submit forms.
+        External UI, API and database execution are not enabled by this profile.</p> : supportsLocalDiscovery(settings)
       ? <p>This saved target supports controlled local discovery. Non-root paths support the five
         independent document checks; other UI checks still require a compatible root binding.</p>
-      : <p>Execution is unavailable for this saved target. The current local worker supports only
-        canonical document paths at http://127.0.0.1:8000/ with 127.0.0.1 in allowed hosts. Other targets can be saved and their
-        configuration reviewed, but cannot be discovered or tested by this worker.</p>}
+      : <p>Execution is unavailable for this saved target. Supported discovery profiles are public HTTPS on port 443
+        with explicit allowed hosts, or canonical controlled documents at http://127.0.0.1:8000/.
+        Other targets can be saved and reviewed but cannot be discovered by this worker.</p>}
     <p className="hint">This describes saved settings. Unsaved edits are excluded. Supported targets still
-      require a running fixture, current access, available capacity and explicit test selection.
+      require current access and available capacity. Test execution requires separate supported bindings and explicit selection.
       API and database checks require separately supported bindings.</p>
   </section>;
 }

@@ -4,12 +4,12 @@ type Job = {job_id: string; status: string};
 type Report = {execution_authorized: false; inspected_pages: number; discovery_status: string;
   counts: {catalog: number; selected: number; skipped: number; blocked: number};
   cases: {case_id: string; name: string; test_type: string; decision: string; reason: string; target_binding?: string | null; document_path?: string | null; changes_data?: boolean}[]};
-type Props = {projectId: string; configured: boolean; basePath?: string; canExecute?: boolean;
+type Props = {projectId: string; configured: boolean; basePath?: string; canExecute?: boolean; publicTarget?: boolean;
   request: <T>(path: string, method?: string, body?: unknown) => Promise<T>;
   onReport: (report: Report, jobId: string) => void};
 const active = (job: Job) => ['queued', 'running', 'cancel_requested'].includes(job.status);
 
-export function DiscoveryPanel({projectId, configured, request, onReport, basePath, canExecute = true}: Props) {
+export function DiscoveryPanel({projectId, configured, request, onReport, basePath, canExecute = true, publicTarget = false}: Props) {
   const [jobs, setJobs] = useState<Job[]>([]), [error, setError] = useState(''), [busy, setBusy] = useState(false);
   const [historical, setHistorical] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -31,14 +31,14 @@ export function DiscoveryPanel({projectId, configured, request, onReport, basePa
   }, [base, polling]);
   async function action(task: () => Promise<void>) {
     setBusy(true); setError(''); setHistorical(false);
-    try {await task();} catch {setError('Discovery request failed. Save the controlled local target, check your session, or try again.');}
+    try {await task();} catch {setError('Discovery request failed. Review the saved target, your session and available capacity.');}
     finally {setBusy(false);}
   }
-  return <section className="plan-review" aria-label="Discovery jobs"><h3>Discover your local fixture</h3>
-    <p className="hint">Queue read-only discovery of the controlled local fixture. A separately running worker processes it. This does not run tests.</p>
+  return <section className="plan-review" aria-label="Discovery jobs"><h3>{publicTarget ? 'Discover your HTTPS site' : 'Discover your local fixture'}</h3>
+    <p className="hint">Queue read-only discovery within the saved host scope. A separate worker inspects at most five pages without submitting forms. This does not run tests.</p>
     <button disabled={!canExecute || !configured || loading || busy || polling} onClick={() => void action(async () => {
       const job = await request<Job>(base, 'POST', {}); setJobs(previous => [job, ...previous].slice(0, 20));
-    })}>Queue local discovery</button>
+    })}>{publicTarget ? 'Queue HTTPS discovery' : 'Queue local discovery'}</button>
     {error && <p role="alert" className="message error">{error}</p>}
     {historical && <p role="status">This report uses older target or policy settings. Queue new discovery before reviewing it as the current plan.</p>}
     {!jobs.length && <p className="hint">No discovery jobs yet.</p>}

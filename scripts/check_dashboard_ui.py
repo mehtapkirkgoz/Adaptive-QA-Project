@@ -71,11 +71,18 @@ def main(port=8765):
                     page.get_by_label('Project name', exact=True).fill('Storefront regression')
                     page.get_by_role('button', name='Rename', exact=True).click()
                     expect(page.get_by_role('status')).to_have_text('Project name saved.')
-                    page.get_by_label('Target URL').fill('https://example.test/')
+                    page.get_by_label('Target URL').fill('http://example.test/')
                     page.get_by_label('Allowed hosts').fill('example.test')
                     page.get_by_role('button', name='Save configuration', exact=True).click()
                     expect(page.get_by_label('Saved target execution support', exact=True)).to_contain_text('Execution is unavailable')
                     expect(page.get_by_role('button', name='Queue local discovery', exact=True)).to_be_disabled()
+                    page.get_by_label('Target URL', exact=True).fill('https://example.test/')
+                    page.get_by_role('button', name='Save configuration', exact=True).click()
+                    expect(page.get_by_label('Saved target execution support', exact=True)).to_contain_text('Read-only HTTPS discovery is available')
+                    page.get_by_role('button', name='Queue HTTPS discovery', exact=True).click()
+                    expect(page.get_by_text('queued', exact=True)).to_be_visible()
+                    page.get_by_role('button', name='Cancel discovery', exact=True).click()
+                    expect(page.get_by_text('cancelled', exact=True)).to_be_visible()
                     page.get_by_label('Target URL').fill('http://127.0.0.1:8000/')
                     page.get_by_label('Allowed hosts').fill('127.0.0.1')
                     page.get_by_label('login password', exact=True).check()
@@ -96,7 +103,7 @@ def main(port=8765):
                     discovery.get_by_role('button', name='Queue local discovery', exact=True).click()
                     expect(discovery.get_by_text('queued', exact=True)).to_be_visible()
                     discovery.get_by_role('button', name='Cancel discovery', exact=True).click()
-                    expect(discovery.get_by_text('cancelled', exact=True)).to_be_visible()
+                    expect(discovery.get_by_text('cancelled', exact=True)).to_have_count(2)
                     discovery.get_by_role('button', name='Queue local discovery', exact=True).click()
                     expect(discovery.get_by_text('queued', exact=True)).to_be_visible()
                     fixture = ThreadingHTTPServer(('127.0.0.1', 8000), partial(QuietHandler, directory=str(Path('samples/web').resolve())))
@@ -249,7 +256,7 @@ def main(port=8765):
         'invalid login', 'password cleared', 'login', 'owner-filtered list', 'create',
         'rename', 'save settings', 'reload persistence', 'masked reference',
         'conservative non-executing plan review', 'mobile width', 'logout persistence',
-        'queue and cancel discovery', 'separate real worker and polled completion',
+        'queue and cancel discovery', 'HTTPS admission cancelled without external dispatch', 'separate real worker and polled completion',
         'discovery-backed plan review', 'historical policy mismatch denied',
         'explicit two-case selection', 'queued test-run cancellation',
         'case names and search preserve hidden selections and enforce the ten-case limit',

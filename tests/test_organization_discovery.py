@@ -69,7 +69,7 @@ class OrganizationDiscoveryTests(unittest.TestCase):
 
     def test_arbitrary_targets_and_execution_authorized_reports_are_rejected(self):
         self.scoped.save_configuration(self.owner, self.org, self.project,
-                                      dict(self.settings, base_url='https://example.test/', allowed_hosts=['example.test']))
+                                      dict(self.settings, base_url='http://example.test/', allowed_hosts=['example.test']))
         with self.assertRaises(ValueError):
             self.submit()
         self.scoped.save_configuration(self.owner, self.org, self.project, self.settings)

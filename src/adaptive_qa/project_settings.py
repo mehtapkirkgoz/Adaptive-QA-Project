@@ -4,6 +4,7 @@ from urllib.parse import urlsplit
 
 from adaptive_qa.config import ProjectConfig, extract_hostname
 from adaptive_qa.secrets import SecretReference
+from adaptive_qa.discovery_target import discovery_support
 
 
 SECRET_SLOTS = ('login_username', 'login_password', 'api_token', 'database_path')
@@ -46,8 +47,9 @@ def validate_settings(project, data):
 def public_settings(project, data):
     available = {slot: reference_name(project.owner_id, project.project_id, slot) for slot in SECRET_SLOTS}
     if data is None:
-        return {'configured': False, 'available_secret_references': available}
+        return {'configured': False, 'available_secret_references': available, 'discovery_support': discovery_support(None)}
     return {'configured': True, 'base_url': data['base_url'],
+            'discovery_support': discovery_support(data),
             'allowed_hosts': data['allowed_hosts'], 'allow_data_changes': data['allow_data_changes'],
             'secret_references': {slot: {'environment_variable': name, 'value': '[REDACTED]'}
                                   for slot, name in data['secret_references'].items()},

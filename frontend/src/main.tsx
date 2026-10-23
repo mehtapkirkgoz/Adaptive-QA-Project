@@ -7,13 +7,13 @@ import {DiscoveryPanel} from './DiscoveryPanel';
 import {RunPanel} from './RunPanel';
 import {DemoWorkspace} from './DemoWorkspace';
 import {OrganizationPanel} from './OrganizationPanel';
-import {ExecutionScope, supportsLocalDiscovery, matchesSavedTarget} from './ExecutionScope';
+import {ExecutionScope, supportsDiscovery, matchesSavedTarget} from './ExecutionScope';
 
 type Project = {project_id: string; name: string};
 type Plan = {execution_authorized: false; inspected_pages: number; discovery_status: string; discovery_job_id?: string;
   counts: {catalog: number; selected: number; skipped: number; blocked: number};
   cases: {case_id: string; name: string; test_type: string; decision: string; reason: string; target_binding?: string | null; document_path?: string | null; changes_data?: boolean}[]};
-type Settings = {configured: boolean; base_url?: string; allowed_hosts?: string[];
+type Settings = {discovery_support?: {supported: boolean; profile: string | null; execution_scope: string}; configured: boolean; base_url?: string; allowed_hosts?: string[];
   allow_data_changes?: boolean; available_secret_references: Record<string, string>;
   secret_references?: Record<string, {environment_variable: string; value: string}>};
 class ApiError extends Error { constructor(public status: number, message: string) {super(message);} }
@@ -124,7 +124,7 @@ function App() {
                 <div className="save-bar"><p className="hint">Saving configuration does not start a test.</p><button className="primary" type="submit">{busy ? 'Saving…' : 'Save configuration'}</button></div>
               </fieldset></form>
               <ExecutionScope settings={settings}/>
-              <DiscoveryPanel key={'discovery:' + selected.project_id + JSON.stringify(settings)} projectId={selected.project_id} configured={supportsLocalDiscovery(settings)} request={api} onReport={(report, jobId) => setPlan({...report, discovery_job_id: jobId})}/>
+              <DiscoveryPanel key={'discovery:' + selected.project_id + JSON.stringify(settings)} projectId={selected.project_id} configured={supportsDiscovery(settings)} publicTarget={settings.discovery_support?.profile === 'public_https'} request={api} onReport={(report, jobId) => setPlan({...report, discovery_job_id: jobId})}/>
               <section className="plan-review"><h3>Test plan review</h3><p className="hint">Review the saved configuration. Unsaved edits are not included. Reviewing never starts tests or visits your target.</p>
                 <button disabled={busy || !settings.configured} onClick={() => void perform(async () => {
                   setPlan(null); setPlan(await api<Plan>(`/api/projects/${selected.project_id}/plan`));

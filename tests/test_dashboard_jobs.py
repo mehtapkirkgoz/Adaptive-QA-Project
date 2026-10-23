@@ -78,7 +78,7 @@ class DashboardJobsTests(unittest.TestCase):
         self.assertEqual({w.job_id for w in work}, {j['job_id'] for j in jobs})
 
     def test_only_controlled_origin_and_bounded_active_admission_are_accepted(self):
-        for url in ('https://example.test/', 'http://127.0.0.1:8001/login'):
+        for url in ('http://example.test/', 'http://127.0.0.1:8001/login'):
             hosts = ['example.test'] if 'example' in url else ['127.0.0.1']
             self.store.save_configuration(self.actor, self.project.project_id, dict(self.settings, base_url=url, allowed_hosts=hosts))
             with self.assertRaises(ValueError):

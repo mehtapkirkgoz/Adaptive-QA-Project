@@ -1,13 +1,13 @@
 # Configuration-Driven Discovery Worker
 
-Status: Internal worker foundation implemented; external profile is not yet
-connected to dashboard admission. No external site has been tested by this increment.
+Status: Personal and organization dashboard admission is connected to the
+configuration-driven worker. No external site has been tested by this increment.
 
 `discover_configured_target(project, budget, profile='public_https')` accepts a
 typed ProjectConfig and CrawlBudget from trusted orchestration. It produces a
 non-executing, inspected-pages-only plan; selected cases are not execution approval.
 The existing local sample wrapper uses the same child/supervisor with an explicit
-controlled_local profile, preserving current dashboard behavior.
+controlled_local profile, preserving existing local discovery and execution.
 
 ## Profiles and Bounds
 
@@ -47,8 +47,15 @@ DNS refusal are verified without external traffic. Real replacement-child tests
 verify cancellation and deadlines. Existing document/discovery flows regress
 against the shared collector. These are not a real public HTTPS acceptance run.
 
-Next: connect stored project configuration to authenticated admission and report
-validation for this profile, preserve personal/organization scopes, and validate
-an owner-authorized external HTTPS target before claiming dashboard readiness.
+Saved settings expose static discovery capability without DNS or network access.
+Authenticated personal/shared queues admit eligible HTTPS targets under existing
+roles, ownership, capacity and cancellation rules. The separate worker rechecks
+the stored scope and runtime destination guard. Reports are rebuilt server-side;
+foreign-host snapshots are rejected and public cases have no execution binding.
+Actual browser checks queued and cancelled HTTPS jobs without dispatching them,
+then completed existing local fixture flows in both scopes.
+
+Next: validate an owner-authorized external HTTPS target before claiming real
+public-site acceptance. External test execution remains a separate unfinished step.
 Public discovery does not by itself enable login, general UI execution, API or
 database contracts. Pages remains a static demo and no backend is hosted publicly.

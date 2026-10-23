@@ -5,16 +5,15 @@ import json
 
 from adaptive_qa.api_catalog import API_CASES
 from adaptive_qa.catalog import TEST_CASES
-from adaptive_qa.config import ProjectConfig
 from adaptive_qa.crawler import CrawlBudget, CrawlResult
 from adaptive_qa.database_catalog import DATABASE_CASES
 from adaptive_qa.dashboard_plan import serialize_plan
 from adaptive_qa.discovery import PageSnapshot, FormSnapshot, FieldSnapshot, LinkSnapshot, CommerceSnapshot
-from adaptive_qa.local_discovery import discover_local_sample
+from adaptive_qa.local_discovery import discover_local_sample, discover_configured_target
 from adaptive_qa.planning import build_test_plan
-from adaptive_qa.targets import validate_local_sample_target
 from adaptive_qa.worker_lock import worker_lock
 from adaptive_qa.document_target import controlled_start_path
+from adaptive_qa.discovery_target import configured_discovery, validate_discovery_url
 
 
 def configuration_fingerprint(configuration):
@@ -30,12 +29,10 @@ def _report(work, payload):
         raise ValueError('Discovery has no usable bounded evidence.')
     if len(limitations) > 20 or any(not isinstance(reason, str) or len(reason) > 100 for reason in limitations):
         raise ValueError('Invalid discovery limitations.')
-    config = ProjectConfig(work.project_id, 'Local discovery', work.configuration['base_url'],
-        tuple(work.configuration['allowed_hosts']), work.configuration['allow_data_changes'])
-    validate_local_sample_target(config.base_url, config)
+    profile, config = configured_discovery(work.configuration, project_id=work.project_id)
     snapshots = []
     for data in pages:
-        validate_local_sample_target(data['url'], config)
+        validate_discovery_url(data['url'], config, profile)
         forms = tuple(FormSnapshot(**{**form,
             'fields': tuple(FieldSnapshot(**item) for item in form['fields']),
             'buttons': tuple(form['buttons'])}) for form in data['forms'])
@@ -50,6 +47,7 @@ def _report(work, payload):
     report = serialize_plan(plan, definitions, work.project_id, discovery_status='completed',
                             inspected_pages=len(snapshots), configuration_source='job_snapshot')
     report['configuration_fingerprint'] = configuration_fingerprint(work.configuration)
+    report['discovery_profile'] = profile
     return report
 
 
@@ -61,10 +59,15 @@ def process_discovery_once(queue):
             return None
         try:
             # Recheck the trusted stored dispatch boundary before any process/target access.
-            path = controlled_start_path(work.configuration)
-            binding = {'start_path': path} if path != '/' else {}
-            payload = discover_local_sample(CrawlBudget(max_pages=5, timeout_seconds=30),
-                should_cancel=lambda: queue.cancellation_requested(work), **binding)
+            profile, config = configured_discovery(work.configuration, project_id=work.project_id)
+            cancellation = lambda: queue.cancellation_requested(work)
+            budget = CrawlBudget(max_pages=5, timeout_seconds=30)
+            if profile == 'controlled_local':
+                path = controlled_start_path(work.configuration)
+                binding = {'start_path': path} if path != '/' else {}
+                payload = discover_local_sample(budget, should_cancel=cancellation, **binding)
+            else:
+                payload = discover_configured_target(config, budget, profile=profile, should_cancel=cancellation)
             report = _report(work, payload)
         except Exception:
             status = queue.finish(work, failed=True)

@@ -9,7 +9,7 @@ from adaptive_qa.dashboard_jobs import DiscoveryJobNotFound
 from adaptive_qa.organization_policy import OrganizationAction as Action
 from adaptive_qa.project_store import ProjectActor, _id
 from adaptive_qa.worker_lock import worker_lock
-from adaptive_qa.document_target import controlled_start_path
+from adaptive_qa.discovery_target import configured_discovery
 
 
 @dataclass(frozen=True)
@@ -57,7 +57,7 @@ class OrganizationDiscoveryQueue:
             if row['settings_json'] is None:
                 raise ValueError('Saved configuration is required.')
             settings = json.loads(row['settings_json'])
-            controlled_start_path(settings)
+            configured_discovery(settings, project_id=project_id)
             active = "status IN ('queued', 'running', 'cancel_requested')"
             total = c.execute('SELECT count(*) FROM dashboard_organization_discovery WHERE '+active).fetchone()[0]
             # Include the personal discovery queue when it exists; never bypass its global limit.
