@@ -69,6 +69,37 @@ for factory, name in ((AuthStore, 'future-auth.sqlite'), (ProjectStore, 'future-
         pass
     else:
         raise AssertionError('Installed release did not reject a future schema')
+# Exercise the installed wheel away from checkout, with ephemeral signing keys only.
+import base64, time
+from dataclasses import asdict
+from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+from adaptive_qa.license_store import LicenseStore
+from adaptive_qa.licensing import LicenseClaims, LicenseError, license_message
+from adaptive_qa.local_free import LOCAL_ACTOR, LocalFreeProjects
+from adaptive_qa.local_licensed import LicensedLocalProjects
+from adaptive_qa.local_cli import configure_parser
+import argparse
+parser = argparse.ArgumentParser()
+configure_parser(parser.add_subparsers(dest='command'))
+assert parser.parse_args(['local','license-status','--trusted-keys','publisher.json']).local_command == 'license-status'
+private = Ed25519PrivateKey.generate()
+clock = [int(time.time())]
+licenses = LicenseStore(Path('license.sqlite'), {'ephemeral':private.public_key().public_bytes_raw()}, clock=lambda:clock[0])
+prior = LocalFreeProjects(Path('local-projects.sqlite')).create(LOCAL_ACTOR,'Preserved local project')
+payload = asdict(LicenseClaims('a'*32,'b'*32,clock[0]-1,clock[0]-1,clock[0]+100,2,1))
+signature = base64.urlsafe_b64encode(private.sign(license_message('ephemeral',payload))).rstrip(b'=').decode()
+licenses.install(json.dumps(dict(key_id='ephemeral',payload=payload,signature=signature)).encode())
+paid = LicensedLocalProjects(Path('local-projects.sqlite'),licenses)
+assert paid.get(LOCAL_ACTOR,prior.project_id) == prior
+paid.create(LOCAL_ACTOR,'Second local project')
+clock[0] += 100
+try:
+    paid.create(LOCAL_ACTOR,'Expired')
+except LicenseError:
+    pass
+else:
+    raise AssertionError('Installed release granted expired license access')
+assert len(paid.list(LOCAL_ACTOR)) == 2
 from adaptive_qa.__main__ import main
 sys.argv = ['adaptive-qa', '--status']
 main()

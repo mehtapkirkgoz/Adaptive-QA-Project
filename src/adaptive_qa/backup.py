@@ -19,6 +19,8 @@ def create_backup(plan, *, maintenance_confirmed=False):
     directory = plan.directory
     if directory.resolve() != directory:
         raise ValueError('Environment storage was redirected.')
+    if (directory / 'license.sqlite').exists() or (directory / 'license.sqlite').is_symlink():
+        raise ValueError('Legacy pair backups cannot preserve a licensed workspace; use a complete offline workspace backup.')
     sources = [directory / name for name in ('auth.sqlite', 'projects.sqlite')]
     for path in sources:
         if (path.resolve() != path or not path.is_file() or path.stat().st_nlink != 1):

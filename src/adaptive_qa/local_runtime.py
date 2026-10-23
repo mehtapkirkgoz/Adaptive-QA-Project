@@ -158,6 +158,8 @@ def _data(plan, recovery_id=None):
             raise ValueError('Recovery safety metadata does not match the local environment.')
     if directory.resolve() != directory:
         raise ValueError('Runtime data was redirected.')
+    if (directory / 'license.sqlite').exists() or (directory / 'license.sqlite').is_symlink():
+        raise ValueError('Managed legacy runtime cannot enforce local licensing; use the licensed local commands.')
     for name in ('auth.sqlite', 'projects.sqlite'):
         path = directory / name
         if (path.resolve() != path or not path.is_file() or path.stat().st_nlink != 1

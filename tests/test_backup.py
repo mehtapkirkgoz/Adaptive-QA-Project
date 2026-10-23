@@ -24,6 +24,12 @@ class EnvironmentBackupTests(unittest.TestCase):
                 connection.execute('INSERT INTO sample VALUES (?)', ('private fixture',))
                 connection.commit()
 
+    def test_licensed_workspace_cannot_silently_lose_license_in_pair_backup(self):
+        (self.plan.directory/'license.sqlite').write_bytes(b'licensed marker')
+        with self.assertRaisesRegex(ValueError, 'Legacy pair backups'):
+            create_backup(self.plan, maintenance_confirmed=True)
+        self.assertFalse((self.plan.directory/'backups').exists())
+
     def test_bundle_checksums_integrity_and_original_records_are_preserved(self):
         result = create_backup(self.plan, maintenance_confirmed=True)
         bundle = self.plan.directory / 'backups' / result['bundle_id']

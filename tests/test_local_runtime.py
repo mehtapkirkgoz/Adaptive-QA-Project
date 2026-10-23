@@ -36,6 +36,12 @@ class LocalRuntimeTests(unittest.TestCase):
             (self.candidate / name).write_text('fixture', encoding='utf-8')
         self.manifest()
 
+    def test_licensed_workspace_refuses_legacy_runtime_data_selection(self):
+        from adaptive_qa.local_runtime import _data
+        (self.plan.directory/'license.sqlite').write_bytes(b'licensed marker')
+        with self.assertRaisesRegex(ValueError, 'cannot enforce local licensing'):
+            _data(self.plan)
+
     def manifest(self):
         files = [{'name': path.name, 'bytes': path.stat().st_size,
                   'sha256': hashlib.sha256(path.read_bytes()).hexdigest()}

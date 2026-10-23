@@ -190,3 +190,24 @@ focused free/licensed HTTP tests passed, including unauthenticated/CSRF/foreign
 Origin rejection, exact expiry and license routes absent in free mode. The new
 browser check runs in CI and uploads a value-free report. Customer packaging and
 licensed execution acceptance remain open; exact-commit CI is pending after push.
+
+## Packaged Foundation and Licensed Execution Proof
+
+The release verifier now installs the committed wheel outside the checkout and
+checks local command parsing, ephemeral signed-license validation, preserved free
+project ownership, multi-project access and expired-license rejection without data
+deletion. This extended check passed against committed release 25d64e4; the bundle
+stayed inactive and retained the 100-case catalog. CI repeats it for the next exact
+commit. This is not an installer or complete customer binary rollback acceptance.
+
+The licensed browser check now also saves a controlled loopback target, queues
+discovery and executes LOGIN-001 through separate actual local CLI worker
+processes. The result passed and the authenticated reload retained the license.
+The browser observed no external requests or page errors.
+
+Two compatibility guards prevent silent loss/bypass: the old auth/project-pair
+backup refuses workspaces containing license.sqlite, and managed legacy runtime
+data selection refuses those workspaces because its worker composition does not
+enforce licensing. The dedicated local licensed commands remain available.
+Nineteen backup/runtime tests passed. A complete edition-aware backup/restore path
+is still required; refusing an incomplete old backup is not backup completion.
