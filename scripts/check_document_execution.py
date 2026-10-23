@@ -42,6 +42,10 @@ def main():
             contacts['writes'] += 1
             self.send_response(405); self.end_headers()
         def do_GET(self):
+            if self.server.server_port == 8000 and self.path == '/redirect.html':
+                self.send_response(302)
+                self.send_header('Location', '/information.html')
+                self.end_headers(); return
             if self.server.server_port == 8001:
                 contacts['canary'] += 1
                 self.send_response(404); self.end_headers(); return
@@ -73,9 +77,11 @@ def main():
                 assert len(result.evidence_paths) == 1
                 validate_png(Path(result.evidence_paths[0]).read_bytes())
                 results.append({'fixture': 'negative', 'case_id': case, 'status': result.status.value})
+            redirected = run_isolated_sample_test('DOC-001', document_path='/redirect.html', evidence_directory=root)
+            assert redirected.status.value == 'error', 'A redirected document must not silently replace the bound target.'
             projects = ProjectStore(root/'projects.sqlite')
             actor = ProjectActor('a'*32)
-            settings = {'base_url': 'http://127.0.0.1:8000/', 'allowed_hosts': ['127.0.0.1'],
+            settings = {'base_url': 'http://127.0.0.1:8000/information.html', 'allowed_hosts': ['127.0.0.1'],
                         'allow_data_changes': False, 'secret_references': {}}
             project = projects.create(actor, 'Independent document')
             projects.save_configuration(actor, project.project_id, settings)
@@ -94,7 +100,7 @@ def main():
             organization = organizations.create(actor, 'Document team')
             scoped = OrganizationProjects(organizations)
             shared = scoped.create(actor, organization, 'Independent shared document')['project_id']
-            scoped.save_configuration(actor, organization, shared, settings)
+            scoped.save_configuration(actor, organization, shared, dict(settings, base_url='http://127.0.0.1:8000/account.html'))
             shared_discovery = OrganizationDiscoveryQueue(scoped)
             shared_job = shared_discovery.submit(actor, organization, shared)
             assert process_discovery_once(shared_discovery)['status'] == 'completed'
@@ -116,6 +122,8 @@ def main():
               'forbidden_canary_contacts': contacts['canary'], 'write_requests_received': contacts['writes'],
               'discovery_backed_personal_cases_passed': 5, 'discovery_backed_shared_cases_passed': 5,
               'scoped_persisted_pngs': 10, 'shared_active_capacity_released': True,
+              'non_root_discovery_and_exact_binding_verified': True,
+              'redirected_document_binding_rejected': True,
               'public_target_execution_enabled': False, 'results': results}
     output = Path('artifacts/matching/document-execution.json')
     output.parent.mkdir(parents=True, exist_ok=True)

@@ -77,8 +77,8 @@ class DashboardJobsTests(unittest.TestCase):
             work = list(executor.map(lambda _: self.queue.claim_next(), range(4)))
         self.assertEqual({w.job_id for w in work}, {j['job_id'] for j in jobs})
 
-    def test_only_root_fixture_and_bounded_active_admission_are_accepted(self):
-        for url in ('https://example.test/', 'http://127.0.0.1:8000/login'):
+    def test_only_controlled_origin_and_bounded_active_admission_are_accepted(self):
+        for url in ('https://example.test/', 'http://127.0.0.1:8001/login'):
             hosts = ['example.test'] if 'example' in url else ['127.0.0.1']
             self.store.save_configuration(self.actor, self.project.project_id, dict(self.settings, base_url=url, allowed_hosts=hosts))
             with self.assertRaises(ValueError):
@@ -89,6 +89,13 @@ class DashboardJobsTests(unittest.TestCase):
             self.submit()
         self.queue.cancel(self.actor, self.project.project_id, jobs[0]['job_id'])
         self.assertEqual(self.submit()['status'], 'queued')
+
+    def test_canonical_document_path_is_frozen_without_execution(self):
+        settings = dict(self.settings, base_url='http://127.0.0.1:8000/information.html')
+        self.store.save_configuration(self.actor, self.project.project_id, settings)
+        job = self.submit()
+        self.assertEqual(job['status'], 'queued')
+        self.assertEqual(self.queue.claim_next().configuration['base_url'], settings['base_url'])
 
     def test_recovery_marks_interrupted_work_without_replaying_or_resurrecting_claims(self):
         running = self.submit()

@@ -3,7 +3,7 @@ import {useEffect, useState} from 'react';
 type Job = {job_id: string; status: string};
 type Report = {execution_authorized: false; inspected_pages: number; discovery_status: string;
   counts: {catalog: number; selected: number; skipped: number; blocked: number};
-  cases: {case_id: string; name: string; test_type: string; decision: string; reason: string; target_binding?: string | null; changes_data?: boolean}[]};
+  cases: {case_id: string; name: string; test_type: string; decision: string; reason: string; target_binding?: string | null; document_path?: string | null; changes_data?: boolean}[]};
 type Props = {projectId: string; configured: boolean; basePath?: string; canExecute?: boolean;
   request: <T>(path: string, method?: string, body?: unknown) => Promise<T>;
   onReport: (report: Report, jobId: string) => void};

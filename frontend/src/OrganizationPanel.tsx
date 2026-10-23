@@ -3,7 +3,7 @@ import type {FormEvent} from 'react';
 import {DiscoveryPanel} from './DiscoveryPanel';
 import {OrganizationRunPanel} from './OrganizationRunPanel';
 import {OrganizationAccessPanel} from './OrganizationAccessPanel';
-import {ExecutionScope, supportsLocalDiscovery} from './ExecutionScope';
+import {ExecutionScope, supportsLocalDiscovery, matchesSavedTarget} from './ExecutionScope';
 
 type Request = <T>(path: string, method?: string, body?: unknown) => Promise<T>;
 type Organization = {organization_id: string; name: string; role: string};
@@ -122,7 +122,7 @@ function OrganizationWorkspace({request}: {request: Request}) {
           onReport={(report, jobId) => {
             setPlanSummary(`Inspected pages: ${report.inspected_pages}. Catalog: ${report.counts.catalog}. Selected: ${report.counts.selected}. Execution authorized: No.`);
             setRunPlan({jobId, names: Object.fromEntries(report.cases.map(item => [item.case_id, item.name])), candidates: report.cases.filter(item => item.decision === 'selected' && item.test_type === 'ui'
-              && item.target_binding === 'local_root' && item.changes_data === false).map(item => item.case_id)});
+              && matchesSavedTarget(settings, item) && item.changes_data === false).map(item => item.case_id)});
           }}/>
         {planSummary && <p role="status">{planSummary}</p>}
         <OrganizationRunPanel key={'shared-runs:' + project.project_id + JSON.stringify(settings)} base={`${path}/${project.project_id}`}

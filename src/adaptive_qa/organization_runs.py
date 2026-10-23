@@ -15,6 +15,7 @@ from adaptive_qa.organization_policy import OrganizationAction as Action
 from adaptive_qa.project_store import ProjectActor, _id
 from adaptive_qa.smoke_checks import SMOKE_CHECKS
 from adaptive_qa.worker_lock import worker_lock
+from adaptive_qa.document_target import controlled_start_path, validate_runtime_binding
 
 
 class OrganizationRunQueue:
@@ -75,9 +76,8 @@ class OrganizationRunQueue:
             saved = json.loads(project['settings_json'])
             snapshot = {key: saved[key] for key in ('base_url', 'allowed_hosts', 'allow_data_changes')}
             report = json.loads(job['report_json'])
-            if (snapshot['base_url'] not in ('http://127.0.0.1:8000', 'http://127.0.0.1:8000/')
-                    or '127.0.0.1' not in snapshot['allowed_hosts']
-                    or report.get('execution_authorized') is not False or report.get('project_id') != project_id
+            controlled_start_path(snapshot)
+            if (report.get('execution_authorized') is not False or report.get('project_id') != project_id
                     or report.get('discovery_status') != 'completed' or type(report.get('inspected_pages')) is not int
                     or report['inspected_pages'] < 1
                     or report.get('configuration_fingerprint') != configuration_fingerprint(snapshot)):
@@ -88,8 +88,9 @@ class OrganizationRunQueue:
                 definition, decision = catalog.get(case), decisions.get(case)
                 if (definition is None or definition.changes_data or case not in SMOKE_CHECKS
                         or decision is None or decision.get('decision') != 'selected'
-                        or decision.get('test_type') != 'ui' or decision.get('target_binding') != 'local_root'):
-                    raise ValueError('A selected read-only UI case bound to the local root is required.')
+                        or decision.get('test_type') != 'ui'):
+                    raise ValueError('A selected read-only UI case bound to the saved local target is required.')
+                validate_runtime_binding(snapshot, case, decision)
             active = "status IN ('queued','running','cancel_requested')"
             total = c.execute('SELECT count(*) FROM dashboard_organization_runs WHERE '+active).fetchone()[0]
             owned = c.execute('SELECT count(*) FROM dashboard_organization_runs WHERE '+active+' AND user_id=?', (actor.user_id,)).fetchone()[0]

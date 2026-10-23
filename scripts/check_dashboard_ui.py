@@ -199,6 +199,33 @@ def main(port=8765):
                     page.get_by_role('button', name='Review discovery plan', exact=True).click()
                     expect(page.get_by_text('This report uses older target or policy settings.', exact=False)).to_be_visible()
                     expect(page.get_by_label('Plan review results')).to_have_count(0)
+                    page.get_by_label('Target URL').fill('http://127.0.0.1:8000/variants/english.html')
+                    page.get_by_role('button', name='Save configuration', exact=True).click()
+                    expect(page.get_by_label('Saved target execution support', exact=True)).to_contain_text('five independent document checks')
+                    discovery.get_by_role('button', name='Queue local discovery', exact=True).click()
+                    expect(discovery.get_by_text('queued', exact=True)).to_be_visible()
+                    worker = subprocess.Popen([sys.executable, '-m', 'adaptive_qa', 'dashboard',
+                        'discovery-once', '--database', str(projects.database)],
+                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, **options)
+                    expect(discovery.get_by_text('completed', exact=True)).to_have_count(2, timeout=45000)
+                    worker.wait(timeout=5)
+                    assert worker.returncode == 0
+                    discovery.get_by_role('button', name='Review discovery plan', exact=True).first.click()
+                    choices = runs.get_by_role('group', name='Eligible tests', exact=True)
+                    expect(choices.get_by_role('checkbox')).to_have_count(5)
+                    expect(choices.get_by_label('Select LOGIN-001', exact=True)).to_have_count(0)
+                    choices.get_by_label('Select DOC-001', exact=True).check()
+                    runs.get_by_role('button', name='Start selected tests', exact=True).click()
+                    document_run = runs.locator('article.run-card').first
+                    expect(document_run).to_contain_text('Run queued')
+                    worker = subprocess.Popen([sys.executable, '-m', 'adaptive_qa', 'dashboard',
+                        'run-once', '--database', str(projects.database)],
+                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, **options)
+                    expect(document_run).to_contain_text('Run completed', timeout=45000)
+                    worker.wait(timeout=5)
+                    assert worker.returncode == 0
+                    expect(document_run.locator('.run-outcome')).to_contain_text('DOC-001')
+                    expect(document_run.locator('.run-outcome')).to_contain_text('passed')
                     page.get_by_role('button', name='Sign out', exact=True).click()
                     expect(page.get_by_role('heading', name='Sign in', exact=True)).to_be_visible()
                     page.reload()
@@ -226,6 +253,7 @@ def main(port=8765):
         'discovery-backed plan review', 'historical policy mismatch denied',
         'explicit two-case selection', 'queued test-run cancellation',
         'case names and search preserve hidden selections and enforce the ten-case limit',
+        'non-root saved URL discovery exposes only five correctly bound document cases and executes one',
         'separate test worker completion and two real passed outcomes',
         'report filters preserve aggregate totals', 'downloaded JSON agrees with real outcomes',
         'explicit subset rerun queues without execution', 'cancelled rerun lineage and historical comparison',

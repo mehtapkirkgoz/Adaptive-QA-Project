@@ -87,8 +87,6 @@ Stopped/deadline exits return code 2; successful single-job completion returns 0
 This is bounded local supervision, not an unattended production daemon, container
 sandbox or OS memory/CPU quota implementation.
 
-## Restored Data and Binary Rollback
-
 ## Supervised Maintenance Batch
 
 After selecting a reviewed release that contains the maintenance module, run:

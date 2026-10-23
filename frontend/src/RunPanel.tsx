@@ -35,7 +35,7 @@ export function RunPanel({projectId, discoveryJobId, candidates, candidateNames,
     finally {setBusy(false);}
   }
   return <section className="plan-review" aria-label="Test runs"><h3>Run selected UI tests</h3>
-    <p className="hint">Only selected read-only tests bound to this local root are eligible. Choose up to ten. Starting creates a queued run for the separate test worker.</p>
+    <p className="hint">Only selected read-only tests bound to this saved local target are eligible. Choose up to ten. Starting creates a queued run for the separate test worker.</p>
     {!discoveryJobId && <p className="hint">Review a completed current discovery plan to choose tests.</p>}
     {!!discoveryJobId && <CaseSelector key={discoveryJobId + candidateKey} candidates={candidates} names={candidateNames}
       selection={selection} disabled={busy} labelPrefix="Select" onChange={setSelection}/>}

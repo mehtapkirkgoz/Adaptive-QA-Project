@@ -14,6 +14,7 @@ from adaptive_qa.local_discovery import discover_local_sample
 from adaptive_qa.planning import build_test_plan
 from adaptive_qa.targets import validate_local_sample_target
 from adaptive_qa.worker_lock import worker_lock
+from adaptive_qa.document_target import controlled_start_path
 
 
 def configuration_fingerprint(configuration):
@@ -60,10 +61,10 @@ def process_discovery_once(queue):
             return None
         try:
             # Recheck the trusted stored dispatch boundary before any process/target access.
-            if work.configuration['base_url'] not in ('http://127.0.0.1:8000', 'http://127.0.0.1:8000/'):
-                raise ValueError('Unsupported fixture.')
+            path = controlled_start_path(work.configuration)
+            binding = {'start_path': path} if path != '/' else {}
             payload = discover_local_sample(CrawlBudget(max_pages=5, timeout_seconds=30),
-                should_cancel=lambda: queue.cancellation_requested(work))
+                should_cancel=lambda: queue.cancellation_requested(work), **binding)
             report = _report(work, payload)
         except Exception:
             status = queue.finish(work, failed=True)

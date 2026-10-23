@@ -7,12 +7,12 @@ import {DiscoveryPanel} from './DiscoveryPanel';
 import {RunPanel} from './RunPanel';
 import {DemoWorkspace} from './DemoWorkspace';
 import {OrganizationPanel} from './OrganizationPanel';
-import {ExecutionScope, supportsLocalDiscovery} from './ExecutionScope';
+import {ExecutionScope, supportsLocalDiscovery, matchesSavedTarget} from './ExecutionScope';
 
 type Project = {project_id: string; name: string};
 type Plan = {execution_authorized: false; inspected_pages: number; discovery_status: string; discovery_job_id?: string;
   counts: {catalog: number; selected: number; skipped: number; blocked: number};
-  cases: {case_id: string; name: string; test_type: string; decision: string; reason: string; target_binding?: string | null; changes_data?: boolean}[]};
+  cases: {case_id: string; name: string; test_type: string; decision: string; reason: string; target_binding?: string | null; document_path?: string | null; changes_data?: boolean}[]};
 type Settings = {configured: boolean; base_url?: string; allowed_hosts?: string[];
   allow_data_changes?: boolean; available_secret_references: Record<string, string>;
   secret_references?: Record<string, {environment_variable: string; value: string}>};
@@ -137,7 +137,7 @@ function App() {
                 </div>}
               </section><RunPanel key={'runs:' + selected.project_id + JSON.stringify(settings)} projectId={selected.project_id} discoveryJobId={plan?.discovery_job_id}
                 candidateNames={Object.fromEntries(plan?.cases.map(item => [item.case_id, item.name]) ?? [])}
-                candidates={plan?.cases.filter(item => item.decision === 'selected' && item.test_type === 'ui' && item.target_binding === 'local_root' && item.changes_data === false).map(item => item.case_id) ?? []} request={api}/></>}
+                candidates={plan?.cases.filter(item => item.decision === 'selected' && item.test_type === 'ui' && matchesSavedTarget(settings, item) && item.changes_data === false).map(item => item.case_id) ?? []} request={api}/></>}
             </section></div><div className="roadmap"><span className="dot"/><p>Local discovery, explicit UI runs and owner-authorized screenshots are available.</p></div></>}
       </main><footer>ADAPTIVE QA <span>Controlled scope. Clear evidence.</span></footer>
     </div></div>;

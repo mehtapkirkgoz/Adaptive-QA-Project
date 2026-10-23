@@ -6,6 +6,7 @@ from adaptive_qa.config import ProjectConfig
 from adaptive_qa.crawler import CrawlResult
 from adaptive_qa.database_catalog import DATABASE_CASES
 from adaptive_qa.planning import build_test_plan
+from adaptive_qa.document_target import serialize_target_binding
 
 
 class ConfigurationRequired(ValueError):
@@ -38,6 +39,5 @@ def serialize_plan(plan, definitions, project_id, *, discovery_status='not_run',
             'cases': [{'case_id': item.case_id, 'name': by_id[item.case_id].name,
                        'test_type': by_id[item.case_id].test_type, 'decision': item.decision,
                        'reason': item.reason, 'changes_data': by_id[item.case_id].changes_data,
-                       'target_binding': 'local_root' if item.target_url in
-                           ('http://127.0.0.1:8000', 'http://127.0.0.1:8000/') else None}
+                       **serialize_target_binding(item.case_id, item.target_url)}
                       for item in plan.cases]}

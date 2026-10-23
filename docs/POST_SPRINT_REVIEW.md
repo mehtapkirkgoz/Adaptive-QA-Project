@@ -25,16 +25,21 @@ This follow-up does not enable purchases, public backend hosting or customer tes
     for those bound cases, retaining pinned egress and process deadlines.
   - [x] Verify three contrasting HTTP documents and five real negative defects
     through separate child processes, including denied write/canary requests.
-  - [ ] Integrate reviewed discovered document bindings into admission/planning
+  - [x] Integrate reviewed discovered local document bindings into admission/planning
     before widening dashboard execution scope.
     - [x] Route already-admitted root document cases through the independent
       executor in the common personal/shared worker; retain current admission.
-    - [ ] Review non-root discovered paths and target-specific context binding
-      before exposing additional target scopes through the dashboard.
+    - [x] Bind non-root cases to the exact saved/discovered canonical local path;
+      keep cross-document execution context unknown rather than infer comparability.
+    - [ ] Add actual page-content context binding before comparing general document runs.
+- [ ] Implement a configuration-driven public-target discovery/execution profile
+  with existing public-address validation, pinned egress and process deadlines.
+  External validation still requires an owner-authorized target; no external site
+  has been contacted by these local fixture checks.
 - [ ] Address operator enrollment/agent startup and bounded unattended maintenance
   from PILOT_FINDINGS.md with separately verified increments.
   - [x] Add an explicit bounded maintenance-once operator command for expired
-    agent leases and personal/shared evidence pruning; automatic supervision is pending.
+    agent leases and personal/shared evidence pruning.
   - [x] Add a managed maintenance-once role with 30-second default/60-second
     maximum process deadline, component leases and selected-wheel execution.
   - [ ] Add and review unattended scheduling/lifecycle separately; no system
@@ -138,3 +143,33 @@ selected wheel and was refused for the historical wheel lacking the module.
 Both component leases released, source database bytes/backup remained intact and
 ordinary discovery/UI execution still passed. CI will repeat this with the exact
 combined commit on Linux/Windows; it remains pending until that run completes.
+
+## Saved Non-Root Document Targets
+
+The local profile now accepts canonical paths on the same fixed fixture origin,
+not only its root. The discovery child receives the validated start path and
+retains the same crawl/request/process budgets and read-only pinned egress.
+Plans expose local_document bindings only for DOC-001–DOC-005. Personal/shared
+admission rechecks that each binding exactly equals the saved configuration path.
+It rejects another inspected route, a forged root binding or a login/form case
+on a non-root document. No new schema or client-supplied execution path is used:
+the admitted configuration snapshot remains the worker's target authority.
+
+The worker also refuses a final navigation URL that differs from the bound
+document. A same-origin redirect therefore produces an execution error rather
+than a false pass against another page. General document runs remain excluded
+from comparable/flaky contexts until actual page context can be established.
+
+The panel filters runnable cases using the same saved-path contract and explains
+the five-case non-root capability. Actual browser acceptance saved a non-root
+URL, queued discovery, showed exactly five document choices with no login choice,
+then completed DOC-001 through the separate worker. Both full personal/shared
+browser checks passed. The HTTP drill independently passed five admitted cases
+on each of two non-root documents, persisted ten PNGs, detected five defects,
+rejected redirected bindings and observed zero forbidden canary/write contacts.
+The full unit regression completed 671 tests (670 passed, one Windows permission
+skip); the later redirect guard was also exercised by the real HTTP drill.
+
+Maintenance commits 875adac and a017781 have successful Core checks. The non-root
+increment requires its own exact-commit CI after push. The general public-host
+profile is still unfinished; this feature does not authorize external execution.

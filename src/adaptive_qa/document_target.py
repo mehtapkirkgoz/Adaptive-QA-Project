@@ -2,6 +2,8 @@
 
 from adaptive_qa.document_checks import DOCUMENT_CHECKS
 
+LOCAL_ORIGIN = 'http://127.0.0.1:8000'
+
 
 def validate_document_path(case_id, path, *, site='root'):
     if case_id not in DOCUMENT_CHECKS or site != 'root':
@@ -13,3 +15,40 @@ def validate_document_path(case_id, path, *, site='root'):
             or any(part in ('.', '..') for part in path.split('/'))):
         raise ValueError('A canonical controlled document path is required.')
     return path
+
+
+def controlled_start_path(settings):
+    """Validate the fixed fixture origin without DNS or network access."""
+    if (not isinstance(settings, dict) or not isinstance(settings.get('base_url'), str)
+            or not isinstance(settings.get('allowed_hosts'), (list, tuple))
+            or '127.0.0.1' not in settings['allowed_hosts']
+            or not settings['base_url'].startswith(LOCAL_ORIGIN)):
+        raise ValueError('An explicitly allowed controlled local document is required.')
+    return validate_document_path('DOC-001', settings['base_url'][len(LOCAL_ORIGIN):] or '/')
+
+
+def serialize_target_binding(case_id, target_url):
+    if target_url in (LOCAL_ORIGIN, LOCAL_ORIGIN+'/'):
+        return {'target_binding': 'local_root'}
+    if case_id in DOCUMENT_CHECKS:
+        try:
+            path = controlled_start_path({'base_url': target_url, 'allowed_hosts': ['127.0.0.1']})
+        except ValueError:
+            pass
+        else:
+            return {'target_binding': 'local_document', 'document_path': path}
+    return {'target_binding': None}
+
+
+def validate_runtime_binding(settings, case_id, decision):
+    path = controlled_start_path(settings)
+    if (not isinstance(decision, dict) or decision.get('decision') != 'selected'
+            or decision.get('test_type') != 'ui'):
+        raise ValueError('A current selected UI binding is required.')
+    if path == '/' and decision.get('target_binding') == 'local_root':
+        return
+    if (path != '/' and case_id in DOCUMENT_CHECKS
+            and decision.get('target_binding') == 'local_document'
+            and decision.get('document_path') == path):
+        return
+    raise ValueError('The selected case is not bound to the saved document.')

@@ -96,6 +96,8 @@ def _verify_sample_page(evidence_path: Path, case_id: str = "LOGIN-001", *, site
                         raise RuntimeError(
                             "Sample page did not return HTTP 200."
                         )
+                    if document_path is not None and page.url != project.base_url + document_path:
+                        raise RuntimeError('Document navigation changed the bound target.')
 
                     if document_path is None:
                         expect(page).to_have_title("Adaptive QA Sample")

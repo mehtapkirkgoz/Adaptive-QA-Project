@@ -20,6 +20,7 @@ from adaptive_qa.page_collector import collect_page_snapshot
 from adaptive_qa.targets import validate_local_sample_target
 from adaptive_qa.catalog import TEST_CASES
 from adaptive_qa.planning import build_test_plan
+from adaptive_qa.document_target import validate_document_path
 
 
 _LOCAL_PROJECT = ProjectConfig('local-discovery', 'Local Discovery',
@@ -33,8 +34,9 @@ def _failed_discovery(reason: str) -> dict:
     return json.loads(json.dumps(payload))
 
 
-def _collect_sample(budget: CrawlBudget) -> dict:
-    project = _LOCAL_PROJECT
+def _collect_sample(budget: CrawlBudget, start_path='/') -> dict:
+    validate_document_path('DOC-001', start_path)
+    project = replace(_LOCAL_PROJECT, base_url='http://127.0.0.1:8000'+start_path)
     guard = DestinationGuard(project, local_sample=True, max_requests=budget.max_requests)
     def authorize(url):
         return validate_local_sample_target(url, project)
@@ -76,10 +78,11 @@ def _collect_sample(budget: CrawlBudget) -> dict:
             browser.close()
 
 
-def discover_local_sample(budget: CrawlBudget = CrawlBudget(), *, should_cancel=None) -> dict:
+def discover_local_sample(budget: CrawlBudget = CrawlBudget(), *, should_cancel=None, start_path='/') -> dict:
     """Run with a hard process deadline; return explicit failure limitations."""
     if not isinstance(budget, CrawlBudget):
         raise ValueError('budget must be a CrawlBudget.')
+    validate_document_path('DOC-001', start_path)
     if should_cancel is not None and not callable(should_cancel):
         raise ValueError('Cancellation must be a trusted callback.')
     if should_cancel is not None and should_cancel():
@@ -90,10 +93,13 @@ def discover_local_sample(budget: CrawlBudget = CrawlBudget(), *, should_cancel=
         output = Path(directory) / 'result.json'
         options = {'start_new_session': True} if os.name != 'nt' else {
             'creationflags': subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.CREATE_NO_WINDOW}
-        process = subprocess.Popen([
+        command = [
             sys.executable, '-m', 'adaptive_qa.local_discovery', '--child-output', str(output),
             '--budget', json.dumps(asdict(budget)),
-        ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, **options)
+        ]
+        if start_path != '/':
+            command += ['--start-path', start_path]
+        process = subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, **options)
         try:
             while process.poll() is None:
                 if should_cancel is not None and should_cancel():
@@ -130,9 +136,10 @@ def main():
     parser = argparse.ArgumentParser(description='Discover the controlled local sample only.')
     parser.add_argument('--child-output', type=Path, help=argparse.SUPPRESS)
     parser.add_argument('--budget', help=argparse.SUPPRESS)
+    parser.add_argument('--start-path', default='/', help=argparse.SUPPRESS)
     args = parser.parse_args()
     if args.child_output is not None:
-        result = _collect_sample(CrawlBudget(**json.loads(args.budget)))
+        result = _collect_sample(CrawlBudget(**json.loads(args.budget)), args.start_path)
         args.child_output.write_text(json.dumps(result), encoding='utf-8')
     else:
         result = discover_local_sample()

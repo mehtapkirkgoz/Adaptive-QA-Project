@@ -141,8 +141,15 @@ account/server commands whose database option selects the authentication databas
 Pass `--database` to select a trusted project database. No job is submitted by
 this command; an empty queue reports no work. Submit with the panel's Queue local
 discovery button, then run this command in a separate terminal. The panel polls
-progress, supports cancellation and reviews completed plans. Only the controlled root fixture on `127.0.0.1:8000` is
-supported, and the fixture must be running. No customer target is supported.
+progress, supports cancellation and reviews completed plans. Discovery remains restricted to the controlled fixture origin on
+`127.0.0.1:8000`, and the fixture must be running. No customer target is supported.
+
+Post-sprint extension: a saved canonical document path on the same
+`http://127.0.0.1:8000` origin can also be discovered. Only the five independent
+DOC-001–DOC-005 checks can execute on a non-root target, and their discovered path
+must exactly match the saved path. For example, the bundled fixture supports
+`http://127.0.0.1:8000/variants/english.html`. Other UI cases require the compatible
+root binding. External hosts and arbitrary private services remain unsupported.
 
 The worker holds the project database's OS lock across claim, guarded child
 discovery and result commit. Discovery has a 30-second process deadline and polls
