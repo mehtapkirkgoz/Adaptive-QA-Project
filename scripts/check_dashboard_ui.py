@@ -2,6 +2,9 @@
 
 import argparse
 import json
+from dataclasses import asdict
+from unittest.mock import patch
+from adaptive_qa.discovery import PageSnapshot
 import os
 import subprocess
 import sys
@@ -16,6 +19,8 @@ from playwright.sync_api import sync_playwright, expect
 import uvicorn
 
 from adaptive_qa.auth_store import AuthStore
+from adaptive_qa.dashboard_jobs import DashboardDiscoveryQueue
+from adaptive_qa.dashboard_worker import process_discovery_once
 from adaptive_qa.project_store import ProjectStore
 from adaptive_qa.web_app import create_app
 from adaptive_qa.browser_process import _terminate_process_tree
@@ -83,6 +88,19 @@ def main(port=8765):
                     expect(page.get_by_text('queued', exact=True)).to_be_visible()
                     page.get_by_role('button', name='Cancel discovery', exact=True).click()
                     expect(page.get_by_text('cancelled', exact=True)).to_be_visible()
+                    page.get_by_role('button', name='Queue HTTPS discovery', exact=True).click()
+                    expect(page.get_by_text('queued', exact=True)).to_be_visible()
+                    payload = {'pages': [asdict(PageSnapshot('https://example.test/', (), (), True))], 'limitations': []}
+                    with patch('adaptive_qa.dashboard_worker.discover_configured_target', return_value=payload):
+                        assert process_discovery_once(DashboardDiscoveryQueue(projects))['status'] == 'completed'
+                    page.get_by_role('button', name='Review discovery plan', exact=True).first.click()
+                    public_runs = page.get_by_label('Test runs', exact=True)
+                    expect(public_runs.get_by_role('group', name='Eligible tests').get_by_role('checkbox')).to_have_count(5)
+                    expect(public_runs.get_by_label('Select LOGIN-001', exact=True)).to_have_count(0)
+                    public_runs.get_by_label('Select DOC-001', exact=True).check()
+                    public_runs.get_by_role('button', name='Start selected tests', exact=True).click()
+                    public_runs.get_by_role('button', name='Cancel test run', exact=True).click()
+                    expect(public_runs.get_by_text('Run cancelled', exact=True)).to_be_visible()
                     page.get_by_label('Target URL').fill('http://127.0.0.1:8000/')
                     page.get_by_label('Allowed hosts').fill('127.0.0.1')
                     page.get_by_label('login password', exact=True).check()
@@ -113,10 +131,10 @@ def main(port=8765):
                     worker = subprocess.Popen([sys.executable, '-m', 'adaptive_qa', 'dashboard',
                         'discovery-once', '--database', str(projects.database)],
                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, **options)
-                    expect(discovery.get_by_text('completed', exact=True)).to_be_visible(timeout=45000)
+                    expect(discovery.get_by_text('completed', exact=True)).to_have_count(2, timeout=45000)
                     worker.wait(timeout=5)
                     assert worker.returncode == 0
-                    discovery.get_by_role('button', name='Review discovery plan', exact=True).click()
+                    discovery.get_by_role('button', name='Review discovery plan', exact=True).first.click()
                     expect(review).to_contain_text('Discovery completed.')
                     expect(review).not_to_contain_text('Selected: 0 ·')
                     expect(review).to_contain_text('Execution authorized: No.')
@@ -203,7 +221,7 @@ def main(port=8765):
                     page.get_by_label('Allow tests that change data').check()
                     page.get_by_role('button', name='Save configuration', exact=True).click()
                     expect(page.get_by_role('status')).to_have_text('Configuration saved. No tests were started.')
-                    page.get_by_role('button', name='Review discovery plan', exact=True).click()
+                    page.get_by_role('button', name='Review discovery plan', exact=True).first.click()
                     expect(page.get_by_text('This report uses older target or policy settings.', exact=False)).to_be_visible()
                     expect(page.get_by_label('Plan review results')).to_have_count(0)
                     page.get_by_label('Target URL').fill('http://127.0.0.1:8000/variants/english.html')
@@ -214,7 +232,7 @@ def main(port=8765):
                     worker = subprocess.Popen([sys.executable, '-m', 'adaptive_qa', 'dashboard',
                         'discovery-once', '--database', str(projects.database)],
                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, **options)
-                    expect(discovery.get_by_text('completed', exact=True)).to_have_count(2, timeout=45000)
+                    expect(discovery.get_by_text('completed', exact=True)).to_have_count(3, timeout=45000)
                     worker.wait(timeout=5)
                     assert worker.returncode == 0
                     discovery.get_by_role('button', name='Review discovery plan', exact=True).first.click()
@@ -256,7 +274,8 @@ def main(port=8765):
         'invalid login', 'password cleared', 'login', 'owner-filtered list', 'create',
         'rename', 'save settings', 'reload persistence', 'masked reference',
         'conservative non-executing plan review', 'mobile width', 'logout persistence',
-        'queue and cancel discovery', 'HTTPS admission cancelled without external dispatch', 'separate real worker and polled completion',
+        'queue and cancel discovery', 'HTTPS admission cancelled without external dispatch',
+        'five public document choices and explicit run cancellation without external traffic', 'separate real worker and polled completion',
         'discovery-backed plan review', 'historical policy mismatch denied',
         'explicit two-case selection', 'queued test-run cancellation',
         'case names and search preserve hidden selections and enforce the ten-case limit',

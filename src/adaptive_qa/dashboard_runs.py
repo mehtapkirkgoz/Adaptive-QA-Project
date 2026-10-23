@@ -17,7 +17,8 @@ from adaptive_qa.smoke_checks import SMOKE_CHECKS
 from adaptive_qa.models import TestResult
 from adaptive_qa.worker_lock import worker_lock
 from adaptive_qa.dashboard_evidence import validate_png
-from adaptive_qa.document_target import controlled_start_path, validate_runtime_binding
+from adaptive_qa.document_target import validate_runtime_binding
+from adaptive_qa.discovery_target import configured_discovery
 
 
 @dataclass(frozen=True)
@@ -109,7 +110,7 @@ class DashboardRunQueue:
                 raise ValueError('Saved settings are required.')
             saved = json.loads(row['settings_json'])
             snapshot = {key: saved[key] for key in ('base_url', 'allowed_hosts', 'allow_data_changes')}
-            controlled_start_path(snapshot)
+            configured_discovery(snapshot)
             discovery = connection.execute('SELECT report_json FROM dashboard_discovery_jobs '
                 "WHERE job_id=? AND project_id=? AND owner_id=? AND status='completed'",
                 (discovery_job_id, project_id, actor.user_id)).fetchone()
@@ -128,7 +129,7 @@ class DashboardRunQueue:
                 if (definition is None or case_id not in SMOKE_CHECKS or definition.changes_data
                         or decision is None or decision.get('decision') != 'selected'
                         or decision.get('test_type') != 'ui'):
-                    raise ValueError('A selected read-only UI case bound to the saved local target is required.')
+                    raise ValueError('A selected read-only UI case bound to the saved target is required.')
                 validate_runtime_binding(snapshot, case_id, decision)
             active = "status IN ('queued', 'running', 'cancel_requested')"
             total = connection.execute('SELECT count(*) FROM dashboard_test_runs WHERE ' + active).fetchone()[0]

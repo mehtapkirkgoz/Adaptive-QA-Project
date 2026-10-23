@@ -11,6 +11,8 @@ from adaptive_qa.dashboard_jobs import DashboardDiscoveryQueue
 from adaptive_qa.dashboard_runs import DashboardRunQueue
 from adaptive_qa.dashboard_worker import process_discovery_once
 from adaptive_qa.discovery import PageSnapshot
+from adaptive_qa.dashboard_run_worker import process_run_once
+from adaptive_qa.models import TestResult, TestStatus
 from adaptive_qa.organization_store import OrganizationStore
 from adaptive_qa.organization_projects import OrganizationProjects
 from adaptive_qa.organization_discovery import OrganizationDiscoveryQueue
@@ -50,13 +52,13 @@ class PublicDiscoveryAdmissionTests(unittest.TestCase):
             for shared in (False, True):
                 settings, queue, args, _ = self.setup_scope(shared)
                 self.assertEqual(settings['discovery_support']['profile'], 'public_https')
-                self.assertEqual(settings['discovery_support']['execution_scope'], 'discovery_only')
+                self.assertEqual(settings['discovery_support']['execution_scope'], 'document_ui')
                 job = queue.submit(*args)
                 self.assertEqual(job['status'], 'queued')
                 self.assertNotIn('report', job)
                 queue.cancel(*args, job['job_id'])
 
-    def test_worker_rebuilds_scoped_public_report_without_enabling_test_execution(self):
+    def test_worker_rebuilds_scoped_public_report_and_admits_only_explicit_document_selection(self):
         for shared in (False, True):
             _, queue, args, runs = self.setup_scope(shared)
             job = queue.submit(*args)
@@ -69,9 +71,16 @@ class PublicDiscoveryAdmissionTests(unittest.TestCase):
             self.assertFalse(report['execution_authorized'])
             self.assertEqual(report['discovery_profile'], 'public_https')
             self.assertEqual(report['counts']['catalog'], 100)
-            self.assertTrue(all(case['target_binding'] is None for case in report['cases']))
+            documents = [case for case in report['cases'] if case['target_binding'] == 'public_document']
+            self.assertEqual(len(documents), 5)
+            self.assertTrue(all(case['document_url'] == self.settings['base_url'] for case in documents))
+            with patch('socket.getaddrinfo', side_effect=AssertionError('Admission must not resolve DNS')):
+                run = runs.submit(*args, job['job_id'], ('DOC-001',))
+            self.assertEqual(run['status'], 'queued')
+            self.assertFalse(run['results'])
+            runs.cancel(*args, run['run_id'])
             with self.assertRaises(ValueError):
-                runs.submit(*args, job['job_id'], ('DOC-001',))
+                runs.submit(*args, job['job_id'], ('LOGIN-001',))
 
     def test_foreign_payload_cannot_escape_public_project_scope(self):
         _, queue, args, _ = self.setup_scope(False)
@@ -80,3 +89,33 @@ class PublicDiscoveryAdmissionTests(unittest.TestCase):
         with patch('adaptive_qa.dashboard_worker.discover_configured_target', return_value=payload):
             self.assertEqual(process_discovery_once(queue)['status'], 'error')
         self.assertNotIn('report', queue.get(*args, job['job_id']))
+
+    def test_personal_and_shared_worker_route_only_document_cases_to_saved_https_target(self):
+        for shared in (False, True):
+            _, queue, args, runs = self.setup_scope(shared)
+            job = queue.submit(*args)
+            payload = {'pages': [asdict(PageSnapshot(self.settings['base_url'], (), (), True))], 'limitations': []}
+            with patch('adaptive_qa.dashboard_worker.discover_configured_target', return_value=payload):
+                process_discovery_once(queue)
+            run = runs.submit(*args, job['job_id'], ('DOC-001',))
+            outcome = TestResult('DOC-001', TestStatus.PASSED, 0.1, 'Controlled test result.')
+            with patch('adaptive_qa.dashboard_run_worker.run_isolated_document_test', return_value=outcome) as child, \
+                    patch('adaptive_qa.dashboard_run_worker.run_isolated_sample_test') as sample:
+                self.assertEqual(process_run_once(runs)['status'], 'completed')
+                sample.assert_not_called()
+                self.assertEqual(child.call_args.args[1].base_url, self.settings['base_url'])
+                self.assertLessEqual(child.call_args.kwargs['timeout_seconds'], 30)
+            saved = runs.get(*args, run['run_id'])
+            self.assertEqual(len(saved['results']), 1)
+
+    def test_changed_public_configuration_prevents_dispatch(self):
+        _, queue, args, runs = self.setup_scope(False)
+        job = queue.submit(*args)
+        payload = {'pages': [asdict(PageSnapshot(self.settings['base_url'], (), (), True))], 'limitations': []}
+        with patch('adaptive_qa.dashboard_worker.discover_configured_target', return_value=payload):
+            process_discovery_once(queue)
+        runs.submit(*args, job['job_id'], ('DOC-001',))
+        self.projects.save_configuration(self.actor, args[-1], dict(self.settings, base_url='https://qa.example.test/changed'))
+        with patch('adaptive_qa.dashboard_run_worker.run_isolated_document_test') as child:
+            self.assertEqual(process_run_once(runs)['status'], 'error')
+            child.assert_not_called()

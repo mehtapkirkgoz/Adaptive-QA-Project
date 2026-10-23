@@ -37,14 +37,32 @@ def serialize_target_binding(case_id, target_url):
             pass
         else:
             return {'target_binding': 'local_document', 'document_path': path}
+        if isinstance(target_url, str):
+            from urllib.parse import urlsplit
+            from adaptive_qa.discovery_target import configured_discovery
+            try:
+                profile, _ = configured_discovery({'base_url': target_url,
+                    'allowed_hosts': [urlsplit(target_url).hostname], 'allow_data_changes': False})
+            except ValueError:
+                pass
+            else:
+                if profile == 'public_https':
+                    return {'target_binding': 'public_document', 'document_url': target_url}
     return {'target_binding': None}
 
 
 def validate_runtime_binding(settings, case_id, decision):
-    path = controlled_start_path(settings)
     if (not isinstance(decision, dict) or decision.get('decision') != 'selected'
             or decision.get('test_type') != 'ui'):
         raise ValueError('A current selected UI binding is required.')
+    from adaptive_qa.discovery_target import configured_discovery
+    profile, project = configured_discovery(settings)
+    if profile == 'public_https':
+        if (case_id in DOCUMENT_CHECKS and decision.get('target_binding') == 'public_document'
+                and decision.get('document_url') == project.base_url):
+            return
+        raise ValueError('Only an independently checked document bound to the saved HTTPS URL is supported.')
+    path = controlled_start_path(settings)
     if path == '/' and decision.get('target_binding') == 'local_root':
         return
     if (path != '/' and case_id in DOCUMENT_CHECKS

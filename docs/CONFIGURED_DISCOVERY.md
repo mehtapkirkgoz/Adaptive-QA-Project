@@ -77,3 +77,19 @@ Run owned-fixture acceptance with python scripts/check_configured_document.py.
 Public sites are never contacted by this script or by CI. A separate authorized
 DOC-001 observation on Books to Scrape passed with one screenshot; the remaining
 external rules and dashboard bindings are not claimed accepted.
+
+## Dashboard Document Binding
+
+The subsequent dashboard integration exposes public_document only for the five
+independent document definitions. Admission requires the exact saved document_url,
+selected read-only UI status and current owned discovery fingerprint. Public
+settings expose execution_scope=document_ui; clients filter options using the
+saved URL rather than unsaved edits. The separate worker selects the configured
+public executor and retains process/case deadlines, cancellation and scoped PNG
+persistence. Different crawled pages require a matching saved URL and new discovery.
+
+Both personal/shared browser tests queue and cancel the public selection using
+controlled snapshot data, without external traffic. A separate owner-authorized
+Books to Scrape drill completed all five real document checks with scoped evidence.
+External login/form/API/database execution remains unsupported. Historical notes
+above describe the worker foundation before this integration, not current limits.

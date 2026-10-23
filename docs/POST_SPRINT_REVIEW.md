@@ -42,8 +42,8 @@ This follow-up does not enable purchases, public backend hosting or customer tes
   - [x] Connect the public profile to authenticated dashboard admission/report scope.
   - [x] Validate bounded discovery on an owner-authorized demo HTTPS target; Core
     checks for dashboard admission 1d202d0 passed (run 39938002105).
-  - [ ] Integrate configured document execution into reviewed dashboard bindings;
-    retain current external non-execution until that admission change is verified.
+  - [x] Integrate configured document execution into reviewed dashboard bindings;
+    verify explicit selection, exact saved URL, cancellation and scoped results.
 - [ ] Address operator enrollment/agent startup and bounded unattended maintenance
   from PILOT_FINDINGS.md with separately verified increments.
   - [x] Add an explicit bounded maintenance-once operator command for expired
@@ -240,3 +240,29 @@ remain unfinished.
 Regression completed 686 tests (685 passed, one Windows permission skip). The
 17-case owned HTTP drill passed again after evidence-path validation was added.
 CI runs that drill on owned fixtures only, never against the public demo.
+
+## HTTPS Document Selection and Execution
+
+Personal and organization queues now admit only the five independent document
+cases when their public_document binding exactly equals the saved HTTPS URL and
+the current completed discovery fingerprint. Another inspected path/host, stale
+configuration, login/form case or forged local binding cannot authorize execution.
+Saving, discovery and plan review remain non-executing; explicit selection queues
+a separate run. Roles, tenant scopes, global/owner/organization admission limits,
+cancellation, deadlines and evidence authorization are retained. The worker
+rechecks configuration before dispatch and persists only supported document results.
+Document runs retain unknown comparison context rather than imply comparability.
+
+Both dashboard browser drills now exercise five public document choices, no login
+choice, explicit run queuing and cancellation without external traffic. Their
+existing real local fixture flows continue to run afterward. Unit coverage checks
+personal/shared routing, exact URL/case family, no DNS during admission and changed
+configuration preventing child dispatch. Public Pages remains unchanged.
+
+A separate owner-authorized Books to Scrape drill used temporary accounts/storage,
+real public discovery (five pages), explicit five-case admission and separate real
+child execution. DOC-001 through DOC-005 passed; all five scoped PNGs decoded.
+This public demo observation is not customer-site or private-network acceptance.
+No API/database/login/form executor is inferred from the URL. The full regression
+completed 689 tests (688 passed, one Windows permission skip). This increment's
+exact-commit CI remains pending after push.

@@ -13,7 +13,9 @@ export function supportsLocalDiscovery(settings: Settings) {
     && !path.split('/').some(part => part === '.' || part === '..');
 }
 
-export function matchesSavedTarget(settings: Settings, binding: {target_binding?: string | null; document_path?: string | null}) {
+export function matchesSavedTarget(settings: Settings, binding: {target_binding?: string | null; document_path?: string | null; document_url?: string | null}) {
+  if (settings.discovery_support?.profile === 'public_https') return settings.discovery_support.execution_scope === 'document_ui'
+    && binding.target_binding === 'public_document' && binding.document_url === settings.base_url;
   if (!supportsLocalDiscovery(settings)) return false;
   const path = settings.base_url?.slice('http://127.0.0.1:8000'.length) || '/';
   return path === '/' ? binding.target_binding === 'local_root'
@@ -26,7 +28,8 @@ export function ExecutionScope({settings}: {settings: Settings}) {
     {!settings.configured ? <p>Save target settings to check available execution.</p>
       : settings.discovery_support?.profile === 'public_https'
       ? <p>Read-only HTTPS discovery is available for this saved host scope. It does not sign in or submit forms.
-        External UI, API and database execution are not enabled by this profile.</p> : supportsLocalDiscovery(settings)
+        The five independent document checks can run after matching discovery and explicit selection.
+        Login, form, API and database execution are not enabled by this profile.</p> : supportsLocalDiscovery(settings)
       ? <p>This saved target supports controlled local discovery. Non-root paths support the five
         independent document checks; other UI checks still require a compatible root binding.</p>
       : <p>Execution is unavailable for this saved target. Supported discovery profiles are public HTTPS on port 443

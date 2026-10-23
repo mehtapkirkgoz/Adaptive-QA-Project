@@ -30,7 +30,7 @@ export function OrganizationRunPanel({base, discoveryJobId, candidates, candidat
     finally {setBusy(false);}
   }
   return <section className="plan-review" aria-label="Organization test runs"><h3>Shared test runs</h3>
-    <p className="hint">Select up to ten read-only cases from current controlled discovery. A separate worker executes queued work.</p>
+    <p className="hint">Select up to ten read-only cases from current supported discovery. A separate worker executes queued work.</p>
     {!discoveryJobId && <p className="hint">Review current discovery before selecting tests.</p>}
     {discoveryJobId && <CaseSelector key={discoveryJobId + candidateKey} candidates={candidates} names={candidateNames}
       selection={selection} disabled={!canExecute || busy} labelPrefix="Shared select" onChange={setSelection}/>}

@@ -9,7 +9,7 @@ from adaptive_qa.browser_process import run_isolated_sample_test
 
 class DocumentTargetTests(unittest.TestCase):
     def test_discovered_document_binding_requires_exact_saved_path_and_case_family(self):
-        settings = {'base_url': 'http://127.0.0.1:8000/information.html', 'allowed_hosts': ['127.0.0.1']}
+        settings = {'base_url': 'http://127.0.0.1:8000/information.html', 'allowed_hosts': ['127.0.0.1'], 'allow_data_changes': False}
         binding = serialize_target_binding('DOC-001', settings['base_url'])
         self.assertEqual(binding, {'target_binding': 'local_document', 'document_path': '/information.html'})
         decision = dict(binding, decision='selected', test_type='ui')
@@ -47,3 +47,20 @@ class DocumentTargetTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 run_isolated_sample_test('LOGIN-001', document_path='/other.html')
             launch.assert_not_called()
+
+    def test_public_document_binding_requires_exact_saved_url_and_independent_case(self):
+        settings = {'base_url': 'https://qa.example.test/information',
+                    'allowed_hosts': ['qa.example.test'], 'allow_data_changes': False}
+        binding = serialize_target_binding('DOC-001', settings['base_url'])
+        self.assertEqual(binding['target_binding'], 'public_document')
+        decision = dict(binding, decision='selected', test_type='ui')
+        validate_runtime_binding(settings, 'DOC-001', decision)
+        for case, changed in (('LOGIN-001', decision),
+                ('DOC-001', dict(decision, document_url='https://qa.example.test/other')),
+                ('DOC-001', dict(decision, document_url='https://other.example.test/information')),
+                ('DOC-001', dict(decision, target_binding='local_root')),
+                ('DOC-001', dict(decision, test_type='api'))):
+            with self.subTest(case=case, changed=changed), self.assertRaises(ValueError):
+                validate_runtime_binding(settings, case, changed)
+        for url in ('https://127.0.0.1/', 'http://qa.example.test/', 'https://qa.example.test:8443/'):
+            self.assertIsNone(serialize_target_binding('DOC-001', url)['target_binding'])

@@ -1,6 +1,9 @@
 """Real local organization UI, role isolation and non-executing configuration."""
 
 import json
+from dataclasses import asdict
+from unittest.mock import patch
+from adaptive_qa.discovery import PageSnapshot
 from functools import partial
 from http.server import ThreadingHTTPServer
 from pathlib import Path
@@ -92,17 +95,32 @@ def main():
                     expect(panel.get_by_text('queued', exact=True)).to_be_visible()
                     panel.get_by_role('button', name='Cancel discovery', exact=True).click()
                     expect(panel.get_by_text('cancelled', exact=True)).to_be_visible()
+                    panel.get_by_role('button', name='Queue HTTPS discovery', exact=True).click()
+                    expect(panel.get_by_text('queued', exact=True)).to_be_visible()
+                    payload = {'pages': [asdict(PageSnapshot('https://example.test/', (), (), True))], 'limitations': []}
+                    queue = OrganizationDiscoveryQueue(OrganizationProjects(organizations))
+                    with patch('adaptive_qa.dashboard_worker.discover_configured_target', return_value=payload):
+                        assert process_discovery_once(queue)['status'] == 'completed'
+                    panel.get_by_role('button', name='Review discovery plan', exact=True).click()
+                    public_runs = panel.get_by_label('Organization test runs', exact=True)
+                    expect(public_runs.get_by_role('group', name='Eligible tests').get_by_role('checkbox')).to_have_count(5)
+                    expect(public_runs.get_by_label('Shared select LOGIN-001', exact=True)).to_have_count(0)
+                    public_runs.get_by_label('Shared select DOC-001', exact=True).check()
+                    public_runs.get_by_role('button', name='Start shared tests', exact=True).click()
+                    public_runs.get_by_role('button', name='Cancel shared run', exact=True).click()
+                    expect(public_runs.get_by_text('Shared run cancelled', exact=False)).to_be_visible()
                     panel.get_by_label('Organization target URL', exact=True).fill('http://127.0.0.1:8000/')
                     panel.get_by_label('Organization allowed hosts', exact=True).fill('127.0.0.1')
                     panel.get_by_role('button', name='Save shared configuration', exact=True).click()
-                    expect(panel.get_by_role('status')).to_have_text('Organization configuration saved. No work was started.')
+                    expect(panel.get_by_text('Organization configuration saved. No work was started.', exact=True)).to_be_visible()
                     organization_id = organizations.list(alice)[0]['organization_id']
                     panel.get_by_role('button', name='Queue local discovery', exact=True).click()
                     expect(panel.get_by_text('queued', exact=True)).to_be_visible()
                     queue = OrganizationDiscoveryQueue(OrganizationProjects(organizations))
                     outcome = process_discovery_once(queue)
                     assert outcome['status'] == 'completed'
-                    panel.get_by_role('button', name='Review discovery plan', exact=True).click()
+                    expect(panel.get_by_text('completed', exact=True)).to_have_count(2, timeout=10000)
+                    panel.get_by_role('button', name='Review discovery plan', exact=True).first.click()
                     expect(panel.get_by_text('Execution authorized: No.', exact=False)).to_be_visible()
                     run_panel = panel.get_by_label('Organization test runs', exact=True)
                     verify_case_selector(run_panel, 'Shared select')
@@ -130,7 +148,7 @@ def main():
                     access.get_by_role('button', name='Add existing member', exact=True).click()
                     expect(access.get_by_text('bob@example.test · viewer', exact=True)).to_be_visible()
                     access.get_by_role('button', name='Refresh access and usage', exact=True).click()
-                    expect(access.get_by_text('UTC daily admissions: 1 / 100', exact=False)).to_be_visible()
+                    expect(access.get_by_text('UTC daily admissions: 2 / 100', exact=False)).to_be_visible()
                     page.screenshot(path=str(output/'owner.png'), full_page=True)
                     page.get_by_role('button', name='Sign out', exact=True).click()
                     login('bob')
@@ -174,6 +192,7 @@ def main():
               'named_filtered_bounded_selection_verified': True,
               'unsupported_saved_target_explained_without_dispatch': True,
               'https_admission_cancelled_without_dispatch': True,
+              'https_document_selection_and_run_cancellation': True,
               'external_requests': len(external), 'page_errors': errors,
               'demo_modified': False}
     (output/'ui.json').write_text(json.dumps(report, indent=2)+'\n', encoding='utf-8')
