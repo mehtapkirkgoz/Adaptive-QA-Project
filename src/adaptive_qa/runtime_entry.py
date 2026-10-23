@@ -44,6 +44,11 @@ def main():
             uvicorn.run(identified, host='127.0.0.1', port=port, workers=1,
                         proxy_headers=False, access_log=False, log_level='critical',
                         limit_concurrency=32, timeout_keep_alive=5)
+        elif args.role == 'maintenance-once':
+            if importlib.util.find_spec('adaptive_qa.maintenance') is None:
+                raise ValueError('The selected release does not support maintenance.')
+            from adaptive_qa.maintenance import maintenance_once
+            maintenance_once(projects)
         elif args.role == 'run-once':
             from adaptive_qa.dashboard_run_worker import process_run_once
             outcome = process_run_once(DashboardRunQueue(projects))

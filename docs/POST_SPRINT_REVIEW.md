@@ -35,6 +35,10 @@ This follow-up does not enable purchases, public backend hosting or customer tes
   from PILOT_FINDINGS.md with separately verified increments.
   - [x] Add an explicit bounded maintenance-once operator command for expired
     agent leases and personal/shared evidence pruning; automatic supervision is pending.
+  - [x] Add a managed maintenance-once role with 30-second default/60-second
+    maximum process deadline, component leases and selected-wheel execution.
+  - [ ] Add and review unattended scheduling/lifecycle separately; no system
+    scheduler or perpetual background service has been activated.
 
 The last three items are future engineering work, not accepted capabilities.
 Do not remove destination guards, infer ownership from a public URL or count
@@ -126,3 +130,11 @@ Its local full regression completed 666 tests: 665 passed and one Windows
 symlink-permission skip. Six maintenance tests include an actual CLI subprocess,
 live/expired lease handling, partial-outcome preservation, bounded evidence
 cleanup and worker-lock refusal. Both-platform CI repeats these checks.
+
+The managed-role increment passed ten runtime tests, deployment/schema checks
+and the real Windows package/restore/rollback drill using committed helper release
+875adac plus the current trusted supervisor. Maintenance completed from that
+selected wheel and was refused for the historical wheel lacking the module.
+Both component leases released, source database bytes/backup remained intact and
+ordinary discovery/UI execution still passed. CI will repeat this with the exact
+combined commit on Linux/Windows; it remains pending until that run completes.

@@ -89,6 +89,29 @@ sandbox or OS memory/CPU quota implementation.
 
 ## Restored Data and Binary Rollback
 
+## Supervised Maintenance Batch
+
+After selecting a reviewed release that contains the maintenance module, run:
+
+```powershell
+python -m adaptive_qa deployment local-run --environment local --data-root "$qaDataRoot" --origin http://127.0.0.1:8765 --role maintenance-once --duration-seconds 30
+```
+
+The default deadline is 30 seconds, capped at 60. The existing supervisor stops
+the process tree on deadline/interrupt. The component holds its own runtime lease,
+blocking duplicate maintenance and release switching while active. The batch also
+uses the shared worker lock; active local execution causes refusal rather than
+concurrent operator cleanup. Agent publication remains transactionally checked.
+
+Application imports still come from the selected wheel. Older packages without
+the maintenance module refuse this role; no checkout implementation is substituted.
+The role performs one default-size cleanup pass (see OPERATIONS.md), not a daemon
+or installed scheduler. No background service is activated by preparation/selection.
+Runtime status now includes maintenance-once, and logs retain only role/release
+and outcome. Actual cleanup counts are available through the direct operator CLI.
+
+## Restored Data and Binary Rollback Procedures
+
 Stop managed components, create/verify an offline backup and prepare recovery as
 described in DEPLOYMENT.md. To select the copied data explicitly:
 

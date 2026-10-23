@@ -40,7 +40,8 @@ def configure_parser(commands):
             data_source.add_argument('--live-data', action='store_true')
             plan.add_argument('--expected-selection')
         if name == 'local-run':
-            plan.add_argument('--role', choices=('serve', 'discovery-once', 'run-once'), required=True)
+            from adaptive_qa.local_runtime import ROLES
+            plan.add_argument('--role', choices=ROLES, required=True)
             plan.add_argument('--duration-seconds', type=int)
 
 

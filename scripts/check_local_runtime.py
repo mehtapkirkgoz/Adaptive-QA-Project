@@ -169,9 +169,13 @@ def main(candidate):
                 'allowed_hosts': ['127.0.0.1'], 'allow_data_changes': False, 'secret_references': {}})
             stop(process, plan)
             process = None
+            assert run_local(plan, 'maintenance-once', duration_seconds=30)['status'] == 'completed'
+            assert local_status(plan)['components']['maintenance-once'] == 'inactive'
             selected = select_local(plan, OLD_COMMIT,
                 expected_selection=selected['selection_id'], maintenance_confirmed=True)
             process = start(plan, OLD_COMMIT)
+            assert run_local(plan, 'maintenance-once', duration_seconds=30)['status'] == 'stopped'
+            assert local_status(plan)['components']['maintenance-once'] == 'inactive'
             with request(client, '/api/projects') as response:
                 assert added in {item['project_id'] for item in json.loads(response.read())['projects']}
             with request(client, f"/api/projects/{project.project_id}/runs/{work['run_id']}") as response:
@@ -196,6 +200,8 @@ def main(candidate):
               'screenshots_persisted': 2, 'component_leases_released': True,
               'supervisor_deadline_cleanup': True,
               'failed_job_nonzero_exit_verified': True,
+              'managed_maintenance_completed': True,
+              'legacy_maintenance_refused': True,
               'original_database_bytes_preserved': True,
               'backup_still_verified': True, 'public_backend': False}
     output = ROOT / 'artifacts/deployment/local-runtime.json'

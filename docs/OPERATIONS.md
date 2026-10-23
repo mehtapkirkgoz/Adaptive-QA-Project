@@ -20,6 +20,9 @@ The command dispatches no tests, resolves no credentials and opens no listener
 or application connection. It refuses an active local worker lock. It is an
 explicit bounded batch, not a hard-deadline supervisor or unattended service.
 No system scheduler/service is installed or activated by this increment.
+For a process deadline and selected-package/component-lease controls, use the
+managed maintenance-once role in LOCAL_RUNTIME.md. Its default deadline is
+30 seconds with a 60-second ceiling; it still runs only one batch.
 
 ## Local Organization Onboarding
 

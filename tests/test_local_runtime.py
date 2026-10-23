@@ -12,7 +12,7 @@ from adaptive_qa.backup import create_backup
 from adaptive_qa.backup_restore import prepare_restore
 from adaptive_qa.dashboard_runs import DashboardRunQueue
 from adaptive_qa.deployment import DeploymentPlan, Environment
-from adaptive_qa.local_runtime import prepare_local, select_local, component_lease, local_status
+from adaptive_qa.local_runtime import prepare_local, select_local, component_lease, local_status, run_local
 from adaptive_qa.project_store import ProjectStore
 
 
@@ -82,6 +82,23 @@ class LocalRuntimeTests(unittest.TestCase):
                 with component_lease(self.plan, 'serve', selected['selection_id']):
                     self.fail('Duplicate lease was admitted.')
         self.assertEqual(local_status(self.plan)['components']['serve'], 'inactive')
+
+    def test_maintenance_lease_blocks_selection_and_duplicate_maintenance(self):
+        self.prepare()
+        selected = self.select()
+        with component_lease(self.plan, 'maintenance-once', selected['selection_id']):
+            self.assertEqual(local_status(self.plan)['components']['maintenance-once'], 'active')
+            with self.assertRaises(ValueError):
+                self.select(expected_selection=selected['selection_id'])
+            with self.assertRaises(ValueError):
+                with component_lease(self.plan, 'maintenance-once', selected['selection_id']):
+                    self.fail('Duplicate maintenance was admitted.')
+        self.assertEqual(local_status(self.plan)['components']['maintenance-once'], 'inactive')
+
+    def test_maintenance_duration_is_bounded_before_startup(self):
+        for duration in (True, 0, -1, 61, 180):
+            with self.subTest(duration=duration), self.assertRaises(ValueError):
+                run_local(self.plan, 'maintenance-once', duration_seconds=duration)
 
     def test_tampered_prepared_payload_is_refused_before_selection(self):
         self.prepare()

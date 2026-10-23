@@ -19,7 +19,7 @@ from adaptive_qa.schema_migrations import validate_runtime_schema, AUTH_COLUMNS,
 from adaptive_qa.worker_lock import worker_lock
 
 
-ROLES = ('serve', 'discovery-once', 'run-once')
+ROLES = ('serve', 'discovery-once', 'run-once', 'maintenance-once')
 
 
 @contextmanager
@@ -302,8 +302,9 @@ def local_status(plan):
 
 def run_local(plan, role, *, duration_seconds=None):
     if duration_seconds is None:
-        duration_seconds = 900 if role == 'serve' else 180
-    if role not in ROLES or type(duration_seconds) is not int or not 1 <= duration_seconds <= (3600 if role == 'serve' else 180):
+        duration_seconds = 900 if role == 'serve' else (30 if role == 'maintenance-once' else 180)
+    maximum = 3600 if role == 'serve' else (60 if role == 'maintenance-once' else 180)
+    if role not in ROLES or type(duration_seconds) is not int or not 1 <= duration_seconds <= maximum:
         raise ValueError('Use a known component and a bounded local duration.')
     root = _root(plan)
     selected = _selection(root)
