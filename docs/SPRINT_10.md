@@ -22,7 +22,7 @@ are authorized by this sprint start.
   - [x] Integrate scoped discovery queue/worker lifecycle and recovery.
   - [x] Integrate scoped test-run admission/results/evidence and recovery.
   - [x] Finish membership administration and scoped usage visibility for onboarding.
-- [ ] 10.3: Verify isolation and concurrency against two disposable organizations.
+- [x] 10.3: Verify isolation and concurrency against two disposable organizations locally; repeat in CI.
 - [ ] 10.4: Implement and exercise authenticated outbound agent flow on controlled local fixtures.
 - [ ] 10.5: Document onboarding/support and prioritized pilot findings.
 - [ ] 10.6: Verify exact-commit CI/artifacts and report readiness for owner review.
@@ -224,3 +224,20 @@ one run. Production build and focused tests passed. Full local regression comple
 635 tests (634 passed, one Windows symlink-permission skip). Exact-commit CI remains
 pending after push. Sprint 10 is not yet ready for closure; agent/pilot and final
 consolidated acceptance remain unfinished.
+
+## Consolidated Two-Organization Drill
+
+check_organization_isolation.py creates two disposable organizations/accounts in
+one local database and runs actual bounded discovery for each. Sixteen concurrent
+dispatch attempts admit exactly two pending runs per organization. Claiming
+admits one active run in each organization and no second active run in either.
+Two explicitly interrupted claims become error, with no invented assertion.
+The remaining workers execute LOGIN-001/SEARCH-001 for both organizations: two
+completed runs, four passed assertions and four validated persisted PNGs.
+
+Cancellation frees capacity but does not refund daily admission; each organization
+reaches its independent three-admission daily cap. Foreign results/evidence,
+viewer dispatch and revoked reads are denied. No customer sites are contacted.
+The safe report is artifacts/organizations/isolation.json and CI retains it with
+the existing organization UI evidence. Exact-commit CI/artifact acceptance is
+still required; this is a controlled local drill, not real customer pilot feedback.
