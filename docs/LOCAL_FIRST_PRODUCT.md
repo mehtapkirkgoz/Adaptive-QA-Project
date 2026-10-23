@@ -238,3 +238,23 @@ Commit 25d64e4 passed both Core and Pages CI. General regression completed 730 t
 skip). All 51 local-edition/runtime checks passed after final changes;
 exact-commit CI will follow push. Managed licensed binary switching
 and a complete packaged recovery/browser drill remain unfinished.
+
+## Offline Publisher Tooling and Package Recovery Evidence
+
+The publisher-only script issue_local_license.py can explicitly generate an issuer
+key pair outside the repo and sign strictly typed customer entitlement documents.
+It is excluded from the customer wheel, refuses overwriting outputs and never
+prints private signing material. See OFFLINE_LICENSE_ISSUANCE.md for protected
+key storage and customer delivery. No real issuer key/customer license was created;
+tests use ephemeral keys and observed no network access. Two issuance tests passed
+for verification roundtrip, output preservation, invalid claims and repo refusal.
+No billing/account service or unbreakable offline enforcement is claimed.
+
+Committed release fc137f6 was built and installed outside the checkout. Its
+extended release check passed signed entitlement/expiry validation, ownership
+preservation and edition-aware free backup/recovery; all four bundle files and
+the 100-case installed catalog were verified. The release remained inactive.
+Current CI must still supply exact-commit remote acceptance before marking the
+conversion accepted. Managed licensed binary switching remains unavailable and
+refuses licensed data; supported manual package/local-command recovery does not
+claim that legacy managed switching supports it.

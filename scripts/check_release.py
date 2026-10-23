@@ -34,6 +34,9 @@ def check_release(directory):
             wheel = path
     if wheel is None:
         raise ValueError('The application wheel is missing.')
+    with zipfile.ZipFile(wheel) as package:
+        if any('issue_local_license' in name for name in package.namelist()):
+            raise ValueError('Publisher issuance tools must not be in the customer wheel.')
     with zipfile.ZipFile(directory / 'dashboard.zip') as assets:
         if 'index.html' not in assets.namelist() or assets.testzip() is not None:
             raise ValueError('The dashboard archive is incomplete or corrupt.')
