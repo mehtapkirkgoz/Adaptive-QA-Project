@@ -415,3 +415,13 @@ separately bounded interactive login/search contracts with explicit secret
 references and data-change policy. Structural form checks still never fill fields,
 resolve a credential, sign in or submit a search. Overall product acceptance is
 pending; closed sprint tracking is not reopened.
+
+## Interactive Contract Preparation
+
+While the final local-first UI CI job was still installing Chromium, independent
+non-executing interactive login/search contracts were prepared. See
+INTERACTIVE_FORMS.md. They bind typed environment references, project/configuration,
+fixed postconditions and conservative data-change permission. Four focused checks
+passed for no secret/network access, rejected plaintext, policy/configuration drift
+and assertion/input fingerprint changes. No submission worker or catalog execution
+was enabled. Finish local-first remote acceptance before wiring controlled execution.
