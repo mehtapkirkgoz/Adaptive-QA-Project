@@ -134,6 +134,7 @@ function App() {
                   <div className="plan-cases">{plan.cases.map(item => <details key={item.case_id}><summary>{item.case_id} · {item.name} · {item.decision}</summary><p>{item.test_type} — {item.reason}</p></details>)}</div>
                 </div>}
               </section><RunPanel key={'runs:' + selected.project_id + JSON.stringify(settings)} projectId={selected.project_id} discoveryJobId={plan?.discovery_job_id}
+                candidateNames={Object.fromEntries(plan?.cases.map(item => [item.case_id, item.name]) ?? [])}
                 candidates={plan?.cases.filter(item => item.decision === 'selected' && item.test_type === 'ui' && item.target_binding === 'local_root' && item.changes_data === false).map(item => item.case_id) ?? []} request={api}/></>}
             </section></div><div className="roadmap"><span className="dot"/><p>Local discovery, explicit UI runs and owner-authorized screenshots are available.</p></div></>}
       </main><footer>ADAPTIVE QA <span>Controlled scope. Clear evidence.</span></footer>

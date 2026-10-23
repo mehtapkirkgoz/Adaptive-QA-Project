@@ -123,6 +123,9 @@ Verify the built interface with no persistent account or server:
 
 Keep port 8765 available. The check saves a report and desktop/mobile fixture
 screenshots under `artifacts/dashboard/` and cleans up its temporary storage.
+If the normal dashboard is already open, preserve it and run this isolated check
+on another free loopback port, for example `python scripts/check_dashboard_ui.py
+--port 8878`. The controlled sample fixture still needs port 8000 available.
 
 ## Trusted Discovery Worker
 

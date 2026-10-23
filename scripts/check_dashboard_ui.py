@@ -1,5 +1,6 @@
 """Real built React dashboard against temporary owned local accounts and storage."""
 
+import argparse
 import json
 import os
 import subprocess
@@ -19,9 +20,11 @@ from adaptive_qa.project_store import ProjectStore
 from adaptive_qa.web_app import create_app
 from adaptive_qa.browser_process import _terminate_process_tree
 from check_dashboard_runs import QuietHandler
+from check_case_selector import verify_case_selector
 
 
-def main():
+def main(port=8765):
+    origin = f'http://127.0.0.1:{port}'
     output = Path('artifacts/dashboard')
     output.mkdir(parents=True, exist_ok=True)
     with TemporaryDirectory() as directory:
@@ -30,8 +33,8 @@ def main():
         other = auth.create_user('other@example.test', 'Other dashboard password 123!')
         projects = ProjectStore(Path(directory) / 'projects.sqlite')
         projects.create(other, 'Other owner private project')
-        app = create_app(auth, projects=projects, ui_directory=Path('frontend/dist'))
-        server = uvicorn.Server(uvicorn.Config(app, host='127.0.0.1', port=8765,
+        app = create_app(auth, projects=projects, ui_directory=Path('frontend/dist'), port=port)
+        server = uvicorn.Server(uvicorn.Config(app, host='127.0.0.1', port=port,
             log_level='critical', access_log=False, proxy_headers=False))
         thread = Thread(target=server.run, daemon=True)
         thread.start()
@@ -49,8 +52,8 @@ def main():
                     page = browser.new_page(viewport={'width': 1440, 'height': 1100})
                     page.on('pageerror', lambda error: errors.append(str(error)))
                     page.on('request', lambda request: external.append(request.url)
-                            if not request.url.startswith('http://127.0.0.1:8765/') else None)
-                    page.goto('http://127.0.0.1:8765/', timeout=10000)
+                            if not request.url.startswith(origin+'/') else None)
+                    page.goto(origin+'/', timeout=10000)
                     expect(page.get_by_role('heading', name='Sign in', exact=True)).to_be_visible()
                     page.get_by_label('Email', exact=True).fill('dashboard@example.test')
                     page.get_by_label('Password', exact=True).fill('Wrong dashboard password 123!')
@@ -106,6 +109,7 @@ def main():
                     expect(review).not_to_contain_text('Selected: 0 ·')
                     expect(review).to_contain_text('Execution authorized: No.')
                     runs = page.get_by_label('Test runs', exact=True)
+                    verify_case_selector(runs, 'Select')
                     expect(runs.get_by_role('button', name='Start selected tests')).to_be_disabled()
                     for case_id in ('LOGIN-001', 'SEARCH-001'):
                         runs.get_by_label('Select ' + case_id, exact=True).check()
@@ -160,7 +164,7 @@ def main():
                     expect(consistency).to_contain_text('insufficient history')
                     expect(consistency).to_contain_text('Minimum observations per context: 5')
                     link = runs.locator('.run-outcome').filter(has_text='LOGIN-001').get_by_role('link', name='View screenshot', exact=True)
-                    evidence_url = 'http://127.0.0.1:8765' + link.get_attribute('href')
+                    evidence_url = origin + link.get_attribute('href')
                     with page.expect_popup() as popup_info:
                         link.click()
                     popup = popup_info.value
@@ -175,7 +179,7 @@ def main():
                         assert isolated.request.get(evidence_url).status == 401
                         grant = auth.login('other@example.test', 'Other dashboard password 123!')
                         isolated.add_cookies([{'name': 'adaptive_session', 'value': grant.token.value,
-                            'url': 'http://127.0.0.1:8765/', 'httpOnly': True, 'sameSite': 'Strict'}])
+                            'url': origin+'/', 'httpOnly': True, 'sameSite': 'Strict'}])
                         assert isolated.request.get(evidence_url).status == 404
                     finally:
                         isolated.close()
@@ -216,6 +220,7 @@ def main():
         'queue and cancel discovery', 'separate real worker and polled completion',
         'discovery-backed plan review', 'historical policy mismatch denied',
         'explicit two-case selection', 'queued test-run cancellation',
+        'case names and search preserve hidden selections and enforce the ten-case limit',
         'separate test worker completion and two real passed outcomes',
         'report filters preserve aggregate totals', 'downloaded JSON agrees with real outcomes',
         'explicit subset rerun queues without execution', 'cancelled rerun lineage and historical comparison',
@@ -226,4 +231,6 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--port', type=int, default=8765)
+    main(parser.parse_args().port)

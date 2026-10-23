@@ -1,11 +1,12 @@
 import {useEffect, useState} from 'react';
+import {CaseSelector} from './CaseSelector';
 
 type Run = {run_id: string; status: string; results: {case_id: string; status: string; evidence_id?: string; evidence_expired?: boolean}[]};
-type Props = {base: string; discoveryJobId?: string; candidates: string[]; canExecute: boolean;
+type Props = {base: string; discoveryJobId?: string; candidates: string[]; candidateNames?: Record<string, string>; canExecute: boolean;
   request: <T>(path: string, method?: string, body?: unknown) => Promise<T>};
 const active = (run: Run) => ['queued', 'running', 'cancel_requested'].includes(run.status);
 
-export function OrganizationRunPanel({base, discoveryJobId, candidates, canExecute, request}: Props) {
+export function OrganizationRunPanel({base, discoveryJobId, candidates, candidateNames, canExecute, request}: Props) {
   const [runs, setRuns] = useState<Run[]>([]), [selection, setSelection] = useState<string[]>([]);
   const [busy, setBusy] = useState(false), [loading, setLoading] = useState(true), [error, setError] = useState('');
   const polling = runs.some(active);
@@ -21,7 +22,8 @@ export function OrganizationRunPanel({base, discoveryJobId, candidates, canExecu
     void refresh();
     return () => {alive = false; if (timer) clearTimeout(timer);};
   }, [base, polling, request]);
-  useEffect(() => {setSelection([]);}, [discoveryJobId]);
+  const candidateKey = candidates.join(',');
+  useEffect(() => {setSelection([]);}, [discoveryJobId, candidateKey]);
   async function action(task: () => Promise<void>) {
     setBusy(true); setError('');
     try {await task();} catch {setError('Shared run request failed. Check current discovery, membership and available quota.');}
@@ -30,11 +32,8 @@ export function OrganizationRunPanel({base, discoveryJobId, candidates, canExecu
   return <section className="plan-review" aria-label="Organization test runs"><h3>Shared test runs</h3>
     <p className="hint">Select up to ten read-only cases from current controlled discovery. A separate worker executes queued work.</p>
     {!discoveryJobId && <p className="hint">Review current discovery before selecting tests.</p>}
-    {discoveryJobId && candidates.map(id => <label className="check" key={id}>
-      <input type="checkbox" aria-label={`Shared select ${id}`} checked={selection.includes(id)}
-        disabled={!canExecute || busy || (!selection.includes(id) && selection.length >= 10)}
-        onChange={event => setSelection(event.target.checked ? [...selection, id] : selection.filter(value => value !== id))}/>{id}
-    </label>)}
+    {discoveryJobId && <CaseSelector key={discoveryJobId + candidateKey} candidates={candidates} names={candidateNames}
+      selection={selection} disabled={!canExecute || busy} labelPrefix="Shared select" onChange={setSelection}/>}
     <button disabled={!canExecute || busy || loading || polling || !discoveryJobId || !selection.length}
       onClick={() => void action(async () => {
         const run = await request<Run>(`${base}/runs`, 'POST', {discovery_job_id: discoveryJobId, case_ids: selection});

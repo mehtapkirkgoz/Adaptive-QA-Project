@@ -4,6 +4,15 @@ Updated: 2026-10-23
 
 ## Current Authorization
 
+Latest owner instruction (2026-10-23): Sprint 10 milestone is closed; continue
+remaining product work. Issue #11 and milestone #11 are verified closed.
+Current phase is the post-sprint local product review in POST_SPRINT_REVIEW.md.
+Continue its unfinished authorized increments, commit/push verified changes and
+report each commit. Preserve the public demo, owner sessions and all execution
+guards. No purchases, public backend or customer-site execution are authorized.
+The Sprint 10 readiness/awaiting-review notes below are historical and do not
+override this newer instruction. The entire product is not yet accepted.
+
 Active sprint: 10 — Customer Management and Pilot Testing; awaiting owner review.
 Technical acceptance is recorded in SPRINT_10_ACCEPTANCE.md for implementation
 c6c5678ed8606987dfe80993cc406a9c2d1469cb and successful CI run 39905039071.

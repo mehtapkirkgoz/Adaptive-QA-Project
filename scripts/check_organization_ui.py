@@ -9,6 +9,7 @@ from threading import Thread
 import time
 
 from playwright.sync_api import sync_playwright, expect
+from check_case_selector import verify_case_selector
 import uvicorn
 
 from adaptive_qa.auth_store import AuthStore
@@ -92,6 +93,7 @@ def main():
                     panel.get_by_role('button', name='Review discovery plan', exact=True).click()
                     expect(panel.get_by_text('Execution authorized: No.', exact=False)).to_be_visible()
                     run_panel = panel.get_by_label('Organization test runs', exact=True)
+                    verify_case_selector(run_panel, 'Shared select')
                     run_panel.get_by_label('Shared select LOGIN-001', exact=True).check()
                     run_panel.get_by_label('Shared select SEARCH-001', exact=True).check()
                     run_panel.get_by_role('button', name='Start shared tests', exact=True).click()
@@ -157,6 +159,7 @@ def main():
               'actual_shared_cases_passed': 2, 'shared_pngs_persisted': 2,
               'anonymous_and_revoked_evidence_denied': True,
               'member_added_through_authenticated_ui': True, 'usage_snapshot_verified': True,
+              'named_filtered_bounded_selection_verified': True,
               'external_requests': len(external), 'page_errors': errors,
               'demo_modified': False}
     (output/'ui.json').write_text(json.dumps(report, indent=2)+'\n', encoding='utf-8')

@@ -2,14 +2,15 @@ import {useEffect, useState} from 'react';
 import {ReportPanel} from './ReportPanel';
 import {HistoryPanel} from './HistoryPanel';
 import {ConsistencyPanel} from './ConsistencyPanel';
+import {CaseSelector} from './CaseSelector';
 
 type Outcome = {case_id: string; status: string; duration_seconds: number; message: string; evidence_id?: string; evidence_expired?: boolean};
 type Run = {run_id: string; status: string; case_ids: string[]; results: Outcome[]; rerun_of: string | null};
-type Props = {projectId: string; discoveryJobId?: string; candidates: string[];
+type Props = {projectId: string; discoveryJobId?: string; candidates: string[]; candidateNames?: Record<string, string>;
   request: <T>(path: string, method?: string, body?: unknown) => Promise<T>};
 const active = (run: Run) => ['queued', 'running', 'cancel_requested'].includes(run.status);
 
-export function RunPanel({projectId, discoveryJobId, candidates, request}: Props) {
+export function RunPanel({projectId, discoveryJobId, candidates, candidateNames, request}: Props) {
   const [runs, setRuns] = useState<Run[]>([]), [selection, setSelection] = useState<string[]>([]);
   const [loading, setLoading] = useState(true), [busy, setBusy] = useState(false), [error, setError] = useState('');
   const polling = runs.some(active), base = `/api/projects/${projectId}/runs`;
@@ -36,9 +37,8 @@ export function RunPanel({projectId, discoveryJobId, candidates, request}: Props
   return <section className="plan-review" aria-label="Test runs"><h3>Run selected UI tests</h3>
     <p className="hint">Only selected read-only tests bound to this local root are eligible. Choose up to ten. Starting creates a queued run for the separate test worker.</p>
     {!discoveryJobId && <p className="hint">Review a completed current discovery plan to choose tests.</p>}
-    {!!discoveryJobId && <div className="run-selection">{candidates.map(id => <label className="check" key={id}><input type="checkbox" aria-label={`Select ${id}`}
-      disabled={busy || (!selection.includes(id) && selection.length >= 10)} checked={selection.includes(id)}
-      onChange={event => setSelection(event.target.checked ? [...selection, id] : selection.filter(item => item !== id))}/>{id}</label>)}</div>}
+    {!!discoveryJobId && <CaseSelector key={discoveryJobId + candidateKey} candidates={candidates} names={candidateNames}
+      selection={selection} disabled={busy} labelPrefix="Select" onChange={setSelection}/>}
     <button className="primary" disabled={loading || busy || polling || !discoveryJobId || !selection.length}
       onClick={() => void action(async () => {
         const run = await request<Run>(base, 'POST', {discovery_job_id: discoveryJobId, case_ids: selection});

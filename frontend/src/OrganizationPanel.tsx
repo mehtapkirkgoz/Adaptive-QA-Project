@@ -28,7 +28,7 @@ function OrganizationWorkspace({request}: {request: Request}) {
   const [target, setTarget] = useState(''), [hosts, setHosts] = useState(''), [slots, setSlots] = useState<string[]>([]);
   const [maxProjects, setMaxProjects] = useState<number | null>(null);
   const [planSummary, setPlanSummary] = useState('');
-  const [runPlan, setRunPlan] = useState<{jobId: string; candidates: string[]} | null>(null);
+  const [runPlan, setRunPlan] = useState<{jobId: string; candidates: string[]; names: Record<string, string>} | null>(null);
   const generation = useRef(0);
   const canConfigure = selected?.role === 'owner' || selected?.role === 'admin';
   const path = selected ? `/api/organizations/${selected.organization_id}/projects` : '';
@@ -119,12 +119,12 @@ function OrganizationWorkspace({request}: {request: Request}) {
           canExecute={['owner', 'admin', 'member'].includes(selected.role)} request={request}
           onReport={(report, jobId) => {
             setPlanSummary(`Inspected pages: ${report.inspected_pages}. Catalog: ${report.counts.catalog}. Selected: ${report.counts.selected}. Execution authorized: No.`);
-            setRunPlan({jobId, candidates: report.cases.filter(item => item.decision === 'selected' && item.test_type === 'ui'
+            setRunPlan({jobId, names: Object.fromEntries(report.cases.map(item => [item.case_id, item.name])), candidates: report.cases.filter(item => item.decision === 'selected' && item.test_type === 'ui'
               && item.target_binding === 'local_root' && item.changes_data === false).map(item => item.case_id)});
           }}/>
         {planSummary && <p role="status">{planSummary}</p>}
         <OrganizationRunPanel key={'shared-runs:' + project.project_id + JSON.stringify(settings)} base={`${path}/${project.project_id}`}
-          discoveryJobId={runPlan?.jobId} candidates={runPlan?.candidates ?? []}
+          candidateNames={runPlan?.names} discoveryJobId={runPlan?.jobId} candidates={runPlan?.candidates ?? []}
           canExecute={['owner', 'admin', 'member'].includes(selected.role)} request={request}/>
       </>}
     </div>}
