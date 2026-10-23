@@ -425,3 +425,14 @@ fixed postconditions and conservative data-change permission. Four focused check
 passed for no secret/network access, rejected plaintext, policy/configuration drift
 and assertion/input fingerprint changes. No submission worker or catalog execution
 was enabled. Finish local-first remote acceptance before wiring controlled execution.
+
+## Controlled Interactive DOM Transition Proof
+
+Local-first CI acceptance was verified in commit 3a79091. The next independent
+interactive increment adds an internal DOM probe and sixteen Chromium transition/
+negative scenarios under INTERACTIVE_FORMS.md. No queued submission worker or
+external network form submission is enabled. The fixture runner fulfills documents
+and denies all subsequent requests, records no screenshots and disposes contexts.
+Inputs are referenced and resolved only after preconditions; results are sanitized.
+Continue with hard child supervision and owned HTTP fixture proof before product
+admission. Exact-commit CI for this increment is pending after push.

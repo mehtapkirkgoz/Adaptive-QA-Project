@@ -226,6 +226,7 @@ jobs:
             artifacts/matching/*.json
             artifacts/local-free/*.json
             artifacts/local-license/*.json
+            artifacts/interactive-probe/*.json
             artifacts/bridge/*.json
             artifacts/database/bridge.json
             artifacts/ai/*.json
@@ -316,6 +317,8 @@ jobs:
         run: |
           npm ci
           npm run build
+      - name: Verify controlled interactive DOM transitions without network submissions
+        run: python scripts/check_interactive_probe.py
       - name: Verify account-free local workspace and one-site execution
         run: python scripts/check_local_free.py
       - name: Verify licensed local interface and signed import
@@ -343,6 +346,7 @@ jobs:
             artifacts/matching/*.json
             artifacts/local-free/*.json
             artifacts/local-license/*.json
+            artifacts/interactive-probe/*.json
           retention-days: 7
           if-no-files-found: warn
 
