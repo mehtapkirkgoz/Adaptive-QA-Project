@@ -95,6 +95,7 @@ jobs:
           python -m unittest discover -s tests -p test_runtime_schema.py -v
           python -m unittest discover -s tests -p test_storage_health.py -v
           python -m unittest discover -s tests -p test_local_runtime.py -v
+          python -m unittest discover -s tests -p test_agent_registry.py -v
       - name: Upload lifecycle report
         if: always()
         uses: actions/upload-artifact@v7

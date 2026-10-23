@@ -24,6 +24,8 @@ are authorized by this sprint start.
   - [x] Finish membership administration and scoped usage visibility for onboarding.
 - [x] 10.3: Verify isolation and concurrency against two disposable organizations locally; repeat in CI.
 - [ ] 10.4: Implement and exercise authenticated outbound agent flow on controlled local fixtures.
+  - [x] Add project-bound, expiring/revocable credential core and replay checks.
+  - [ ] Add authenticated outbound transport, scoped leases/results and actual local agent drill.
 - [ ] 10.5: Document onboarding/support and prioritized pilot findings.
 - [ ] 10.6: Verify exact-commit CI/artifacts and report readiness for owner review.
 
@@ -241,3 +243,26 @@ viewer dispatch and revoked reads are denied. No customer sites are contacted.
 The safe report is artifacts/organizations/isolation.json and CI retains it with
 the existing organization UI evidence. Exact-commit CI/artifact acceptance is
 still required; this is a controlled local drill, not real customer pilot feedback.
+
+## Agent Credential Foundation
+
+AgentRegistry enrolls only through a trusted internal operator call by the
+organization owner. Each credential binds one organization/project and expires
+within one day (default one hour). Enrollment requires exactly the controlled
+loopback root, only the loopback allowed host and data-changing policy disabled.
+At most ten unexpired/unrevoked agents are allowed per organization.
+
+The generated high-entropy bearer is returned once as a masked SecretValue and
+is never stored in plaintext. Authentication compares SHA-256 digests in constant
+time and transactionally advances a strictly increasing bounded sequence number.
+Concurrent replay is accepted at most once. Each check revalidates current issuer
+privilege, project scope, local target/policy, revocation and expiry. Trusted server
+identity objects are internal context, never client-provided authorization.
+
+Offline restore revokes every recovered agent credential, preventing old sequence
+counters from reviving a bearer. A real recovery test verifies refusal in the copy
+while the original database/credential remains unchanged. Five credential tests
+and seven backup/recovery tests passed locally; Linux/Windows CI includes these.
+This core does not listen, poll, dispatch or execute. HTTP transport, scoped work
+leases/result acknowledgement, credential handoff and the real outbound-only
+local agent demonstration remain unfinished; no customer agent deployment is claimed.

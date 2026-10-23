@@ -19,6 +19,30 @@ from adaptive_qa.project_store import ProjectStore
 
 
 class BackupRestoreTests(unittest.TestCase):
+    def test_restore_revokes_agent_credentials_instead_of_rolling_back_replay_counters(self):
+        from adaptive_qa.organization_store import OrganizationStore
+        from adaptive_qa.organization_projects import OrganizationProjects
+        from adaptive_qa.agent_registry import AgentRegistry,AgentAuthenticationError
+        actor = self.grant.actor
+        organizations = OrganizationStore(self.projects)
+        scoped = OrganizationProjects(organizations)
+        organization = organizations.create(actor,'Agent recovery')
+        project = scoped.create(actor,organization,'Controlled')['project_id']
+        scoped.save_configuration(actor,organization,project,{'base_url':'http://127.0.0.1:8000/',
+            'allowed_hosts':['127.0.0.1'],'allow_data_changes':False,'secret_references':{}})
+        registry = AgentRegistry(scoped)
+        grant = registry.issue(actor,organization,project)
+        registry.authenticate(grant.agent_id,grant.token.value,1)
+        bundle = create_backup(self.plan,maintenance_confirmed=True)['bundle_id']
+        original = self.projects.database.read_bytes()
+        result = prepare_restore(self.plan,bundle,maintenance_confirmed=True)
+        recovered_projects = ProjectStore(self.plan.directory/'recovery'/result['recovery_id']/'projects.sqlite')
+        recovered = AgentRegistry(OrganizationProjects(OrganizationStore(recovered_projects)))
+        with self.assertRaises(AgentAuthenticationError):
+            recovered.authenticate(grant.agent_id,grant.token.value,2)
+        self.assertEqual(original,self.projects.database.read_bytes())
+        self.assertTrue(registry.authenticate(grant.agent_id,grant.token.value,2))
+
     def test_shared_run_restore_keeps_partial_results_and_png_but_cancels_claims(self):
         from adaptive_qa.organization_store import OrganizationStore
         from adaptive_qa.organization_projects import OrganizationProjects
