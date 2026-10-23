@@ -30,7 +30,7 @@ completion percentage is not a measured estimate for this changed scope.
   prove restart persistence, concurrent creation and real local execution.
 - [x] Add typed signed-license claims, explicit trusted public keys, expiry and
   verification; no issuer private key or developer bypass shipped to customers.
-- [ ] Bind paid administration and multi-project entitlements to verified licenses;
+- [x] Bind paid administration and multi-project entitlements to verified licenses;
   preserve existing local projects during upgrade and define safe expiry behavior.
 - [ ] Add customer-facing local startup/install and license import/status UX, plus
   packaged-release/backup/rollback compatibility checks for both editions.
@@ -258,3 +258,13 @@ Current CI must still supply exact-commit remote acceptance before marking the
 conversion accepted. Managed licensed binary switching remains unavailable and
 refuses licensed data; supported manual package/local-command recovery does not
 claim that legacy managed switching supports it.
+
+## Consolidated Local Conversion Checkpoint
+
+Implementation 1c3704c passed the final 735-test regression (734 passed, one Windows
+permission skip), both real browser/CLI fixture flows and installed-wheel checks
+outside the checkout. Local evidence/digests and remaining limits are recorded in
+LOCAL_FIRST_ACCEPTANCE.md and evidence/local-first-1c3704c.json. This does not mark
+remote CI/artifact acceptance or overall product acceptance complete. Continue the
+remaining packaged paid recovery drill and licensed runtime compatibility work,
+then verify exact-commit CI/artifacts before resuming broader execution expansion.

@@ -2,7 +2,7 @@
 
 An AI-assisted QA platform under development for website discovery and applicable UI, API, and database tests.
 
-**Product direction:** Conversion to an account-free, one-project local edition and signed licensed multi-project edition is in progress. Test data stays in the customer environment. The first opt-in free workspace is available; paid licensing is unfinished. See [conversion plan and local startup](docs/LOCAL_FIRST_PRODUCT.md).
+**Product direction:** Conversion to an account-free, one-project local edition and signed licensed multi-project edition is in progress. Test data stays in the customer environment. The free workspace and authenticated licensed local commands are available, including signed-license import/status and offline backup/recovery. Final conversion acceptance and managed licensed binary switching remain unfinished. See [conversion plan and local startup](docs/LOCAL_FIRST_PRODUCT.md), [licensed setup](docs/LOCAL_LICENSED_SETUP.md) and [local acceptance evidence](docs/LOCAL_FIRST_ACCEPTANCE.md).
 
 **Current local product work:** Configured HTTPS discovery and explicit execution support five independent document checks plus discovered read-only login/search form checks at the exact saved target. Form checks inspect controls without filling fields, signing in or submitting searches. Personal/shared scopes, process deadlines and evidence access remain enforced. Custom labels, button names, test IDs and optional scopes can be saved per project; changing them requires fresh discovery. See [form capabilities and limits](docs/CONFIGURED_FORMS.md) and [post-sprint review](docs/POST_SPRINT_REVIEW.md). The static Pages demo does not execute these checks.
 
