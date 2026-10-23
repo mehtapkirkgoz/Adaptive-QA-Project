@@ -1,9 +1,13 @@
 # Sprint 10 — Customer Management and Pilot Testing
 
 Started: 2026-10-23
-Status: Technical acceptance ready for owner review; issue/milestone remain open.
+Status: Closed by the owner on 2026-10-23 after technical acceptance.
 Tracking: [issue #11](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/issues/11)
 Milestone: [#11](https://github.com/mehtapkirkgoz/Adaptive-QA-Project/milestone/11)
+
+Issue #11 and milestone #11 are verified closed. Later product work is tracked
+in POST_SPRINT_REVIEW.md; it does not rewrite this sprint's frozen acceptance.
+Earlier pending/readiness notes below describe the historical delivery sequence.
 
 Sprint 9 issue and milestone are closed. Its accepted implementation and twelve
 CI jobs remain recorded in SPRINT_9_ACCEPTANCE.md. Public Pages remains an

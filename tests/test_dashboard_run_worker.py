@@ -21,6 +21,17 @@ class DashboardRunWorkerTests(unittest.TestCase):
     def current(self):
         return self.queue.get(self.fixture.actor, self.fixture.pid, self.run['run_id'])
 
+    def test_admitted_document_uses_independent_binding_without_guessing_comparison_context(self):
+        self.queue.cancel(self.fixture.actor, self.fixture.pid, self.run['run_id'])
+        document = self.fixture.submit(('DOC-001',))
+        result = TestResult('DOC-001', TestStatus.PASSED, .1, 'Document passed.')
+        with patch('adaptive_qa.dashboard_run_worker.run_isolated_sample_test', return_value=result) as adapter, \
+                patch.object(self.queue, 'record_execution_context') as record:
+            self.assertEqual(process_run_once(self.queue)['status'], 'completed')
+            self.assertEqual(adapter.call_args.kwargs['document_path'], '/')
+            record.assert_not_called()
+        self.assertIsNone(self.queue.comparison_context(self.fixture.actor, self.fixture.pid, document['run_id'])['execution_context'])
+
     def test_case_failure_preserves_actual_results_and_completed_lifecycle(self):
         results = [TestResult('LOGIN-001', TestStatus.PASSED, .1, 'PRIVATE /local/path'),
                    TestResult('LOGIN-002', TestStatus.FAILED, .2, 'PRIVATE second assertion')]

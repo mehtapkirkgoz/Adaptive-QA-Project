@@ -9,6 +9,15 @@ from threading import Thread
 from adaptive_qa.browser_process import run_isolated_sample_test
 from adaptive_qa.dashboard_evidence import validate_png
 from adaptive_qa.document_checks import DOCUMENT_CHECKS
+from adaptive_qa.project_store import ProjectStore, ProjectActor
+from adaptive_qa.dashboard_jobs import DashboardDiscoveryQueue
+from adaptive_qa.dashboard_runs import DashboardRunQueue
+from adaptive_qa.dashboard_worker import process_discovery_once
+from adaptive_qa.dashboard_run_worker import process_run_once
+from adaptive_qa.organization_store import OrganizationStore
+from adaptive_qa.organization_projects import OrganizationProjects
+from adaptive_qa.organization_discovery import OrganizationDiscoveryQueue
+from adaptive_qa.organization_runs import OrganizationRunQueue
 
 
 def main():
@@ -25,6 +34,7 @@ def main():
         'DOC-005': '<html lang="en"><title>News</title><a href="#missing">Content</a></html>',
     }
     for case, html in defects.items(): pages[f'/negative-{case}.html'] = html
+    pages['/'] = pages['/information.html']
     contacts = {'canary': 0, 'writes': 0}
     class Handler(BaseHTTPRequestHandler):
         def log_message(self, *args): pass
@@ -63,6 +73,40 @@ def main():
                 assert len(result.evidence_paths) == 1
                 validate_png(Path(result.evidence_paths[0]).read_bytes())
                 results.append({'fixture': 'negative', 'case_id': case, 'status': result.status.value})
+            projects = ProjectStore(root/'projects.sqlite')
+            actor = ProjectActor('a'*32)
+            settings = {'base_url': 'http://127.0.0.1:8000/', 'allowed_hosts': ['127.0.0.1'],
+                        'allow_data_changes': False, 'secret_references': {}}
+            project = projects.create(actor, 'Independent document')
+            projects.save_configuration(actor, project.project_id, settings)
+            discovery = DashboardDiscoveryQueue(projects)
+            job = discovery.submit(actor, project.project_id)
+            assert process_discovery_once(discovery)['status'] == 'completed'
+            queue = DashboardRunQueue(projects)
+            run = queue.submit(actor, project.project_id, job['job_id'], tuple(DOCUMENT_CHECKS))
+            assert run['status'] == 'queued' and not run['results']
+            assert process_run_once(queue)['status'] == 'completed'
+            saved = queue.get(actor, project.project_id, run['run_id'])
+            assert len(saved['results']) == 5 and all(row['status'] == 'passed' for row in saved['results'])
+            for row in saved['results']:
+                validate_png(queue.evidence(actor, project.project_id, run['run_id'], row['evidence_id']))
+            organizations = OrganizationStore(projects)
+            organization = organizations.create(actor, 'Document team')
+            scoped = OrganizationProjects(organizations)
+            shared = scoped.create(actor, organization, 'Independent shared document')['project_id']
+            scoped.save_configuration(actor, organization, shared, settings)
+            shared_discovery = OrganizationDiscoveryQueue(scoped)
+            shared_job = shared_discovery.submit(actor, organization, shared)
+            assert process_discovery_once(shared_discovery)['status'] == 'completed'
+            shared_queue = OrganizationRunQueue(shared_discovery)
+            shared_run = shared_queue.submit(actor, organization, shared, shared_job['job_id'], tuple(DOCUMENT_CHECKS))
+            assert shared_run['status'] == 'queued' and not shared_run['results']
+            assert process_run_once(shared_queue)['status'] == 'completed'
+            shared_saved = shared_queue.get(actor, organization, shared, shared_run['run_id'])
+            assert len(shared_saved['results']) == 5 and all(row['status'] == 'passed' for row in shared_saved['results'])
+            for row in shared_saved['results']:
+                validate_png(shared_queue.evidence(actor, organization, shared, shared_run['run_id'], row['evidence_id']))
+            assert shared_queue.admission.usage(actor, organization)['active_runs'] == 0
             assert contacts == {'canary': 0, 'writes': 0}
     finally:
         for server in servers: server.shutdown(); server.server_close()
@@ -70,6 +114,8 @@ def main():
     report = {'controlled_local_only': True, 'sample_title_required': False, 'unique_cases': 5,
               'positive_executions': 15, 'negative_defects_detected': 5, 'validated_pngs': 20,
               'forbidden_canary_contacts': contacts['canary'], 'write_requests_received': contacts['writes'],
+              'discovery_backed_personal_cases_passed': 5, 'discovery_backed_shared_cases_passed': 5,
+              'scoped_persisted_pngs': 10, 'shared_active_capacity_released': True,
               'public_target_execution_enabled': False, 'results': results}
     output = Path('artifacts/matching/document-execution.json')
     output.parent.mkdir(parents=True, exist_ok=True)

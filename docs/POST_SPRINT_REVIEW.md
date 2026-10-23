@@ -26,6 +26,10 @@ This follow-up does not enable purchases, public backend hosting or customer tes
     through separate child processes, including denied write/canary requests.
   - [ ] Integrate reviewed discovered document bindings into admission/planning
     before widening dashboard execution scope.
+    - [x] Route already-admitted root document cases through the independent
+      executor in the common personal/shared worker; retain current admission.
+    - [ ] Review non-root discovered paths and target-specific context binding
+      before exposing additional target scopes through the dashboard.
 - [ ] Address operator enrollment/agent startup and bounded unattended maintenance
   from PILOT_FINDINGS.md with separately verified increments.
 
@@ -86,3 +90,19 @@ Foundation local regression completed 659 tests: 658 passed and one Windows
 symlink-permission skip. The earlier selection increment 9588cce passed Core
 checks run 39914643399; saved-target increment 42db9b4 CI remains in progress.
 The document foundation requires its own same-commit CI after push.
+
+## Discovery-Backed Root Document Runs
+
+The normal personal/shared worker now routes the five already-eligible root
+document cases through the independent binding. Existing membership, discovery,
+configuration, quota, result/evidence and cancellation checks remain authoritative.
+The HTTP drill discovers an information page with an unrelated title, explicitly
+admits five cases through each queue and verifies ten passed persisted outcomes,
+ten scoped PNGs and released shared active capacity. Admission alone remains
+non-executing. No root-path or external-target restriction is widened.
+
+Document runs deliberately omit a comparable execution context until actual page
+content can be bound to it; differing documents must not be pooled into flaky
+signals based only on a sample source fingerprint. Worker/consistency regressions
+cover this conservative behavior. The context source inventory also includes the
+new document-path validator. Non-root admission/UI support remains unfinished.

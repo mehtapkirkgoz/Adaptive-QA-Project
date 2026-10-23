@@ -11,6 +11,7 @@ from adaptive_qa.smoke_checks import SMOKE_CHECKS
 from adaptive_qa.worker_lock import worker_lock
 from adaptive_qa.dashboard_evidence import import_screenshot
 from adaptive_qa.execution_context import capture_execution_context
+from adaptive_qa.document_checks import DOCUMENT_CHECKS
 
 
 def process_run_once(queue):
@@ -26,7 +27,8 @@ def process_run_once(queue):
             return (queue.cancellation_requested(work) or not queue.configuration_current(work)
                     or monotonic() - started >= 120)
         try:
-            context = capture_execution_context()
+            # General document content is not yet fingerprinted for comparison.
+            context = None if any(case in DOCUMENT_CHECKS for case in work.case_ids) else capture_execution_context()
             if work.configuration['base_url'] not in ('http://127.0.0.1:8000', 'http://127.0.0.1:8000/'):
                 raise ValueError('Unsupported controlled target.')
             for case_id in work.case_ids:
@@ -37,8 +39,9 @@ def process_run_once(queue):
                 definition = catalog.get(case_id)
                 if definition is None or definition.changes_data or case_id not in SMOKE_CHECKS:
                     raise ValueError('Unsupported runtime case.')
+                binding = {'document_path': '/'} if case_id in DOCUMENT_CHECKS else {}
                 result = run_isolated_sample_test(case_id, timeout_seconds=min(30, 120 - (monotonic() - started)),
-                    should_cancel=stop, site='root', evidence_directory=evidence_root)
+                    should_cancel=stop, site='root', evidence_directory=evidence_root, **binding)
                 if queue.cancellation_requested(work):
                     break
                 if stop() or not isinstance(result, TestResult) or result.case_id != case_id or result.status == TestStatus.CANCELLED:
