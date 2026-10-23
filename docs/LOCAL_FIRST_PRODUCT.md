@@ -155,3 +155,19 @@ creation, reduced limits and shared discovery/run worker capacity. Expiry pollin
 records cancel_requested so finalization cannot report an empty successful run.
 Affected dashboard queue/worker tests were repeated after this change. Exact-commit
 CI is pending after push.
+
+## Customer Command Increment
+
+The local command group now provides interactive administrator provisioning,
+bounded signed-license import/status, authenticated loopback serving and dedicated
+licensed discovery/run workers. See [licensed startup](LOCAL_LICENSED_SETUP.md).
+Worker commands construct LicensedLocalProjects directly and do not fall back to
+organization/development queues. Trust files reject duplicate/oversized input and
+remain separate from imported licenses. No issuer service or signing key is created.
+
+All 43 local-edition/runtime tests passed, including four command checks for
+no-network import/status, safe replacement, strict trust files, loopback startup
+and licensed worker composition. Six legacy dashboard CLI tests also passed.
+These tests do not yet demonstrate packaged licensed browser execution or graphical
+license management. Those acceptance and packaging tasks remain open. Exact-commit
+CI is pending after push; prior c57a2c0 was still running when inspected.

@@ -11,11 +11,19 @@ def main() -> None:
     from adaptive_qa.dashboard_cli import configure_parser
     commands = parser.add_subparsers(dest='command')
     configure_parser(commands)
+    from adaptive_qa.local_cli import configure_parser as configure_local
+    configure_local(commands)
     from adaptive_qa.deployment_cli import configure_parser as configure_deployment
     configure_deployment(commands)
     args = parser.parse_args()
     if args.command == 'dashboard':
         from adaptive_qa.dashboard_cli import run
+        try:
+            run(args)
+        except ValueError as error:
+            parser.exit(2, f'{error}\n')
+    elif args.command == 'local':
+        from adaptive_qa.local_cli import run
         try:
             run(args)
         except ValueError as error:
