@@ -46,8 +46,9 @@ The supported customer path is the local command group plus the committed wheel
 and built UI. Legacy development/auth compatibility commands remain in the repo;
 this open local runtime is not tamper-proof licensing. The managed legacy binary
 switcher refuses licensed databases rather than starting an unenforced worker.
-Managed licensed binary switching/rollback and a complete packaged paid recovery
-browser drill remain open. Snapshot storage is customer-controlled and unencrypted;
+Managed licensed binary switching/rollback remains unavailable. The subsequent
+packaged paid recovery browser drill passed against release 67f6f85; see
+evidence/installed-licensed-recovery-67f6f85.json. Snapshot storage is customer-controlled and unencrypted;
 issuer trust files/environment secrets are restored separately.
 
 No actual publisher key, customer license, central account service, payment,
@@ -55,3 +56,16 @@ public backend or customer/private-network test was created. The Pages demo rema
 non-executing. Interactive credential submission and broader reusable API/database
 product work remain outside this conversion acceptance. Overall owner acceptance
 is pending; this record does not close a new sprint or restart closed tracking.
+
+## Installed Licensed Recovery Drill
+
+The committed 67f6f85 wheel and extracted built UI were exercised outside the
+checkout. Both server imports and actual local CLI workers used the installed
+package. The browser signed in, imported a signed ephemeral license, discovered
+the controlled fixture and passed LOGIN-001. After stopping the owned server, the
+complete workspace was snapshotted and restored to a fresh directory. Restarted
+recovery refused the old session, accepted a fresh password login and displayed
+the preserved valid license and passed result. There were zero external browser
+requests or page errors. No owner server/session was restarted. CI now repeats the
+installed drill and uploads its value-free report; exact-commit remote results
+remain pending. No managed legacy binary cutover is implied.

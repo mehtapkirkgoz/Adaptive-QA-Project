@@ -268,3 +268,19 @@ LOCAL_FIRST_ACCEPTANCE.md and evidence/local-first-1c3704c.json. This does not m
 remote CI/artifact acceptance or overall product acceptance complete. Continue the
 remaining packaged paid recovery drill and licensed runtime compatibility work,
 then verify exact-commit CI/artifacts before resuming broader execution expansion.
+
+## Installed Paid Recovery Follow-Up
+
+Release 67f6f85 passed the installed-wheel licensed browser/CLI drill outside the
+checkout, followed by stopped-workspace snapshot/recovery, invalidated old browser
+session, fresh password login and preserved license/results. Source and installed
+server/worker flows passed. Evidence is in LOCAL_FIRST_ACCEPTANCE.md and
+evidence/installed-licensed-recovery-67f6f85.json. CI now repeats this installed
+drill in the UI job and includes its report in local-license artifacts.
+
+The customer local command path now has free/paid startup, import/status, signed
+entitlement enforcement, actual controlled execution and offline recovery checks.
+Managed legacy binary switching stays unsupported and fails closed for licensing
+state. Next required acceptance work is exact-commit CI/artifact inspection, not
+a claim that legacy management or customer deployment was enabled. Keep overall
+product acceptance pending and continue the remaining authorized work afterward.

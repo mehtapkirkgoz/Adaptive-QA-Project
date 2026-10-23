@@ -320,6 +320,12 @@ jobs:
         run: python scripts/check_local_free.py
       - name: Verify licensed local interface and signed import
         run: python scripts/check_licensed_ui.py
+      - name: Verify installed licensed browser execution and offline recovery
+        env:
+          ADAPTIVE_QA_VERIFY_LICENSED_UI: '1'
+        run: |
+          python scripts/build_release.py
+          python scripts/check_release.py artifacts/releases/${{ github.sha }}
       - name: Verify supervised configured form checks on owned HTTP fixtures
         run: python scripts/check_configured_forms.py
       - name: Verify reusable UI checks across fixture names

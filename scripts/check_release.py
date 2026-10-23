@@ -119,6 +119,20 @@ main()
         subprocess.run([sys.executable, '-I', '-c', code, str(site),
                         json.dumps(manifest.get('database_schema_revisions'))], cwd=temporary,
                        env=environment, check=True, timeout=30)
+        if os.environ.get('ADAPTIVE_QA_VERIFY_LICENSED_UI') == '1':
+            ui = Path(temporary)/'dashboard'
+            with zipfile.ZipFile(directory/'dashboard.zip') as assets:
+                assets.extractall(ui)
+            browser_environment = dict(environment)
+            browser_environment['ADAPTIVE_QA_VERIFY_SITE'] = str(site)
+            browser_environment['ADAPTIVE_QA_VERIFY_UI'] = str(ui)
+            subprocess.run([sys.executable,str(ROOT/'scripts/check_licensed_ui.py')],cwd=temporary,
+                env=browser_environment,check=True,timeout=180)
+            report = json.loads((Path(temporary)/'artifacts/local-license/ui.json').read_text(encoding='utf-8'))
+            if not report.get('installed_wheel') or not report.get('recovered_results_and_license'):
+                raise ValueError('Installed licensed browser/recovery evidence is incomplete.')
+            output = ROOT/'artifacts/local-license'; output.mkdir(parents=True,exist_ok=True)
+            (output/'installed-ui.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
     print(json.dumps({'source_commit': revision, 'files_verified': len(manifest['files']),
                       'installed_catalog': {'ui': 51, 'api': 34, 'database': 15},
                       'activation_enabled': False}, indent=2))

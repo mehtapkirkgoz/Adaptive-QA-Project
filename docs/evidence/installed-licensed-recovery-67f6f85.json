@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "package_commit": "67f6f85a75c3e3ef0ec9b77d33e3a09bbba52d60",
+  "files": [
+    {
+      "name": "adaptive_qa-0.1.0.dev0-py3-none-any.whl",
+      "bytes": 200249,
+      "sha256": "333d41de1e01c18ee360e4a5c36d94fa8895a7bd2c20fb603025957cf42ecbdf"
+    },
+    {
+      "name": "dashboard.zip",
+      "bytes": 83696,
+      "sha256": "6c1a0fd07fcf3600286c35f912a6407459dec475741c59797cff909eb711dc1b"
+    },
+    {
+      "name": "frontend-package-lock.json",
+      "bytes": 40765,
+      "sha256": "713aa5ce57e0c4193c39e47cd4003112f57c0553d8a2f7ddb4e8b5e857a6ccec"
+    },
+    {
+      "name": "requirements.lock.txt",
+      "bytes": 432,
+      "sha256": "8fc2eac9de2e0ef556b946ce2da5df5ef26b08a5c7924faf272612a92bb37ff4"
+    }
+  ],
+  "installed_browser": {
+    "local_only": true,
+    "upgrade_preserved": true,
+    "valid_import": true,
+    "invalid_import_preserved": true,
+    "authenticated_reload": true,
+    "recovery_requires_fresh_login": true,
+    "recovered_results_and_license": true,
+    "installed_wheel": true,
+    "licensed_cli_discovery_and_login_passed": true,
+    "page_errors": [],
+    "external_requests": 0
+  },
+  "remote_ci": "pending",
+  "owner_accepted": false
+}
