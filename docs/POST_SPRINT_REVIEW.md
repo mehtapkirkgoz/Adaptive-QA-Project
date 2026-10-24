@@ -456,3 +456,14 @@ document loading and client-side transitions, not endpoint credential submission
 Continue with the explicit owned submission-endpoint contract/transport described
 in INTERACTIVE_FORMS.md; no customer/site activation or catalog admission is added.
 Exact-commit CI for this increment is pending after push.
+
+## Canonical Private Transport Paths
+
+CI run 40048206855 passed eleven jobs but the Windows packaged-runtime probe
+exited before producing a child result; this is not accepted CI evidence.
+The owned temporary directory is now resolved before child argv construction,
+so Windows short-name/junction TEMP aliases cannot conflict with the strict
+canonical-path check. The child path/link checks remain enforced. Eight supervisor
+tests, including a noncanonical-directory regression, and eight actual local
+Chromium process scenarios passed. Exact-commit Windows/Linux CI must verify
+whether this resolves the runner failure before endpoint transport is extended.

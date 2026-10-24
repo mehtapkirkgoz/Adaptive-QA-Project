@@ -136,3 +136,14 @@ Next required work is a separately bound owned-fixture submission endpoint contr
 and one-shot request transport. Do not loosen the read-only discovery proxy or
 treat this document-only HTTP proof as permission to send arbitrary POST requests.
 Existing plans stay non-executing and the catalog stays at 100 meaningful cases.
+
+## Canonical Private Transport Paths
+
+CI run 40048206855 passed eleven jobs but the Windows packaged-runtime probe
+exited before producing a child result; this is not accepted CI evidence.
+The owned temporary directory is now resolved before child argv construction,
+so Windows short-name/junction TEMP aliases cannot conflict with the strict
+canonical-path check. The child path/link checks remain enforced. Eight supervisor
+tests, including a noncanonical-directory regression, and eight actual local
+Chromium process scenarios passed. Exact-commit Windows/Linux CI must verify
+whether this resolves the runner failure before endpoint transport is extended.

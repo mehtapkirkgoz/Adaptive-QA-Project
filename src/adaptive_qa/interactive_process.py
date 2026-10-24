@@ -91,7 +91,10 @@ def run_isolated_interactive_probe(contract,project,*,fixture_id,current_fingerp
     payload=json.dumps(dict(contract=asdict(contract),project=asdict(project),fixture_id=fixture_id,current_fingerprint=current_fingerprint,fixture_source=fixture_source))
     if len(payload.encode())>16384:raise ValueError('Oversized controlled probe configuration.')
     with TemporaryDirectory(prefix='adaptive-interactive-') as temporary:
-        source,output=Path(temporary)/'input.json',Path(temporary)/'result.json'
+        # Windows runner TEMP may contain an 8.3 alias or a junction. Canonicalize
+        # the directory we own before enforcing exact child transport paths.
+        transport=Path(temporary).resolve(strict=True)
+        source,output=transport/'input.json',transport/'result.json'
         source.write_text(payload,encoding='utf-8')
         options={'start_new_session':True} if os.name!='nt' else {'creationflags':subprocess.CREATE_NEW_PROCESS_GROUP|subprocess.CREATE_NO_WINDOW}
         try:

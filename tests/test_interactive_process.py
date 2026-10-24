@@ -44,6 +44,18 @@ class InteractiveProcessTests(unittest.TestCase):
                     json.dumps({**payload,'contract':{**payload['contract'],'inputs':['plaintext','secret']}})):
             with self.assertRaises(ValueError):_decode(raw)
 
+    def test_owned_transport_directory_is_canonicalized_before_spawn(self):
+        from contextlib import nullcontext
+        with TemporaryDirectory() as temporary:
+            root=Path(temporary).resolve(strict=True)
+            alias=root/'..'/root.name
+            with patch('adaptive_qa.interactive_process.TemporaryDirectory',return_value=nullcontext(str(alias))), patch(
+                    'adaptive_qa.interactive_process.subprocess.Popen',side_effect=OSError()) as spawn:
+                self.run_probe()
+            command=spawn.call_args.args[0]
+            self.assertEqual(Path(command[command.index('--input')+1]),root/'input.json')
+            self.assertEqual(Path(command[command.index('--output')+1]),root/'result.json')
+
     def test_child_start_failure_returns_a_sanitized_unknown_count(self):
         with patch('adaptive_qa.interactive_process.subprocess.Popen',side_effect=OSError('private process detail')):
             result=self.run_probe()
