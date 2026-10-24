@@ -600,3 +600,14 @@ bounded same-bundle publication window for Windows codes 5/32, preserving root
 and no-overwrite checks on every attempt. Nine release checks passed. The cause
 of the original OS denial is unknown; real rebuild/installed proof and remote CI
 remain pending. No test execution or target-operation retry was added.
+
+
+Fresh ab08898 inactive packaging and outside-checkout installation passed locally.
+All four manifest files matched. Installed licensed UI/CLI API and DB runs,
+password-required nested-panel session recovery and offline result restoration
+passed without external browser requests or page errors. The real publication
+succeeded without triggering backoff; the original OS denial cause remains
+unknown. Simulated transient/permanent error coverage does not prove that cause.
+The unchanged Pages demo passed at 390/768/1440px with execution disabled.
+Safe evidence: docs/evidence/installed-recovery-ab08898.json. Remote exact-commit
+CI/artifact acceptance remains pending; no runtime was activated.

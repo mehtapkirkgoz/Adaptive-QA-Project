@@ -1,0 +1,54 @@
+{
+  "implementation_commit": "ab08898c640ab120cce00980210ecc5286fe2478",
+  "scope": "local_installed_operator_recovery_and_packaging",
+  "release_files": [
+    {
+      "name": "adaptive_qa-0.1.0.dev0-py3-none-any.whl",
+      "bytes": 235533,
+      "sha256": "7e1724a05bf93d3d78e68f71f519765507c7d93d819c8b9861115cf4158ccf34"
+    },
+    {
+      "name": "dashboard.zip",
+      "bytes": 90337,
+      "sha256": "5d8d08d1461f0c02cd0363454ca521c37f9f193976e6ce4db8f5ac262ea6c846"
+    },
+    {
+      "name": "frontend-package-lock.json",
+      "bytes": 40765,
+      "sha256": "713aa5ce57e0c4193c39e47cd4003112f57c0553d8a2f7ddb4e8b5e857a6ccec"
+    },
+    {
+      "name": "requirements.lock.txt",
+      "bytes": 432,
+      "sha256": "8fc2eac9de2e0ef556b946ce2da5df5ef26b08a5c7924faf272612a92bb37ff4"
+    }
+  ],
+  "installed_browser_report": {
+    "local_only": true,
+    "worker_entrypoint": "local worker-cycle",
+    "api_worker_entrypoint": "local api-once",
+    "api_ui_confirmed_result": "passed",
+    "api_requests": 1,
+    "api_result_preserved_after_recovery": true,
+    "database_worker_entrypoint": "local database-once",
+    "database_ui_confirmed_result": "passed",
+    "database_fixture_unchanged": true,
+    "database_result_preserved_after_recovery": true,
+    "database_fixture_not_in_backup": true,
+    "nested_panel_session_loss_requires_password": true,
+    "upgrade_preserved": true,
+    "valid_import": true,
+    "invalid_import_preserved": true,
+    "authenticated_reload": true,
+    "recovery_requires_fresh_login": true,
+    "recovered_results_and_license": true,
+    "installed_wheel": true,
+    "licensed_cli_discovery_and_login_passed": true,
+    "page_errors": [],
+    "external_requests": 0
+  },
+  "combined_verification_elapsed_seconds": 2.25,
+  "publication_backoff_triggered_in_this_build": false,
+  "release_tests": 9,
+  "remote_ci_acceptance": "pending"
+}
