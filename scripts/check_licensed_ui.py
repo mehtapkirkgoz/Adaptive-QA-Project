@@ -164,6 +164,14 @@ def main():
                         else:os.environ[reference]=previous
                     expect(db_panel.get_by_text('database result: passed',exact=True)).to_be_visible(timeout=10000)
                     assert hashlib.sha256(database_fixture.read_bytes()).hexdigest()==database_digest
+                    page.context.clear_cookies()
+                    api_panel.get_by_role('button',name='Review saved API binding',exact=True).click()
+                    expect(page.get_by_role('heading',name='Sign in',exact=True)).to_be_visible()
+                    expect(page.get_by_role('button',name='Reopen workspace',exact=True)).to_have_count(0)
+                    page.get_by_label('Email',exact=True).fill('owner@example.test')
+                    page.get_by_label('Password',exact=True).fill('local browser password')
+                    page.get_by_role('button',name='Sign in',exact=True).click()
+                    expect(page.get_by_role('region',name='Local license')).to_contain_text('License: valid')
                     page.reload()
                     expect(page.get_by_role('region',name='Local license')).to_contain_text('License: valid')
                     server.should_exit=True; thread.join(timeout=10)
@@ -204,6 +212,7 @@ def main():
         api_ui_confirmed_result='passed',api_requests=len(api_contacts),api_result_preserved_after_recovery=True,
         database_worker_entrypoint='local database-once',database_ui_confirmed_result='passed',
         database_fixture_unchanged=True,database_result_preserved_after_recovery=True,database_fixture_not_in_backup=True,
+        nested_panel_session_loss_requires_password=True,
         upgrade_preserved=True,valid_import=True,invalid_import_preserved=True,
         authenticated_reload=True,recovery_requires_fresh_login=True,recovered_results_and_license=True,installed_wheel=bool(INSTALLED_SITE),licensed_cli_discovery_and_login_passed=True,page_errors=errors,external_requests=len(external))
     (output/'ui.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')

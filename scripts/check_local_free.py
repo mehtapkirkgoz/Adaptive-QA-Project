@@ -219,6 +219,13 @@ def main():
                     page.get_by_role('button',name='Free local target Project configuration').click()
                     expect(page.get_by_label('Target URL',exact=True)).to_have_value('http://127.0.0.1:8000/')
                     assert saves==['PUT']
+                    page.context.clear_cookies()
+                    page.get_by_role('button',name='Queue local discovery',exact=True).click()
+                    expect(page.get_by_role('heading',name='Reopen local workspace',exact=True)).to_be_visible()
+                    page.get_by_role('button',name='Reopen workspace',exact=True).click()
+                    expect(page.get_by_role('button',name='Free local target Project configuration')).to_be_visible()
+                    with projects._connection() as connection:
+                        assert connection.execute('SELECT count(*) FROM dashboard_discovery_jobs').fetchone()[0]==1
                     assert not (root/'auth.sqlite').exists()
                     with projects._connection() as connection:
                         assert not connection.execute("SELECT 1 FROM sqlite_master WHERE name='dashboard_users'").fetchone()
@@ -240,6 +247,7 @@ def main():
               'database_fixture_unchanged': True, 'database_unsaved_confirmation_cleared': True,
               'empty_numeric_inputs_blocked': True, 'redirect_api_expectation_blocked': True,
               'free_session_reopen_without_login_or_mutation_retry': True,
+              'nested_panel_session_loss_recovered_without_requeue': True,
               'auth_database_created': False, 'central_requests': len(external), 'page_errors': errors}
     (output/'ui.json').write_text(json.dumps(report, indent=2)+'\n', encoding='utf-8')
     print(json.dumps(report))

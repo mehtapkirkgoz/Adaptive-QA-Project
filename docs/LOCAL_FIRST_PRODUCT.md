@@ -573,3 +573,13 @@ The existing free API/DB flow, three free backend checks and licensed browser
 login/execution/recovery proof passed with no external requests or page errors.
 Production/demo builds passed; the demo bundle is unchanged. Owner sessions and
 server on port 8765 were not modified. Exact-commit CI is pending after push.
+
+
+Nested operator panels now propagate authentication loss to the workspace recovery
+boundary. A rejected discovery submission in free mode reopens without credentials
+or another queued job; a rejected API review in licensed mode requires password
+login again. The real free and licensed browser proofs passed along with existing
+API/DB execution and recovery checks, with no external requests or page errors.
+Production/demo builds passed. This does not renew a paid session automatically
+or retry any request. Core checks for numeric validation 0ff11db passed in run
+40132071440; artifact acceptance for later recovery increments remains pending.

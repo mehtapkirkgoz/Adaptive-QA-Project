@@ -73,6 +73,10 @@ function App() {
       setNotice('Local workspace reopened. No previous request was retried. Select your project to review saved settings.');
     });
   }
+  async function workspaceRequest<T>(path: string, method = 'GET', body?: unknown): Promise<T> {
+    try {return await api<T>(path, method, body);}
+    catch (e) {if (e instanceof ApiError && e.status === 401) fail(e); throw e;}
+  }
   async function perform(task: () => Promise<void>) {
     setBusy(true); setError(''); setNotice('');
     try {await task();} catch (e) {fail(e);} finally {setBusy(false);}
@@ -147,8 +151,8 @@ function App() {
           <form onSubmit={login}><fieldset disabled={busy}><label>Email<input name="email" type="email" autoComplete="username" required maxLength={254}/></label>
             <label>Password<input name="password" type="password" autoComplete="current-password" required/></label>
             <button className="primary" type="submit">{busy ? 'Signing in…' : 'Sign in'}</button></fieldset></form><p className="hint">Use the account created by your local workspace administrator.</p></section>
-        : <>{!freeEdition && !licensedEdition && <OrganizationPanel request={api}/>}
-            {licensedEdition && <LicensePanel request={api}/>}
+        : <>{!freeEdition && !licensedEdition && <OrganizationPanel request={workspaceRequest}/>}
+            {licensedEdition && <LicensePanel request={workspaceRequest}/>}
             {freeEdition && <p className="hint">Free local edition: one active site/project. No account required. Targets and results stay on this computer.</p>}<section className="card create"><div><h2>Your projects</h2><p className="hint">Start with a name. Add target settings when you are ready.</p></div>
           <form onSubmit={create}><fieldset disabled={busy} className="inline"><label className="sr-only" htmlFor="new-project">New project name</label><input id="new-project" name="name" placeholder="New project name" required maxLength={100}/><button className="primary" disabled={freeEdition && projects.length > 0}>+ Create project</button></fieldset></form></section>
           <div className="columns"><section className="card project-list"><div className="section-label"><h2>Projects</h2><span className="count">{projects.length} on this page</span></div>
@@ -174,17 +178,17 @@ function App() {
               {(freeEdition || licensedEdition) && settings.local_database_binding && <LocalDatabasePanel
                 key={'database:' + selected.project_id + JSON.stringify(settings)} projectId={selected.project_id}
                 binding={settings.local_database_binding} unsaved={unsaved} licensed={licensedEdition}
-                databaseReference={settings.secret_references?.database_path?.environment_variable} request={api}/>}
+                databaseReference={settings.secret_references?.database_path?.environment_variable} request={workspaceRequest}/>}
               {(freeEdition || licensedEdition) && settings.local_api_binding && <LocalApiPanel
                 key={'api:' + selected.project_id + JSON.stringify(settings)} projectId={selected.project_id}
-                binding={settings.local_api_binding} unsaved={unsaved} licensed={licensedEdition} request={api}/>}
+                binding={settings.local_api_binding} unsaved={unsaved} licensed={licensedEdition} request={workspaceRequest}/>}
               {(freeEdition || licensedEdition) && <InteractivePanel key={'interactive:' + selected.project_id + JSON.stringify(settings)}
                 projectId={selected.project_id} target={settings.base_url ?? ''} dataChanges={settings.allow_data_changes ?? false}
                 references={Object.keys(settings.secret_references ?? {})}
                 workerReferences={Object.values(settings.secret_references ?? {}).map(reference => reference.environment_variable)} licensed={licensedEdition}
-                request={api} binding={settings.local_form_binding} hasUnsavedChanges={unsaved}/>}
+                request={workspaceRequest} binding={settings.local_form_binding} hasUnsavedChanges={unsaved}/>}
 
-              <DiscoveryPanel key={'discovery:' + selected.project_id + JSON.stringify(settings)} projectId={selected.project_id} configured={supportsDiscovery(settings)} publicTarget={settings.discovery_support?.profile === 'public_https'} request={api} onReport={(report, jobId) => setPlan({...report, discovery_job_id: jobId})}/>
+              <DiscoveryPanel key={'discovery:' + selected.project_id + JSON.stringify(settings)} projectId={selected.project_id} configured={supportsDiscovery(settings)} publicTarget={settings.discovery_support?.profile === 'public_https'} request={workspaceRequest} onReport={(report, jobId) => setPlan({...report, discovery_job_id: jobId})}/>
               <section className="plan-review"><h3>Test plan review</h3><p className="hint">Review the saved configuration. Unsaved edits are not included. Reviewing never starts tests or visits your target.</p>
                 <button disabled={busy || !settings.configured} onClick={() => void perform(async () => {
                   setPlan(null); setPlan(await api<Plan>(`/api/projects/${selected.project_id}/plan`));
@@ -197,7 +201,7 @@ function App() {
                 </div>}
               </section><RunPanel key={'runs:' + selected.project_id + JSON.stringify(settings)} projectId={selected.project_id} discoveryJobId={plan?.discovery_job_id}
                 candidateNames={Object.fromEntries(plan?.cases.map(item => [item.case_id, item.name]) ?? [])}
-                candidates={plan?.cases.filter(item => item.decision === 'selected' && item.test_type === 'ui' && matchesSavedTarget(settings, item) && item.changes_data === false).map(item => item.case_id) ?? []} request={api}/></>}
+                candidates={plan?.cases.filter(item => item.decision === 'selected' && item.test_type === 'ui' && matchesSavedTarget(settings, item) && item.changes_data === false).map(item => item.case_id) ?? []} request={workspaceRequest}/></>}
             </section></div><div className="roadmap"><span className="dot"/><p>Local discovery, explicit UI runs and owner-authorized screenshots are available.</p></div></>}
       </main><footer>ADAPTIVE QA <span>Controlled scope. Clear evidence.</span></footer>
     </div></div>;
