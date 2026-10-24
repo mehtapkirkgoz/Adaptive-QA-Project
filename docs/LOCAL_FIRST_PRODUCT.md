@@ -611,3 +611,16 @@ unknown. Simulated transient/permanent error coverage does not prove that cause.
 The unchanged Pages demo passed at 390/768/1440px with execution disabled.
 Safe evidence: docs/evidence/installed-recovery-ab08898.json. Remote exact-commit
 CI/artifact acceptance remains pending; no runtime was activated.
+
+
+A delayed-response browser regression reproduced an old 401 clearing an already
+reopened free workspace. Session invalidation now advances a local generation;
+late errors from an earlier generation cannot clear the new workspace. Clearing
+session state also removes stale success notices. The regression held one old
+history response, reopened after another rejected mutation, then delivered the
+old 401 and verified the new session stayed open. No request was replayed.
+Production/demo builds and the complete free operator proof passed without
+external requests or page errors. This is UI response ownership, not a change
+to server authorization, cookie expiry, license validity or execution policies.
+The licensed login/execution/recovery proof also passed after this change.
+Exact-commit CI/artifact verification remains pending after push.

@@ -9,7 +9,7 @@ import {LocalFormBindingEditor} from './LocalFormBindingEditor';
 import type {LocalFormSettings} from './LocalFormBindingEditor';
 import {FormMappingsEditor} from './FormMappingsEditor';
 import type {FormMapping} from './FormMappingsEditor';
-import {useEffect, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import type {FormEvent} from 'react';
 import {createRoot} from 'react-dom/client';
 import './style.css';
@@ -58,7 +58,8 @@ function App() {
   const [databaseBinding, setDatabaseBinding] = useState<LocalDatabaseBinding | null>(null);
   const [apiBinding, setApiBinding] = useState<LocalApiBinding | null>(null);
   const [localBinding, setLocalBinding] = useState<LocalFormSettings | null>(null);
-  function clear() {setSignedIn(false); setProjects([]); setSelected(null); setSettings(null); setPlan(null); setTarget(''); setHosts(''); setSlots([]); setFormMappings([]); setLocalBinding(null); setApiBinding(null); setDatabaseBinding(null); setChanges(false); setOffset(0);}
+  const sessionEpoch = useRef(0);
+  function clear() {sessionEpoch.current += 1; setNotice(''); setSignedIn(false); setProjects([]); setSelected(null); setSettings(null); setPlan(null); setTarget(''); setHosts(''); setSlots([]); setFormMappings([]); setLocalBinding(null); setApiBinding(null); setDatabaseBinding(null); setChanges(false); setOffset(0);}
   function fail(e: unknown) {
     if (e instanceof ApiError && e.status === 401) {
       clear();
@@ -74,8 +75,9 @@ function App() {
     });
   }
   async function workspaceRequest<T>(path: string, method = 'GET', body?: unknown): Promise<T> {
+    const epoch = sessionEpoch.current;
     try {return await api<T>(path, method, body);}
-    catch (e) {if (e instanceof ApiError && e.status === 401) fail(e); throw e;}
+    catch (e) {if (e instanceof ApiError && e.status === 401 && epoch === sessionEpoch.current) fail(e); throw e;}
   }
   async function perform(task: () => Promise<void>) {
     setBusy(true); setError(''); setNotice('');
