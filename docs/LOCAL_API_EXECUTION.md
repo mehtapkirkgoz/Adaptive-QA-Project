@@ -205,3 +205,9 @@ cancellation controls are unchanged; no test retry is introduced. The logs do
 not identify the stalled stage in the older run, so no more specific cause is
 claimed. Existing pre-installation tamper/identity/file-set checks passed. A fresh
 installed check and exact-commit CI are required before accepting this adjustment.
+
+The fresh f62882c release passed locally outside the checkout: all four package
+digests, combined installed checks (stage logs complete at 2.13 seconds), installed
+licensed API confirmation/CLI execution and recovery preservation passed. Its
+value-free report is in evidence/installed-api-f62882c.json. Remote Windows CI
+success is still unconfirmed; do not treat the local pass as a replacement.

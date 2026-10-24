@@ -433,3 +433,10 @@ are verified; free/paid/installed API UI evidence passed. Remote acceptance rema
 failed, not complete. The packaging-only combined verification now has stage logs
 and a bounded 120-second budget; target-test deadlines are unchanged. Continue
 fresh installed/CI acceptance and investigate the logged stage if it fails again.
+
+Fresh release f62882c passed installed validation locally after the packaging
+budget/diagnostics change. Stage logs completed the combined check in 2.13 seconds;
+the installed licensed API UI/CLI and offline recovery proof also passed, with one
+GET, zero external browser requests/page errors and all four bundle digests checked.
+See evidence/installed-api-f62882c.json. This does not explain the old Windows CI
+stall or establish remote success: verify f62882c's exact-commit CI/artifacts next.
