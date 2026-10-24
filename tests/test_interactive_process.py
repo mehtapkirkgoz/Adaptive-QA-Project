@@ -114,7 +114,7 @@ class InteractiveProcessTests(unittest.TestCase):
         valid=ProjectElementMappings(self.project.project_id,(mapping,))
         payload=dict(contract=asdict(self.contract),project=asdict(self.project),fixture_id='login-transition',
             current_fingerprint='b'*64,fixture_source='owned_submission',mappings=asdict(valid))
-        self.assertEqual(_decode(json.dumps(payload))[-2],valid)
+        self.assertEqual(_decode(json.dumps(payload))[-3],valid)
         with patch('adaptive_qa.interactive_process.subprocess.Popen') as spawn:
             for mappings in ([],replace(valid,project_id='c'*32),
                     ProjectElementMappings(self.project.project_id,(replace(mapping,logical_name='login.accepted'),))):

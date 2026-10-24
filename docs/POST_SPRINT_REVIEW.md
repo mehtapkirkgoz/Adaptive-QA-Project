@@ -749,3 +749,34 @@ browser child; those remain restricted to the four accepted fixed fixtures. Next
 carry the typed binding through bounded supervised IPC, prove contrasting browser
 forms, then add owner-scoped saved configuration/review confirmation. Public HTTPS
 and customer/private-network submission permissions remain unchanged.
+
+## Supervised Reusable Local Browser Bindings
+
+Reusable transport implementation 6b7b863 passed CI run 40071483894. A new typed
+reusable-local entry point now carries the explicit endpoint/field/response binding
+through bounded private IPC to the existing owned browser supervisor. Parent and
+child independently reject conflicting fixture IDs, changed form contracts,
+wrong project/fingerprint, malformed/extra response fields and unsupported origin
+metadata. Existing fixture dispatch and optional mapping compatibility remain.
+
+The child uses the same pinned initial GET, disarmed-before-click route, exact
+expected request body, one-shot pinned POST, process deadlines, cancellation,
+secret locality and sanitized result bounds. It fulfills only the configured safe
+boolean response outcome/status to the owned page, without forwarding raw response
+text/headers. Passing still requires the explicit new UI marker and the matching
+server outcome; a fake client-side success marker without an endpoint request
+produces an error. No retry, screenshot or external endpoint is enabled.
+
+Forty-five focused binding/gate/interactive tests passed. Thirteen actual supervised
+Chromium scenarios passed on independently configured /portal/access -> /auth/check
+and /store/lookup -> /search/resolve documents, with custom mapped input/button
+labels, field names and response booleans/statuses. Positive/negative login/search,
+wrong fields/actions, preexisting marker, denied canary, fake success, absent marker,
+duplicate submission, redirect and dropped response were verified. Thirteen
+documents and eight POSTs reached the owned fixtures; zero canary/bad requests.
+CI repeats the proof on Windows/Linux and uploads its value-free report.
+
+This entry point remains internal. Saved configuration/review/API/queue and local
+UI continue to admit the four fixed fixtures only. Next connect typed reusable
+bindings to owner-scoped saved settings and explicit review confirmation without
+loosening public HTTPS read-only policy or activating customer/private networks.

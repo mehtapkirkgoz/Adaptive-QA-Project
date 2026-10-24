@@ -1,11 +1,11 @@
 """Reusable local bindings pin endpoints, input names and exact boolean assertions."""
-from dataclasses import replace
+from dataclasses import replace,asdict
 import unittest
 from unittest.mock import patch
 from adaptive_qa.config import ProjectConfig
 from adaptive_qa.element_models import ElementMapping,LocatorSpec,LocatorStrategy
 from adaptive_qa.interactive_contracts import FormOperation,InteractiveFormContract
-from adaptive_qa.local_form_binding import LocalFormBinding,LocalBooleanResponse
+from adaptive_qa.local_form_binding import LocalFormBinding,LocalBooleanResponse,encode_local_binding,decode_local_binding
 from adaptive_qa.owned_submission import OwnedSubmissionGate,CONTENT_TYPE
 from adaptive_qa.secrets import SecretReference
 
@@ -54,3 +54,20 @@ class LocalFormBindingTests(unittest.TestCase):
         for project,fingerprint in ((replace(self.project,allow_data_changes=False),'b'*64),(self.project,'c'*64),
                 (replace(self.project,base_url='http://127.0.0.1:8000/other'),'b'*64)):
             with self.assertRaises(ValueError):self.binding.validate_project(project,current_fingerprint=fingerprint)
+
+    def test_reference_only_codec_and_dispatch_revalidate_before_spawning(self):
+        import json
+        from adaptive_qa.interactive_process import _decode,run_isolated_local_form
+        metadata=json.loads(json.dumps(encode_local_binding(self.binding)))
+        self.assertEqual(decode_local_binding(metadata,self.binding.form),self.binding)
+        payload=dict(contract=asdict(self.binding.form),project=asdict(self.project),
+            fixture_id=None,current_fingerprint='b'*64,fixture_source='reusable_local',binding=metadata)
+        with patch.object(SecretReference,'resolve',side_effect=AssertionError('No values')):
+            self.assertEqual(_decode(json.dumps(payload))[-2],self.binding)
+        for change in ({'fixture_id':'login-transition'},{'fixture_source':'owned_submission'},
+                       {'binding':{**metadata,'accepted':{**metadata['accepted'],'expected_value':'true'}}},
+                       {'binding':{**metadata,'endpoint_url':'https://example.com/login'}}):
+            with self.assertRaises(ValueError):_decode(json.dumps({**payload,**change}))
+        with patch('adaptive_qa.interactive_process.subprocess.Popen') as spawn:
+            with self.assertRaises(ValueError):run_isolated_local_form(self.binding,replace(self.project,allow_data_changes=False),current_fingerprint='b'*64)
+            spawn.assert_not_called()

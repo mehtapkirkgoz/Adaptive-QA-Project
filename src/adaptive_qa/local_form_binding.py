@@ -94,3 +94,22 @@ class LocalFormBinding:
                     return outcome
         except (ValueError,UnicodeError,RecursionError):pass
         return None
+
+
+def encode_local_binding(binding):
+    if not isinstance(binding,LocalFormBinding):raise ValueError('A typed local binding is required.')
+    data=asdict(binding);data.pop('form')
+    return data
+
+
+def decode_local_binding(data,form):
+    if (not isinstance(data,dict) or set(data)!={'document_url','endpoint_url','field_names','accepted','rejected'}
+            or not isinstance(data['field_names'],list)):
+        raise ValueError('Exact local binding metadata is required.')
+    responses=[]
+    for key in ('accepted','rejected'):
+        value=data[key]
+        if not isinstance(value,dict) or set(value)!=set(LocalBooleanResponse.__dataclass_fields__):
+            raise ValueError('Exact boolean response fields are required.')
+        responses.append(LocalBooleanResponse(**value))
+    return LocalFormBinding(form,data['document_url'],data['endpoint_url'],tuple(data['field_names']),*responses)

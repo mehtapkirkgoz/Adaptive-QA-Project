@@ -57,7 +57,8 @@ def probe_controlled_form(page,contract,project,*,current_fingerprint,network_cl
         contract.validate_project(project,current_fingerprint=current_fingerprint)
         if submission is not None:
             from adaptive_qa.owned_submission import OwnedSubmissionContract
-            if not isinstance(submission,OwnedSubmissionContract) or submission.form!=contract or not callable(before_submit): raise ValueError()
+            from adaptive_qa.local_form_binding import LocalFormBinding
+            if not isinstance(submission,(OwnedSubmissionContract,LocalFormBinding)) or submission.form!=contract or not callable(before_submit): raise ValueError()
             submission.validate_project(project,current_fingerprint=current_fingerprint)
         elif before_submit is not None: raise ValueError()
         validate_discovery_project(project,'controlled_local')
