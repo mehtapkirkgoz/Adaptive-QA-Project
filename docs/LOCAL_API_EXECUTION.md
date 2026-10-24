@@ -160,3 +160,21 @@ login, both the saved API binding and passing result remain available. The sourc
 drill passed with zero external requests/page errors. Installed-release validation
 now requires this API evidence as well as the existing licensed recovery checks;
 its result and remote CI will be recorded separately.
+
+## Installed Operator Checkpoint
+
+Committed release 3091a81 was built and installed outside the checkout. Its four
+bundle file sizes/digests and unchanged 51 UI + 34 API + 15 database catalog were
+verified. The installed licensed UI -> confirmed HTTP job -> separate installed
+CLI -> supervised API child -> visible result flow passed. One expected-false
+endpoint GET occurred; no external browser request or page error occurred. Offline
+recovery invalidated the old session, required fresh password login and preserved
+the saved binding, signed license and passing API result. The release stayed
+inactive and the owner's live server was not restarted.
+
+Full local regression completed 814 tests (813 passed, one Windows permission
+skip). Evidence is in evidence/installed-api-3091a81.json. An initial local Windows
+rename error prevented publishing the first inactive bundle; the destination was
+absent and a fresh bounded rebuild succeeded without replacing an existing bundle.
+Exact-commit remote CI/artifact acceptance remains pending; installed local proof
+does not authorize customer APIs or public backend deployment.

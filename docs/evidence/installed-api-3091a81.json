@@ -1,0 +1,51 @@
+{
+  "implementation_commit": "3091a813d35b3239d4a93e274d50bcb5af20b445",
+  "scope": "installed_local_api_operator_and_recovery",
+  "release_files": [
+    {
+      "name": "adaptive_qa-0.1.0.dev0-py3-none-any.whl",
+      "bytes": 228392,
+      "sha256": "d2d69591ae02e026f57863d58b41192a46562ebfd438143a609194bbec44c0f3"
+    },
+    {
+      "name": "dashboard.zip",
+      "bytes": 88662,
+      "sha256": "cbd6411cedf9b79ecf9c5a0b8ec173637f6ff3bc18b889f72004d3efe8863981"
+    },
+    {
+      "name": "frontend-package-lock.json",
+      "bytes": 40765,
+      "sha256": "713aa5ce57e0c4193c39e47cd4003112f57c0553d8a2f7ddb4e8b5e857a6ccec"
+    },
+    {
+      "name": "requirements.lock.txt",
+      "bytes": 432,
+      "sha256": "8fc2eac9de2e0ef556b946ce2da5df5ef26b08a5c7924faf272612a92bb37ff4"
+    }
+  ],
+  "activation_enabled": false,
+  "installed_licensed_browser": {
+    "local_only": true,
+    "worker_entrypoint": "local worker-cycle",
+    "api_worker_entrypoint": "local api-once",
+    "api_ui_confirmed_result": "passed",
+    "api_requests": 1,
+    "api_result_preserved_after_recovery": true,
+    "upgrade_preserved": true,
+    "valid_import": true,
+    "invalid_import_preserved": true,
+    "authenticated_reload": true,
+    "recovery_requires_fresh_login": true,
+    "recovered_results_and_license": true,
+    "installed_wheel": true,
+    "licensed_cli_discovery_and_login_passed": true,
+    "page_errors": [],
+    "external_requests": 0
+  },
+  "regression": {
+    "tests": 814,
+    "passed": 813,
+    "skipped": 1
+  },
+  "remote_ci_acceptance": "pending"
+}

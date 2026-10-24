@@ -411,3 +411,11 @@ preserved the binding/result through offline recovery and fresh administrator lo
 Exactly one GET and no external browser requests/page errors were observed. The
 installed-wheel acceptance script now requires this proof; packaged and exact-
 commit remote evidence remain next.
+
+Release 3091a81 passed the installed licensed API operator/recovery drill outside
+the source checkout, with the four release digests verified, one owned GET, zero
+external browser requests/page errors and preserved API binding/result after
+fresh login to recovered storage. The full 814-test local regression passed with
+one Windows permission skip. See evidence/installed-api-3091a81.json. Continue
+exact-commit remote acceptance before declaring this API checkpoint accepted;
+general public/customer API authentication remains unimplemented.
