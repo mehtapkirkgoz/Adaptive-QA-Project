@@ -95,21 +95,10 @@ def run(args):
     from adaptive_qa.local_licensed import LicensedLocalProjects
     projects = LicensedLocalProjects(root/'projects.sqlite', licenses)
     if args.local_command == 'worker-cycle':
-        from adaptive_qa.dashboard_jobs import DashboardDiscoveryQueue
-        from adaptive_qa.dashboard_worker import process_discovery_once
-        from adaptive_qa.dashboard_runs import DashboardRunQueue
-        from adaptive_qa.dashboard_run_worker import process_run_once
-        from adaptive_qa.interactive_queue import OwnedInteractiveQueue, process_owned_interactive_once
+        from adaptive_qa.local_worker_cycle import process_local_cycle
         # Each existing worker claims independently under its lock and rechecks
         # the current license. A cycle never retries or recovers interrupted work.
-        outcomes = {}
-        for name, queue_type, process in (
-            ('discovery', DashboardDiscoveryQueue, process_discovery_once),
-            ('run', DashboardRunQueue, process_run_once),
-            ('interactive', OwnedInteractiveQueue, process_owned_interactive_once),
-        ):
-            outcomes[name] = process(queue_type(projects))
-        print(json.dumps(outcomes))
+        print(json.dumps(process_local_cycle(projects)))
         return
     if args.local_command in ('interactive-once', 'recover-interactive'):
         from adaptive_qa.interactive_queue import OwnedInteractiveQueue, process_owned_interactive_once

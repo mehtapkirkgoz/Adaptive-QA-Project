@@ -318,3 +318,15 @@ workers retain licensing, cancellation and deadline checks; no background servic
 job admission, automatic recovery or retry is introduced. Eight local CLI tests
 passed, including empty unlicensed queues and fail-stop behavior. Exact-commit
 CI for this increment remains pending push.
+
+Free mode now offers the same bounded pass without an account:
+
+```powershell
+python -m adaptive_qa dashboard free-worker-cycle --database artifacts/local-free/projects.sqlite
+```
+
+This uses the free project store, creates no authentication database and refuses
+an existing licensing-state marker. Use `local worker-cycle` after upgrading the
+workspace to paid mode. Both commands share the same three existing workers;
+neither admits new jobs, retries interrupted submissions or installs a service.
+The CLI checks passed for account-free empty queues and refusal of licensed state.
