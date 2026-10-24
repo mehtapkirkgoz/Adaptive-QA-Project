@@ -503,3 +503,12 @@ licensed and installed DB operator/recovery proof and exact-commit CI evidence.
 Core checks succeeded for 677f5c2 (40128092521), b62e244 (40128003145),
 70c9790 (40106964643) and packaging diagnostics f62882c (40105680369).
 These job conclusions do not claim new archive verification.
+
+
+Licensed source UI proof now saves/reviews/confirms an empty owned SQLite table,
+runs the actual authenticated local database-once command and observes a passed
+result. Fixture bytes remain unchanged. Offline backup/restore preserves the DB
+binding and status-only result, requires fresh login and intentionally does not
+copy target fixture databases. The existing discovery/UI/API proofs also passed
+with no external browser requests or page errors. Production and unchanged-demo
+builds passed. Installed-wheel and new exact-commit CI acceptance remain pending.

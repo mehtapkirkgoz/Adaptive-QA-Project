@@ -164,3 +164,12 @@ ran the real separate CLI, observed a passed result, cancelled a second job,
 verified reload/save/removal and unchanged fixture bytes, and checked a 390px
 panel without horizontal overflow. It recorded no external browser requests or
 page errors. Licensed/installed DB operator acceptance remains pending.
+
+
+Licensed source UI proof now saves/reviews/confirms an empty owned SQLite table,
+runs the actual authenticated local database-once command and observes a passed
+result. Fixture bytes remain unchanged. Offline backup/restore preserves the DB
+binding and status-only result, requires fresh login and intentionally does not
+copy target fixture databases. The existing discovery/UI/API proofs also passed
+with no external browser requests or page errors. Production and unchanged-demo
+builds passed. Installed-wheel and new exact-commit CI acceptance remain pending.

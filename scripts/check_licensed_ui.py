@@ -1,5 +1,8 @@
 """Owned loopback browser proof for local license import and preserved workspace."""
 import base64
+from contextlib import closing
+import hashlib
+import sqlite3
 from functools import partial
 from http.server import ThreadingHTTPServer
 import subprocess
@@ -31,6 +34,7 @@ from adaptive_qa.license_store import LicenseStore
 from adaptive_qa.licensing import LicenseClaims, license_message
 from adaptive_qa.local_free import LOCAL_ACTOR, LocalFreeProjects
 from adaptive_qa.local_licensed import create_licensed_app
+from adaptive_qa.project_settings import reference_name
 
 
 def main():
@@ -102,7 +106,7 @@ def main():
                         result = subprocess.run([*prefix,'local',command,'--workspace',str(root),
                             '--trusted-keys',str(trust)],check=True,timeout=120,capture_output=True)
                         outcome = json.loads(result.stdout)
-                        if command=='api-once':assert outcome['status']=='completed'
+                        if command in ('api-once','database-once'):assert outcome['status']=='completed'
                         else:
                             assert outcome[expected_queue]['status']=='completed'
                             assert all(value is None for name,value in outcome.items() if name!=expected_queue)
@@ -131,6 +135,35 @@ def main():
                     worker(None,'api-once')
                     expect(api_panel.get_by_text('API result: passed',exact=True)).to_be_visible(timeout=10000)
                     assert api_contacts==['GET']
+                    project=LocalFreeProjects(root/'projects.sqlite').list(LOCAL_ACTOR)[0]
+                    owned_root=root/'database-fixtures'/project.project_id
+                    owned_root.mkdir(parents=True)
+                    database_fixture=owned_root/'owned.sqlite'
+                    with closing(sqlite3.connect(database_fixture)) as connection:
+                        with connection:
+                            connection.execute('CREATE TABLE inventory (id INTEGER)')
+                    database_digest=hashlib.sha256(database_fixture.read_bytes()).hexdigest()
+                    db_editor=page.get_by_role('region',name='Explicit local database binding')
+                    db_editor.get_by_role('checkbox',name='Configure explicit database count').check()
+                    page.get_by_role('checkbox',name='database path',exact=False).check()
+                    page.get_by_role('button',name='Save configuration',exact=True).click()
+                    expect(page.get_by_text('Configuration saved. No tests were started.',exact=True)).to_be_visible()
+                    db_panel=page.get_by_role('region',name='Explicit database execution')
+                    db_panel.get_by_role('button',name='Review saved database count',exact=True).click()
+                    expect(db_panel.get_by_role('button',name='Queue one database count',exact=True)).to_be_disabled()
+                    db_panel.get_by_role('checkbox',name='I authorize one read-only count on my owned SQLite fixture.').check()
+                    db_panel.get_by_role('button',name='Queue one database count',exact=True).click()
+                    expect(db_panel.get_by_role('button',name='Cancel database job',exact=True)).to_be_visible()
+                    reference=reference_name(LOCAL_ACTOR.user_id,project.project_id,'database_path')
+                    previous=os.environ.get(reference)
+                    try:
+                        os.environ[reference]=str(database_fixture)
+                        worker(None,'database-once')
+                    finally:
+                        if previous is None:os.environ.pop(reference,None)
+                        else:os.environ[reference]=previous
+                    expect(db_panel.get_by_text('database result: passed',exact=True)).to_be_visible(timeout=10000)
+                    assert hashlib.sha256(database_fixture.read_bytes()).hexdigest()==database_digest
                     page.reload()
                     expect(page.get_by_role('region',name='Local license')).to_contain_text('License: valid')
                     server.should_exit=True; thread.join(timeout=10)
@@ -138,6 +171,7 @@ def main():
                     snapshot,recovered = Path(temporary)/'snapshot',Path(temporary)/'recovered'
                     create_local_backup(root,snapshot,maintenance_confirmed=True)
                     restore_local_backup(snapshot,recovered,maintenance_confirmed=True)
+                    assert not (recovered/'database-fixtures').exists()
                     restored_auth = AuthStore(recovered/'auth.sqlite')
                     restored_licenses = LicenseStore(recovered/'license.sqlite',{'test':private.public_key().public_bytes_raw()})
                     restored_app = create_licensed_app(recovered/'projects.sqlite',restored_auth,administrator,restored_licenses,
@@ -157,6 +191,8 @@ def main():
                     page.get_by_role('button',name='Preserved free site Project configuration').click()
                     expect(page.get_by_label('Test runs',exact=True).locator('.run-outcome').filter(has_text='LOGIN-001')).to_contain_text('passed')
                     expect(page.get_by_role('region',name='Explicit API execution').get_by_text('API result: passed',exact=True)).to_be_visible()
+                    expect(page.get_by_role('region',name='Explicit database execution').get_by_text('database result: passed',exact=True)).to_be_visible()
+                    expect(page.get_by_label('Expected database record count',exact=True)).to_have_value('0')
                     assert not errors and not external
                 finally: browser.close()
         finally:
@@ -166,6 +202,8 @@ def main():
     output = Path('artifacts/local-license'); output.mkdir(parents=True,exist_ok=True)
     report = dict(local_only=True,worker_entrypoint='local worker-cycle',api_worker_entrypoint='local api-once',
         api_ui_confirmed_result='passed',api_requests=len(api_contacts),api_result_preserved_after_recovery=True,
+        database_worker_entrypoint='local database-once',database_ui_confirmed_result='passed',
+        database_fixture_unchanged=True,database_result_preserved_after_recovery=True,database_fixture_not_in_backup=True,
         upgrade_preserved=True,valid_import=True,invalid_import_preserved=True,
         authenticated_reload=True,recovery_requires_fresh_login=True,recovered_results_and_license=True,installed_wheel=bool(INSTALLED_SITE),licensed_cli_discovery_and_login_passed=True,page_errors=errors,external_requests=len(external))
     (output/'ui.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
