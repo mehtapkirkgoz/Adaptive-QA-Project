@@ -396,3 +396,11 @@ browser drill, with zero API jobs created, external requests or page errors.
 Draft API edits participate in unsaved-change protection. Production/demo builds
 passed and the public demo stays non-executing. Next add API review/confirmation/
 history UI; no public/customer API profile is enabled.
+
+Saved API review/confirmation/history/cancellation controls now reach the real
+local dashboard. The free UI -> HTTP confirmation -> queue -> separate CLI worker
+-> refreshed passing result proof passed, with one actual GET and a second job
+cancelled before execution. Unsaved edits invalidate confirmation; mobile layout
+was checked visually. Production/demo builds passed. Remaining acceptance is exact-
+commit remote evidence and paid/installed operator integration; public/customer
+API targets and authentication remain outside this enabled profile.

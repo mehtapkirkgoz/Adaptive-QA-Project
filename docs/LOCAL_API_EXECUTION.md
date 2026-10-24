@@ -131,3 +131,24 @@ execution checks still passed. Production/demo builds passed. The public demo
 does not render this editor. The dedicated API review/confirmation/history panel
 remains the next increment. Core CI for f2ac02f passed; this editor's exact-commit
 CI and later artifact inspection remain pending.
+
+## Explicit Operator Confirmation and Results
+
+The real free/licensed dashboard now shows a saved API execution panel with the
+GET path, expected status and boolean assertion. Review remains a separate action
+with no target contact; a fresh review plus explicit checkbox is required to queue
+one request. Unsaved configuration edits disable review and discard confirmation.
+Admission consumes the confirmation, never automatically retries an uncertain
+response, and refreshes scoped history after uncertainty. History polls while jobs
+are active and offers cancellation. One-shot free/paid worker guidance is shown
+separately; it does not start a process from the browser.
+
+The free browser proof configured/saved the binding, reviewed it, demonstrated
+confirmation invalidation on edit, explicitly queued a job, invoked the actual
+free-api-once CLI and observed the persisted passing result in the UI. A second
+explicitly queued job was cancelled before execution. Exactly one API GET reached
+the owned fixture. Save/reload/remove, one-project limits, real discovery/UI runs,
+zero external browser requests and no page errors still passed. Mobile layout had
+no horizontal overflow and its screenshot was visually inspected. Production/demo
+builds passed; the demo does not expose these controls. CI uploads the mobile
+evidence, but exact-commit remote acceptance remains pending.

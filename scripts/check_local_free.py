@@ -17,6 +17,14 @@ from check_dashboard_runs import QuietHandler
 
 def main():
     origin = 'http://127.0.0.1:8881'
+    api_contacts=[]
+    class ApiFixture(QuietHandler):
+        def do_GET(self):
+            if self.path!='/service/available': return super().do_GET()
+            api_contacts.append('GET')
+            raw=b'{"available":true}'
+            self.send_response(200);self.send_header('Content-Type','application/json')
+            self.send_header('Content-Length',str(len(raw)));self.end_headers();self.wfile.write(raw)
     with TemporaryDirectory(prefix='adaptive-free-ui-') as temporary:
         root = Path(temporary)
         database = root/'projects.sqlite'
@@ -28,7 +36,7 @@ def main():
         server = uvicorn.Server(uvicorn.Config(create_free_app(database, port=8881, ui_directory='frontend/dist'),
             host='127.0.0.1', port=8881, log_level='critical', access_log=False, proxy_headers=False))
         thread = Thread(target=server.run, daemon=True); thread.start()
-        fixture = ThreadingHTTPServer(('127.0.0.1', 8000), partial(QuietHandler, directory='samples/web'))
+        fixture = ThreadingHTTPServer(('127.0.0.1', 8000), partial(ApiFixture, directory='samples/web'))
         fixture_thread = Thread(target=fixture.serve_forever, daemon=True); fixture_thread.start()
         external, errors = [], []
         try:
@@ -77,6 +85,35 @@ def main():
                     editor.get_by_label('API JSON boolean field',exact=True).fill(binding['json_field'])
                     page.get_by_role('button',name='Save configuration',exact=True).click()
                     expect(page.get_by_text('Configuration saved. No tests were started.',exact=True)).to_be_visible()
+                    api_panel=page.get_by_role('region',name='Explicit API execution')
+                    api_panel.get_by_role('button',name='Review saved API binding',exact=True).click()
+                    expect(api_panel.get_by_label('API review confirmation')).to_be_visible()
+                    editor.get_by_label('API JSON boolean field',exact=True).fill('changed')
+                    expect(api_panel.get_by_label('API review confirmation')).to_have_count(0)
+                    expect(api_panel.get_by_role('button',name='Review saved API binding',exact=True)).to_be_disabled()
+                    editor.get_by_label('API JSON boolean field',exact=True).fill(binding['json_field'])
+                    api_panel.get_by_role('button',name='Review saved API binding',exact=True).click()
+                    assert api_contacts==[]
+                    api_panel.get_by_role('checkbox',name='I authorize one GET request to my owned local API.').check()
+                    api_panel.get_by_role('button',name='Queue one API request',exact=True).click()
+                    expect(api_panel.get_by_role('button',name='Cancel API job',exact=True)).to_be_visible()
+                    result=subprocess.run([sys.executable,'-m','adaptive_qa','dashboard','free-api-once',
+                        '--database',str(database)],capture_output=True,check=True,timeout=45)
+                    assert json.loads(result.stdout)['status']=='completed' and api_contacts==['GET']
+                    expect(api_panel.get_by_text('API result: passed',exact=True)).to_be_visible(timeout=10000)
+                    api_panel.get_by_role('button',name='Review saved API binding',exact=True).click()
+                    api_panel.get_by_role('checkbox',name='I authorize one GET request to my owned local API.').check()
+                    api_panel.get_by_role('button',name='Queue one API request',exact=True).click()
+                    api_panel.get_by_role('button',name='Cancel API job',exact=True).click()
+                    expect(api_panel.get_by_text('cancelled',exact=True)).to_be_visible()
+                    assert api_contacts==['GET']
+                    page.set_viewport_size(dict(width=390,height=900))
+                    api_panel.get_by_text('Run an API worker locally',exact=True).click()
+                    expect(api_panel.get_by_text('python -m adaptive_qa dashboard free-api-once',exact=False)).to_be_visible()
+                    assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
+                    screenshot=Path('artifacts/local-free/api-panel-mobile.png');screenshot.parent.mkdir(parents=True,exist_ok=True)
+                    api_panel.screenshot(path=str(screenshot))
+                    page.set_viewport_size(dict(width=1440,height=1000))
                     page.reload()
                     expect(page.get_by_role('button', name='+ Create project', exact=True)).to_be_disabled()
                     expect(page.get_by_role('button', name='Free local target Project configuration')).to_be_visible()
@@ -91,7 +128,7 @@ def main():
                     expect(page.get_by_text('Configuration saved. No tests were started.',exact=True)).to_be_visible()
                     assert 'local_api_binding' not in projects.configuration(LOCAL_ACTOR,saved_project.project_id)
                     with projects._connection() as c:
-                        assert c.execute('SELECT count(*) FROM dashboard_api_jobs').fetchone()[0]==0
+                        assert c.execute('SELECT count(*) FROM dashboard_api_jobs').fetchone()[0]==2
                     assert not (root/'auth.sqlite').exists()
                     with projects._connection() as connection:
                         assert not connection.execute("SELECT 1 FROM sqlite_master WHERE name='dashboard_users'").fetchone()
@@ -105,7 +142,8 @@ def main():
     output = Path('artifacts/local-free'); output.mkdir(parents=True, exist_ok=True)
     report = {'account_required': False, 'worker_entrypoint': 'dashboard free-worker-cycle',
               'one_project_cap': True, 'real_local_login_check_passed': True, 'ui_preserved_saved_api_binding': True,
-              'api_editor_save_reload_remove': True, 'api_editor_jobs_created': 0,
+              'api_editor_save_reload_remove': True, 'api_jobs_explicitly_confirmed': 2, 'api_job_cancelled_before_execution': True,
+              'api_ui_cli_result': 'passed', 'api_requests': len(api_contacts), 'api_unsaved_confirmation_cleared': True,
               'auth_database_created': False, 'central_requests': len(external), 'page_errors': errors}
     (output/'ui.json').write_text(json.dumps(report, indent=2)+'\n', encoding='utf-8')
     print(json.dumps(report))

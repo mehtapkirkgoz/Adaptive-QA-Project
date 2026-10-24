@@ -1,4 +1,5 @@
 import {LocalApiEditor} from './LocalApiEditor';
+import {LocalApiPanel} from './LocalApiPanel';
 import type {LocalApiBinding} from './LocalApiEditor';
 import {InteractivePanel} from './InteractivePanel';
 import {LocalFormBindingEditor} from './LocalFormBindingEditor';
@@ -148,6 +149,9 @@ function App() {
                 <div className="save-bar"><p className="hint">Saving configuration does not start a test.</p><button className="primary" type="submit">{busy ? 'Saving…' : 'Save configuration'}</button></div>
               </fieldset></form>
               <ExecutionScope settings={settings}/>
+              {(freeEdition || licensedEdition) && settings.local_api_binding && <LocalApiPanel
+                key={'api:' + selected.project_id + JSON.stringify(settings)} projectId={selected.project_id}
+                binding={settings.local_api_binding} unsaved={unsaved} licensed={licensedEdition} request={api}/>}
               {(freeEdition || licensedEdition) && <InteractivePanel key={'interactive:' + selected.project_id + JSON.stringify(settings)}
                 projectId={selected.project_id} target={settings.base_url ?? ''} dataChanges={settings.allow_data_changes ?? false}
                 references={Object.keys(settings.secret_references ?? {})}
