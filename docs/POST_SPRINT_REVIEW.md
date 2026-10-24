@@ -436,3 +436,12 @@ and denies all subsequent requests, records no screenshots and disposes contexts
 Inputs are referenced and resolved only after preconditions; results are sanitized.
 Continue with hard child supervision and owned HTTP fixture proof before product
 admission. Exact-commit CI for this increment is pending after push.
+
+## Supervised Controlled DOM Process
+
+The fixed-fixture interactive DOM probe now has bounded parent/child transport,
+hard process deadline, pre/active cancellation and sanitized callback/result
+handling. Seven supervisor tests and eight actual Chromium child scenarios passed.
+No HTTP endpoint submission, catalog admission or customer interaction is enabled.
+CI verifies supervision and real browser deadlines on both supported OS runners;
+continue with the owned HTTP fixture/transport work in INTERACTIVE_FORMS.md.

@@ -73,3 +73,42 @@ fails and a network attempt returns error. Four contract tests also passed.
 The meaningful 100-case catalog and all external execution permissions are unchanged.
 Next: supervised child transport/deadline/cancellation and contrasting owned HTTP
 fixtures, then explicit licensed admission/UI integration.
+
+## Supervised Fixed-Fixture DOM Probes
+
+A separate interactive_process child now receives only typed project/contract
+metadata, environment reference names and a fixed fixture ID through bounded
+private JSON. Values are not resolved in the parent or placed in argv/configuration.
+The child revalidates exact fields/types/project/fingerprint and fixed fixture
+bindings. It fulfills the single initial document from a committed in-memory
+registry and denies all subsequent HTTP/WebSocket traffic. No server endpoint
+receives a submission, no arbitrary HTML input is accepted and no evidence
+screenshot/trace is produced. This remains internal verification, not catalog
+execution, licensed queue admission or a general interactive website worker.
+
+The parent enforces a finite process deadline, pre/active cancellation, sanitized
+callback errors and owned process-tree cleanup using the existing cross-platform
+termination implementation. Output is bounded and admits only fixed message/status
+combinations. A terminated or failed child reports attempted_submissions=null when
+the count is unknown, rather than asserting zero or making an automatic retry.
+
+Seven supervisor tests passed for pre-spawn policy checks, strict reference-only
+transport, sanitized results and real owned-child deadline/cancellation/callback
+cleanup. Eight actual child/Chromium cases passed for positive/negative login/search
+transitions, missing completion, denied canary traffic, a busy renderer deadline and
+active cancellation. Every owned root process exited. CI repeats unit supervision
+and actual browser probes on Windows and Linux. Shared process-tree termination
+has separate cross-platform descendant lifecycle coverage.
+
+Next: prove contrasting owned HTTP fixtures under a separately reviewed submission
+transport. Preserve target/IP guards and never reuse the read-only policy to allow
+arbitrary POSTs. Licensed admission, form endpoint/method binding, process-safe
+secret resolution and redacted evidence must be verified before exposing this
+through the product. The 100-case catalog and current external execution scope
+remain unchanged. Exact-commit CI for this increment is pending after push.
+
+Verification checkpoint: the full regression completed 745 tests (744 passed,
+one Windows permission skip). The seven supervisor tests passed after the final
+child-start error handling/test change; all eight actual Chromium child scenarios
+passed. The preceding DOM-only implementation 49b81e4 also passed all twelve CI
+jobs in run 40042269203. This supervised increment awaits its own exact-commit CI.

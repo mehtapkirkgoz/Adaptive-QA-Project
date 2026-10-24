@@ -1,4 +1,4 @@
-"""Internal controlled DOM probe; not a queued/subprocess or external submission worker."""
+"""Internal controlled DOM probe; optional supervision lives in interactive_process."""
 from dataclasses import dataclass
 from time import monotonic, sleep
 
@@ -15,7 +15,13 @@ from adaptive_qa.ui_bindings import ElementBindingError
 class InteractiveProbeResult:
     status: TestStatus
     message: str
-    attempted_submissions: int
+    attempted_submissions: int | None
+
+    def __post_init__(self):
+        if (not isinstance(self.status,TestStatus) or not isinstance(self.message,str)
+                or not 1<=len(self.message)<=160
+                or (self.attempted_submissions is not None and (type(self.attempted_submissions) is not int or self.attempted_submissions not in (0,1)))):
+            raise ValueError("Invalid sanitized interactive result.")
 
 
 def _visible(page, mapping):
