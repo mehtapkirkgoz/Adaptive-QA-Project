@@ -75,7 +75,7 @@ class OwnedInteractiveQueue:
             active="status IN ('queued','running','cancel_requested')"
             total=connection.execute('SELECT count(*) FROM dashboard_interactive_jobs WHERE '+active).fetchone()[0]
             owned=connection.execute('SELECT count(*) FROM dashboard_interactive_jobs WHERE '+active+' AND owner_id=?',(actor.user_id,)).fetchone()[0]
-            for table,owner_column in (('dashboard_test_runs','owner_id'),('dashboard_organization_runs','user_id')):
+            for table,owner_column in (('dashboard_test_runs','owner_id'),('dashboard_organization_runs','user_id'),('dashboard_api_jobs','owner_id')):
                 if connection.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?",(table,)).fetchone():
                     total+=connection.execute(f'SELECT count(*) FROM {table} WHERE '+active).fetchone()[0]
                     owned+=connection.execute(f'SELECT count(*) FROM {table} WHERE '+active+f' AND {owner_column}=?',(actor.user_id,)).fetchone()[0]

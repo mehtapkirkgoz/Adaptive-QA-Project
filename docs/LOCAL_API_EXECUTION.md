@@ -63,3 +63,24 @@ and saving unrelated dashboard settings preserves a previously saved API binding
 alongside real discovery/LOGIN-001 execution and zero external browser requests.
 The shared-settings regression completed 805 tests (804 passed, one Windows
 permission skip); focused HTTP and browser checks passed after the allowlist fix.
+
+## Internal Confirmed Queue and Worker
+
+`LocalApiQueue` now admits a confirmed current saved-review fingerprint in a
+SQLite write transaction. It rechecks ownership/settings and current licensed
+admission, shares pending capacity with UI/form runs and reserves running capacity
+through the existing licensed store. Claim-time drift blocks dispatch; active
+settings/license changes request cancellation. Random claim tokens prevent stale
+finalization, outcomes contain status only, and failures are never retried.
+Explicit interrupted-work recovery marks claims terminal. Offline workspace
+recovery cancels API work and clears claims alongside the other queues.
+
+The internal worker uses the existing isolated API process and cancellation checks.
+Six real SQLite checks cover confirmation, scope, concurrent admission/claims,
+settings drift, cancellation, no retry, sanitized failures, signed-license capacity/
+expiry and offline restoration. The HTTP proof now additionally saves, confirms,
+queues and executes both contrasting endpoint contracts: five GETs total including
+the earlier direct contracts, two saved jobs passed, no requests at review/admission.
+The 100-case catalog is unchanged. HTTP job admission, customer CLI commands and
+operator UI confirmation remain the next integration step; this internal increment
+does not expose an execution route or start a worker in the owner's session.

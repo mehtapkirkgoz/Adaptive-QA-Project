@@ -75,7 +75,7 @@ class LicensedLocalProjects(ProjectStore):
         claims = self.require_license()
         if starting:
             running = 0
-            for table in ('dashboard_discovery_jobs', 'dashboard_test_runs', 'dashboard_interactive_jobs'):
+            for table in ('dashboard_discovery_jobs', 'dashboard_test_runs', 'dashboard_interactive_jobs', 'dashboard_api_jobs'):
                 if connection.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?", (table,)).fetchone():
                     running += connection.execute(f"SELECT count(*) FROM {table} WHERE status IN ('running', 'cancel_requested')").fetchone()[0]
             if running >= claims.max_concurrent_runs:
