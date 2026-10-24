@@ -51,15 +51,20 @@ def review_saved_interactive(projects, actor, project_id, *, fixture_id, complet
     projects._actor(actor)
     _id(project_id)
     with projects._connection() as connection:
-        row=connection.execute('SELECT p.*,s.settings_json FROM dashboard_projects p '
-            'LEFT JOIN dashboard_project_settings s ON s.project_id=p.project_id '
-            'WHERE p.project_id=? AND p.owner_id=?',(project_id,actor.user_id)).fetchone()
-        if row is None:
-            raise ProjectNotFound("Project not found.")
-        if row['settings_json'] is None:
-            raise ValueError("Saved interactive settings are required.")
-        project=OwnedProject(row['project_id'],row['owner_id'],row['name'])
-        settings=validate_settings(project,json.loads(row['settings_json']))
+        return _review_on_connection(connection, actor, project_id, fixture_id=fixture_id,
+            completion=completion, timeout_seconds=timeout_seconds)
+
+
+def _review_on_connection(connection, actor, project_id, *, fixture_id, completion, timeout_seconds=15):
+    row=connection.execute('SELECT p.*,s.settings_json FROM dashboard_projects p '
+        'LEFT JOIN dashboard_project_settings s ON s.project_id=p.project_id '
+        'WHERE p.project_id=? AND p.owner_id=?',(project_id,actor.user_id)).fetchone()
+    if row is None:
+        raise ProjectNotFound("Project not found.")
+    if row['settings_json'] is None:
+        raise ValueError("Saved interactive settings are required.")
+    project=OwnedProject(row['project_id'],row['owner_id'],row['name'])
+    settings=validate_settings(project,json.loads(row['settings_json']))
     if not isinstance(fixture_id,str) or fixture_id not in FIXTURE_OPERATIONS:
         raise ValueError("A fixed owned interactive fixture is required.")
     operation=FIXTURE_OPERATIONS[fixture_id]

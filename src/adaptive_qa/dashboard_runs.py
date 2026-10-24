@@ -141,6 +141,9 @@ class DashboardRunQueue:
             if connection.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='dashboard_organization_runs'").fetchone():
                 total += connection.execute('SELECT count(*) FROM dashboard_organization_runs WHERE ' + active).fetchone()[0]
                 owned += connection.execute('SELECT count(*) FROM dashboard_organization_runs WHERE ' + active + ' AND user_id=?', (actor.user_id,)).fetchone()[0]
+            if connection.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='dashboard_interactive_jobs'").fetchone():
+                total += connection.execute('SELECT count(*) FROM dashboard_interactive_jobs WHERE ' + active).fetchone()[0]
+                owned += connection.execute('SELECT count(*) FROM dashboard_interactive_jobs WHERE ' + active + ' AND owner_id=?', (actor.user_id,)).fetchone()[0]
             if total >= 100 or owned >= 5:
                 raise ValueError('Test run admission limit reached.')
             run_id = uuid4().hex

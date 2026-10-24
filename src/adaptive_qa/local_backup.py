@@ -156,7 +156,7 @@ def restore_local_backup(bundle,destination,*,maintenance_confirmed=False):
                     migrate_recovery_connection(connection,entry['name'])
                     if entry['name']=='auth.sqlite': connection.execute('DELETE FROM dashboard_sessions')
                     else:
-                        for table in ('dashboard_discovery_jobs','dashboard_test_runs','dashboard_organization_discovery','dashboard_organization_runs'):
+                        for table in ('dashboard_discovery_jobs','dashboard_test_runs','dashboard_interactive_jobs','dashboard_organization_discovery','dashboard_organization_runs'):
                             if table in tables:
                                 connection.execute(f"UPDATE {table} SET status='cancelled',claim_token=NULL WHERE status IN ('queued','running','cancel_requested')")
                         if 'dashboard_organization_admissions' in tables:

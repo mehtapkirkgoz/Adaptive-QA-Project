@@ -59,6 +59,8 @@ def prepare_restore(plan, bundle_id, *, maintenance_confirmed=False):
                     if not {'dashboard_projects', 'dashboard_project_settings', 'dashboard_discovery_jobs',
                             'dashboard_test_runs', 'dashboard_run_evidence'} <= tables:
                         raise ValueError('Recovery requires the supported project and queue schema.')
+                    if 'dashboard_interactive_jobs' in tables:
+                        connection.execute("UPDATE dashboard_interactive_jobs SET status='cancelled',claim_token=NULL WHERE status IN ('queued','running','cancel_requested')")
                     for table in ('dashboard_discovery_jobs', 'dashboard_test_runs'):
                         connection.execute(f"UPDATE {table} SET status='cancelled', claim_token=NULL "
                                            "WHERE status IN ('queued', 'running', 'cancel_requested')")

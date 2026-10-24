@@ -84,8 +84,35 @@ def main():
             assert result.attempted_submissions is None if mode in ("dropped","cancelled-post") else result.attempted_submissions in (0,1)
             assert not any(value in repr(result) for value in ("fixture-password","never-return-this"))
             reports.append(dict(fixture=fixture,mode=mode,status=result.status.value,endpoint_posts=posts,attempted_submissions=result.attempted_submissions))
+        # Exercise the saved owner-scoped queue and real worker, not just the probe API.
+        from tempfile import TemporaryDirectory
+        from adaptive_qa.local_free import LocalFreeProjects,LOCAL_ACTOR
+        from adaptive_qa.project_settings import reference_name
+        from adaptive_qa.interactive_review import review_saved_interactive
+        from adaptive_qa.interactive_queue import OwnedInteractiveQueue,process_owned_interactive_once
+        state["mode"]="normal"
+        with TemporaryDirectory(prefix="owned-interactive-queue-") as temporary:
+            projects=LocalFreeProjects(Path(temporary)/"projects.sqlite")
+            saved_project=projects.create(LOCAL_ACTOR,"Owned queue proof")
+            references={slot:reference_name(LOCAL_ACTOR.user_id,saved_project.project_id,slot) for slot in ("login_username","login_password")}
+            projects.save_configuration(LOCAL_ACTOR,saved_project.project_id,dict(
+                base_url="http://127.0.0.1:8000/interactive/login-transition",allowed_hosts=["127.0.0.1"],
+                allow_data_changes=True,secret_references=references))
+            queue=OwnedInteractiveQueue(projects)
+            review=review_saved_interactive(projects,LOCAL_ACTOR,saved_project.project_id,fixture_id="login-transition",
+                completion=ElementMapping("login.accepted",(LocatorSpec(LocatorStrategy.TEST_ID,"result"),)),timeout_seconds=5)
+            job=queue.submit(LOCAL_ACTOR,review)
+            before=state["posts"]
+            with patch.dict(os.environ,{references["login_username"]:"fixture-user",references["login_password"]:"fixture-password"}):
+                assert process_owned_interactive_once(queue)["status"]=="completed"
+            result=queue.get(LOCAL_ACTOR,saved_project.project_id,job["job_id"])
+            assert result["result"]==dict(status="passed",attempted_submissions=1),result
+            assert state["posts"]==before+1
+            assert b"fixture-password" not in projects.database.read_bytes()
+            assert queue.claim_next() is None
+            saved_queue_proof=dict(status="completed",result="passed",endpoint_posts=1,no_plaintext_in_database=True)
     assert state["canary"]==state["unexpected"]==state["bad_body"]==0,state
-    report=dict(owned_fixture_only=True,scenarios=reports,contacts={k:state[k] for k in ("documents","posts","canary","unexpected","bad_body")},screenshots=0)
+    report=dict(owned_fixture_only=True,scenarios=reports,contacts={k:state[k] for k in ("documents","posts","canary","unexpected","bad_body")},screenshots=0,saved_queue_proof=saved_queue_proof)
     output=Path("artifacts/interactive-probe/browser-submission.json");output.parent.mkdir(parents=True,exist_ok=True)
     output.write_text(json.dumps(report,indent=2)+"\n",encoding="utf-8")
     print(json.dumps({"scenarios":len(reports),"contacts":report["contacts"]}))

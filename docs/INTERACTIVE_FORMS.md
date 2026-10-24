@@ -254,3 +254,41 @@ admission and claim-time revalidation, current license/shared capacity checks,
 reference-only worker IPC and cancellation/results without screenshots. Until
 those are connected, no interactive run is exposed through the product. Real
 customer/public credential submission remains outside this fixed-fixture scope.
+
+## Transactional Owned Interactive Queue and Worker
+
+A separate internal owned-fixture queue now admits only a current typed saved
+review, under BEGIN IMMEDIATE. It persists the assertion/configuration digests and
+completion metadata, not resolved values. It revalidates saved scoped references,
+data-change policy and the exact owned target at submit and claim; stale jobs
+become errors before any child starts. A fresh random claim token binds work,
+prevents double finalization and is removed on finish/recovery. No interrupted or
+uncertain submission is automatically retried.
+
+The trusted worker holds the existing OS worker lock and passes only references
+to the supervised owned-submission child. Cancellation polls current ownership,
+settings and license state. Results retain only status and known/unknown attempt
+count, never adapter messages, screenshots or bodies. Pending work is bounded;
+interactive/test-run admission shares its run limits. Licensed concurrency counts
+interactive jobs together with existing discovery/test workers in both directions.
+Expired licenses prevent admission/claim and request cancellation of running work.
+
+Both local-first and legacy offline restore paths cancel optional interactive
+work and invalidate its claims. The new table is optional for older workspaces;
+no closed sprint or frozen catalog membership is changed. Explicit custom input
+mappings currently fail closed at admission until their child IPC is implemented,
+rather than silently using defaults. HTTP review still cannot enqueue or run work;
+no new execution endpoint or public/customer submission has been enabled.
+
+Eight queue tests passed for owner/claim isolation, atomic pending limits and
+concurrent claims, claim-time configuration drift, cancellation/recovery, scoped
+worker inputs, real signed-license expiry/concurrent capacity and offline restore.
+Existing run admission (7), local backup (5), licensed behavior (6), and legacy
+backup/recovery (22) tests passed. The real browser proof additionally created a
+fresh free workspace, saved scoped references, queued and executed one real
+Chromium job successfully; no plaintext password was stored. Combined fixture
+contacts: fifteen documents, ten POSTs, zero canary/unexpected/bad-body contacts.
+CI repeats that saved queue/worker proof on Windows/Linux in the existing script.
+Exact-commit CI remains pending after push. Next connect carefully bounded local
+operator controls and explicit review-digest confirmation, and verify mapped-input
+transport before any broader reusable execution.
