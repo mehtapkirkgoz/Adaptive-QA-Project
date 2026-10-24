@@ -112,3 +112,27 @@ one Windows permission skip). The seven supervisor tests passed after the final
 child-start error handling/test change; all eight actual Chromium child scenarios
 passed. The preceding DOM-only implementation 49b81e4 also passed all twelve CI
 jobs in run 40042269203. This supervised increment awaits its own exact-commit CI.
+
+## Owned HTTP Document Fixture Proof
+
+The same supervised probe can now load the initial document from the fixed owned
+HTTP fixture origin instead of fulfilling it from memory. The transport source is
+an exact typed/validated IPC field; fixture IDs still bind the operation and exact
+127.0.0.1:8000 path. The existing EgressProxy/DestinationGuard pins and checks that
+one initial GET and its peer IP. The child verifies that the proxy authorized
+exactly one request and that a 200 HTML document loaded at the exact bound URL.
+All later requests and WebSockets remain denied, including form submissions.
+
+Eight actual Chromium child scenarios also passed against the owned HTTP server
+with contrasting control names. Eight initial documents were received; zero
+non-GET requests, unexpected GETs or contacts to the separate 8001 canary server
+were observed. Login/search transitions remain client-side fixture demonstrations,
+not credential validation by an HTTP authentication endpoint. Seven transport
+tests and the eight in-memory scenarios also passed after the source-field change.
+CI repeats both document sources on Windows/Linux and uploads separate reports.
+No screenshot/trace, product admission or external/customer interaction was added.
+
+Next required work is a separately bound owned-fixture submission endpoint contract
+and one-shot request transport. Do not loosen the read-only discovery proxy or
+treat this document-only HTTP proof as permission to send arbitrary POST requests.
+Existing plans stay non-executing and the catalog stays at 100 meaningful cases.

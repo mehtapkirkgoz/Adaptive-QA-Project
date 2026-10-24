@@ -445,3 +445,14 @@ handling. Seven supervisor tests and eight actual Chromium child scenarios passe
 No HTTP endpoint submission, catalog admission or customer interaction is enabled.
 CI verifies supervision and real browser deadlines on both supported OS runners;
 continue with the owned HTTP fixture/transport work in INTERACTIVE_FORMS.md.
+
+## Pinned Owned HTTP Interactive Document Fixtures
+
+The supervised fixed-fixture probe now supports one pinned initial HTTP GET using
+the existing destination guard/proxy. Eight child/browser cases passed against
+contrasting owned documents, with zero network submissions, unexpected requests
+or canary contacts. Subsequent HTTP/WebSocket traffic remains denied. This proves
+document loading and client-side transitions, not endpoint credential submission.
+Continue with the explicit owned submission-endpoint contract/transport described
+in INTERACTIVE_FORMS.md; no customer/site activation or catalog admission is added.
+Exact-commit CI for this increment is pending after push.

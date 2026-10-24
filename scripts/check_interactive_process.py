@@ -14,7 +14,7 @@ from adaptive_qa.interactive_process import run_isolated_interactive_probe
 from adaptive_qa.secrets import SecretReference
 
 
-def main():
+def main(fixture_source='memory'):
     reports=[]
     with patch.dict(os.environ,{'PROBE_USER':'owned-user-canary-64','PROBE_PASSWORD':'owned-password-canary-64','PROBE_QUERY':'owned-query-canary-64'}):
         for fixture_id,expected in (('login-transition','passed'),('login-rejected','passed'),('search-transition','passed'),
@@ -31,24 +31,24 @@ def main():
                 if 'adaptive_qa.interactive_process' not in command:return original(command,**options)
                 assert project.base_url not in command and 'PROBE_PASSWORD' not in command
                 payload=Path(command[command.index('--input')+1]).read_text(encoding='utf-8')
-                assert 'owned-password-canary-64' not in payload and 'owned-user-canary-64' not in payload
+                assert all(value not in payload for value in ('owned-password-canary-64','owned-user-canary-64','owned-query-canary-64'))
                 child=original(command,**options);children.append(child);return child
             try:
                 with patch('adaptive_qa.interactive_process.subprocess.Popen',side_effect=spawn):
-                    result=run_isolated_interactive_probe(contract,project,fixture_id=fixture_id,current_fingerprint='b'*64,
+                    result=run_isolated_interactive_probe(contract,project,fixture_id=fixture_id,current_fingerprint='b'*64,fixture_source=fixture_source,
                         timeout_seconds=3 if fixture_id=='busy' else 15,
                         should_cancel=(lambda:monotonic()-started>1.5) if expected=='cancelled' else None)
                 assert result.status.value==expected,(fixture_id,result)
                 assert result.attempted_submissions is None if fixture_id=='busy' else result.attempted_submissions in (0,1)
                 assert all(child.poll() is not None for child in children)
-                assert 'owned-password-canary-64' not in repr(result) and 'owned-user-canary-64' not in repr(result)
+                assert all(value not in repr(result) for value in ('owned-password-canary-64','owned-user-canary-64','owned-query-canary-64'))
                 reports.append(dict(fixture=fixture_id,status=result.status.value,attempted_submissions=result.attempted_submissions,owned_child_exited=True))
             finally:
                 for child in children:
                     if child.poll() is None:child.kill();child.wait(timeout=5)
     output=Path('artifacts/interactive-probe');output.mkdir(parents=True,exist_ok=True)
-    report=dict(fixed_dom_fixtures_only=True,http_submissions_enabled=False,screenshots_captured=0,scenarios=reports)
-    (output/'process.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
+    report=dict(fixed_dom_fixtures_only=True,fixture_source=fixture_source,http_submissions_enabled=False,screenshots_captured=0,scenarios=reports)
+    (output/('process.json' if fixture_source=='memory' else 'http-process.json')).write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
     print(json.dumps({'scenarios':len(reports),'owned_children_exited':True,'http_submissions_enabled':False}))
 
 

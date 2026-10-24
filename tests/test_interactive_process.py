@@ -32,11 +32,12 @@ class InteractiveProcessTests(unittest.TestCase):
                 with self.assertRaises(ValueError):self.run_probe(timeout_seconds=deadline)
             for project in (replace(self.project,allow_data_changes=False),replace(self.project,base_url='http://127.0.0.1:8000/other')):
                 with self.assertRaises(ValueError):run_isolated_interactive_probe(self.contract,project,fixture_id='login-transition',current_fingerprint='b'*64)
+            with self.assertRaises(ValueError):self.run_probe(fixture_source='external')
             self.assertEqual(self.run_probe(should_cancel=lambda:True).status,TestStatus.CANCELLED)
             spawn.assert_not_called()
 
     def test_codec_revalidates_types_and_never_resolves_references(self):
-        payload=dict(contract=asdict(self.contract),project=asdict(self.project),fixture_id='login-transition',current_fingerprint='b'*64)
+        payload=dict(contract=asdict(self.contract),project=asdict(self.project),fixture_id='login-transition',current_fingerprint='b'*64,fixture_source='memory')
         with patch.object(SecretReference,'resolve',side_effect=AssertionError('No secret access')):
             self.assertEqual(_decode(json.dumps(payload))[0],self.contract)
         for raw in ('{}','{"contract":{},"contract":{}}',json.dumps({**payload,'unexpected':'value'}),
