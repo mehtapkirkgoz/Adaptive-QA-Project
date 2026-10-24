@@ -87,20 +87,23 @@ def main():
                     page.get_by_role('button',name='Save configuration',exact=True).click()
                     page.get_by_role('button',name='Queue local discovery',exact=True).click()
                     expect(page.get_by_text('queued',exact=True)).to_be_visible()
-                    def worker(command):
+                    def worker(expected_queue):
                         prefix = [sys.executable,'-m','adaptive_qa']
                         if INSTALLED_SITE:
                             prefix = [sys.executable,'-I','-c',
                                 'import sys; sys.path.insert(0,sys.argv.pop(1)); from adaptive_qa.__main__ import main; main()',INSTALLED_SITE]
-                        subprocess.run([*prefix,'local',command,'--workspace',str(root),
-                            '--trusted-keys',str(trust)],check=True,timeout=60,stdout=subprocess.DEVNULL)
-                    worker('discovery-once')
+                        result = subprocess.run([*prefix,'local','worker-cycle','--workspace',str(root),
+                            '--trusted-keys',str(trust)],check=True,timeout=120,capture_output=True)
+                        outcome = json.loads(result.stdout)
+                        assert outcome[expected_queue]['status']=='completed'
+                        assert all(value is None for name,value in outcome.items() if name!=expected_queue)
+                    worker('discovery')
                     page.get_by_role('button',name='Review discovery plan',exact=True).click()
                     runs = page.get_by_label('Test runs',exact=True)
                     runs.get_by_label('Select LOGIN-001',exact=True).check()
                     runs.get_by_role('button',name='Start selected tests',exact=True).click()
                     expect(runs.get_by_text('Run queued',exact=True)).to_be_visible()
-                    worker('run-once')
+                    worker('run')
                     expect(runs.locator('.run-outcome').filter(has_text='LOGIN-001')).to_contain_text('passed',timeout=10000)
                     page.reload()
                     expect(page.get_by_role('region',name='Local license')).to_contain_text('License: valid')
@@ -134,7 +137,7 @@ def main():
             fixture.shutdown(); fixture.server_close(); fixture_thread.join(timeout=5)
             assert not thread.is_alive()
     output = Path('artifacts/local-license'); output.mkdir(parents=True,exist_ok=True)
-    report = dict(local_only=True,upgrade_preserved=True,valid_import=True,invalid_import_preserved=True,
+    report = dict(local_only=True,worker_entrypoint='local worker-cycle',upgrade_preserved=True,valid_import=True,invalid_import_preserved=True,
         authenticated_reload=True,recovery_requires_fresh_login=True,recovered_results_and_license=True,installed_wheel=bool(INSTALLED_SITE),licensed_cli_discovery_and_login_passed=True,page_errors=errors,external_requests=len(external))
     (output/'ui.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
     print(json.dumps(report))

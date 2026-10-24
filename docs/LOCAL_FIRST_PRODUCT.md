@@ -351,3 +351,11 @@ environment variable names only. It explains why queued jobs wait and why unknow
 submissions are not retried. Opening guidance never starts work or resolves values.
 The real UI/CLI/browser proof and production/demo builds passed after this change;
 the existing owner server was not restarted.
+
+Both free and licensed browser acceptance drills now execute actual discovery and
+LOGIN-001 runs through the bounded CLI cycle as separate processes. Each drill
+verifies the other queues remain idle. Free mode still creates no account store;
+paid mode still verifies upgrade preservation, signed import, password login and
+offline recovery with a fresh session. Both source drills passed with zero external
+requests or page errors. CI will repeat the paid drill against its installed wheel;
+this local source run does not replace that packaged evidence.
