@@ -51,6 +51,10 @@ class OwnedSubmissionContract:
         if project.base_url != self.document_url or project.allowed_hosts != ("127.0.0.1",):
             raise ValueError("The saved project must match the owned document binding.")
 
+    def classify_response(self,status,raw):
+        expected=b'{"outcome":"accepted"}' if status==200 else b'{"outcome":"rejected"}' if status==401 else None
+        return ('accepted' if status==200 else 'rejected') if expected is not None and raw==expected else None
+
     def fingerprint(self):
         payload = dict(form=self.form.fingerprint(), fixture=self.fixture_id,
                        document=self.document_url, endpoint=self.endpoint_url,
@@ -62,7 +66,8 @@ class OwnedSubmissionContract:
 class OwnedSubmissionGate:
     """Child-local one-shot validator; no retries, transport, persistence or plaintext output."""
     def __init__(self, contract, project, *, current_fingerprint):
-        if not isinstance(contract, OwnedSubmissionContract):
+        from adaptive_qa.local_form_binding import LocalFormBinding
+        if not isinstance(contract, (OwnedSubmissionContract,LocalFormBinding)):
             raise ValueError("A typed owned submission contract is required.")
         contract.validate_project(project, current_fingerprint=current_fingerprint)
         self.contract = contract
@@ -131,18 +136,16 @@ class OwnedSubmissionTransport:
                 "Host": "127.0.0.1:8000", "Content-Type": CONTENT_TYPE,
                 "Content-Length": str(len(body)), "Connection": "close"})
             response = connection.getresponse()
-            if (response.status not in (200, 401)
-                    or response.getheader("Content-Type") != "application/json"
+            if (response.getheader("Content-Type") != "application/json"
                     or response.getheader("Location") is not None
                     or response.getheader("Content-Encoding") is not None
                     or response.getheader("Transfer-Encoding") is not None):
                 return OwnedSubmissionResult("error", 1)
             raw = response.read(1025)
-            # Only fixed bytes are admitted; parsing arbitrary echoed JSON is unnecessary.
-            expected = b'{"outcome":"accepted"}' if response.status == 200 else b'{"outcome":"rejected"}'
-            if raw != expected:
-                return OwnedSubmissionResult("error", 1)
-            return OwnedSubmissionResult("accepted" if response.status == 200 else "rejected", 1)
+            outcome=self._gate.contract.classify_response(response.status,raw)
+            if outcome is None:
+                return OwnedSubmissionResult("error",1)
+            return OwnedSubmissionResult(outcome,1)
         except Exception:
             # The peer may have processed the POST even if its response was lost.
             return OwnedSubmissionResult("error", None)

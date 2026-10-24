@@ -718,3 +718,34 @@ Next implementation target: separate reusable local endpoint/field/response
 bindings from the fixed fixture registry, prove them on contrasting owned local
 fixtures, then connect scoped saved configuration. Keep public HTTPS read-only;
 no customer credentials or private-network activation are authorized by this proof.
+
+## Reusable Owned Local Endpoint Bindings
+
+The new LocalFormBinding separates operation input names, document/POST endpoint
+paths and strict positive/negative boolean JSON response assertions from the four
+fixed fixture IDs. Bindings still require the exact owned 127.0.0.1:8000 origin,
+normalized distinct document/endpoint paths, matching project/fingerprint and
+data-change permission. Cross-origin/port/alias/query/fragment/encoded/ambiguous
+paths are rejected. Input names and typed response status/field/boolean assertions
+are bounded and included in the contract digest. No values resolve at construction.
+
+The existing one-shot pinned transport accepts this typed local binding while
+preserving the frozen fixture contract's exact response rules. Reusable responses
+must contain exactly one declared boolean field, with the expected status; extra
+fields, echoes, duplicate fields, string/numeric booleans, redirects, encodings and
+unexpected responses fail closed. Cookies/authorization are not forwarded, no
+response text is returned, and uncertain network completion is not retried.
+
+Five new binding tests, nine existing gate/transport tests and thirty interactive
+contract/review/queue/process tests passed. Eight real owned HTTP scenarios passed
+with independent /account/access -> /session/check and /catalog/find -> /v2/query
+bindings, different input names and response fields/statuses. Exactly eight POSTs,
+zero canary/bad requests and no retries were observed. The original five fixed
+endpoint scenarios also passed. CI repeats reusable transport proof on Windows
+and Linux. No catalog case was added or claimed executable.
+
+This reusable binding is not yet admitted by the saved configuration/API/queue or
+browser child; those remain restricted to the four accepted fixed fixtures. Next
+carry the typed binding through bounded supervised IPC, prove contrasting browser
+forms, then add owner-scoped saved configuration/review confirmation. Public HTTPS
+and customer/private-network submission permissions remain unchanged.
