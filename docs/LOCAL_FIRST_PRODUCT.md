@@ -440,3 +440,13 @@ the installed licensed API UI/CLI and offline recovery proof also passed, with o
 GET, zero external browser requests/page errors and all four bundle digests checked.
 See evidence/installed-api-f62882c.json. This does not explain the old Windows CI
 stall or establish remote success: verify f62882c's exact-commit CI/artifacts next.
+
+Controlled API operator acceptance is now verified at 68af26a / Core run
+40105470724: twelve successful jobs, 814 scaffold tests, twelve artifact digests,
+210 PNGs and four inner release digests. Free UI confirmation/cancellation and
+installed licensed API execution/recovery passed remotely. See
+evidence/api-ci-68af26a.json. The older failed 3091a81 run remains recorded; the
+separate f62882c packaging-diagnostics adjustment still needs remote verification.
+Continue remaining bounded database product integration under the local-first
+model while preserving those acceptance boundaries. Customer/public API auth and
+overall owner acceptance remain unfinished; do not expand execution scope silently.

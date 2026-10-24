@@ -211,3 +211,22 @@ digests, combined installed checks (stage logs complete at 2.13 seconds), instal
 licensed API confirmation/CLI execution and recovery preservation passed. Its
 value-free report is in evidence/installed-api-f62882c.json. Remote Windows CI
 success is still unconfirmed; do not treat the local pass as a replacement.
+
+## Controlled API Operator Acceptance
+
+The later exact-commit checkpoint 68af26a passed all twelve Core jobs in run
+40105470724, including Windows packaged runtime and installed licensed API UI
+recovery. Its scaffold log reports 814 tests. All twelve artifact head SHAs,
+GitHub sizes/SHA-256 digests and ZIP integrity were verified, including 210 PNGs
+and four inner inactive-release file digests. The remote free operator report
+confirms one actual GET, one job cancelled before execution and confirmation
+invalidation on unsaved edits. The installed paid report confirms one GET,
+preserved API binding/result after recovery, no external requests and no page
+errors. Full evidence: evidence/api-ci-68af26a.json.
+
+This accepts the controlled loopback API editor/review/confirmation/queue/worker
+checkpoint. It does not accept arbitrary public/customer APIs, bearer authentication
+or the overall product. The older 3091a81 timeout/failure record remains accurate;
+this later successful run supersedes it for feature acceptance. The separate
+f62882c packaging diagnostics/budget adjustment still needs its own remote result;
+the successful older-budget run does not establish the cause of the earlier stall.
