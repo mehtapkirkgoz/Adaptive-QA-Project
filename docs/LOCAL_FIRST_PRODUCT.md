@@ -359,3 +359,10 @@ paid mode still verifies upgrade preservation, signed import, password login and
 offline recovery with a fresh session. Both source drills passed with zero external
 requests or page errors. CI will repeat the paid drill against its installed wheel;
 this local source run does not replace that packaged evidence.
+
+Remaining API work now has an internal explicit read-only review/confirmation path
+for contrasting owned loopback endpoints, separate from the example catalog.
+Three contract checks and a real isolated HTTP proof passed: two declared passes,
+one declared failure, exactly three GET requests and none during review, stale
+dispatch or pre-cancellation. See LOCAL_API_EXECUTION.md for the remaining saved
+settings/queue/UI work. This is not customer-facing API admission or catalog growth.
