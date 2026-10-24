@@ -1,7 +1,7 @@
 {
   "implementation_commit": "ae36b32af184463a565bc847edd50d78b1ea12f4",
   "run_id": 40083889591,
-  "acceptance": "partial_pending_final_ci_job",
+  "acceptance": "all_twelve_jobs_and_artifacts_verified",
   "jobs": [
     {
       "name": "Process lifecycle (ubuntu-24.04)",
@@ -60,8 +60,8 @@
     },
     {
       "name": "UI catalog and isolation",
-      "status": "in_progress",
-      "conclusion": null
+      "status": "completed",
+      "conclusion": "success"
     }
   ],
   "artifacts": [
@@ -152,9 +152,17 @@
       "bytes": 1684,
       "entries": 2,
       "pngs": 0
+    },
+    {
+      "id": 12556910441,
+      "name": "ui-catalog-evidence",
+      "sha256": "6d5eddd92a51eb4ecbde4f7f1f8ce57ca622de7801a7320ec381c4534bdcc2a0",
+      "bytes": 5486713,
+      "entries": 160,
+      "pngs": 147
     }
   ],
-  "pngs_validated": 63,
+  "pngs_validated": 210,
   "release_inner_digests_verified": 4,
   "reusable_editor": {
     "owned_local_only": true,

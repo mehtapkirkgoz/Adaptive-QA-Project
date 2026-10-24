@@ -330,3 +330,9 @@ an existing licensing-state marker. Use `local worker-cycle` after upgrading the
 workspace to paid mode. Both commands share the same three existing workers;
 neither admits new jobs, retries interrupted submissions or installs a service.
 The CLI checks passed for account-free empty queues and refusal of licensed state.
+
+The combined reusable form/editor checkpoint ae36b32 now has complete remote
+evidence: Core run 40083889591 passed all twelve jobs; twelve artifact digests,
+210 PNGs and four inner release digests were verified. See
+evidence/reusable-ci-ae36b32.json. Later worker-cycle CI remains separate; overall
+owner acceptance and general-site interactive support are still pending.

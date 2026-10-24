@@ -578,3 +578,10 @@ Local regression for the first bounded licensed worker-cycle increment completed
 798 tests (797 passed, one Windows permission skip). The free-mode follow-up also
 passed its two CLI checks, eight licensed CLI checks and eighteen legacy worker
 checks. Neither mode starts a background service or retries uncertain submissions.
+
+Final inspection of run 40083889591 completed successfully: all twelve jobs and
+all twelve exact-commit artifact archives are verified, including 210 valid PNGs
+and the four inner release file digests. The evidence record now supersedes its
+partial snapshot above. This accepts the combined controlled reusable form/editor
+checkpoint at ae36b32, not external form submission or overall product acceptance.
+The later bounded worker-cycle commits have separate CI runs still pending review.
