@@ -19,7 +19,7 @@ type Project = {project_id: string; name: string};
 type Plan = {execution_authorized: false; inspected_pages: number; discovery_status: string; discovery_job_id?: string;
   counts: {catalog: number; selected: number; skipped: number; blocked: number};
   cases: {case_id: string; name: string; test_type: string; decision: string; reason: string; target_binding?: string | null; document_path?: string | null; document_url?: string | null; changes_data?: boolean}[]};
-type Settings = {local_form_binding?: LocalFormSettings; form_mappings?: FormMapping[]; discovery_support?: {supported: boolean; profile: string | null; execution_scope: string}; configured: boolean; base_url?: string; allowed_hosts?: string[];
+type Settings = {local_api_binding?: {path: string; expected_status: number; json_field: string; expected_boolean: boolean}; local_form_binding?: LocalFormSettings; form_mappings?: FormMapping[]; discovery_support?: {supported: boolean; profile: string | null; execution_scope: string}; configured: boolean; base_url?: string; allowed_hosts?: string[];
   allow_data_changes?: boolean; available_secret_references: Record<string, string>;
   secret_references?: Record<string, {environment_variable: string; value: string}>};
 class ApiError extends Error { constructor(public status: number, message: string) {super(message);} }
@@ -100,7 +100,7 @@ function App() {
     event.preventDefault(); if (!selected || !settings) return;
     const secret_references = Object.fromEntries(slots.map(slot => [slot, settings.available_secret_references[slot]]));
     void perform(async () => {const data = await api<Settings>(`/api/projects/${selected.project_id}/configuration`, 'PUT', {
-      base_url: target, allowed_hosts: hosts.split('\n').map(h => h.trim()).filter(Boolean), allow_data_changes: changes, secret_references, form_mappings: formMappings, local_form_binding: localBinding ? {...localBinding, document_url: target} : null});
+      base_url: target, allowed_hosts: hosts.split('\n').map(h => h.trim()).filter(Boolean), allow_data_changes: changes, secret_references, form_mappings: formMappings, local_form_binding: localBinding ? {...localBinding, document_url: target} : null, local_api_binding: settings.local_api_binding ?? null});
       setSettings(data); setLocalBinding(data.local_form_binding ?? null); setPlan(null); setNotice('Configuration saved. No tests were started.');});
   }
   const unsaved = settings !== null && (target !== (settings.base_url ?? '') || hosts.split('\n').map(value => value.trim()).filter(Boolean).join('\n') !== (settings.allowed_hosts ?? []).join('\n')

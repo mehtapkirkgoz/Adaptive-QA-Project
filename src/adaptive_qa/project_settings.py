@@ -21,7 +21,7 @@ def reference_name(owner_id, project_id, slot):
 
 def validate_settings(project, data):
     fields = {'base_url', 'allowed_hosts', 'allow_data_changes', 'secret_references'}
-    if not isinstance(data, dict) or not fields <= set(data) <= fields | {'form_mappings','local_form_binding'}:
+    if not isinstance(data, dict) or not fields <= set(data) <= fields | {'form_mappings','local_form_binding','local_api_binding'}:
         raise ValueError('Exact project settings fields are required.')
     url, hosts, references = data['base_url'], data['allowed_hosts'], data['secret_references']
     if not isinstance(url, str) or len(url) > 512:
@@ -49,6 +49,9 @@ def validate_settings(project, data):
     if data.get('local_form_binding') is not None:
         from adaptive_qa.local_form_settings import validate_saved_local_binding
         result['local_form_binding'] = validate_saved_local_binding(data['local_form_binding'],project,config)
+    if data.get('local_api_binding') is not None:
+        from adaptive_qa.local_api_settings import validate_saved_api_binding
+        result['local_api_binding'] = validate_saved_api_binding(data['local_api_binding'], config)
     return result
 
 
@@ -57,6 +60,7 @@ def public_settings(project, data):
     if data is None:
         return {'configured': False, 'available_secret_references': available, 'discovery_support': discovery_support(None)}
     return {**({'local_form_binding':data['local_form_binding']} if data.get('local_form_binding') is not None else {}),
+            **({'local_api_binding':data['local_api_binding']} if data.get('local_api_binding') is not None else {}),
             'configured': True, 'base_url': data['base_url'],
             'form_mappings': data.get('form_mappings', []),
             'discovery_support': discovery_support(data),

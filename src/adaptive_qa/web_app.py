@@ -247,6 +247,13 @@ def create_app(store: AuthStore, *, port=8765, projects=None, ui_directory=None)
         from adaptive_qa.interactive_queue import OwnedInteractiveQueue
         interactive = OwnedInteractiveQueue(projects)
 
+        @app.post('/api/projects/{project_id}/local-api/review')
+        async def review_saved_local_api(project_id: str, request: Request):
+            from adaptive_qa.saved_api_review import review_saved_api
+            owner = await run_in_threadpool(actor, request, mutation=True)
+            _object(await request.body(), ())
+            return await run_in_threadpool(review_saved_api, projects, owner, project_id)
+
         @app.post('/api/projects/{project_id}/interactive/jobs', status_code=202)
         async def submit_interactive_fixture(project_id: str, request: Request):
             import hmac

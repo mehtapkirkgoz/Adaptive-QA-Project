@@ -31,3 +31,26 @@ two contrasting endpoints and configurable boolean assertions: two expected pass
 and one expected failure, exactly three GET requests. Review, stale configuration
 and pre-dispatch cancellation produce no requests. CI repeats the proof and uploads
 its value-free report with the API evidence.
+
+## Saved Settings and Scoped Review
+
+Project configuration now accepts optional `local_api_binding` metadata with four
+exact fields: `path`, `expected_status`, `json_field`, `expected_boolean`. The first
+saved profile is an unauthenticated GET with one explicit top-level boolean
+assertion, a 2xx/4xx status and a bounded normalized path. It requires the exact
+owned API origin above. Unknown fields, values masquerading as booleans/statuses,
+query strings and authority/path escapes are rejected. Null removes the binding;
+invalid replacements preserve the prior saved configuration.
+
+Local free/licensed apps expose POST
+`/api/projects/{project_id}/local-api/review` with an empty JSON object. It requires
+the existing local session, Origin and CSRF checks and reads one owner-scoped saved
+snapshot. The review fingerprint includes the complete saved settings plus the
+typed API contract, so changing policy, references or assertions changes it.
+The response explicitly says `execution_authorized: false`. It does not resolve
+references, contact the endpoint, create a run or reserve licensed capacity.
+
+The current dashboard preserves this metadata on unrelated saves; an API editor
+and queue admission are not implemented yet. This endpoint therefore provides
+review only. Three persistence/HTTP checks verify restart, foreign ownership,
+configuration drift, invalid replacement/removal and session/Origin/CSRF guards.

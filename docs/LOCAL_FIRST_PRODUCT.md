@@ -366,3 +366,11 @@ Three contract checks and a real isolated HTTP proof passed: two declared passes
 one declared failure, exactly three GET requests and none during review, stale
 dispatch or pre-cancellation. See LOCAL_API_EXECUTION.md for the remaining saved
 settings/queue/UI work. This is not customer-facing API admission or catalog growth.
+
+The explicit local API binding can now be saved with the project and reviewed via
+an owner-scoped, session/Origin/CSRF-protected local endpoint. Review remains
+non-executing; changed full saved settings invalidate its digest. Existing UI saves
+preserve the metadata, while invalid replacements leave prior settings intact.
+Three real persistence/HTTP checks and six existing settings checks passed.
+Next connect transactional licensed queue admission and operator UI confirmation;
+no saved API execution route or additional catalog case is enabled by this step.
