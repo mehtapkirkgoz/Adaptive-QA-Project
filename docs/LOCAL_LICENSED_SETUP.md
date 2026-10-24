@@ -55,20 +55,37 @@ single-device workspace. An expired or absent license still permits authenticate
 local reads, but prevents licensed project creation and execution admission.
 
 Process one queued item with the corresponding licensed worker command in another
-terminal. Both commands share the same signed concurrent execution capacity:
+terminal. All worker commands share the same signed concurrent execution capacity:
 
 ```powershell
 python -m adaptive_qa local discovery-once --workspace artifacts/local-free --trusted-keys C:/QA/publisher-public-keys.json
 python -m adaptive_qa local run-once --workspace artifacts/local-free --trusted-keys C:/QA/publisher-public-keys.json
+python -m adaptive_qa local interactive-once --workspace artifacts/local-free --trusted-keys C:/QA/publisher-public-keys.json
 ```
+
+Alternatively, process at most one discovery job, one read-only run and one
+explicitly confirmed interactive job, in that order, using one command:
+
+```powershell
+python -m adaptive_qa local worker-cycle --workspace artifacts/local-free --trusted-keys C:/QA/publisher-public-keys.json
+```
+
+The cycle exits after those three attempts, including when queues are empty.
+Each worker independently rechecks current license capacity and saved settings;
+the cycle grants no extra permissions and does not submit jobs. Interactive jobs
+still require the dashboard's explicit reviewed confirmation. An unexpected
+worker error stops the cycle without retries or automatic recovery. Its JSON
+summary contains job IDs/statuses or null for unavailable work, never input values.
+There is no polling loop, background installation or automatic startup.
 
 These are bounded one-shot workers, not an installed background service. No work is
 executed by license import/status or a dashboard page load. Queued work waits while
 the license is absent/expired or capacity is occupied. Existing deadlines and
 cancellation continue to govern active child processes. Targets, credentials,
 results and screenshots stay local. The licensed dashboard also supports signed-document import and status after
-password login. Packaged customer startup/backup/rollback verification remains
-unfinished.
+password login. Installed licensed execution and recovery evidence is recorded in
+LOCAL_FIRST_ACCEPTANCE.md; legacy managed licensed binary switching remains
+unsupported.
 
 ## Complete Offline Workspace Backup
 

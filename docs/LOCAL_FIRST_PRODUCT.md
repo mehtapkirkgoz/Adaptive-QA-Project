@@ -311,3 +311,10 @@ Reusable local UI-to-worker execution has passed for positive login and negative
 search, including unsaved-edit guards, removal and mobile layout. Next verify the
 combined exact-commit CI artifacts and remaining product limits. General HTTPS
 remains read-only; overall owner acceptance remains pending.
+
+The licensed operator can now use `local worker-cycle` for one bounded pass over
+discovery, read-only runs and confirmed interactive jobs. Existing per-queue
+workers retain licensing, cancellation and deadline checks; no background service,
+job admission, automatic recovery or retry is introduced. Eight local CLI tests
+passed, including empty unlicensed queues and fail-stop behavior. Exact-commit
+CI for this increment remains pending push.

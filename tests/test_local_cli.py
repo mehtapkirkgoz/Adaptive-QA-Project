@@ -66,6 +66,39 @@ class LocalCliTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'Invalid trusted public-key configuration'):
                 load_trusted_keys(self.keys)
 
+    def test_worker_cycle_is_bounded_and_preserves_licensed_stores(self):
+        from contextlib import ExitStack
+        calls = []
+        modules = ('adaptive_qa.dashboard_worker.process_discovery_once',
+                   'adaptive_qa.dashboard_run_worker.process_run_once',
+                   'adaptive_qa.interactive_queue.process_owned_interactive_once')
+        def process(queue):
+            self.assertIsInstance(queue.projects, LicensedLocalProjects)
+            calls.append(queue.projects)
+            return None
+        with ExitStack() as stack:
+            mocks = [stack.enter_context(patch(name, side_effect=process)) for name in modules]
+            self.assertEqual(json.loads(self.invoke('worker-cycle')),
+                             dict(discovery=None, run=None, interactive=None))
+        self.assertEqual(len(calls), 3)
+        self.assertTrue(all(projects is calls[0] for projects in calls))
+        self.assertTrue(all(mock.call_count == 1 for mock in mocks))
+        # Real queues with no entitlement do not start browser/network work.
+        with patch('socket.getaddrinfo', side_effect=AssertionError('No DNS')):
+            self.assertEqual(json.loads(self.invoke('worker-cycle')),
+                             dict(discovery=None, run=None, interactive=None))
+
+    def test_worker_cycle_stops_on_failure_without_retrying_or_recovering(self):
+        with patch('adaptive_qa.dashboard_worker.process_discovery_once',
+                   side_effect=ValueError('Worker unavailable')) as discovery, \
+             patch('adaptive_qa.dashboard_run_worker.process_run_once') as run_worker, \
+             patch('adaptive_qa.interactive_queue.OwnedInteractiveQueue.recover_interrupted') as recover:
+            with self.assertRaisesRegex(ValueError, 'Worker unavailable'):
+                self.invoke('worker-cycle')
+        discovery.assert_called_once()
+        run_worker.assert_not_called()
+        recover.assert_not_called()
+
     def test_local_serve_uses_existing_admin_and_loopback(self):
         from adaptive_qa.auth_store import AuthStore
         root = self.root/'workspace'
