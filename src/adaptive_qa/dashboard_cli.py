@@ -14,13 +14,13 @@ from adaptive_qa.web_app import create_app
 def configure_parser(subparsers):
     parser = subparsers.add_parser('dashboard', help='Manage the local dashboard')
     commands = parser.add_subparsers(dest='dashboard_command', required=True)
-    for name in ('create-user', 'serve', 'free-serve', 'free-worker-cycle', 'free-interactive-once', 'free-recover-interactive', 'discovery-once', 'recover-discovery', 'recover-organization-discovery', 'run-once', 'recover-runs', 'recover-organization-runs', 'prune-evidence', 'maintenance-once'):
+    for name in ('create-user', 'serve', 'free-serve', 'free-worker-cycle', 'free-api-once', 'free-recover-api', 'free-interactive-once', 'free-recover-interactive', 'discovery-once', 'recover-discovery', 'recover-organization-discovery', 'run-once', 'recover-runs', 'recover-organization-runs', 'prune-evidence', 'maintenance-once'):
         command = commands.add_parser(name)
         command.add_argument('--database', type=Path, default=Path('artifacts/dashboard/projects.sqlite'
             if name in ('discovery-once', 'recover-discovery', 'recover-organization-discovery', 'run-once', 'recover-runs', 'recover-organization-runs', 'prune-evidence', 'maintenance-once') else 'artifacts/dashboard/auth.sqlite'))
         if name in ('prune-evidence', 'maintenance-once'):
             command.add_argument('--limit', type=int, default=100)
-        if name in ('free-serve', 'free-worker-cycle', 'free-interactive-once', 'free-recover-interactive'):
+        if name in ('free-serve', 'free-worker-cycle', 'free-api-once', 'free-recover-api', 'free-interactive-once', 'free-recover-interactive'):
             command.set_defaults(database=Path('artifacts/local-free/projects.sqlite'))
         if name in ('serve', 'free-serve'):
             command.add_argument('--port', type=int, default=8766 if name == 'free-serve' else 8765)
@@ -28,13 +28,19 @@ def configure_parser(subparsers):
 
 
 def run(args):
-    if args.dashboard_command in ('free-worker-cycle', 'free-interactive-once', 'free-recover-interactive'):
+    if args.dashboard_command in ('free-worker-cycle', 'free-api-once', 'free-recover-api', 'free-interactive-once', 'free-recover-interactive'):
         from adaptive_qa.local_free import LocalFreeProjects
         from adaptive_qa.interactive_queue import OwnedInteractiveQueue, process_owned_interactive_once
         database = args.database.resolve()
         licensing = database.with_name('license.sqlite')
         if licensing.exists() or licensing.is_symlink():
             raise ValueError('This workspace contains licensing state; use the licensed local commands.')
+        if args.dashboard_command in ('free-api-once', 'free-recover-api'):
+            from adaptive_qa.api_queue import LocalApiQueue, process_local_api_once
+            queue = LocalApiQueue(LocalFreeProjects(database))
+            outcome = queue.recover_interrupted() if args.dashboard_command == 'free-recover-api' else process_local_api_once(queue)
+            print(json.dumps(outcome))
+            return
         if args.dashboard_command == 'free-worker-cycle':
             from adaptive_qa.local_worker_cycle import process_local_cycle
             print(json.dumps(process_local_cycle(LocalFreeProjects(database))))

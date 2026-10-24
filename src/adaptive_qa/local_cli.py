@@ -43,7 +43,7 @@ def load_trusted_keys(path):
 def configure_parser(subparsers):
     parser = subparsers.add_parser('local', help='Manage a single-device licensed workspace')
     commands = parser.add_subparsers(dest='local_command', required=True)
-    for name in ('create-admin', 'license-import', 'license-status', 'serve', 'discovery-once', 'run-once', 'interactive-once', 'worker-cycle', 'recover-interactive', 'backup', 'restore'):
+    for name in ('create-admin', 'license-import', 'license-status', 'serve', 'discovery-once', 'run-once', 'interactive-once', 'api-once', 'recover-api', 'worker-cycle', 'recover-interactive', 'backup', 'restore'):
         command = commands.add_parser(name)
         command.add_argument('--workspace', type=Path, default=Path('artifacts/local-free'))
         if name not in ('create-admin', 'backup', 'restore'):
@@ -94,6 +94,12 @@ def run(args):
         return
     from adaptive_qa.local_licensed import LicensedLocalProjects
     projects = LicensedLocalProjects(root/'projects.sqlite', licenses)
+    if args.local_command in ('api-once', 'recover-api'):
+        from adaptive_qa.api_queue import LocalApiQueue, process_local_api_once
+        queue = LocalApiQueue(projects)
+        outcome = queue.recover_interrupted() if args.local_command == 'recover-api' else process_local_api_once(queue)
+        print(json.dumps(outcome))
+        return
     if args.local_command == 'worker-cycle':
         from adaptive_qa.local_worker_cycle import process_local_cycle
         # Each existing worker claims independently under its lock and rechecks

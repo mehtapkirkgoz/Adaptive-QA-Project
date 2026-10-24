@@ -30,5 +30,5 @@ def _review_api_on_connection(connection, actor, project_id):
         contract_fingerprint=hashlib.sha256(snapshot.encode()).hexdigest(),
         request_method='GET',binding=settings['local_api_binding'],
         limitations=['Review does not execute, enqueue or reserve capacity.',
-                     'HTTP job admission and operator UI are not enabled.'])
+                     'Execution requires separate explicit confirmation and a local worker.'])
     return public, review

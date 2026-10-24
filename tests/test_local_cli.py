@@ -131,3 +131,11 @@ class LocalCliTests(unittest.TestCase):
             self.invoke('interactive-once')
         self.assertIsInstance(worker.call_args.args[0].projects,LicensedLocalProjects)
         self.assertIn("error",self.invoke('recover-interactive'))
+
+    def test_api_worker_selects_licensed_store_and_recovery_never_dispatches(self):
+        with patch('adaptive_qa.api_queue.process_local_api_once',return_value=None) as worker:
+            self.assertIsNone(json.loads(self.invoke('api-once')))
+        self.assertIsInstance(worker.call_args.args[0].projects,LicensedLocalProjects)
+        with patch('adaptive_qa.api_queue.process_local_api_once') as worker:
+            self.assertEqual(json.loads(self.invoke('recover-api')),dict(cancelled=0,error=0))
+        worker.assert_not_called()

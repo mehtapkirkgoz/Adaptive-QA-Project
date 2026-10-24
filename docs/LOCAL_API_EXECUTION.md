@@ -84,3 +84,32 @@ the earlier direct contracts, two saved jobs passed, no requests at review/admis
 The 100-case catalog is unchanged. HTTP job admission, customer CLI commands and
 operator UI confirmation remain the next integration step; this internal increment
 does not expose an execution route or start a worker in the owner's session.
+
+## Local HTTP Admission and One-Shot Commands
+
+Free/licensed local apps now expose `/local-api/jobs` under each owned project:
+POST requires exactly `confirmed_contract_fingerprint` from the current saved
+review; GET returns the latest twenty jobs. GET `/{job_id}` reads one owned job;
+POST `/{job_id}/cancel` takes an empty object. Mutations retain session/Origin/CSRF
+guards. Extra path/credential/authority overrides are rejected. Admission rechecks
+the digest transactionally and does not execute the job in the HTTP handler.
+
+Start at most one queued API job in another terminal, using the dashboard's actual
+workspace path (example paths below must be replaced):
+
+```powershell
+python -m adaptive_qa dashboard free-api-once --database C:/QA/workspace/projects.sqlite
+python -m adaptive_qa local api-once --workspace C:/QA/workspace --trusted-keys C:/QA/publisher-public-keys.json
+```
+
+Free commands refuse licensing state. Paid commands always use the licensed store.
+Explicit `free-recover-api` / `local recover-api` commands mark interrupted API
+claims terminal under the worker lock; they never retry them. Do not run recovery
+alongside an active worker. The existing three-queue worker-cycle command is
+unchanged; API processing is a separate explicit one-shot command.
+
+Sixteen focused HTTP/CLI checks passed. The controlled HTTP proof now saves and
+reviews through the real configuration API, explicitly confirms job admission,
+executes both jobs using a separate free-api-once process and reads the persisted
+results through scoped HTTP. Five total GET requests were observed; review and
+admission contacted no target. Customer-facing editor/confirmation UI remains next.

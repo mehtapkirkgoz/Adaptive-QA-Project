@@ -381,3 +381,11 @@ and offline-recovery cleanup. Two saved explicit endpoints passed through the re
 supervised API worker. Six queue checks passed, including signed expiry and shared
 running capacity. Public review remains non-executing; customer CLI/HTTP admission
 and operator UI are not enabled yet. See LOCAL_API_EXECUTION.md.
+
+Saved API jobs now have local scoped HTTP admission/history/cancellation and
+separate free/licensed one-shot CLI workers/recovery. Sixteen HTTP/CLI checks and
+the real saved-configuration -> reviewed confirmation -> HTTP queue -> CLI child
+proof passed on owned endpoints. Review still grants no execution authority by
+itself. The three-queue worker cycle is unchanged; API has its own explicit command.
+Next add the operator editor/review/confirmation UI; public/customer API targets
+and authentication are still outside the enabled profile.

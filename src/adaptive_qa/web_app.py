@@ -246,6 +246,28 @@ def create_app(store: AuthStore, *, port=8765, projects=None, ui_directory=None)
     if getattr(store, 'local_free', False) or getattr(store, 'local_licensed', False):
         from adaptive_qa.interactive_queue import OwnedInteractiveQueue
         interactive = OwnedInteractiveQueue(projects)
+        from adaptive_qa.api_queue import LocalApiQueue
+        local_api = LocalApiQueue(projects)
+
+        @app.post('/api/projects/{project_id}/local-api/jobs', status_code=202)
+        async def submit_saved_local_api(project_id: str, request: Request):
+            owner = await run_in_threadpool(actor, request, mutation=True)
+            data = _object(await request.body(), ('confirmed_contract_fingerprint',))
+            return await run_in_threadpool(local_api.submit, owner, project_id, data['confirmed_contract_fingerprint'])
+
+        @app.get('/api/projects/{project_id}/local-api/jobs')
+        def list_saved_local_api(project_id: str, request: Request):
+            return {'jobs': local_api.list(actor(request), project_id)}
+
+        @app.get('/api/projects/{project_id}/local-api/jobs/{job_id}')
+        def get_saved_local_api(project_id: str, job_id: str, request: Request):
+            return local_api.get(actor(request), project_id, job_id)
+
+        @app.post('/api/projects/{project_id}/local-api/jobs/{job_id}/cancel')
+        async def cancel_saved_local_api(project_id: str, job_id: str, request: Request):
+            owner = await run_in_threadpool(actor, request, mutation=True)
+            _object(await request.body(), ())
+            return await run_in_threadpool(local_api.cancel, owner, project_id, job_id)
 
         @app.post('/api/projects/{project_id}/local-api/review')
         async def review_saved_local_api(project_id: str, request: Request):

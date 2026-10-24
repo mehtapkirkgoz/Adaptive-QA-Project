@@ -77,6 +77,13 @@ class LocalApiQueue:
     def get(self,actor,project_id,job_id):
         with self.projects._connection() as c: return self._public(self._owned(c,actor,project_id,job_id))
 
+    def list(self,actor,project_id):
+        self.projects.get(actor,project_id)
+        with self.projects._connection() as c:
+            rows=c.execute('SELECT * FROM dashboard_api_jobs WHERE owner_id=? AND project_id=? '
+                'ORDER BY sequence DESC LIMIT 20',(actor.user_id,project_id)).fetchall()
+            return tuple(self._public(row) for row in rows)
+
     def cancel(self,actor,project_id,job_id):
         with self.projects._connection() as c:
             c.execute('BEGIN IMMEDIATE'); row=self._owned(c,actor,project_id,job_id)

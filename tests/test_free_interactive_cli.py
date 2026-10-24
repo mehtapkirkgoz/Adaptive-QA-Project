@@ -12,6 +12,19 @@ from adaptive_qa.local_free import LocalFreeProjects
 
 
 class FreeInteractiveCliTests(unittest.TestCase):
+    def test_free_api_worker_refuses_licensed_state_and_recovery_is_non_executing(self):
+        parser=argparse.ArgumentParser();configure_parser(parser.add_subparsers(dest='command'))
+        for command in ('free-api-once','free-recover-api'):
+            args=parser.parse_args(['dashboard',command])
+            self.assertEqual(args.database,Path('artifacts/local-free/projects.sqlite'))
+            with TemporaryDirectory() as temporary:
+                args.database=Path(temporary)/'projects.sqlite'
+                with redirect_stdout(io.StringIO()):run(args)
+                self.assertFalse(args.database.with_name('auth.sqlite').exists())
+                args.database.with_name('license.sqlite').write_bytes(b'owned marker')
+                with patch('adaptive_qa.api_queue.process_local_api_once') as worker,self.assertRaises(ValueError):run(args)
+                worker.assert_not_called()
+
     def test_free_cycle_uses_free_store_and_refuses_licensed_workspace(self):
         parser=argparse.ArgumentParser();configure_parser(parser.add_subparsers(dest='command'))
         args=parser.parse_args(['dashboard','free-worker-cycle'])
