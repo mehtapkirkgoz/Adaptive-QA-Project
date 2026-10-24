@@ -87,6 +87,14 @@ def main():
                     binding = dict(path='/service/available', expected_status=200, json_field='available', expected_boolean=True)
                     editor=page.get_by_role('region',name='Explicit local API binding')
                     editor.get_by_role('checkbox',name='Configure explicit API response').check()
+                    status_input=editor.get_by_label('Expected API HTTP status',exact=True)
+                    status_input.fill('')
+                    expect(status_input).to_have_value('')
+                    assert not status_input.evaluate('(input) => input.checkValidity()')
+                    status_input.fill('302')
+                    assert not status_input.evaluate('(input) => input.checkValidity()')
+                    status_input.fill('200')
+                    assert status_input.evaluate('(input) => input.checkValidity()')
                     editor.get_by_label('GET endpoint path',exact=True).fill(binding['path'])
                     editor.get_by_label('API JSON boolean field',exact=True).fill(binding['json_field'])
                     page.get_by_role('button',name='Save configuration',exact=True).click()
@@ -146,6 +154,12 @@ def main():
                     fixture_digest=hashlib.sha256(fixture_path.read_bytes()).hexdigest()
                     db_editor=page.get_by_role('region',name='Explicit local database binding')
                     db_editor.get_by_role('checkbox',name='Configure explicit database count').check()
+                    count_input=db_editor.get_by_label('Expected database record count',exact=True)
+                    count_input.fill('')
+                    expect(count_input).to_have_value('')
+                    assert not count_input.evaluate('(input) => input.checkValidity()')
+                    page.get_by_role('button',name='Save configuration',exact=True).click()
+                    assert 'local_database_binding' not in projects.configuration(LOCAL_ACTOR,saved_project.project_id)
                     db_editor.get_by_label('Expected database record count',exact=True).fill('3')
                     page.get_by_role('checkbox',name='database path',exact=False).check()
                     page.get_by_role('button',name='Save configuration',exact=True).click()
@@ -207,6 +221,7 @@ def main():
               'database_editor_save_reload_remove': True, 'database_jobs_explicitly_confirmed': 2,
               'database_job_cancelled_before_execution': True, 'database_ui_cli_result': 'passed',
               'database_fixture_unchanged': True, 'database_unsaved_confirmation_cleared': True,
+              'empty_numeric_inputs_blocked': True, 'redirect_api_expectation_blocked': True,
               'auth_database_created': False, 'central_requests': len(external), 'page_errors': errors}
     (output/'ui.json').write_text(json.dumps(report, indent=2)+'\n', encoding='utf-8')
     print(json.dumps(report))

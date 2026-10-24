@@ -551,3 +551,13 @@ discovery/selection/one-shot execution, separate API/DB commands and data recove
 CLI help and all edited local document links were checked. No runtime or public
 demo behavior changed. Core checks for the prior acceptance-record commit
 12804d3 passed in run 40131162628; its archives were not separately reaccepted.
+
+
+Continued operator review fixed numeric input coercion: clearing an expected DB
+count or API status now leaves a required empty field instead of silently
+converting it to zero. Redirect status expectations are rejected in the browser
+as well as the backend. The free browser proof verified invalid save refusal,
+corrected-input recovery and the existing real API/DB execution/cancellation
+flows with unchanged DB bytes, no external requests and no page errors.
+Production and unchanged-demo builds passed. Quick-start discovery labels now
+match both HTTPS and controlled local targets. Exact-commit CI follows the push.

@@ -43,7 +43,8 @@ Do not assume that all 100 catalog definitions apply to the target.
 
 ## Discover, Select and Run
 
-1. In the dashboard, choose **Queue local discovery**.
+1. In the dashboard, choose **Queue HTTPS discovery** for a supported HTTPS target,
+   or **Queue local discovery** for the controlled local fixture.
 2. In a second terminal at the same repository root, process the workspace queue:
 
    ```powershell
