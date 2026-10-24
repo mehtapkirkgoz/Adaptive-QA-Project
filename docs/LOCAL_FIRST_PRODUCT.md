@@ -336,3 +336,11 @@ evidence: Core run 40083889591 passed all twelve jobs; twelve artifact digests,
 210 PNGs and four inner release digests were verified. See
 evidence/reusable-ci-ae36b32.json. Later worker-cycle CI remains separate; overall
 owner acceptance and general-site interactive support are still pending.
+
+The reusable editor browser drill now invokes the actual account-free worker-cycle
+CLI in a separate process instead of calling its interactive worker directly.
+Positive login and negative search both passed through saved UI configuration,
+explicit confirmation, CLI dispatch, supervised browser execution and refreshed
+persisted results. Empty discovery/run queues remained empty. Only two owned
+documents and two submissions were observed, with no malformed/external request
+or UI error. CI runs the same proof; no owner session was restarted.

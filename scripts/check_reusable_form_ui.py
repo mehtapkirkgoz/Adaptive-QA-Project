@@ -8,12 +8,14 @@ from urllib.parse import urlencode
 from unittest.mock import patch
 import json
 import os
+import subprocess
+import sys
 
 import uvicorn
 from playwright.sync_api import sync_playwright,expect
 from check_owned_submission import server as fixture_server
 from adaptive_qa.local_free import LocalFreeProjects,LOCAL_ACTOR,create_free_app
-from adaptive_qa.interactive_queue import OwnedInteractiveQueue,process_owned_interactive_once
+from adaptive_qa.interactive_queue import OwnedInteractiveQueue
 
 
 def main():
@@ -101,7 +103,13 @@ def main():
                         expect(panel.get_by_role('button',name='Cancel interactive job',exact=True)).to_be_visible()
                         values={'login_username':'fixture-user','login_password':'fixture-code'} if login else {'search_query':'missing item'}
                         environment={saved['secret_references'][slot]['environment_variable']:value for slot,value in values.items()}
-                        with patch.dict(os.environ,environment):assert process_owned_interactive_once(queue)['status']=='completed'
+                        with patch.dict(os.environ,environment):
+                            worker=subprocess.run([sys.executable,'-m','adaptive_qa','dashboard',
+                                'free-worker-cycle','--database',str(database)],
+                                capture_output=True,timeout=90,check=True)
+                        cycle=json.loads(worker.stdout)
+                        assert cycle['discovery'] is None and cycle['run'] is None
+                        assert cycle['interactive']['status']=='completed'
                         assert queue.list(LOCAL_ACTOR,project.project_id)[0]['result']==dict(status='passed',attempted_submissions=1)
                         expect(panel.get_by_text('queued',exact=True)).to_have_count(0,timeout=10000)
                         expect(panel.get_by_text('Result: passed; submissions: 1',exact=True).last).to_be_visible(timeout=10000)
@@ -120,7 +128,8 @@ def main():
                     assert 'local_form_binding' not in projects.configuration(LOCAL_ACTOR,project.project_id)
                 finally:browser.close()
         finally:service.should_exit=True;thread.join(timeout=10);assert not thread.is_alive()
-    report=dict(owned_local_only=True,ui_saved_reviewed_confirmed_executed=proofs,contacts=contacts,
+    report=dict(owned_local_only=True,worker_entrypoint='dashboard free-worker-cycle',
+        ui_saved_reviewed_confirmed_executed=proofs,contacts=contacts,
         edit_clears_confirmation=True,unsaved_review_blocked=True,removal_verified=True,
         ui_external_requests=0,page_errors=0,mobile_overflow=False,credential_values_entered_in_ui=False)
     (output/'reusable-editor.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8');print(json.dumps(report))
