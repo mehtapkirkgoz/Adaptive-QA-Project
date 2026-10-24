@@ -1,5 +1,6 @@
 import {useEffect, useState} from 'react';
 import type {LocalDatabaseBinding} from './LocalDatabaseEditor';
+import {useLocalJobHistory} from './useLocalJobHistory';
 type Job = {job_id: string; status: string; result: {status: string} | null};
 type Review = {execution_authorized: false; contract_fingerprint: string};
 type Props = {projectId: string; binding: LocalDatabaseBinding; unsaved: boolean; licensed: boolean; databaseReference?: string;
@@ -8,22 +9,10 @@ const active = (job: Job) => ['queued', 'running', 'cancel_requested'].includes(
 
 export function LocalDatabasePanel({projectId, binding, unsaved, licensed, request, databaseReference}: Props) {
   const [review, setReview] = useState<Review | null>(null), [confirmed, setConfirmed] = useState(false);
-  const [jobs, setJobs] = useState<Job[]>([]), [busy, setBusy] = useState(false), [error, setError] = useState('');
-  const base = `/api/projects/${projectId}/local-database`, polling = jobs.some(active);
+  const [busy, setBusy] = useState(false), [error, setError] = useState('');
+  const base = `/api/projects/${projectId}/local-database`;
+  const {jobs, setJobs, historyReady, historyLoading, historyError, refreshHistory, polling} = useLocalJobHistory<Job>(base, request);
   useEffect(() => {if (unsaved) {setReview(null); setConfirmed(false);}}, [unsaved]);
-  useEffect(() => {
-    let alive = true, timer: ReturnType<typeof setTimeout> | undefined;
-    async function refresh() {
-      try {
-        const data = await request<{jobs: Job[]}>(base + '/jobs');
-        if (!alive) return;
-        setJobs(data.jobs);
-        if (data.jobs.some(active)) timer = setTimeout(refresh, 1500);
-      } catch {if (alive) setError('Could not refresh database history. Check your local session.');}
-    }
-    void refresh();
-    return () => {alive = false; if (timer) clearTimeout(timer);};
-  }, [base, polling]);
   async function inspect() {
     setBusy(true); setError(''); setReview(null); setConfirmed(false);
     try {setReview(await request<Review>(base + '/review', 'POST', {}));}
@@ -31,7 +20,7 @@ export function LocalDatabasePanel({projectId, binding, unsaved, licensed, reque
     finally {setBusy(false);}
   }
   async function enqueue() {
-    if (!review || !confirmed || unsaved || !databaseReference) return;
+    if (!review || !confirmed || unsaved || !databaseReference || !historyReady || polling) return;
     const digest = review.contract_fingerprint;
     setBusy(true); setError(''); setReview(null); setConfirmed(false);
     try {
@@ -52,7 +41,7 @@ export function LocalDatabasePanel({projectId, binding, unsaved, licensed, reque
     {review && <div aria-label="database review confirmation">
       <p>Review complete. No database was opened.</p>
       <label className="check"><input type="checkbox" checked={confirmed} onChange={event => setConfirmed(event.target.checked)}/><span>I authorize one read-only count on my owned SQLite fixture.</span></label>
-      <button disabled={busy || unsaved || !databaseReference || !confirmed || polling} onClick={() => void enqueue()}>Queue one database count</button>
+      <button disabled={busy || unsaved || !databaseReference || !confirmed || polling || !historyReady} onClick={() => void enqueue()}>Queue one database count</button>
     </div>}
     <details><summary>Run a database worker locally</summary>
       <p>Prepare only owned test fixtures under <code style={{overflowWrap:'anywhere'}}>database-fixtures/{projectId}</code> inside this workspace.</p>
@@ -60,7 +49,10 @@ export function LocalDatabasePanel({projectId, binding, unsaved, licensed, reque
       ? 'python -m adaptive_qa local database-once --workspace C:/QA/workspace --trusted-keys C:/QA/publisher-public-keys.json'
       : 'python -m adaptive_qa dashboard free-database-once --database C:/QA/workspace/projects.sqlite'}</code></pre><p>The three-queue worker cycle does not process database jobs. Unknown completion is never retried automatically.</p></details>
     {error && <p className="message error" role="alert">{error}</p>}
-    {!jobs.length && <p className="hint">No database jobs yet.</p>}
+    {historyError && <p className="message error" role="alert">Database history is unavailable. Refresh history before confirming another job.</p>}
+    <button disabled={busy || historyLoading} onClick={refreshHistory}>Refresh database history</button>
+    {historyLoading && <p role="status">Loading database history…</p>}
+    {historyReady && !jobs.length && <p className="hint">No database jobs yet.</p>}
     {jobs.map(job => <div className="discovery-job" key={job.job_id}><span><code>{job.job_id.slice(0, 8)}</code><strong>{job.status.replaceAll('_', ' ')}</strong>{job.result && <small>database result: {job.result.status}</small>}</span>
       {active(job) && <button disabled={busy || job.status === 'cancel_requested'} onClick={() => {
         setBusy(true); setError('');

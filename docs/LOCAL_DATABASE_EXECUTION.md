@@ -208,3 +208,14 @@ This closes the bounded DB integration checkpoint, not general database support
 or overall owner acceptance. Customer databases, arbitrary roots/SQL, production
 issuer infrastructure, public backend activation and customer deployment remain
 outside this accepted scope. Owner dashboard sessions were not restarted.
+
+
+## History Read Failure Recovery
+
+The operator panel now distinguishes unread history from an empty job list.
+Admission remains disabled until history has loaded successfully. A failed
+history read stops polling and offers explicit read-only refresh; it never
+replays a review, submission or cancellation. Existing uncertain-admission
+messages remain visible independently of history recovery. The controlled free
+browser proof injects one 503 for API and DB history, verifies blocked admission
+and refresh recovery, then completes real local execution/cancellation.

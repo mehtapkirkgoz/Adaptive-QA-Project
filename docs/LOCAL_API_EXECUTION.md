@@ -230,3 +230,14 @@ or the overall product. The older 3091a81 timeout/failure record remains accurat
 this later successful run supersedes it for feature acceptance. The separate
 f62882c packaging diagnostics/budget adjustment still needs its own remote result;
 the successful older-budget run does not establish the cause of the earlier stall.
+
+
+## History Read Failure Recovery
+
+The operator panel now distinguishes unread history from an empty job list.
+Admission remains disabled until history has loaded successfully. A failed
+history read stops polling and offers explicit read-only refresh; it never
+replays a review, submission or cancellation. Existing uncertain-admission
+messages remain visible independently of history recovery. The controlled free
+browser proof injects one 503 for API and DB history, verifies blocked admission
+and refresh recovery, then completes real local execution/cancellation.

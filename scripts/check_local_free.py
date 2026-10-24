@@ -85,6 +85,14 @@ def main():
                     expect(runs.locator('.run-outcome').filter(has_text='LOGIN-001')).to_contain_text('passed', timeout=10000)
                     saved_project = projects.list(LOCAL_ACTOR)[0]
                     binding = dict(path='/service/available', expected_status=200, json_field='available', expected_boolean=True)
+                    history_failures={'api':0,'database':0}
+                    def unavailable_history(route):
+                        profile='database' if '/local-database/' in route.request.url else 'api'
+                        if route.request.method=='GET' and not history_failures[profile]:
+                            history_failures[profile]+=1
+                            route.fulfill(status=503,content_type='application/json',body='{}')
+                        else:route.continue_()
+                    page.route('**/local-api/jobs',unavailable_history)
                     editor=page.get_by_role('region',name='Explicit local API binding')
                     editor.get_by_role('checkbox',name='Configure explicit API response').check()
                     status_input=editor.get_by_label('Expected API HTTP status',exact=True)
@@ -100,6 +108,8 @@ def main():
                     page.get_by_role('button',name='Save configuration',exact=True).click()
                     expect(page.get_by_text('Configuration saved. No tests were started.',exact=True)).to_be_visible()
                     api_panel=page.get_by_role('region',name='Explicit API execution')
+                    expect(api_panel.get_by_text('API history is unavailable. Refresh history before confirming another job.',exact=True)).to_be_visible()
+                    expect(api_panel.get_by_text('No API jobs yet.',exact=True)).to_have_count(0)
                     api_panel.get_by_role('button',name='Review saved API binding',exact=True).click()
                     expect(api_panel.get_by_label('API review confirmation')).to_be_visible()
                     editor.get_by_label('API JSON boolean field',exact=True).fill('changed')
@@ -109,6 +119,10 @@ def main():
                     api_panel.get_by_role('button',name='Review saved API binding',exact=True).click()
                     assert api_contacts==[]
                     api_panel.get_by_role('checkbox',name='I authorize one GET request to my owned local API.').check()
+                    expect(api_panel.get_by_role('button',name='Queue one API request',exact=True)).to_be_disabled()
+                    api_panel.get_by_role('button',name='Refresh API history',exact=True).click()
+                    expect(api_panel.get_by_role('button',name='Queue one API request',exact=True)).to_be_enabled()
+                    page.unroute('**/local-api/jobs',unavailable_history)
                     api_panel.get_by_role('button',name='Queue one API request',exact=True).click()
                     expect(api_panel.get_by_role('button',name='Cancel API job',exact=True)).to_be_visible()
                     result=subprocess.run([sys.executable,'-m','adaptive_qa','dashboard','free-api-once',
@@ -144,6 +158,7 @@ def main():
                     with projects._connection() as c:
                         assert c.execute('SELECT count(*) FROM dashboard_api_jobs').fetchone()[0]==2
                     database_binding=dict(table='inventory',expected_count=3)
+                    page.route('**/local-database/jobs',unavailable_history)
                     fixture_root=root/'database-fixtures'/saved_project.project_id
                     fixture_root.mkdir(parents=True)
                     fixture_path=fixture_root/'owned.sqlite'
@@ -165,6 +180,8 @@ def main():
                     page.get_by_role('button',name='Save configuration',exact=True).click()
                     expect(page.get_by_text('Configuration saved. No tests were started.',exact=True)).to_be_visible()
                     db_panel=page.get_by_role('region',name='Explicit database execution')
+                    expect(db_panel.get_by_text('Database history is unavailable. Refresh history before confirming another job.',exact=True)).to_be_visible()
+                    expect(db_panel.get_by_text('No database jobs yet.',exact=True)).to_have_count(0)
                     db_panel.get_by_role('button',name='Review saved database count',exact=True).click()
                     expect(db_panel.get_by_label('database review confirmation')).to_be_visible()
                     db_editor.get_by_label('Expected database record count',exact=True).fill('4')
@@ -174,6 +191,10 @@ def main():
                     db_panel.get_by_role('button',name='Review saved database count',exact=True).click()
                     expect(db_panel.get_by_role('button',name='Queue one database count',exact=True)).to_be_disabled()
                     db_panel.get_by_role('checkbox',name='I authorize one read-only count on my owned SQLite fixture.').check()
+                    expect(db_panel.get_by_role('button',name='Queue one database count',exact=True)).to_be_disabled()
+                    db_panel.get_by_role('button',name='Refresh database history',exact=True).click()
+                    expect(db_panel.get_by_role('button',name='Queue one database count',exact=True)).to_be_enabled()
+                    page.unroute('**/local-database/jobs',unavailable_history)
                     db_panel.get_by_role('button',name='Queue one database count',exact=True).click()
                     expect(db_panel.get_by_role('button',name='Cancel database job',exact=True)).to_be_visible()
                     database_reference=reference_name(LOCAL_ACTOR.user_id,saved_project.project_id,'database_path')
@@ -248,6 +269,7 @@ def main():
               'empty_numeric_inputs_blocked': True, 'redirect_api_expectation_blocked': True,
               'free_session_reopen_without_login_or_mutation_retry': True,
               'nested_panel_session_loss_recovered_without_requeue': True,
+              'api_and_database_history_failure_blocks_admission_until_manual_refresh': True,
               'auth_database_created': False, 'central_requests': len(external), 'page_errors': errors}
     (output/'ui.json').write_text(json.dumps(report, indent=2)+'\n', encoding='utf-8')
     print(json.dumps(report))

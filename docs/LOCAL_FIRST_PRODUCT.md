@@ -583,3 +583,12 @@ API/DB execution and recovery checks, with no external requests or page errors.
 Production/demo builds passed. This does not renew a paid session automatically
 or retry any request. Core checks for numeric validation 0ff11db passed in run
 40132071440; artifact acceptance for later recovery increments remains pending.
+
+
+API/DB operator history now has shared read-only refresh recovery. Missing history
+is not shown as an empty queue, and admission is blocked until a successful read.
+Injected 503 browser checks passed for both profiles before the existing real
+CLI/result/cancellation flows. Licensed login/execution/recovery and production/
+demo builds passed with no external requests or page errors. Mobile API layout
+was visually inspected. Unknown mutations are never retried; no queue or target
+execution policy changed. Exact-commit CI follows this increment.

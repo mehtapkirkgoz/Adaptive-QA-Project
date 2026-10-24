@@ -106,3 +106,9 @@ For multiple projects and password-authenticated local administration, follow
 [licensed setup](LOCAL_LICENSED_SETUP.md) using a separately issued signed license
 and publisher public keys. No production license or issuer private key ships in
 this repository. Paid licensing does not remove execution or concurrency guards.
+
+
+If an API/database panel reports unavailable history, choose its **Refresh history**
+button and inspect the saved statuses before confirming another job. Refresh only
+reads history. It does not retry a prior test or cancellation, and unavailable
+history is not evidence that the queue is empty.
