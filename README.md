@@ -2,7 +2,7 @@
 
 An AI-assisted QA platform under development for website discovery and applicable UI, API, and database tests.
 
-**Product direction:** Conversion to an account-free, one-project local edition and signed licensed multi-project edition is in progress. Test data stays in the customer environment. The free workspace and authenticated licensed local commands are available, including signed-license import/status and offline backup/recovery. Final conversion acceptance and managed licensed binary switching remain unfinished. See [conversion plan and local startup](docs/LOCAL_FIRST_PRODUCT.md), [licensed setup](docs/LOCAL_LICENSED_SETUP.md) and [local acceptance evidence](docs/LOCAL_FIRST_ACCEPTANCE.md).
+**Current product:** The narrow single-device edition supports account-free one-project use and signed licensed multi-project administration. Test data stays in the customer environment. Controlled form/API/database operator flows and installed local recovery are verified; overall owner acceptance is pending. General customer database connectors, public backend activation and legacy managed licensed binary switching are not enabled. Start with the [local quick start](docs/LOCAL_QUICKSTART.md), [licensed setup](docs/LOCAL_LICENSED_SETUP.md) and [conversion evidence](docs/LOCAL_FIRST_PRODUCT.md#current-bounded-product-review-checkpoint).
 
 **Current local product work:** Configured HTTPS discovery and explicit execution support five independent document checks plus discovered read-only login/search form checks at the exact saved target. Form checks inspect controls without filling fields, signing in or submitting searches. Personal/shared scopes, process deadlines and evidence access remain enforced. Custom labels, button names, test IDs and optional scopes can be saved per project; changing them requires fresh discovery. See [form capabilities and limits](docs/CONFIGURED_FORMS.md) and [post-sprint review](docs/POST_SPRINT_REVIEW.md). The static Pages demo does not execute these checks.
 
@@ -82,7 +82,7 @@ Keep port 8000 available and run these scripts sequentially. They manage local s
 
 Current local results:
 
-- **534 unit tests passed locally:** platform rules, adapters, ownership, reports, reruns, consistency and retention; separate from website scenarios.
+- **832 unit tests completed locally:** 831 passed and one Windows permission check was skipped. These are separate from website scenarios. The controlled DB operator checkpoint also passed all twelve CI jobs; [exact-commit evidence](docs/evidence/database-ci-273f96a.json) records verified archives and browser reports.
 - Real Chromium login/logout, project management and masked configuration checks passed (`scripts/check_web_auth.py`, owned port 8765).
 - **3 real OS lifecycle checks passed on Windows:** deadline, active cancellation, and crash lock release.
 - **9 real Chromium security checks passed:** forbidden canaries received no connections.

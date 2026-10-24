@@ -4,6 +4,10 @@ Requirements: Git and Python 3.13 or later. The verified local and CI runtime is
 Python 3.13. Browser checks require the separate Chromium installation below.
 No paid AI key is required for the local prototype.
 
+For account-free customer use, follow [LOCAL_QUICKSTART.md](LOCAL_QUICKSTART.md)
+after installing these dependencies. The authentication commands below describe
+the older development compatibility mode; free startup does not create an account.
+
 Run these PowerShell commands from the repository root:
 
 ```powershell

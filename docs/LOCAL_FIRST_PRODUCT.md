@@ -542,3 +542,12 @@ isolation, production key issuance/billing and deployment have not been accepted
 or activated. Do not expand into these areas without a concrete owner decision.
 Keep scheduled follow-up quiet on unchanged state; preserve the existing owner
 session and non-executing public demo. No closed sprint is reopened.
+
+
+Owner-requested continued review found stale entry-point documentation. The README
+now distinguishes accepted bounded local capabilities from deferred deployment,
+and LOCAL_QUICKSTART.md documents account-free startup, saved HTTPS scope,
+discovery/selection/one-shot execution, separate API/DB commands and data recovery.
+CLI help and all edited local document links were checked. No runtime or public
+demo behavior changed. Core checks for the prior acceptance-record commit
+12804d3 passed in run 40131162628; its archives were not separately reaccepted.
