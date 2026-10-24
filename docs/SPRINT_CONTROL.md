@@ -14,8 +14,10 @@ Local conversion technical acceptance: commit 799e390, CI run 40018710391, all
 twelve jobs/artifact digests and 206 PNGs verified. Overall owner acceptance is
 pending. Controlled reusable form execution is verified under INTERACTIVE_FORMS.md;
 controlled local API operator execution is verified at 68af26a / CI 40105470724
-under LOCAL_API_EXECUTION.md. Continue remaining bounded database integration and
-installed DB operator acceptance and exact-commit CI/artifact verification.
+under LOCAL_API_EXECUTION.md. Controlled local DB operator execution is verified at 273f96a / Core checks
+40128832953, with all twelve jobs/archives and 210 PNGs validated. The narrow
+single-device edition is ready for owner review; overall acceptance is pending.
+Do not infer authorization for customer connectors or hosting from this checkpoint.
 The f62882c packaging-diagnostics run 40105680369 passed all twelve jobs;
 its previously failed run remains recorded separately. No external/customer
 form submission or general authenticated API execution is enabled.

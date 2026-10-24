@@ -36,7 +36,9 @@ completion percentage is not a measured estimate for this changed scope.
   packaged release/recovery checks; legacy managed licensed switching fails closed.
 - [x] Verify free/paid isolation, malformed/expired/tampered licenses, concurrency,
   data locality and complete local acceptance with exact-commit CI/artifacts.
-- [ ] Resume the remaining interactive/API/database product work under this model.
+- [x] Complete bounded interactive/API/database operator integration under this
+  model, with controlled fixtures and explicit limitations; general customer
+  connectors and deployment are not implied.
 
 ## First Free Edition Increment
 
@@ -522,3 +524,21 @@ required fresh login. Catalog remains 51 UI + 34 API + 15 DB. No external browse
 requests or page errors occurred. Safe local evidence is recorded in
 `docs/evidence/installed-database-273f96a.json`. This is local installed proof,
 not yet remote exact-commit artifact acceptance or customer deployment.
+
+
+## Current Bounded Product Review Checkpoint
+
+The controlled database operator checkpoint is accepted at 273f96a / Core checks
+40128832953. All twelve jobs and artifact archives, 210 PNGs and four inactive
+release files were verified. Free, source-licensed and installed-licensed reports
+prove explicit count execution and local-only recovery behavior. See
+LOCAL_DATABASE_EXECUTION.md and docs/evidence/database-ci-273f96a.json.
+The packaging evidence follow-up 1758fb4 also passed all Core checks (40128995531).
+
+The narrow single-device edition and bounded reusable form/API/DB operator flows
+are ready for owner review. Overall product acceptance remains pending. General
+site-specific authenticated workflows, customer database connectors, hostile-host
+isolation, production key issuance/billing and deployment have not been accepted
+or activated. Do not expand into these areas without a concrete owner decision.
+Keep scheduled follow-up quiet on unchanged state; preserve the existing owner
+session and non-executing public demo. No closed sprint is reopened.

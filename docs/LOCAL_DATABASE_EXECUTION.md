@@ -2,9 +2,9 @@
 
 The existing 15 database catalog definitions describe explicit sample contracts;
 they are not applicable to every database and remain within the 100-case catalog.
-This first reusable operator profile is internal and limited to owned SQLite
-fixtures. It does not expose customer files, a server database connector or a UI
-execution route.
+The reusable operator profile is limited to owned SQLite fixtures. The local
+dashboard provides explicit saved-binding review, confirmation and history. It
+does not expose customer file selection or a server database connector.
 
 ## Explicit Record Count Review
 
@@ -190,3 +190,21 @@ permission skip). The unchanged Pages demo passed at 390/768/1440px with zero
 API/external requests and execution disabled. Release verification now requires
 DB result/fixture-locality/recovery evidence, and CI retains the mobile panel
 screenshots. Exact-commit remote artifact acceptance remains pending.
+
+
+## Exact-Commit Controlled Acceptance
+
+Implementation 273f96af74e3c4d68688f953cab5abdab38b393b passed Core checks
+40128832953: all twelve jobs succeeded. All twelve artifact archives matched their
+reported SHA-256, byte size and implementation SHA; ZIP CRC checks passed, 210
+PNGs validated and the inactive release's four inner files matched its manifest.
+Free/source-licensed/installed-licensed browser reports independently confirm the
+DB operator flow; licensed reports preserve results through recovery without
+copying target fixtures. Evidence: `docs/evidence/database-ci-273f96a.json`.
+The follow-up verifier/evidence commit 1758fb4 also passed Core checks 40128995531;
+its artifacts have not been separately accepted here.
+
+This closes the bounded DB integration checkpoint, not general database support
+or overall owner acceptance. Customer databases, arbitrary roots/SQL, production
+issuer infrastructure, public backend activation and customer deployment remain
+outside this accepted scope. Owner dashboard sessions were not restarted.
