@@ -477,3 +477,10 @@ unchanged fixture bytes. Offline recovery cancels DB claims; target databases ar
 not copied into application backups. Continue HTTP/CLI and explicit UI integration
 on controlled fixtures only. No customer database connector or catalog growth is
 enabled; current acceptance remains bounded to the documented local profiles.
+
+Free/licensed database one-shot worker and interrupted-recovery commands now select
+the appropriate stores and retain the pinned fixture root and shared capacity.
+Fourteen CLI checks passed. The real saved DB proof uses the actual separate free
+CLI for pass/fail/outside-root denial with unchanged fixture hashes. No new jobs
+are admitted by these commands, and worker-cycle behavior stays unchanged. Next
+connect protected HTTP admission/history/cancellation and explicit operator UI.

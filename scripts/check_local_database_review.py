@@ -6,6 +6,8 @@ import os
 from pathlib import Path
 import sqlite3
 import shutil
+import subprocess
+import sys
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
 from adaptive_qa.config import ProjectConfig
@@ -64,7 +66,9 @@ def main():
             public=review_saved_database(projects,LOCAL_ACTOR,pid)
             job=queue.submit(LOCAL_ACTOR,pid,public['contract_fingerprint'])
             with patch.dict(os.environ,{variable:str(private_path)}):
-                assert process_local_database_once(queue)['status']=='completed'
+                worker=subprocess.run([sys.executable,'-m','adaptive_qa','dashboard','free-database-once',
+                    '--database',str(projects.database)],capture_output=True,check=True,timeout=45)
+                assert json.loads(worker.stdout)['status']=='completed'
             assert queue.get(LOCAL_ACTOR,pid,job['job_id'])['result']==dict(status=status)
             assert process_local_database_once(queue) is None
             saved_results.append(status)
@@ -73,7 +77,8 @@ def main():
     report=dict(owned_fixture_roots_only=True,configured_counts=results,outside_root='blocked',
         pre_cancelled=True,fixture_bytes_unchanged=True,resolved_paths_persisted=False,
         raw_rows_persisted=False,arbitrary_sql_accepted=False,catalog_expanded=False,
-        saved_queue_results=saved_results,workspace_project_root_pinned=True)
+        saved_queue_results=saved_results,workspace_project_root_pinned=True,
+        worker_entrypoint='dashboard free-database-once')
     output=Path('artifacts/database');output.mkdir(parents=True,exist_ok=True)
     (output/'reusable-review.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8');print(json.dumps(report))
 

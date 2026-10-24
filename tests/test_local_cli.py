@@ -139,3 +139,11 @@ class LocalCliTests(unittest.TestCase):
         with patch('adaptive_qa.api_queue.process_local_api_once') as worker:
             self.assertEqual(json.loads(self.invoke('recover-api')),dict(cancelled=0,error=0))
         worker.assert_not_called()
+
+    def test_database_worker_always_uses_licensed_store_and_recovery_is_non_executing(self):
+        with patch('adaptive_qa.database_queue.process_local_database_once',return_value=None) as worker:
+            self.assertIsNone(json.loads(self.invoke('database-once')))
+        self.assertIsInstance(worker.call_args.args[0].projects,LicensedLocalProjects)
+        with patch('adaptive_qa.database_queue.process_local_database_once') as worker:
+            self.assertEqual(json.loads(self.invoke('recover-database')),dict(cancelled=0,error=0))
+        worker.assert_not_called()

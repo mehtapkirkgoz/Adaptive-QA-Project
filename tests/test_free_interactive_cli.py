@@ -12,6 +12,19 @@ from adaptive_qa.local_free import LocalFreeProjects
 
 
 class FreeInteractiveCliTests(unittest.TestCase):
+    def test_free_database_commands_refuse_licensed_state_and_create_no_account(self):
+        parser=argparse.ArgumentParser();configure_parser(parser.add_subparsers(dest='command'))
+        for command in ('free-database-once','free-recover-database'):
+            args=parser.parse_args(['dashboard',command])
+            self.assertEqual(args.database,Path('artifacts/local-free/projects.sqlite'))
+            with TemporaryDirectory() as temporary:
+                args.database=Path(temporary)/'projects.sqlite'
+                with redirect_stdout(io.StringIO()):run(args)
+                self.assertFalse(args.database.with_name('auth.sqlite').exists())
+                args.database.with_name('license.sqlite').write_bytes(b'owned marker')
+                with patch('adaptive_qa.database_queue.process_local_database_once') as worker,self.assertRaises(ValueError):run(args)
+                worker.assert_not_called()
+
     def test_free_api_worker_refuses_licensed_state_and_recovery_is_non_executing(self):
         parser=argparse.ArgumentParser();configure_parser(parser.add_subparsers(dest='command'))
         for command in ('free-api-once','free-recover-api'):

@@ -106,3 +106,25 @@ pass, one deliberate count failure and one outside-fixed-root block; every fixtu
 file hash stayed unchanged and raw paths/rows were not persisted. The 100-case
 catalog is unchanged. HTTP admission, customer CLI and operator UI remain the next
 integration step; no customer database connector is enabled by this increment.
+
+## Explicit One-Shot Worker Commands
+
+An operator can process at most one already confirmed database job with the same
+workspace used by the local dashboard. Replace these example paths:
+
+```powershell
+python -m adaptive_qa dashboard free-database-once --database C:/QA/workspace/projects.sqlite
+python -m adaptive_qa local database-once --workspace C:/QA/workspace --trusted-keys C:/QA/publisher-public-keys.json
+```
+
+Free commands refuse licensing state and create no account database. Paid commands
+always construct the licensed store; current entitlement and shared capacity are
+checked before claim. `free-recover-database` and `local recover-database` explicitly
+mark interrupted work terminal under the worker lock and never execute/retry it.
+The existing worker-cycle command remains unchanged; DB has a separate command.
+No command admits a new job or accepts a target path/root override.
+
+Fourteen CLI checks passed. The real controlled saved-queue proof now uses a
+separate free-database-once process for pass, expected assertion failure and
+outside-fixed-root denial, retaining unchanged fixture file hashes. HTTP admission
+and the operator editor/confirmation UI are not enabled yet.
