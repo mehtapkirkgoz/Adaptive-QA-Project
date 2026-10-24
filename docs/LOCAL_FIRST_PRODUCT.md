@@ -450,3 +450,12 @@ separate f62882c packaging-diagnostics adjustment still needs remote verificatio
 Continue remaining bounded database product integration under the local-first
 model while preserving those acceptance boundaries. Customer/public API auth and
 overall owner acceptance remain unfinished; do not expand execution scope silently.
+
+The first reusable database profile now reviews an explicit application table and
+expected record count on owned SQLite fixtures. It generates count-only SQL,
+binds the private root identity/current configuration to confirmation and uses
+the existing read-only isolated child. Two contrasting fixtures passed, an incorrect
+count failed, an outside-root reference was blocked, cancellation passed and file
+hashes stayed unchanged. All 37 database-focused checks passed. See
+LOCAL_DATABASE_EXECUTION.md for remaining saved settings/queue/CLI/UI work; no
+customer database admission or catalog expansion is enabled.
