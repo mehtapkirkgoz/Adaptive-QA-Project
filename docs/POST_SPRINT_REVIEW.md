@@ -467,3 +467,23 @@ canonical-path check. The child path/link checks remain enforced. Eight supervis
 tests, including a noncanonical-directory regression, and eight actual local
 Chromium process scenarios passed. Exact-commit Windows/Linux CI must verify
 whether this resolves the runner failure before endpoint transport is extended.
+
+## Explicit Owned Submission Contract
+
+Commit a30bc03 passed all twelve CI jobs in run 40051558174, including Windows
+and Linux packaged-runtime probes. The canonical-path fix is remotely verified.
+
+OwnedSubmissionContract now binds a typed form contract to one of four fixed
+positive/negative login/search documents and its exact same-origin owned POST
+endpoint. Field names/order, encoding, body limit, single attempt and no redirects
+are fixed metadata included in its digest. Saved project identity, configuration
+fingerprint and data-change permission must match before constructing the gate.
+
+The child-local one-shot gate validates bounded URL-encoded UTF-8 values without
+resolving references, opening sockets, persisting or returning values. Invalid
+method/endpoint/encoding, duplicate/extra/missing fields, empty or oversized values
+and control characters fail closed and consume the attempt. Six tests cover scope
+expansion, policy drift, secret/network inactivity, malformed requests and distinct
+search/Unicode bindings. No transport is connected yet: the next step is pinned
+one-shot owned HTTP transport plus browser integration/redirect/canary checks.
+Existing read-only proxy policy, catalog, queues and external execution are unchanged.
