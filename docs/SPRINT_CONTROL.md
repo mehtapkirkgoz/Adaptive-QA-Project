@@ -15,7 +15,9 @@ twelve jobs/artifact digests and 206 PNGs verified. Overall owner acceptance is
 pending. Controlled reusable form execution is verified under INTERACTIVE_FORMS.md;
 controlled local API operator execution is verified at 68af26a / CI 40105470724
 under LOCAL_API_EXECUTION.md. Continue remaining bounded database integration and
-the separate f62882c packaging-diagnostics CI verification. No external/customer
+installed DB operator acceptance and exact-commit CI/artifact verification.
+The f62882c packaging-diagnostics run 40105680369 passed all twelve jobs;
+its previously failed run remains recorded separately. No external/customer
 form submission or general authenticated API execution is enabled.
 
 

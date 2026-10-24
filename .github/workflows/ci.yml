@@ -235,6 +235,7 @@ jobs:
             artifacts/discovery/*.json
             artifacts/matching/*.json
             artifacts/local-free/*.json
+            artifacts/local-free/*.png
             artifacts/local-license/*.json
             artifacts/interactive-probe/*.json
             artifacts/local-free/*.png

@@ -144,7 +144,11 @@ stage('complete')
             report = json.loads((Path(temporary)/'artifacts/local-license/ui.json').read_text(encoding='utf-8'))
             if (not report.get('installed_wheel') or not report.get('recovered_results_and_license')
                     or report.get('api_ui_confirmed_result') != 'passed'
-                    or report.get('api_requests') != 1 or not report.get('api_result_preserved_after_recovery')):
+                    or report.get('api_requests') != 1 or not report.get('api_result_preserved_after_recovery')
+                    or report.get('database_ui_confirmed_result') != 'passed'
+                    or not report.get('database_fixture_unchanged')
+                    or not report.get('database_result_preserved_after_recovery')
+                    or not report.get('database_fixture_not_in_backup')):
                 raise ValueError('Installed licensed browser/recovery evidence is incomplete.')
             output = ROOT/'artifacts/local-license'; output.mkdir(parents=True,exist_ok=True)
             (output/'installed-ui.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')

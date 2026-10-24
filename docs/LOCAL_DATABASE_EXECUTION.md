@@ -173,3 +173,20 @@ binding and status-only result, requires fresh login and intentionally does not
 copy target fixture databases. The existing discovery/UI/API proofs also passed
 with no external browser requests or page errors. Production and unchanged-demo
 builds passed. Installed-wheel and new exact-commit CI acceptance remain pending.
+
+
+Installed DB operator validation passed for package commit 273f96a. All four
+release file sizes/digests matched, the wheel was installed outside the checkout,
+and its licensed dashboard/CLI performed the explicit owned count, preserved
+fixture bytes, restored settings/results without copying target databases and
+required fresh login. Catalog remains 51 UI + 34 API + 15 DB. No external browser
+requests or page errors occurred. Safe local evidence is recorded in
+`docs/evidence/installed-database-273f96a.json`. This is local installed proof,
+not yet remote exact-commit artifact acceptance or customer deployment.
+
+
+Consolidated local regression completed 832 tests (831 passed, one Windows
+permission skip). The unchanged Pages demo passed at 390/768/1440px with zero
+API/external requests and execution disabled. Release verification now requires
+DB result/fixture-locality/recovery evidence, and CI retains the mobile panel
+screenshots. Exact-commit remote artifact acceptance remains pending.
