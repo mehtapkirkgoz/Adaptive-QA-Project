@@ -14,7 +14,8 @@ from time import perf_counter
 from adaptive_qa.browser_process import _terminate_process_tree
 from adaptive_qa.config import ProjectConfig
 from adaptive_qa.egress import DestinationGuard,EgressProxy,chromium_proxy_options
-from adaptive_qa.form_configuration import decode_form_mappings
+from adaptive_qa.form_configuration import decode_form_mappings, saved_form_mappings
+from adaptive_qa.element_models import ProjectElementMappings
 from adaptive_qa.interactive_contracts import InteractiveFormContract,FormOperation
 from adaptive_qa.interactive_fixtures import FIXTURES,fixture_document
 from adaptive_qa.interactive_probe import InteractiveProbeResult,probe_controlled_form
@@ -46,7 +47,8 @@ def _unique(pairs):
 
 def _decode(raw):
     data=json.loads(raw,object_pairs_hook=_unique)
-    if not isinstance(data,dict) or set(data)!={'contract','project','fixture_id','current_fingerprint','fixture_source'}:raise ValueError()
+    required={'contract','project','fixture_id','current_fingerprint','fixture_source'}
+    if not isinstance(data,dict) or set(data) not in (required,required|{'mappings'}):raise ValueError()
     c,p=data['contract'],data['project']
     if (not isinstance(c,dict) or set(c)!=set(InteractiveFormContract.__dataclass_fields__)
             or not isinstance(p,dict) or set(p)!=set(ProjectConfig.__dataclass_fields__)
@@ -62,7 +64,9 @@ def _decode(raw):
     if data['fixture_source'] not in ('memory','owned_http','owned_submission'):raise ValueError()
     _validate(contract,project,data['fixture_id'],data['current_fingerprint'])
     if data['fixture_source']=='owned_submission':_submission_binding(contract,project,data['fixture_id'],data['current_fingerprint'])
-    return contract,project,data['fixture_id'],data['current_fingerprint'],data['fixture_source']
+    mappings=decode_form_mappings(data.get('mappings'))
+    _validate_mappings(mappings,project)
+    return contract,project,data['fixture_id'],data['current_fingerprint'],mappings,data['fixture_source']
 
 
 def _read_result(path):
@@ -77,8 +81,9 @@ def _read_result(path):
     return result
 
 
-def run_isolated_interactive_probe(contract,project,*,fixture_id,current_fingerprint,timeout_seconds=45,should_cancel=None,fixture_source='memory'):
+def run_isolated_interactive_probe(contract,project,*,fixture_id,current_fingerprint,timeout_seconds=45,should_cancel=None,fixture_source='memory',mappings=None):
     _validate(contract,project,fixture_id,current_fingerprint)
+    _validate_mappings(mappings,project)
     if fixture_source not in ('memory','owned_http','owned_submission'):raise ValueError('Unknown controlled fixture source.')
     if fixture_source=='owned_submission':_submission_binding(contract,project,fixture_id,current_fingerprint)
     if (isinstance(timeout_seconds,bool) or not isinstance(timeout_seconds,(int,float))
@@ -90,7 +95,7 @@ def run_isolated_interactive_probe(contract,project,*,fixture_id,current_fingerp
     try:
         if should_cancel is not None and should_cancel():return outcome(TestStatus.CANCELLED,'Controlled probe was cancelled.')
     except Exception:return outcome(TestStatus.ERROR,'Cancellation source failed.')
-    payload=json.dumps(dict(contract=asdict(contract),project=asdict(project),fixture_id=fixture_id,current_fingerprint=current_fingerprint,fixture_source=fixture_source))
+    payload=json.dumps(dict(contract=asdict(contract),project=asdict(project),fixture_id=fixture_id,current_fingerprint=current_fingerprint,fixture_source=fixture_source,mappings=asdict(mappings) if mappings is not None else None))
     if len(payload.encode())>16384:raise ValueError('Oversized controlled probe configuration.')
     with TemporaryDirectory(prefix='adaptive-interactive-') as temporary:
         # Windows runner TEMP may contain an 8.3 alias or a junction. Canonicalize
@@ -120,6 +125,13 @@ def run_isolated_interactive_probe(contract,project,*,fixture_id,current_fingerp
             if process.poll() is None:_terminate_process_tree(process)
 
 
+def _validate_mappings(mappings,project):
+    if mappings is None:return
+    if not isinstance(mappings,ProjectElementMappings) or mappings.project_id!=project.project_id:
+        raise ValueError('Input mappings must belong to the exact project.')
+    saved_form_mappings(json.loads(json.dumps(asdict(mappings)))['mappings'],project.project_id)
+
+
 def _submission_binding(contract,project,fixture_id,fingerprint):
     from adaptive_qa.owned_submission import OwnedSubmissionContract,ORIGIN
     fields=('user','password') if contract.operation==FormOperation.LOGIN else ('query',)
@@ -128,7 +140,7 @@ def _submission_binding(contract,project,fixture_id,fingerprint):
     return binding
 
 
-def _execute(contract,project,fixture_id,fingerprint,fixture_source):
+def _execute(contract,project,fixture_id,fingerprint,fixture_source,mappings=None):
     from playwright.sync_api import sync_playwright
     denied=[0];armed=[False];submission_results=[];expected_body=[None]
     binding=_submission_binding(contract,project,fixture_id,fingerprint) if fixture_source=='owned_submission' else None
@@ -172,7 +184,7 @@ def _execute(contract,project,fixture_id,fingerprint,fixture_source):
                     expected_body[0]=urlencode(tuple(zip(binding.field_names,values,strict=True))).encode('ascii')
                     armed[0]=True
                 result=probe_controlled_form(page,contract,project,current_fingerprint=fingerprint,
-                    network_clean=lambda:denied[0]==0 and guard.denied==0,submission=binding,
+                    network_clean=lambda:denied[0]==0 and guard.denied==0,mappings=mappings,submission=binding,
                     before_submit=arm if binding is not None else None)
                 if binding is not None and result.attempted_submissions==1:
                     expected='rejected' if fixture_id in ('login-rejected','search-empty') else 'accepted'
@@ -192,8 +204,8 @@ def main():
             or args.output.parent!=args.input.parent or args.output.exists() or args.output.is_symlink()):raise ValueError('Invalid private transport files.')
     with args.input.open('rb') as stream:raw=stream.read(16385)
     if len(raw)>16384:raise ValueError('Oversized controlled probe configuration.')
-    contract,project,fixture_id,fingerprint,fixture_source=_decode(raw)
-    try:result=_execute(contract,project,fixture_id,fingerprint,fixture_source)
+    contract,project,fixture_id,fingerprint,mappings,fixture_source=_decode(raw)
+    try:result=_execute(contract,project,fixture_id,fingerprint,fixture_source,mappings)
     except Exception:result=InteractiveProbeResult(TestStatus.ERROR,MESSAGES[TestStatus.ERROR],None)
     with args.output.open('x',encoding='utf-8') as stream:json.dump(asdict(result),stream)
 

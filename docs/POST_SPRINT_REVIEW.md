@@ -608,3 +608,25 @@ CI repeats that saved queue/worker proof on Windows/Linux in the existing script
 Exact-commit CI remains pending after push. Next connect carefully bounded local
 operator controls and explicit review-digest confirmation, and verify mapped-input
 transport before any broader reusable execution.
+
+## Project Input Mappings Reach the Owned Child
+
+Queue implementation a1432dd passed CI run 40063915642. Typed saved input mappings
+now cross the bounded private child IPC and are revalidated against the exact
+project and the five supported input/submit keys before spawn and after decoding.
+The child passes them into the existing deterministic matcher; explicit project
+overrides replace defaults and ambiguity remains blocked. No arbitrary selector,
+completion assertion replacement or cross-project mapping is admitted.
+
+Thirty focused interactive contract/review/queue/process tests passed. The actual
+browser proof now additionally executes a saved queue job whose three login labels
+are absent from the default aliases, using explicit project mappings. A second
+mapped fixture with two matching username controls is blocked before a POST.
+Combined proof: seventeen documents, eleven POSTs, zero canary/unexpected/bad-body
+contacts, no screenshots or persisted plaintext password. CI repeats this on both
+OS runners. The prior admission restriction on custom input mappings is lifted
+only for this tested fixed owned-fixture workflow; public/customer targets and
+existing non-executing plans retain their prior scope.
+
+Next: bounded local operator admission with explicit current review-digest
+confirmation, scoped job history/cancellation and licensed/free worker commands.

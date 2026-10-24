@@ -10,7 +10,7 @@ import unittest
 from unittest.mock import patch
 
 from adaptive_qa.config import ProjectConfig
-from adaptive_qa.element_models import ElementMapping,LocatorSpec,LocatorStrategy
+from adaptive_qa.element_models import ElementMapping,LocatorSpec,LocatorStrategy,ProjectElementMappings
 from adaptive_qa.interactive_contracts import InteractiveFormContract,FormOperation
 from adaptive_qa.interactive_process import _decode,_read_result,MESSAGES,run_isolated_interactive_probe
 from adaptive_qa.models import TestStatus
@@ -108,3 +108,17 @@ class InteractiveProcessTests(unittest.TestCase):
             spawn.assert_not_called()
         payload=dict(contract=asdict(self.contract),project=asdict(self.project),fixture_id='login-transition',current_fingerprint='b'*64,fixture_source='owned_submission')
         self.assertEqual(_decode(json.dumps(payload))[-1],'owned_submission')
+
+    def test_mapping_transport_rejects_cross_project_unknown_keys_and_raw_lists(self):
+        mapping=ElementMapping('login.username',(LocatorSpec(LocatorStrategy.LABEL,'Account identifier'),))
+        valid=ProjectElementMappings(self.project.project_id,(mapping,))
+        payload=dict(contract=asdict(self.contract),project=asdict(self.project),fixture_id='login-transition',
+            current_fingerprint='b'*64,fixture_source='owned_submission',mappings=asdict(valid))
+        self.assertEqual(_decode(json.dumps(payload))[-2],valid)
+        with patch('adaptive_qa.interactive_process.subprocess.Popen') as spawn:
+            for mappings in ([],replace(valid,project_id='c'*32),
+                    ProjectElementMappings(self.project.project_id,(replace(mapping,logical_name='login.accepted'),))):
+                with self.assertRaises(ValueError):self.run_probe(mappings=mappings)
+            spawn.assert_not_called()
+        for mappings in ({**asdict(valid),'project_id':'c'*32}, {'project_id':self.project.project_id,'mappings':['raw']}):
+            with self.assertRaises((ValueError,TypeError)):_decode(json.dumps({**payload,'mappings':mappings}))

@@ -33,6 +33,9 @@ def main():
             endpoint=url.replace("/interactive/","/interactive-submit/")
             document=document.replace('method="get"','method="post"').replace('action="'+url+'"','action="'+endpoint+'"')
             document=document.replace("Username","Email address").replace("Sign in","Log in").replace("Search products","Search query")
+            if state["mode"] in ("mapped","mapped-ambiguous"):
+                document=document.replace("Email address","Account identifier").replace("Password","Access phrase").replace("Log in","Open workspace")
+                if state["mode"]=="mapped-ambiguous":document=document.replace("</form>",'<label>Account identifier<input name="other"></label></form>')
             if state["mode"]=="wrong-action":document=document.replace(endpoint,"http://127.0.0.1:8001/canary")
             if state["mode"]=="wrong-field":document=document.replace('name="user"','name="other"')
             send="fetch(form.action,{method:'POST',body:new URLSearchParams(new FormData(form))})"
@@ -111,8 +114,27 @@ def main():
             assert b"fixture-password" not in projects.database.read_bytes()
             assert queue.claim_next() is None
             saved_queue_proof=dict(status="completed",result="passed",endpoint_posts=1,no_plaintext_in_database=True)
+            mapped_queue_proof=[]
+            for mode,expected_status,posts in (("mapped","passed",1),("mapped-ambiguous","blocked",0)):
+                state["mode"]=mode
+                mappings=[dict(logical_name=key,scope_test_id=None,locators=[dict(strategy=strategy,value=value,role=role)])
+                    for key,strategy,value,role in (("login.username","label","Account identifier",None),
+                        ("login.password","label","Access phrase",None),("login.submit","role","Open workspace","button"))]
+                projects.save_configuration(LOCAL_ACTOR,saved_project.project_id,dict(
+                    base_url="http://127.0.0.1:8000/interactive/login-transition",allowed_hosts=["127.0.0.1"],
+                    allow_data_changes=True,secret_references=references,form_mappings=mappings))
+                review=review_saved_interactive(projects,LOCAL_ACTOR,saved_project.project_id,fixture_id="login-transition",
+                    completion=ElementMapping("login.accepted",(LocatorSpec(LocatorStrategy.TEST_ID,"result"),)),timeout_seconds=5)
+                job=queue.submit(LOCAL_ACTOR,review);before=state["posts"]
+                with patch.dict(os.environ,{references["login_username"]:"fixture-user",references["login_password"]:"fixture-password"}):
+                    assert process_owned_interactive_once(queue)["status"]=="completed"
+                result=queue.get(LOCAL_ACTOR,saved_project.project_id,job["job_id"])
+                assert result["result"]==dict(status=expected_status,attempted_submissions=posts),result
+                assert state["posts"]==before+posts
+                mapped_queue_proof.append(dict(mode=mode,result=expected_status,endpoint_posts=posts))
+
     assert state["canary"]==state["unexpected"]==state["bad_body"]==0,state
-    report=dict(owned_fixture_only=True,scenarios=reports,contacts={k:state[k] for k in ("documents","posts","canary","unexpected","bad_body")},screenshots=0,saved_queue_proof=saved_queue_proof)
+    report=dict(owned_fixture_only=True,scenarios=reports,contacts={k:state[k] for k in ("documents","posts","canary","unexpected","bad_body")},screenshots=0,saved_queue_proof=saved_queue_proof,mapped_queue_proof=mapped_queue_proof)
     output=Path("artifacts/interactive-probe/browser-submission.json");output.parent.mkdir(parents=True,exist_ok=True)
     output.write_text(json.dumps(report,indent=2)+"\n",encoding="utf-8")
     print(json.dumps({"scenarios":len(reports),"contacts":report["contacts"]}))

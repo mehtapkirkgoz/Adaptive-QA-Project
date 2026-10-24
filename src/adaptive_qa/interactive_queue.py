@@ -65,7 +65,6 @@ class OwnedInteractiveQueue:
         self.projects._actor(actor)
         if not isinstance(review,SavedInteractiveReview):raise ValueError('A typed saved review is required.')
         if actor.user_id!=review.owner_id:raise ProjectNotFound('Project not found.')
-        if review.mappings.mappings:raise ValueError('Explicit input mappings require separate child transport support.')
         with self.projects._connection() as connection:
             connection.execute('BEGIN IMMEDIATE')
             form=review.submission.form
@@ -170,7 +169,7 @@ def process_owned_interactive_once(queue):
         try:
             result=run_isolated_interactive_probe(review.submission.form,review.configuration,
                 fixture_id=review.submission.fixture_id,current_fingerprint=review.submission.form.configuration_fingerprint,
-                fixture_source='owned_submission',timeout_seconds=45,
+                fixture_source='owned_submission',timeout_seconds=45,mappings=review.mappings,
                 should_cancel=lambda:queue.cancellation_requested(work))
         except Exception:
             result=InteractiveProbeResult(TestStatus.ERROR,'Controlled form probe could not complete.',None)
