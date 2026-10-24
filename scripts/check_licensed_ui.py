@@ -35,6 +35,13 @@ from adaptive_qa.local_licensed import create_licensed_app
 
 def main():
     origin = 'http://127.0.0.1:8882'
+    api_contacts=[]
+    class ApiFixture(QuietHandler):
+        def do_GET(self):
+            if self.path!='/paid/readiness':return super().do_GET()
+            api_contacts.append('GET');raw=b'{"available":false}'
+            self.send_response(200);self.send_header('Content-Type','application/json')
+            self.send_header('Content-Length',str(len(raw)));self.end_headers();self.wfile.write(raw)
     with TemporaryDirectory(prefix='adaptive-license-ui-') as temporary:
         root = Path(temporary)/'workspace'; root.mkdir()
         private = Ed25519PrivateKey.generate()
@@ -51,7 +58,7 @@ def main():
         server = uvicorn.Server(uvicorn.Config(create_licensed_app(root/'projects.sqlite',auth,administrator,licenses,
             port=8882,ui_directory=UI_DIRECTORY),host='127.0.0.1',port=8882,log_level='critical',access_log=False))
         thread = Thread(target=server.run,daemon=True); thread.start()
-        fixture = ThreadingHTTPServer(('127.0.0.1',8000),partial(QuietHandler,directory=str(FIXTURE_DIRECTORY)))
+        fixture = ThreadingHTTPServer(('127.0.0.1',8000),partial(ApiFixture,directory=str(FIXTURE_DIRECTORY)))
         fixture_thread = Thread(target=fixture.serve_forever,daemon=True); fixture_thread.start()
         errors, external = [], []
         try:
@@ -87,16 +94,18 @@ def main():
                     page.get_by_role('button',name='Save configuration',exact=True).click()
                     page.get_by_role('button',name='Queue local discovery',exact=True).click()
                     expect(page.get_by_text('queued',exact=True)).to_be_visible()
-                    def worker(expected_queue):
+                    def worker(expected_queue,command='worker-cycle'):
                         prefix = [sys.executable,'-m','adaptive_qa']
                         if INSTALLED_SITE:
                             prefix = [sys.executable,'-I','-c',
                                 'import sys; sys.path.insert(0,sys.argv.pop(1)); from adaptive_qa.__main__ import main; main()',INSTALLED_SITE]
-                        result = subprocess.run([*prefix,'local','worker-cycle','--workspace',str(root),
+                        result = subprocess.run([*prefix,'local',command,'--workspace',str(root),
                             '--trusted-keys',str(trust)],check=True,timeout=120,capture_output=True)
                         outcome = json.loads(result.stdout)
-                        assert outcome[expected_queue]['status']=='completed'
-                        assert all(value is None for name,value in outcome.items() if name!=expected_queue)
+                        if command=='api-once':assert outcome['status']=='completed'
+                        else:
+                            assert outcome[expected_queue]['status']=='completed'
+                            assert all(value is None for name,value in outcome.items() if name!=expected_queue)
                     worker('discovery')
                     page.get_by_role('button',name='Review discovery plan',exact=True).click()
                     runs = page.get_by_label('Test runs',exact=True)
@@ -105,6 +114,23 @@ def main():
                     expect(runs.get_by_text('Run queued',exact=True)).to_be_visible()
                     worker('run')
                     expect(runs.locator('.run-outcome').filter(has_text='LOGIN-001')).to_contain_text('passed',timeout=10000)
+                    editor=page.get_by_role('region',name='Explicit local API binding')
+                    editor.get_by_role('checkbox',name='Configure explicit API response').check()
+                    editor.get_by_label('GET endpoint path',exact=True).fill('/paid/readiness')
+                    editor.get_by_label('API JSON boolean field',exact=True).fill('available')
+                    editor.get_by_label('Expected API boolean',exact=True).select_option('false')
+                    page.get_by_role('button',name='Save configuration',exact=True).click()
+                    expect(page.get_by_text('Configuration saved. No tests were started.',exact=True)).to_be_visible()
+                    api_panel=page.get_by_role('region',name='Explicit API execution')
+                    api_panel.get_by_role('button',name='Review saved API binding',exact=True).click()
+                    expect(api_panel.get_by_label('API review confirmation')).to_be_visible()
+                    assert api_contacts==[]
+                    api_panel.get_by_role('checkbox',name='I authorize one GET request to my owned local API.').check()
+                    api_panel.get_by_role('button',name='Queue one API request',exact=True).click()
+                    expect(api_panel.get_by_role('button',name='Cancel API job',exact=True)).to_be_visible()
+                    worker(None,'api-once')
+                    expect(api_panel.get_by_text('API result: passed',exact=True)).to_be_visible(timeout=10000)
+                    assert api_contacts==['GET']
                     page.reload()
                     expect(page.get_by_role('region',name='Local license')).to_contain_text('License: valid')
                     server.should_exit=True; thread.join(timeout=10)
@@ -130,6 +156,7 @@ def main():
                     expect(page.get_by_role('region',name='Local license')).to_contain_text('License: valid')
                     page.get_by_role('button',name='Preserved free site Project configuration').click()
                     expect(page.get_by_label('Test runs',exact=True).locator('.run-outcome').filter(has_text='LOGIN-001')).to_contain_text('passed')
+                    expect(page.get_by_role('region',name='Explicit API execution').get_by_text('API result: passed',exact=True)).to_be_visible()
                     assert not errors and not external
                 finally: browser.close()
         finally:
@@ -137,7 +164,9 @@ def main():
             fixture.shutdown(); fixture.server_close(); fixture_thread.join(timeout=5)
             assert not thread.is_alive()
     output = Path('artifacts/local-license'); output.mkdir(parents=True,exist_ok=True)
-    report = dict(local_only=True,worker_entrypoint='local worker-cycle',upgrade_preserved=True,valid_import=True,invalid_import_preserved=True,
+    report = dict(local_only=True,worker_entrypoint='local worker-cycle',api_worker_entrypoint='local api-once',
+        api_ui_confirmed_result='passed',api_requests=len(api_contacts),api_result_preserved_after_recovery=True,
+        upgrade_preserved=True,valid_import=True,invalid_import_preserved=True,
         authenticated_reload=True,recovery_requires_fresh_login=True,recovered_results_and_license=True,installed_wheel=bool(INSTALLED_SITE),licensed_cli_discovery_and_login_passed=True,page_errors=errors,external_requests=len(external))
     (output/'ui.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
     print(json.dumps(report))

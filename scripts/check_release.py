@@ -129,7 +129,9 @@ main()
             subprocess.run([sys.executable,str(ROOT/'scripts/check_licensed_ui.py')],cwd=temporary,
                 env=browser_environment,check=True,timeout=180)
             report = json.loads((Path(temporary)/'artifacts/local-license/ui.json').read_text(encoding='utf-8'))
-            if not report.get('installed_wheel') or not report.get('recovered_results_and_license'):
+            if (not report.get('installed_wheel') or not report.get('recovered_results_and_license')
+                    or report.get('api_ui_confirmed_result') != 'passed'
+                    or report.get('api_requests') != 1 or not report.get('api_result_preserved_after_recovery')):
                 raise ValueError('Installed licensed browser/recovery evidence is incomplete.')
             output = ROOT/'artifacts/local-license'; output.mkdir(parents=True,exist_ok=True)
             (output/'installed-ui.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')

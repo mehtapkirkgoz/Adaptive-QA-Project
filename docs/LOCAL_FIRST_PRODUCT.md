@@ -404,3 +404,10 @@ cancelled before execution. Unsaved edits invalidate confirmation; mobile layout
 was checked visually. Production/demo builds passed. Remaining acceptance is exact-
 commit remote evidence and paid/installed operator integration; public/customer
 API targets and authentication remain outside this enabled profile.
+
+Licensed operator integration passed the API editor -> explicit confirmation ->
+licensed CLI -> visible result flow against an expected-false local fixture, then
+preserved the binding/result through offline recovery and fresh administrator login.
+Exactly one GET and no external browser requests/page errors were observed. The
+installed-wheel acceptance script now requires this proof; packaged and exact-
+commit remote evidence remain next.

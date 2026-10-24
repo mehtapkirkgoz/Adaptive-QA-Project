@@ -152,3 +152,11 @@ zero external browser requests and no page errors still passed. Mobile layout ha
 no horizontal overflow and its screenshot was visually inspected. Production/demo
 builds passed; the demo does not expose these controls. CI uploads the mobile
 evidence, but exact-commit remote acceptance remains pending.
+
+The licensed browser drill now covers the same editor/review/confirmation flow
+with a contrasting expected-false response and the actual `local api-once` command.
+Exactly one owned GET is sent. After offline snapshot/recovery and fresh password
+login, both the saved API binding and passing result remain available. The source
+drill passed with zero external requests/page errors. Installed-release validation
+now requires this API evidence as well as the existing licensed recovery checks;
+its result and remote CI will be recorded separately.
