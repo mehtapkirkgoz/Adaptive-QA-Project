@@ -81,7 +81,7 @@ def main():
                     projects.save_configuration(LOCAL_ACTOR,project.project_id,dict(settings,base_url=reusable['document_url'],local_form_binding=reusable))
                     page.reload();page.get_by_role('button',name='Owned interactive controls').click()
                     expect(page.get_by_role('heading',name='Project settings',exact=True)).to_be_visible()
-                    expect(panel).to_have_count(0)
+                    expect(panel).to_be_visible()
                     page.get_by_role('button',name='Save configuration',exact=True).click()
                     expect(page.get_by_text('Configuration saved. No tests were started.',exact=True)).to_be_visible()
                     assert projects.configuration(LOCAL_ACTOR,project.project_id)['local_form_binding']==reusable

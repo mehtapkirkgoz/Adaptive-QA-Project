@@ -524,3 +524,39 @@ Regression checkpoint: 796 tests completed (795 passed, one Windows permission
 skip). The seven saved-binding tests also passed after the final fixed-route
 source-conflict guard. Static demo build/browser checks passed unchanged, with
 zero API/external requests and execution disabled. Exact-commit CI is pending.
+
+## Reusable Local Form Editor and Confirmed UI Execution
+
+Saved binding implementation 804e7fc passed CI run 40079778219. Local free/licensed
+project settings now provide a typed reusable binding editor: operation, exact POST
+endpoint, ordered HTML field names and positive/negative boolean JSON assertions.
+Changing operations resets the operation-specific defaults explicitly. Saving
+normalizes the draft and never starts a test. Disabling the editor removes the
+saved binding. Inputs describe metadata only; credential/query values remain in
+scoped worker environment references and are never entered through this editor.
+
+The interactive panel uses saved reusable configuration and its dedicated review/
+admission routes, with an explicit positive/negative expected outcome and completion
+test ID. Any unsaved target, policy, reference, mapping or binding change blocks
+review and clears existing confirmation. Outcome/marker/timeout edits also clear
+confirmation. A fresh review and separate one-submission confirmation remain
+required; the old fixed-fixture workflow remains supported when no reusable
+binding is configured. Host and select controls now have stable accessible names.
+
+A built-UI end-to-end proof used a fresh disposable free workspace/server on port
+8894 and an owned fixture server. The operator configured/saved positive login and
+negative search entirely through the UI, reviewed and confirmed each, then actual
+supervised queue workers passed both runs. Exactly two initial documents and two
+POSTs reached the fixtures; saving/reviewing made no target requests. The latest
+persisted results and refreshed UI history were both checked. Unsaved-edit blocking,
+confirmation invalidation, binding removal, mobile layout and metadata-only inputs
+were verified. No UI external request, page error, malformed request or credential
+value persistence occurred. Mobile screenshots were visually inspected.
+
+TypeScript/production/demo builds, the new reusable UI proof, the prior interactive
+operator UI proof, and the unchanged Pages demo checks passed. The demo still has
+100 catalog definitions, zero API/external requests and execution disabled. CI now
+runs/uploads the new UI-to-worker proof and screenshots. Exact-commit CI remains
+pending after push. Next verify/download the combined exact-commit artifacts and
+review remaining product limitations; general HTTPS still permits read-only
+checks, and no public/customer credential submission or hosting activation is enabled.
