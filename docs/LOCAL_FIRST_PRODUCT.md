@@ -484,3 +484,11 @@ Fourteen CLI checks passed. The real saved DB proof uses the actual separate fre
 CLI for pass/fail/outside-root denial with unchanged fixture hashes. No new jobs
 are admitted by these commands, and worker-cycle behavior stays unchanged. Next
 connect protected HTTP admission/history/cancellation and explicit operator UI.
+
+DB jobs now have protected local HTTP confirmation/history/cancellation. Root/path
+overrides and stale confirmation are rejected before admission. The real HTTP ->
+free CLI -> isolated count proof passed for success, expected failure and outside-
+root denial; another job was cancelled before execution. Fixture bytes stayed
+unchanged and resolved target paths were absent from application storage. All 49
+DB-focused tests passed. Continue the operator editor/confirmation/history UI on
+controlled fixtures; do not enable customer file selection or arbitrary roots.

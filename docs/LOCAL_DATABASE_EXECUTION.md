@@ -128,3 +128,22 @@ Fourteen CLI checks passed. The real controlled saved-queue proof now uses a
 separate free-database-once process for pass, expected assertion failure and
 outside-fixed-root denial, retaining unchanged fixture file hashes. HTTP admission
 and the operator editor/confirmation UI are not enabled yet.
+
+## Protected Local HTTP Admission
+
+Free/licensed local apps now expose project-scoped `/local-database/jobs`: POST
+accepts exactly the current `confirmed_contract_fingerprint`, GET lists the latest
+twenty jobs, GET `/{job_id}` reads one job and POST `/{job_id}/cancel` accepts an
+empty object. Mutations require the existing local session, Origin and CSRF token.
+Admission revalidates the owned snapshot and current license/capacity inside one
+write transaction; the HTTP handler never starts SQLite execution.
+
+Path/root overrides, missing/stale confirmation and unknown fields are rejected.
+The fixed workspace/project fixture root remains authoritative. HTTP tests verify
+ownership, guarded cancellation and reference revocation. The real controlled proof
+now saves/reviews/confirms through HTTP, runs the separate free CLI and reads the
+persisted pass/fail/outside-root-block outcomes through HTTP. A fourth queued job
+is cancelled before execution, fixture hashes stay unchanged and resolved database
+paths are absent from application storage. All 49 database-focused tests passed.
+The operator DB editor and explicit confirmation/history panel remain next; no
+customer file picker or general database connector is enabled.

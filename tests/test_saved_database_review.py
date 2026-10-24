@@ -51,7 +51,7 @@ class SavedDatabaseReviewTests(unittest.TestCase):
         self.assertNotIn('local_database_binding',self.projects.configuration(LOCAL_ACTOR,self.pid))
         with self.assertRaises(ValueError):review_saved_database(self.projects,LOCAL_ACTOR,self.pid)
 
-    def test_http_save_review_csrf_origin_and_no_execution_route(self):
+    def test_http_save_review_csrf_origin_and_non_executing_review(self):
         with TestClient(create_app(LocalFreeSessions(self.path),projects=self.projects),base_url='http://127.0.0.1:8765') as client:
             client.get('/api/auth/me')
             headers={'origin':'http://127.0.0.1:8765','x-csrf-token':client.cookies[CSRF_COOKIE]}
@@ -67,5 +67,29 @@ class SavedDatabaseReviewTests(unittest.TestCase):
             self.assertEqual(client.post(base+'/local-database/review',headers={'origin':headers['origin']},json={}).status_code,401)
             self.assertEqual(client.post(base+'/local-database/review',headers=dict(headers,origin='https://other.test'),json={}).status_code,403)
             self.assertEqual(client.post(base.replace(self.pid,'0'*32)+'/local-database/review',headers=headers,json={}).status_code,404)
-            self.assertEqual(client.post(base+'/local-database/jobs',headers=headers,json={}).status_code,404)
+            self.assertEqual(client.post(base+'/local-database/jobs',headers=headers,json={}).status_code,400)
             self.assertEqual(client.get(base+'/runs').json()['runs'],[])
+
+    def test_http_admission_requires_current_confirmation_and_rejects_path_overrides(self):
+        with TestClient(create_app(LocalFreeSessions(self.path),projects=self.projects),base_url='http://127.0.0.1:8765') as client:
+            client.get('/api/auth/me')
+            headers={'origin':'http://127.0.0.1:8765','x-csrf-token':client.cookies[CSRF_COOKIE]}
+            base=f'/api/projects/{self.pid}/local-database'
+            digest=client.post(base+'/review',headers=headers,json={}).json()['contract_fingerprint']
+            for body in ({},{'confirmed_contract_fingerprint':'0'*64},
+                         {'confirmed_contract_fingerprint':digest,'fixture_root':'/'},
+                         {'confirmed_contract_fingerprint':digest,'database_path':'private.sqlite'}):
+                self.assertEqual(client.post(base+'/jobs',headers=headers,json=body).status_code,400)
+            with patch('adaptive_qa.database_queue.run_reviewed_local_database') as child:
+                response=client.post(base+'/jobs',headers=headers,json={'confirmed_contract_fingerprint':digest})
+            self.assertEqual(response.status_code,202,response.text);child.assert_not_called()
+            job=response.json();self.assertEqual(job['status'],'queued')
+            self.assertEqual(client.get(base+'/jobs').json()['jobs'],[job])
+            url=base+'/jobs/'+job['job_id']
+            self.assertEqual(client.get(url).json(),job)
+            self.assertEqual(client.get(url.replace(self.pid,'0'*32)).status_code,404)
+            self.assertEqual(client.post(url+'/cancel',headers={'origin':headers['origin']},json={}).status_code,401)
+            self.assertEqual(client.post(url+'/cancel',headers=dict(headers,origin='https://other.test'),json={}).status_code,403)
+            self.assertEqual(client.post(url+'/cancel',headers=headers,json={}).json()['status'],'cancelled')
+            self.projects.save_configuration(LOCAL_ACTOR,self.pid,dict(self.settings,secret_references={}))
+            self.assertEqual(client.post(base+'/jobs',headers=headers,json={'confirmed_contract_fingerprint':digest}).status_code,400)

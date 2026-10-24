@@ -48,5 +48,5 @@ def _review_database_on_connection(connection,actor,project_id):
         contract_fingerprint=hashlib.sha256(snapshot.encode()).hexdigest(),binding=asdict(binding),
         database_reference_configured=True,
         limitations=['Review does not resolve the database path, open SQLite, enqueue or reserve capacity.',
-            'HTTP admission and customer worker commands are not enabled.'])
+            'Execution requires separate explicit confirmation and a local worker.'])
     return public,SavedDatabaseExecution(configuration,binding)
