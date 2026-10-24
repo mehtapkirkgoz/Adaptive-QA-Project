@@ -561,3 +561,15 @@ corrected-input recovery and the existing real API/DB execution/cancellation
 flows with unchanged DB bytes, no external requests and no page errors.
 Production and unchanged-demo builds passed. Quick-start discovery labels now
 match both HTTPS and controlled local targets. Exact-commit CI follows the push.
+
+
+Account-free session-loss recovery now offers an explicit Reopen workspace action
+instead of an unusable account sign-in form after a 401. Reopening only bootstraps
+the guarded local session and reads saved projects; it never retries the failed
+mutation or starts work. The browser proof removed its own disposable cookies,
+verified one rejected save, reopened without credentials and recovered the saved
+target with no second mutation. Its 390px recovery panel was visually inspected.
+The existing free API/DB flow, three free backend checks and licensed browser
+login/execution/recovery proof passed with no external requests or page errors.
+Production/demo builds passed; the demo bundle is unchanged. Owner sessions and
+server on port 8765 were not modified. Exact-commit CI is pending after push.

@@ -202,6 +202,23 @@ def main():
                     expect(page.get_by_text('Configuration saved. No tests were started.',exact=True)).to_be_visible()
                     assert 'local_database_binding' not in projects.configuration(LOCAL_ACTOR,saved_project.project_id)
                     assert hashlib.sha256(fixture_path.read_bytes()).hexdigest()==fixture_digest
+                    saves=[]
+                    page.on('request',lambda request:saves.append(request.method) if request.method=='PUT' and request.url.endswith('/configuration') else None)
+                    page.context.clear_cookies()
+                    page.get_by_label('Target URL',exact=True).fill('http://127.0.0.1:8000/not-saved')
+                    page.get_by_role('button',name='Save configuration',exact=True).click()
+                    expect(page.get_by_role('heading',name='Reopen local workspace',exact=True)).to_be_visible()
+                    expect(page.get_by_role('heading',name='Sign in',exact=True)).to_have_count(0)
+                    assert saves==['PUT']
+                    page.set_viewport_size(dict(width=390,height=900))
+                    assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
+                    page.get_by_role('region',name='Reopen local workspace').screenshot(path='artifacts/local-free/reopen-session-mobile.png')
+                    page.set_viewport_size(dict(width=1440,height=1000))
+                    page.get_by_role('button',name='Reopen workspace',exact=True).click()
+                    expect(page.get_by_text('Local workspace reopened. No previous request was retried. Select your project to review saved settings.',exact=True)).to_be_visible()
+                    page.get_by_role('button',name='Free local target Project configuration').click()
+                    expect(page.get_by_label('Target URL',exact=True)).to_have_value('http://127.0.0.1:8000/')
+                    assert saves==['PUT']
                     assert not (root/'auth.sqlite').exists()
                     with projects._connection() as connection:
                         assert not connection.execute("SELECT 1 FROM sqlite_master WHERE name='dashboard_users'").fetchone()
@@ -222,6 +239,7 @@ def main():
               'database_job_cancelled_before_execution': True, 'database_ui_cli_result': 'passed',
               'database_fixture_unchanged': True, 'database_unsaved_confirmation_cleared': True,
               'empty_numeric_inputs_blocked': True, 'redirect_api_expectation_blocked': True,
+              'free_session_reopen_without_login_or_mutation_retry': True,
               'auth_database_created': False, 'central_requests': len(external), 'page_errors': errors}
     (output/'ui.json').write_text(json.dumps(report, indent=2)+'\n', encoding='utf-8')
     print(json.dumps(report))

@@ -90,6 +90,9 @@ No arbitrary SQL, row values or general customer database connector is exposed.
 Targets, settings, results and evidence stay in the selected local workspace;
 secret values remain in the local worker environment. Closing a browser does not
 erase saved data. Protect the workspace with operating-system permissions.
+If the free local session expires, choose **Reopen workspace**, then select your
+project and review its saved settings. No account is needed and no previous save
+or test request is automatically retried; unsaved edits must be entered again.
 Use a job's cancel control if necessary. Cancellation may remain pending while
 the worker stops its isolated child; never infer success from an interrupted
 terminal, and do not automatically retry an uncertain run.

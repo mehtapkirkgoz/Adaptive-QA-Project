@@ -59,7 +59,20 @@ function App() {
   const [apiBinding, setApiBinding] = useState<LocalApiBinding | null>(null);
   const [localBinding, setLocalBinding] = useState<LocalFormSettings | null>(null);
   function clear() {setSignedIn(false); setProjects([]); setSelected(null); setSettings(null); setPlan(null); setTarget(''); setHosts(''); setSlots([]); setFormMappings([]); setLocalBinding(null); setApiBinding(null); setDatabaseBinding(null); setChanges(false); setOffset(0);}
-  function fail(e: unknown) {if (e instanceof ApiError && e.status === 401) clear(); setError(e instanceof Error ? e.message : 'Request failed.');}
+  function fail(e: unknown) {
+    if (e instanceof ApiError && e.status === 401) {
+      clear();
+      setError(freeEdition ? 'Local session expired. Reopen the workspace and review saved settings before trying again.' : e.message);
+    } else setError(e instanceof Error ? e.message : 'Request failed.');
+  }
+  function reopenFreeWorkspace() {
+    void perform(async () => {
+      const session = await api<{edition?: string}>('/api/auth/me');
+      if (session.edition !== 'free') throw new Error('Workspace edition changed. Reload this page to continue.');
+      await load(); setSignedIn(true);
+      setNotice('Local workspace reopened. No previous request was retried. Select your project to review saved settings.');
+    });
+  }
   async function perform(task: () => Promise<void>) {
     setBusy(true); setError(''); setNotice('');
     try {await task();} catch (e) {fail(e);} finally {setBusy(false);}
@@ -124,10 +137,13 @@ function App() {
     <div className="workspace"><header><span>Workspace <span className="slash">/</span> Projects</span><div className="header-actions"><span className="badge">{freeEdition ? 'FREE · LOCAL' : 'LOCAL'}</span>
       {signedIn && !freeEdition && <button className="quiet" disabled={busy} onClick={() => void perform(async () => {await api('/api/auth/logout', 'POST', {}); clear();})}>Sign out</button>}</div></header>
       <main><div className="page-title"><div><p className="eyebrow">ADAPTIVE TESTING</p><h1>{signedIn ? 'Project workspace' : 'Welcome to your workspace'}</h1>
-        <p className="subtitle">{signedIn ? 'Manage your projects and define what is in scope.' : 'Sign in to manage your QA projects.'}</p></div><span className="step">LOCAL WORKSPACE</span></div>
+        <p className="subtitle">{signedIn ? 'Manage your projects and define what is in scope.' : freeEdition ? 'Reopen your account-free local workspace.' : 'Sign in to manage your QA projects.'}</p></div><span className="step">LOCAL WORKSPACE</span></div>
         {error && <div role="alert" className="message error">{error}</div>}
         {notice && <div role="status" className="message success">{notice}</div>}
-        {checking ? <p role="status">Checking your session…</p> : !signedIn ? <section className="card login"><p className="eyebrow">YOUR ACCOUNT</p><h2>Sign in</h2>
+        {checking ? <p role="status">Checking your session…</p> : !signedIn && freeEdition ? <section className="card login" aria-label="Reopen local workspace">
+          <h2>Reopen local workspace</h2><p>No account is required. Reopening restores access to saved projects; it does not retry a save or start tests.</p>
+          <button className="primary" disabled={busy} onClick={reopenFreeWorkspace}>{busy ? 'Reopening…' : 'Reopen workspace'}</button>
+        </section> : !signedIn ? <section className="card login"><p className="eyebrow">YOUR ACCOUNT</p><h2>Sign in</h2>
           <form onSubmit={login}><fieldset disabled={busy}><label>Email<input name="email" type="email" autoComplete="username" required maxLength={254}/></label>
             <label>Password<input name="password" type="password" autoComplete="current-password" required/></label>
             <button className="primary" type="submit">{busy ? 'Signing in…' : 'Sign in'}</button></fieldset></form><p className="hint">Use the account created by your local workspace administrator.</p></section>
