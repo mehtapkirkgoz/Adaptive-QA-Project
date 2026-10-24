@@ -1,3 +1,5 @@
+import {LocalApiEditor} from './LocalApiEditor';
+import type {LocalApiBinding} from './LocalApiEditor';
 import {InteractivePanel} from './InteractivePanel';
 import {LocalFormBindingEditor} from './LocalFormBindingEditor';
 import type {LocalFormSettings} from './LocalFormBindingEditor';
@@ -19,7 +21,7 @@ type Project = {project_id: string; name: string};
 type Plan = {execution_authorized: false; inspected_pages: number; discovery_status: string; discovery_job_id?: string;
   counts: {catalog: number; selected: number; skipped: number; blocked: number};
   cases: {case_id: string; name: string; test_type: string; decision: string; reason: string; target_binding?: string | null; document_path?: string | null; document_url?: string | null; changes_data?: boolean}[]};
-type Settings = {local_api_binding?: {path: string; expected_status: number; json_field: string; expected_boolean: boolean}; local_form_binding?: LocalFormSettings; form_mappings?: FormMapping[]; discovery_support?: {supported: boolean; profile: string | null; execution_scope: string}; configured: boolean; base_url?: string; allowed_hosts?: string[];
+type Settings = {local_api_binding?: LocalApiBinding; local_form_binding?: LocalFormSettings; form_mappings?: FormMapping[]; discovery_support?: {supported: boolean; profile: string | null; execution_scope: string}; configured: boolean; base_url?: string; allowed_hosts?: string[];
   allow_data_changes?: boolean; available_secret_references: Record<string, string>;
   secret_references?: Record<string, {environment_variable: string; value: string}>};
 class ApiError extends Error { constructor(public status: number, message: string) {super(message);} }
@@ -49,8 +51,9 @@ function App() {
   const [slots, setSlots] = useState<string[]>([]);
   const [plan, setPlan] = useState<Plan | null>(null);
   const [formMappings, setFormMappings] = useState<FormMapping[]>([]);
+  const [apiBinding, setApiBinding] = useState<LocalApiBinding | null>(null);
   const [localBinding, setLocalBinding] = useState<LocalFormSettings | null>(null);
-  function clear() {setSignedIn(false); setProjects([]); setSelected(null); setSettings(null); setPlan(null); setTarget(''); setHosts(''); setSlots([]); setFormMappings([]); setLocalBinding(null); setChanges(false); setOffset(0);}
+  function clear() {setSignedIn(false); setProjects([]); setSelected(null); setSettings(null); setPlan(null); setTarget(''); setHosts(''); setSlots([]); setFormMappings([]); setLocalBinding(null); setApiBinding(null); setChanges(false); setOffset(0);}
   function fail(e: unknown) {if (e instanceof ApiError && e.status === 401) clear(); setError(e instanceof Error ? e.message : 'Request failed.');}
   async function perform(task: () => Promise<void>) {
     setBusy(true); setError(''); setNotice('');
@@ -75,7 +78,7 @@ function App() {
       const data = await api<Settings>(`/api/projects/${project.project_id}/configuration`);
       setSelected(project); setSettings(data); setTarget(data.base_url ?? '');
       setHosts(data.allowed_hosts?.join('\n') ?? ''); setChanges(data.allow_data_changes ?? false);
-      setSlots(Object.keys(data.secret_references ?? {})); setFormMappings(data.form_mappings ?? []); setLocalBinding(data.local_form_binding ?? null);
+      setSlots(Object.keys(data.secret_references ?? {})); setFormMappings(data.form_mappings ?? []); setLocalBinding(data.local_form_binding ?? null); setApiBinding(data.local_api_binding ?? null);
     });
   }
   function login(event: FormEvent<HTMLFormElement>) {
@@ -100,12 +103,13 @@ function App() {
     event.preventDefault(); if (!selected || !settings) return;
     const secret_references = Object.fromEntries(slots.map(slot => [slot, settings.available_secret_references[slot]]));
     void perform(async () => {const data = await api<Settings>(`/api/projects/${selected.project_id}/configuration`, 'PUT', {
-      base_url: target, allowed_hosts: hosts.split('\n').map(h => h.trim()).filter(Boolean), allow_data_changes: changes, secret_references, form_mappings: formMappings, local_form_binding: localBinding ? {...localBinding, document_url: target} : null, local_api_binding: settings.local_api_binding ?? null});
-      setSettings(data); setLocalBinding(data.local_form_binding ?? null); setPlan(null); setNotice('Configuration saved. No tests were started.');});
+      base_url: target, allowed_hosts: hosts.split('\n').map(h => h.trim()).filter(Boolean), allow_data_changes: changes, secret_references, form_mappings: formMappings, local_form_binding: localBinding ? {...localBinding, document_url: target} : null, local_api_binding: apiBinding});
+      setSettings(data); setLocalBinding(data.local_form_binding ?? null); setApiBinding(data.local_api_binding ?? null); setPlan(null); setNotice('Configuration saved. No tests were started.');});
   }
   const unsaved = settings !== null && (target !== (settings.base_url ?? '') || hosts.split('\n').map(value => value.trim()).filter(Boolean).join('\n') !== (settings.allowed_hosts ?? []).join('\n')
     || changes !== (settings.allow_data_changes ?? false) || JSON.stringify([...slots].sort()) !== JSON.stringify(Object.keys(settings.secret_references ?? {}).sort())
-    || JSON.stringify(formMappings) !== JSON.stringify(settings.form_mappings ?? []) || JSON.stringify(localBinding) !== JSON.stringify(settings.local_form_binding ?? null));
+    || JSON.stringify(formMappings) !== JSON.stringify(settings.form_mappings ?? []) || JSON.stringify(localBinding) !== JSON.stringify(settings.local_form_binding ?? null)
+    || JSON.stringify(apiBinding) !== JSON.stringify(settings.local_api_binding ?? null));
   return <div className="shell">
     <aside><a className="brand" href="/" aria-label="Adaptive QA home"><span className="mark">AQ</span> Adaptive QA</a>
       <p className="eyebrow">WORKSPACE</p><div className="nav-item">Projects <span aria-hidden="true">●</span></div>
@@ -137,6 +141,7 @@ function App() {
                 <label className="check"><input type="checkbox" checked={changes} onChange={e => setChanges(e.target.checked)}/><span>Allow tests that change data</span></label>
                 <FormMappingsEditor key={selected.project_id + JSON.stringify(settings)} value={formMappings} onChange={setFormMappings}/>
                 {(freeEdition || licensedEdition) && <LocalFormBindingEditor target={target} value={localBinding} onChange={setLocalBinding}/>}
+                {(freeEdition || licensedEdition) && <LocalApiEditor target={target} value={apiBinding} onChange={setApiBinding}/>}
                 <h3>Secret references</h3><p className="hint">Choose the references this project needs. Secret values are never entered or displayed here.</p>
                 {Object.keys(settings.available_secret_references).map(slot => <label className="check" key={slot}><input type="checkbox" checked={slots.includes(slot)} onChange={e => setSlots(e.target.checked ? [...slots, slot] : slots.filter(s => s !== slot))}/><span>{slot.replaceAll('_', ' ')}{slots.includes(slot) && <small className="masked">[REDACTED]</small>}</span></label>)}
                 {slots.length > 0 && <details><summary>Environment variable names</summary>{slots.map(slot => <code key={slot}>{settings.available_secret_references[slot]}</code>)}</details>}

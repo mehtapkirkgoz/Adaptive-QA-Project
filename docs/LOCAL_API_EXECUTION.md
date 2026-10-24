@@ -113,3 +113,21 @@ reviews through the real configuration API, explicitly confirms job admission,
 executes both jobs using a separate free-api-once process and reads the persisted
 results through scoped HTTP. Five total GET requests were observed; review and
 admission contacted no target. Customer-facing editor/confirmation UI remains next.
+
+## Local API Editor
+
+The free/licensed configuration form now includes an optional explicit API editor
+for the exact supported loopback origin. Operators select the GET path, expected
+HTTP status, top-level JSON field and expected boolean; values/credentials are not
+accepted. Saving uses the existing configuration endpoint and never reviews,
+enqueues or executes a job. Switching projects reloads saved metadata; disabling
+the editor removes the binding. API draft changes participate in unsaved-change
+tracking so existing interactive confirmations cannot ignore them.
+
+The real free browser drill configured/saved through the editor, reloaded the
+binding, preserved it on a subsequent save, then removed it. No API job was created,
+no central browser request or page error occurred, and the existing discovery/UI
+execution checks still passed. Production/demo builds passed. The public demo
+does not render this editor. The dedicated API review/confirmation/history panel
+remains the next increment. Core CI for f2ac02f passed; this editor's exact-commit
+CI and later artifact inspection remain pending.

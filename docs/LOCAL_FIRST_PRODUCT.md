@@ -389,3 +389,10 @@ proof passed on owned endpoints. Review still grants no execution authority by
 itself. The three-queue worker cycle is unchanged; API has its own explicit command.
 Next add the operator editor/review/confirmation UI; public/customer API targets
 and authentication are still outside the enabled profile.
+
+The real local configuration form now edits the explicit API binding without
+request values or credentials. Save/reload/preserve/remove passed in the free
+browser drill, with zero API jobs created, external requests or page errors.
+Draft API edits participate in unsaved-change protection. Production/demo builds
+passed and the public demo stays non-executing. Next add API review/confirmation/
+history UI; no public/customer API profile is enabled.

@@ -71,9 +71,12 @@ def main():
                     expect(runs.locator('.run-outcome').filter(has_text='LOGIN-001')).to_contain_text('passed', timeout=10000)
                     saved_project = projects.list(LOCAL_ACTOR)[0]
                     binding = dict(path='/service/available', expected_status=200, json_field='available', expected_boolean=True)
-                    projects.save_configuration(LOCAL_ACTOR, saved_project.project_id,
-                        dict(base_url='http://127.0.0.1:8000/',allowed_hosts=['127.0.0.1'],
-                             allow_data_changes=False,secret_references={},local_api_binding=binding))
+                    editor=page.get_by_role('region',name='Explicit local API binding')
+                    editor.get_by_role('checkbox',name='Configure explicit API response').check()
+                    editor.get_by_label('GET endpoint path',exact=True).fill(binding['path'])
+                    editor.get_by_label('API JSON boolean field',exact=True).fill(binding['json_field'])
+                    page.get_by_role('button',name='Save configuration',exact=True).click()
+                    expect(page.get_by_text('Configuration saved. No tests were started.',exact=True)).to_be_visible()
                     page.reload()
                     expect(page.get_by_role('button', name='+ Create project', exact=True)).to_be_disabled()
                     expect(page.get_by_role('button', name='Free local target Project configuration')).to_be_visible()
@@ -81,6 +84,14 @@ def main():
                     page.get_by_role('button', name='Save configuration', exact=True).click()
                     expect(page.get_by_text('Configuration saved. No tests were started.', exact=True)).to_be_visible()
                     assert projects.configuration(LOCAL_ACTOR, saved_project.project_id)['local_api_binding'] == binding
+                    editor=page.get_by_role('region',name='Explicit local API binding')
+                    expect(editor.get_by_label('GET endpoint path',exact=True)).to_have_value(binding['path'])
+                    editor.get_by_role('checkbox',name='Configure explicit API response').uncheck()
+                    page.get_by_role('button',name='Save configuration',exact=True).click()
+                    expect(page.get_by_text('Configuration saved. No tests were started.',exact=True)).to_be_visible()
+                    assert 'local_api_binding' not in projects.configuration(LOCAL_ACTOR,saved_project.project_id)
+                    with projects._connection() as c:
+                        assert c.execute('SELECT count(*) FROM dashboard_api_jobs').fetchone()[0]==0
                     assert not (root/'auth.sqlite').exists()
                     with projects._connection() as connection:
                         assert not connection.execute("SELECT 1 FROM sqlite_master WHERE name='dashboard_users'").fetchone()
@@ -94,6 +105,7 @@ def main():
     output = Path('artifacts/local-free'); output.mkdir(parents=True, exist_ok=True)
     report = {'account_required': False, 'worker_entrypoint': 'dashboard free-worker-cycle',
               'one_project_cap': True, 'real_local_login_check_passed': True, 'ui_preserved_saved_api_binding': True,
+              'api_editor_save_reload_remove': True, 'api_editor_jobs_created': 0,
               'auth_database_created': False, 'central_requests': len(external), 'page_errors': errors}
     (output/'ui.json').write_text(json.dumps(report, indent=2)+'\n', encoding='utf-8')
     print(json.dumps(report))
