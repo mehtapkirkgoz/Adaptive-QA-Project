@@ -1,0 +1,243 @@
+{
+  "implementation_commit": "0f02b8ea497c817156021524e98783eca54d7011",
+  "run_id": 40132807270,
+  "acceptance": "all_twelve_jobs_and_artifacts_verified",
+  "jobs": [
+    {
+      "name": "scaffold",
+      "conclusion": "success",
+      "status": "completed"
+    },
+    {
+      "name": "Packaged local runtime (windows-2025)",
+      "conclusion": "success",
+      "status": "completed"
+    },
+    {
+      "name": "Local browser check",
+      "conclusion": "success",
+      "status": "completed"
+    },
+    {
+      "name": "Process lifecycle (ubuntu-24.04)",
+      "conclusion": "success",
+      "status": "completed"
+    },
+    {
+      "name": "Controlled API checks",
+      "conclusion": "success",
+      "status": "completed"
+    },
+    {
+      "name": "Inactive release packaging",
+      "conclusion": "success",
+      "status": "completed"
+    },
+    {
+      "name": "Controlled database checks (ubuntu-24.04)",
+      "conclusion": "success",
+      "status": "completed"
+    },
+    {
+      "name": "Packaged local runtime (ubuntu-24.04)",
+      "conclusion": "success",
+      "status": "completed"
+    },
+    {
+      "name": "Process lifecycle (windows-2025)",
+      "conclusion": "success",
+      "status": "completed"
+    },
+    {
+      "name": "Browser integration checks",
+      "conclusion": "success",
+      "status": "completed"
+    },
+    {
+      "name": "UI catalog and isolation",
+      "conclusion": "success",
+      "status": "completed"
+    },
+    {
+      "name": "Controlled database checks (windows-2025)",
+      "conclusion": "success",
+      "status": "completed"
+    }
+  ],
+  "artifacts": [
+    {
+      "id": 12576220471,
+      "name": "local-database-evidence-windows-2025",
+      "bytes": 2107,
+      "digest": "sha256:ac30668da2391ec7df14414056b9c2ed5cc6caf9285da972c7bcc2498cb84bde",
+      "zip_crc_verified": true,
+      "pngs_verified": 0
+    },
+    {
+      "id": 12576191024,
+      "name": "local-runtime-windows-2025",
+      "bytes": 3471,
+      "digest": "sha256:01b1e9b9f963194307ae65e68d49a6d038ef851e03d40fdccb5b497932ab02a2",
+      "zip_crc_verified": true,
+      "pngs_verified": 0
+    },
+    {
+      "id": 12576080615,
+      "name": "local-database-evidence-ubuntu-24.04",
+      "bytes": 2098,
+      "digest": "sha256:410c4350abb54217b8d26fad748db5ed897be654d6c612922ceb389846243a6e",
+      "zip_crc_verified": true,
+      "pngs_verified": 0
+    },
+    {
+      "id": 12576015622,
+      "name": "inactive-rollback-plan-0f02b8ea497c817156021524e98783eca54d7011",
+      "bytes": 368,
+      "digest": "sha256:2262d7953f7601faab6622573eebb9e2d03273d2df9617da799f909f7fcf3f75",
+      "zip_crc_verified": true,
+      "pngs_verified": 0
+    },
+    {
+      "id": 12575976301,
+      "name": "ui-catalog-evidence",
+      "bytes": 5482905,
+      "digest": "sha256:b4f927de89a158c7e15d4ea0ae6992410f55975d163e558df8208030bb086a3a",
+      "zip_crc_verified": true,
+      "pngs_verified": 147
+    },
+    {
+      "id": 12575910926,
+      "name": "browser-integration-evidence",
+      "bytes": 2019926,
+      "digest": "sha256:c1eaee6963488e443d8a5e3fd90811cb52f714487a866b686d7a9840a2c0bdaf",
+      "zip_crc_verified": true,
+      "pngs_verified": 53
+    },
+    {
+      "id": 12575835877,
+      "name": "process-lifecycle-ubuntu-24.04",
+      "bytes": 210,
+      "digest": "sha256:47e6b2b7c31acbe376a70fe564057754782e61f23338dd5653a0bd821594ccee",
+      "zip_crc_verified": true,
+      "pngs_verified": 0
+    },
+    {
+      "id": 12575761056,
+      "name": "inactive-release-0f02b8ea497c817156021524e98783eca54d7011",
+      "bytes": 323773,
+      "digest": "sha256:6a4e8162c09fe062120785c44a40a43331797ae71c7bc0ad60eeb2ed9a455907",
+      "zip_crc_verified": true,
+      "pngs_verified": 0
+    },
+    {
+      "id": 12575478734,
+      "name": "local-browser-evidence",
+      "bytes": 1664050,
+      "digest": "sha256:638ec6a5f8a922f469ff49243cf8bd306f8899429d27c12136a40363228b563e",
+      "zip_crc_verified": true,
+      "pngs_verified": 10
+    },
+    {
+      "id": 12575298638,
+      "name": "local-api-evidence",
+      "bytes": 17029,
+      "digest": "sha256:8ffa2995042faac11da193dd7b28799074439149715035bf4abac0af653df009",
+      "zip_crc_verified": true,
+      "pngs_verified": 0
+    },
+    {
+      "id": 12575123878,
+      "name": "process-lifecycle-windows-2025",
+      "bytes": 213,
+      "digest": "sha256:c6ec5be844df90dd35149320a2cefa8482b5ad1790fdeb29a1e9ab710dd6784b",
+      "zip_crc_verified": true,
+      "pngs_verified": 0
+    },
+    {
+      "id": 12575054323,
+      "name": "local-runtime-ubuntu-24.04",
+      "bytes": 3445,
+      "digest": "sha256:b214b4a747f6f23b69d54ee0b5f0b59cea145608ba35406ec37071f191a060c9",
+      "zip_crc_verified": true,
+      "pngs_verified": 0
+    }
+  ],
+  "browser_proofs": {
+    "local-license/installed-ui.json": {
+      "local_only": true,
+      "worker_entrypoint": "local worker-cycle",
+      "api_worker_entrypoint": "local api-once",
+      "api_ui_confirmed_result": "passed",
+      "api_requests": 1,
+      "api_result_preserved_after_recovery": true,
+      "database_worker_entrypoint": "local database-once",
+      "database_ui_confirmed_result": "passed",
+      "database_fixture_unchanged": true,
+      "database_result_preserved_after_recovery": true,
+      "database_fixture_not_in_backup": true,
+      "nested_panel_session_loss_requires_password": true,
+      "upgrade_preserved": true,
+      "valid_import": true,
+      "invalid_import_preserved": true,
+      "authenticated_reload": true,
+      "recovery_requires_fresh_login": true,
+      "recovered_results_and_license": true,
+      "installed_wheel": true,
+      "licensed_cli_discovery_and_login_passed": true,
+      "page_errors": [],
+      "external_requests": 0
+    },
+    "local-free/ui.json": {
+      "account_required": false,
+      "worker_entrypoint": "dashboard free-worker-cycle",
+      "one_project_cap": true,
+      "real_local_login_check_passed": true,
+      "ui_preserved_saved_api_binding": true,
+      "api_editor_save_reload_remove": true,
+      "api_jobs_explicitly_confirmed": 2,
+      "api_job_cancelled_before_execution": true,
+      "api_ui_cli_result": "passed",
+      "api_requests": 1,
+      "api_unsaved_confirmation_cleared": true,
+      "ui_preserved_saved_database_binding": true,
+      "database_editor_save_reload_remove": true,
+      "database_jobs_explicitly_confirmed": 2,
+      "database_job_cancelled_before_execution": true,
+      "database_ui_cli_result": "passed",
+      "database_fixture_unchanged": true,
+      "database_unsaved_confirmation_cleared": true,
+      "empty_numeric_inputs_blocked": true,
+      "redirect_api_expectation_blocked": true,
+      "free_session_reopen_without_login_or_mutation_retry": true,
+      "nested_panel_session_loss_recovered_without_requeue": true,
+      "api_and_database_history_failure_blocks_admission_until_manual_refresh": true,
+      "auth_database_created": false,
+      "central_requests": 0,
+      "page_errors": []
+    },
+    "local-license/ui.json": {
+      "local_only": true,
+      "worker_entrypoint": "local worker-cycle",
+      "api_worker_entrypoint": "local api-once",
+      "api_ui_confirmed_result": "passed",
+      "api_requests": 1,
+      "api_result_preserved_after_recovery": true,
+      "database_worker_entrypoint": "local database-once",
+      "database_ui_confirmed_result": "passed",
+      "database_fixture_unchanged": true,
+      "database_result_preserved_after_recovery": true,
+      "database_fixture_not_in_backup": true,
+      "nested_panel_session_loss_requires_password": true,
+      "upgrade_preserved": true,
+      "valid_import": true,
+      "invalid_import_preserved": true,
+      "authenticated_reload": true,
+      "recovery_requires_fresh_login": true,
+      "recovered_results_and_license": true,
+      "installed_wheel": false,
+      "licensed_cli_discovery_and_login_passed": true,
+      "page_errors": [],
+      "external_requests": 0
+    }
+  }
+}

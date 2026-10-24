@@ -624,3 +624,29 @@ external requests or page errors. This is UI response ownership, not a change
 to server authorization, cookie expiry, license validity or execution policies.
 The licensed login/execution/recovery proof also passed after this change.
 Exact-commit CI/artifact verification remains pending after push.
+
+
+## Recovery Acceptance and Continuation — 2026-10-25
+
+History/session recovery checkpoint 0f02b8e passed Core checks 40132807270:
+all twelve jobs succeeded, all twelve archive SHA-256/size/source identities and
+ZIP CRCs matched, 210 PNGs validated and four inner inactive release files matched.
+Free/source-licensed/installed-licensed browser evidence verifies the history
+failure admission guard and appropriate session recovery without retries.
+See docs/evidence/recovery-ci-0f02b8e.json. This checkpoint predates the later
+Windows publication helper and delayed-old-401 fix; do not imply their remote
+acceptance from this earlier run.
+
+The complete local regression at 4b77ba5 ran 838 tests: 837 passed, one Windows
+permission check skipped, no failures. The current free proof additionally
+reproduces and fixes late old-session errors; licensed proof and builds passed.
+Installed local package proof for ab08898 is recorded separately. Workspace is
+clean after the acceptance-record commit; no owner session was restarted.
+
+Next scheduled work: inspect exact-commit Core checks for ab08898 (40132928164)
+and latest 4b77ba5, record failures if any, and verify their artifact identities
+before declaring the latest recovery/packaging work remotely accepted. Do not
+repeat already accepted target checks or expand customer connectors to consume
+usage. After these evidence checks, remain quiet pending owner product review.
+The hourly usage-gated automation remains authorized; overall product acceptance
+is pending and no closed sprint is reopened.

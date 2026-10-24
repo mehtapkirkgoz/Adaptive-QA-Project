@@ -1,6 +1,6 @@
 # Sprint Control
 
-Updated: 2026-10-24
+Updated: 2026-10-25
 
 ## Current Authorization
 
@@ -18,6 +18,10 @@ under LOCAL_API_EXECUTION.md. Controlled local DB operator execution is verified
 40128832953, with all twelve jobs/archives and 210 PNGs validated. The narrow
 single-device edition is ready for owner review; overall acceptance is pending.
 Do not infer authorization for customer connectors or hosting from this checkpoint.
+Recovery checkpoint 0f02b8e passed all twelve jobs/artifacts in run 40132807270;
+latest Windows publication/delayed-response follow-ups await exact-commit evidence.
+Local regression at 4b77ba5: 838 tests, 837 passed and one Windows permission skip.
+Follow the latest continuation section in LOCAL_FIRST_PRODUCT.md.
 The f62882c packaging-diagnostics run 40105680369 passed all twelve jobs;
 its previously failed run remains recorded separately. No external/customer
 form submission or general authenticated API execution is enabled.
