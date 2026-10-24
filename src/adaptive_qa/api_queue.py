@@ -62,7 +62,7 @@ class LocalApiQueue:
                 raise ValueError('Review current saved API settings before admission.')
             if hasattr(self.projects,'admit_execution'): self.projects.admit_execution(c)
             total=owned=0
-            for table,column in (('dashboard_api_jobs','owner_id'),('dashboard_test_runs','owner_id'),
+            for table,column in (('dashboard_api_jobs','owner_id'),('dashboard_database_jobs','owner_id'),('dashboard_test_runs','owner_id'),
                                  ('dashboard_interactive_jobs','owner_id'),('dashboard_organization_runs','user_id')):
                 if c.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?",(table,)).fetchone():
                     active="status IN ('queued','running','cancel_requested')"

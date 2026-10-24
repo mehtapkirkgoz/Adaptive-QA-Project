@@ -3,10 +3,9 @@ from dataclasses import asdict, dataclass, field
 import hashlib
 import json
 from pathlib import Path
-from adaptive_qa.local_database_settings import DatabaseCountBinding
+from adaptive_qa.local_database_settings import DatabaseCountBinding,database_count_case
 
-from adaptive_qa.database_models import DatabaseCase, DatabaseCheck, DatabaseConfiguration, DatabaseOperator, QueryTemplate
-from adaptive_qa.models import TestCase, TestType
+from adaptive_qa.database_models import DatabaseConfiguration
 
 
 def _digest(configuration, table, count, root, identity):
@@ -41,10 +40,7 @@ class LocalDatabaseReview:
 
     @property
     def case(self):
-        return DatabaseCase(TestCase('LOCAL-DB-COUNT','Explicit local record count',TestType.DATABASE,
-            ('database',),('Count records in the declared owned fixture table',),'Match the explicit expected count'),
-            QueryTemplate(self.configuration.project.project_id,'local_record_count',f'SELECT COUNT(*) FROM "{self.table}"'),
-            checks=(DatabaseCheck(DatabaseOperator.ROW_COUNT,1),DatabaseCheck(DatabaseOperator.CELL_EQUALS,self.expected_count)))
+        return database_count_case(self.configuration,DatabaseCountBinding(self.table,self.expected_count))
 
 
 def review_local_database(configuration, *, table, expected_count, fixture_root):

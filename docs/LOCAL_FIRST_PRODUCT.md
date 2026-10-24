@@ -468,3 +468,12 @@ DB-focused checks, six settings checks, production/demo builds and the free brow
 save-preservation drill passed. No DB execution route/UI editor is enabled yet.
 Continue confirmed queue/worker integration with a fixed workspace/project fixture
 root, shared licensing/cancellation/recovery and no HTTP-selected filesystem roots.
+
+Internal confirmed DB queue/worker integration now pins the owned workspace/project
+fixture root, shares API/UI/form pending and licensed running capacity, revalidates
+settings, supports cancellation/explicit recovery and sanitizes outcomes. Eight
+queue checks and real saved-queue pass/fail/outside-root-block proofs passed with
+unchanged fixture bytes. Offline recovery cancels DB claims; target databases are
+not copied into application backups. Continue HTTP/CLI and explicit UI integration
+on controlled fixtures only. No customer database connector or catalog growth is
+enabled; current acceptance remains bounded to the documented local profiles.

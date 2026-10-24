@@ -102,6 +102,9 @@ class OrganizationRunQueue:
             if c.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='dashboard_api_jobs'").fetchone():
                 total += c.execute('SELECT count(*) FROM dashboard_api_jobs WHERE '+active).fetchone()[0]
                 owned += c.execute('SELECT count(*) FROM dashboard_api_jobs WHERE '+active+' AND owner_id=?', (actor.user_id,)).fetchone()[0]
+            if c.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='dashboard_database_jobs'").fetchone():
+                total += c.execute('SELECT count(*) FROM dashboard_database_jobs WHERE '+active).fetchone()[0]
+                owned += c.execute('SELECT count(*) FROM dashboard_database_jobs WHERE '+active+' AND owner_id=?', (actor.user_id,)).fetchone()[0]
             if total >= 100 or owned >= 5:
                 raise ValueError('Test run admission capacity reached.')
             reservation = self.admission._reserve(c, actor, organization_id)

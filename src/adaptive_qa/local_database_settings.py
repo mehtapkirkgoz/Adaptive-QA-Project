@@ -2,6 +2,8 @@
 from dataclasses import asdict, dataclass
 import re
 from adaptive_qa.config import ProjectConfig
+from adaptive_qa.database_models import DatabaseCase,DatabaseCheck,DatabaseConfiguration,DatabaseOperator,QueryTemplate
+from adaptive_qa.models import TestCase,TestType
 
 
 @dataclass(frozen=True)
@@ -23,3 +25,12 @@ def validate_saved_database_binding(data,project):
             or project.allowed_hosts!=('127.0.0.1',)):
         raise ValueError('Only the controlled local fixture project is supported.')
     return asdict(DatabaseCountBinding(**data))
+
+
+def database_count_case(configuration,binding):
+    if not isinstance(configuration,DatabaseConfiguration) or not isinstance(binding,DatabaseCountBinding):
+        raise ValueError('Typed database configuration and count binding are required.')
+    return DatabaseCase(TestCase('LOCAL-DB-COUNT','Explicit local record count',TestType.DATABASE,
+        ('database',),('Count records in the declared owned fixture table',),'Match the explicit expected count'),
+        QueryTemplate(configuration.project.project_id,'local_record_count',f'SELECT COUNT(*) FROM "{binding.table}"'),
+        checks=(DatabaseCheck(DatabaseOperator.ROW_COUNT,1),DatabaseCheck(DatabaseOperator.CELL_EQUALS,binding.expected_count)))

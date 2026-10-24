@@ -77,3 +77,32 @@ reference only inside the supervised worker and retain existing path confinement
 Only operator-prepared controlled fixtures may be exercised during implementation.
 Customer file selection, arbitrary roots, server DB credentials and a general DB
 connector remain outside this profile and have not been enabled.
+
+## Internal Confirmed Queue and Pinned Worker
+
+`LocalDatabaseQueue` now transactionally admits an explicit current saved-review
+fingerprint, with owner isolation and shared free/paid pending/running capacity.
+API, form and UI admissions count these jobs too. Claim tokens, current settings/
+license checks, cancellation and status-only finalization mirror the existing
+controlled API lifecycle. Changed settings block dispatch or stop active work;
+interrupted recovery never retries. Offline workspace recovery cancels database
+jobs and clears claims alongside other queues.
+
+The internal worker derives exactly
+`{workspace}/database-fixtures/{project_id}` from the canonical project-store path.
+It requires that existing directory without redirection before creating the
+count-only review. There is no HTTP or environment fixture-root override. Only
+then may the existing supervised child resolve the scoped database-path reference;
+the resolved file must stay inside that fixed root. Missing/redirected roots never
+dispatch a database child. Target fixture files are not included in application
+workspace backups; recovery restores application metadata/results and cancels work,
+not copies of target databases.
+
+Eight real SQLite queue checks passed: confirmation/ownership, concurrent pending
+limits and unique claims, drift/cancellation/no retry, sanitized failures, signed
+license capacity/expiry, backup restoration, API/DB shared pending capacity and
+missing/redirected-root denial. The real isolated saved-queue proof returned one
+pass, one deliberate count failure and one outside-fixed-root block; every fixture
+file hash stayed unchanged and raw paths/rows were not persisted. The 100-case
+catalog is unchanged. HTTP admission, customer CLI and operator UI remain the next
+integration step; no customer database connector is enabled by this increment.
