@@ -190,3 +190,18 @@ controlled GETs, two passing saved/confirmed HTTP-to-CLI jobs, no target request
 at review/admission and no raw response persistence. Evidence is in
 evidence/api-ci-3091a81.json. This is a partial checkpoint: inspect both remaining
 jobs and artifacts before accepting the combined API operator implementation.
+
+Final inspection of run 40105056865 supersedes the pending snapshot above: eleven
+jobs passed, but Windows packaged runtime failed when its combined installed
+catalog/schema/license/recovery verification exceeded 30 seconds. It did not fail
+the API assertion or operator UI proof. All twelve artifact archives, 210 PNGs and
+four inner release digests are verified, including passing free, licensed and
+installed licensed API UI reports. The failed job's uploaded artifacts do not
+establish successful installed validation. Remote acceptance remains failed.
+
+The packaging check now prints fixed stage names/elapsed time and has a finite
+120-second verification budget. Target API/browser deadlines, assertions and
+cancellation controls are unchanged; no test retry is introduced. The logs do
+not identify the stalled stage in the older run, so no more specific cause is
+claimed. Existing pre-installation tamper/identity/file-set checks passed. A fresh
+installed check and exact-commit CI are required before accepting this adjustment.

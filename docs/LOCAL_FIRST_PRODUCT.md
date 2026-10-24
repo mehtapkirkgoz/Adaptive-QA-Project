@@ -426,3 +426,10 @@ release digests. Its saved API HTTP-to-CLI proof passed remotely. Windows packag
 runtime and UI catalog/isolation were still running; do not mark remote acceptance
 complete until those jobs and their artifacts are verified. See
 evidence/api-ci-3091a81.json for this partial checkpoint.
+
+Run 40105056865 finished with eleven passing jobs and one Windows installed-check
+timeout at 30 seconds. All twelve artifact archives/210 PNGs/four release digests
+are verified; free/paid/installed API UI evidence passed. Remote acceptance remains
+failed, not complete. The packaging-only combined verification now has stage logs
+and a bounded 120-second budget; target-test deadlines are unchanged. Continue
+fresh installed/CI acceptance and investigate the logged stage if it fails again.

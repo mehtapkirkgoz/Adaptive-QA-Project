@@ -49,6 +49,11 @@ def check_release(directory):
         subprocess.run([sys.executable, '-m', 'pip', 'install', '--no-deps', '--target', str(site), str(wheel)],
                        cwd=temporary, env=environment, check=True, timeout=120)
         code = """import sys
+from time import perf_counter
+started = perf_counter()
+def stage(name):
+    print('[installed-check] ' + name + ' elapsed=' + str(round(perf_counter()-started, 2)), flush=True)
+stage('catalog-start')
 from pathlib import Path
 sys.path.insert(0, sys.argv[1])
 import adaptive_qa
@@ -57,6 +62,7 @@ from adaptive_qa.catalog import TEST_CASES
 from adaptive_qa.api_catalog import API_CASES
 from adaptive_qa.database_catalog import DATABASE_CASES
 assert (len(TEST_CASES), len(API_CASES), len(DATABASE_CASES)) == (51, 34, 15)
+stage('schema-start')
 from adaptive_qa.schema_migrations import SCHEMA_REVISION
 import json, sqlite3
 assert json.loads(sys.argv[2]) == [0, SCHEMA_REVISION]
@@ -73,6 +79,7 @@ for factory, name in ((AuthStore, 'future-auth.sqlite'), (ProjectStore, 'future-
     else:
         raise AssertionError('Installed release did not reject a future schema')
 # Exercise the installed wheel away from checkout, with ephemeral signing keys only.
+stage('licensing-start')
 import base64, time
 from dataclasses import asdict
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
@@ -103,6 +110,7 @@ except LicenseError:
 else:
     raise AssertionError('Installed release granted expired license access')
 assert len(paid.list(LOCAL_ACTOR)) == 2
+stage('recovery-start')
 from adaptive_qa.local_free import create_free_app
 from adaptive_qa.local_backup import create_local_backup, restore_local_backup
 workspace = Path('edition-workspace').resolve()
@@ -112,13 +120,18 @@ create_local_backup(workspace,Path('edition-backup').resolve(),maintenance_confi
 restore_local_backup(Path('edition-backup').resolve(),Path('edition-recovered').resolve(),maintenance_confirmed=True)
 assert len(LocalFreeProjects(Path('edition-recovered/projects.sqlite')).list(LOCAL_ACTOR)) == 1
 assert not Path('edition-recovered/auth.sqlite').exists()
+stage('status-start')
 from adaptive_qa.__main__ import main
 sys.argv = ['adaptive-qa', '--status']
 main()
+stage('complete')
 """
-        subprocess.run([sys.executable, '-I', '-c', code, str(site),
+        # This is an installation/migration/recovery verification budget, not
+        # a target-test deadline. The combined check exceeded the old 30-second
+        # cap on Windows CI; stage logs now locate any future stalls.
+        subprocess.run([sys.executable, '-I', '-u', '-c', code, str(site),
                         json.dumps(manifest.get('database_schema_revisions'))], cwd=temporary,
-                       env=environment, check=True, timeout=30)
+                       env=environment, check=True, timeout=120)
         if os.environ.get('ADAPTIVE_QA_VERIFY_LICENSED_UI') == '1':
             ui = Path(temporary)/'dashboard'
             with zipfile.ZipFile(directory/'dashboard.zip') as assets:

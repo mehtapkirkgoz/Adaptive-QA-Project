@@ -1,7 +1,7 @@
 {
   "implementation_commit": "3091a813d35b3239d4a93e274d50bcb5af20b445",
   "run_id": 40105056865,
-  "acceptance": "partial_pending_windows_runtime_and_ui_catalog",
+  "acceptance": "not_accepted_windows_installed_verification_timeout",
   "artifacts": [
     {
       "id": 12564725725,
@@ -124,6 +124,79 @@
       "pngs": 10,
       "inner_release_digests": 0,
       "reports": {}
+    },
+    {
+      "id": 12564805999,
+      "name": "local-runtime-windows-2025",
+      "sha256": "deba5636877eb200f3064ff055dcc6ce896dab97dc67351dd874c21bd47fd62c",
+      "bytes": 2943,
+      "entries": 6,
+      "pngs": 0,
+      "inner_release_digests": 0,
+      "reports": {}
+    },
+    {
+      "id": 12564158719,
+      "name": "ui-catalog-evidence",
+      "sha256": "2cd1525551153c99500681d7dc75a08b07566fff37a456d66a2dcbbfeb0fcf30",
+      "bytes": 5480295,
+      "entries": 160,
+      "pngs": 147,
+      "inner_release_digests": 0,
+      "reports": {
+        "local-free/ui.json": {
+          "account_required": false,
+          "worker_entrypoint": "dashboard free-worker-cycle",
+          "one_project_cap": true,
+          "real_local_login_check_passed": true,
+          "ui_preserved_saved_api_binding": true,
+          "api_editor_save_reload_remove": true,
+          "api_jobs_explicitly_confirmed": 2,
+          "api_job_cancelled_before_execution": true,
+          "api_ui_cli_result": "passed",
+          "api_requests": 1,
+          "api_unsaved_confirmation_cleared": true,
+          "auth_database_created": false,
+          "central_requests": 0,
+          "page_errors": []
+        },
+        "local-license/installed-ui.json": {
+          "local_only": true,
+          "worker_entrypoint": "local worker-cycle",
+          "api_worker_entrypoint": "local api-once",
+          "api_ui_confirmed_result": "passed",
+          "api_requests": 1,
+          "api_result_preserved_after_recovery": true,
+          "upgrade_preserved": true,
+          "valid_import": true,
+          "invalid_import_preserved": true,
+          "authenticated_reload": true,
+          "recovery_requires_fresh_login": true,
+          "recovered_results_and_license": true,
+          "installed_wheel": true,
+          "licensed_cli_discovery_and_login_passed": true,
+          "page_errors": [],
+          "external_requests": 0
+        },
+        "local-license/ui.json": {
+          "local_only": true,
+          "worker_entrypoint": "local worker-cycle",
+          "api_worker_entrypoint": "local api-once",
+          "api_ui_confirmed_result": "passed",
+          "api_requests": 1,
+          "api_result_preserved_after_recovery": true,
+          "upgrade_preserved": true,
+          "valid_import": true,
+          "invalid_import_preserved": true,
+          "authenticated_reload": true,
+          "recovery_requires_fresh_login": true,
+          "recovered_results_and_license": true,
+          "installed_wheel": false,
+          "licensed_cli_discovery_and_login_passed": true,
+          "page_errors": [],
+          "external_requests": 0
+        }
+      }
     }
   ],
   "jobs": [
@@ -139,8 +212,8 @@
     },
     {
       "name": "Packaged local runtime (windows-2025)",
-      "status": "in_progress",
-      "conclusion": null
+      "status": "completed",
+      "conclusion": "failure"
     },
     {
       "name": "Browser integration checks",
@@ -164,8 +237,8 @@
     },
     {
       "name": "UI catalog and isolation",
-      "status": "in_progress",
-      "conclusion": null
+      "status": "completed",
+      "conclusion": "success"
     },
     {
       "name": "Process lifecycle (windows-2025)",
@@ -188,5 +261,11 @@
       "conclusion": "success"
     }
   ],
-  "pngs_validated": 63
+  "pngs_validated": 210,
+  "failure": {
+    "job": "Packaged local runtime (windows-2025)",
+    "step": "Verify installed current package",
+    "kind": "verification_subprocess_timeout",
+    "timeout_seconds": 30
+  }
 }
