@@ -492,3 +492,14 @@ root denial; another job was cancelled before execution. Fixture bytes stayed
 unchanged and resolved target paths were absent from application storage. All 49
 DB-focused tests passed. Continue the operator editor/confirmation/history UI on
 controlled fixtures; do not enable customer file selection or arbitrary roots.
+
+
+The database editor and explicit confirmation/history/cancellation panel now
+connect the saved binding to the bounded worker. Free UI -> separate CLI ->
+persisted passed result, pre-execution cancellation, unsaved confirmation reset,
+reload/save/removal and mobile layout passed on an unchanged owned fixture.
+Production/demo builds passed; public demo behavior is unchanged. Continue
+licensed and installed DB operator/recovery proof and exact-commit CI evidence.
+Core checks succeeded for 677f5c2 (40128092521), b62e244 (40128003145),
+70c9790 (40106964643) and packaging diagnostics f62882c (40105680369).
+These job conclusions do not claim new archive verification.

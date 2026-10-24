@@ -147,3 +147,20 @@ is cancelled before execution, fixture hashes stay unchanged and resolved databa
 paths are absent from application storage. All 49 database-focused tests passed.
 The operator DB editor and explicit confirmation/history panel remain next; no
 customer file picker or general database connector is enabled.
+
+
+## Explicit Local Operator Panel
+
+Free and licensed dashboards now edit the typed table/count binding without SQL
+or file-path inputs. The operator selects the scoped database-path reference,
+saves, reviews the current snapshot and explicitly confirms one count. Unsaved
+edits clear confirmation and block admission. History exposes status-only results
+and guarded cancellation; uncertain admission is never retried automatically.
+Worker instructions use the fixed project fixture directory and a separate
+one-shot command. The three-queue worker cycle stays unchanged.
+
+The free browser proof configured a three-record owned fixture through the UI,
+ran the real separate CLI, observed a passed result, cancelled a second job,
+verified reload/save/removal and unchanged fixture bytes, and checked a 390px
+panel without horizontal overflow. It recorded no external browser requests or
+page errors. Licensed/installed DB operator acceptance remains pending.

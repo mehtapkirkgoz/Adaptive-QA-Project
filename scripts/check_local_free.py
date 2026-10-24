@@ -1,5 +1,9 @@
 """Account-free UI and real local execution without central data or account storage."""
 from functools import partial
+from contextlib import closing
+import hashlib
+import os
+import sqlite3
 from http.server import ThreadingHTTPServer
 import json
 import subprocess
@@ -7,6 +11,7 @@ import sys
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from threading import Thread
+from unittest.mock import patch
 import time
 
 import uvicorn
@@ -131,15 +136,58 @@ def main():
                     with projects._connection() as c:
                         assert c.execute('SELECT count(*) FROM dashboard_api_jobs').fetchone()[0]==2
                     database_binding=dict(table='inventory',expected_count=3)
-                    projects.save_configuration(LOCAL_ACTOR,saved_project.project_id,dict(
-                        base_url='http://127.0.0.1:8000/',allowed_hosts=['127.0.0.1'],allow_data_changes=False,
-                        secret_references={'database_path':reference_name(LOCAL_ACTOR.user_id,saved_project.project_id,'database_path')},
-                        local_database_binding=database_binding))
+                    fixture_root=root/'database-fixtures'/saved_project.project_id
+                    fixture_root.mkdir(parents=True)
+                    fixture_path=fixture_root/'owned.sqlite'
+                    with closing(sqlite3.connect(fixture_path)) as connection:
+                        with connection:
+                            connection.execute('CREATE TABLE inventory (id INTEGER)')
+                            connection.executemany('INSERT INTO inventory VALUES (?)',[(1,),(2,),(3,)])
+                    fixture_digest=hashlib.sha256(fixture_path.read_bytes()).hexdigest()
+                    db_editor=page.get_by_role('region',name='Explicit local database binding')
+                    db_editor.get_by_role('checkbox',name='Configure explicit database count').check()
+                    db_editor.get_by_label('Expected database record count',exact=True).fill('3')
+                    page.get_by_role('checkbox',name='database path',exact=False).check()
+                    page.get_by_role('button',name='Save configuration',exact=True).click()
+                    expect(page.get_by_text('Configuration saved. No tests were started.',exact=True)).to_be_visible()
+                    db_panel=page.get_by_role('region',name='Explicit database execution')
+                    db_panel.get_by_role('button',name='Review saved database count',exact=True).click()
+                    expect(db_panel.get_by_label('database review confirmation')).to_be_visible()
+                    db_editor.get_by_label('Expected database record count',exact=True).fill('4')
+                    expect(db_panel.get_by_label('database review confirmation')).to_have_count(0)
+                    expect(db_panel.get_by_role('button',name='Review saved database count',exact=True)).to_be_disabled()
+                    db_editor.get_by_label('Expected database record count',exact=True).fill('3')
+                    db_panel.get_by_role('button',name='Review saved database count',exact=True).click()
+                    expect(db_panel.get_by_role('button',name='Queue one database count',exact=True)).to_be_disabled()
+                    db_panel.get_by_role('checkbox',name='I authorize one read-only count on my owned SQLite fixture.').check()
+                    db_panel.get_by_role('button',name='Queue one database count',exact=True).click()
+                    expect(db_panel.get_by_role('button',name='Cancel database job',exact=True)).to_be_visible()
+                    database_reference=reference_name(LOCAL_ACTOR.user_id,saved_project.project_id,'database_path')
+                    with patch.dict(os.environ,{database_reference:str(fixture_path)}):
+                        result=subprocess.run([sys.executable,'-m','adaptive_qa','dashboard','free-database-once',
+                            '--database',str(database)],capture_output=True,check=True,timeout=45)
+                    assert json.loads(result.stdout)['status']=='completed'
+                    expect(db_panel.get_by_text('database result: passed',exact=True)).to_be_visible(timeout=10000)
+                    db_panel.get_by_role('button',name='Review saved database count',exact=True).click()
+                    db_panel.get_by_role('checkbox',name='I authorize one read-only count on my owned SQLite fixture.').check()
+                    db_panel.get_by_role('button',name='Queue one database count',exact=True).click()
+                    db_panel.get_by_role('button',name='Cancel database job',exact=True).click()
+                    expect(db_panel.get_by_text('cancelled',exact=True)).to_be_visible()
+                    page.set_viewport_size(dict(width=390,height=900))
+                    db_panel.get_by_text('Run a database worker locally',exact=True).click()
+                    assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
+                    db_panel.screenshot(path='artifacts/local-free/database-panel-mobile.png')
+                    page.set_viewport_size(dict(width=1440,height=1000))
                     page.reload()
                     page.get_by_role('button',name='Free local target Project configuration').click()
                     page.get_by_role('button',name='Save configuration',exact=True).click()
                     expect(page.get_by_text('Configuration saved. No tests were started.',exact=True)).to_be_visible()
                     assert projects.configuration(LOCAL_ACTOR,saved_project.project_id)['local_database_binding']==database_binding
+                    page.get_by_role('checkbox',name='Configure explicit database count').uncheck()
+                    page.get_by_role('button',name='Save configuration',exact=True).click()
+                    expect(page.get_by_text('Configuration saved. No tests were started.',exact=True)).to_be_visible()
+                    assert 'local_database_binding' not in projects.configuration(LOCAL_ACTOR,saved_project.project_id)
+                    assert hashlib.sha256(fixture_path.read_bytes()).hexdigest()==fixture_digest
                     assert not (root/'auth.sqlite').exists()
                     with projects._connection() as connection:
                         assert not connection.execute("SELECT 1 FROM sqlite_master WHERE name='dashboard_users'").fetchone()
@@ -156,6 +204,9 @@ def main():
               'api_editor_save_reload_remove': True, 'api_jobs_explicitly_confirmed': 2, 'api_job_cancelled_before_execution': True,
               'api_ui_cli_result': 'passed', 'api_requests': len(api_contacts), 'api_unsaved_confirmation_cleared': True,
               'ui_preserved_saved_database_binding': True,
+              'database_editor_save_reload_remove': True, 'database_jobs_explicitly_confirmed': 2,
+              'database_job_cancelled_before_execution': True, 'database_ui_cli_result': 'passed',
+              'database_fixture_unchanged': True, 'database_unsaved_confirmation_cleared': True,
               'auth_database_created': False, 'central_requests': len(external), 'page_errors': errors}
     (output/'ui.json').write_text(json.dumps(report, indent=2)+'\n', encoding='utf-8')
     print(json.dumps(report))
