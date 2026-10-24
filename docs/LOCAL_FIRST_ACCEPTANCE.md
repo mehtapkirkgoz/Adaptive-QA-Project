@@ -89,3 +89,16 @@ no owner acceptance, new sprint closure, live customer deployment or external fo
 submission is implied. Remaining product work continues with controlled interactive
 form execution under INTERACTIVE_FORMS.md. Historical pending notes above describe
 their earlier checkpoint and are superseded by this exact-commit record.
+
+## Installed Bounded Worker Cycle Follow-Up
+
+Release 55fdae9 was built from its committed tree, installed outside the checkout
+and checked against all four release file sizes/digests. Its installed catalog
+remains 51 UI + 34 API + 15 database definitions. The licensed browser drill used
+the installed `local worker-cycle` command for actual controlled discovery and
+LOGIN-001 execution, then verified offline backup/recovery, invalidated sessions,
+fresh password login and preserved signed license/results. No external browser
+requests or page errors occurred. The release stayed inactive; the existing owner
+server was not restarted. Machine-readable local evidence is in
+evidence/installed-worker-cycle-55fdae9.json. This supplements the frozen conversion
+acceptance; exact-commit remote CI/artifact acceptance for this follow-up is pending.
