@@ -231,6 +231,17 @@ def create_app(store: AuthStore, *, port=8765, projects=None, ui_directory=None)
     def review_plan(project_id: str, request: Request):
         return review_project_plan(projects, actor(request), project_id)
 
+    @app.post('/api/projects/{project_id}/interactive/review')
+    async def review_interactive_fixture(project_id: str, request: Request):
+        from adaptive_qa.form_configuration import decode_form_mappings
+        from adaptive_qa.interactive_review import review_saved_interactive
+        owner = await run_in_threadpool(actor, request, mutation=True)
+        data = _object(await request.body(), ('fixture_id', 'completion'), optional=('timeout_seconds',))
+        completion = decode_form_mappings({'project_id': project_id, 'mappings': [data['completion']]}).mappings[0]
+        review = await run_in_threadpool(review_saved_interactive, projects, owner, project_id,
+            fixture_id=data['fixture_id'], completion=completion, timeout_seconds=data.get('timeout_seconds', 15))
+        return review.public()
+
     @app.put('/api/projects/{project_id}/configuration')
     async def put_configuration(project_id: str, request: Request):
         owner = await run_in_threadpool(actor, request, mutation=True)

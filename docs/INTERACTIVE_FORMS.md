@@ -224,3 +224,33 @@ arbitrary/customer endpoint or public-site credential submission is enabled.
 Regression checkpoint: 757 tests completed (756 passed, one Windows permission
 skip). The final browser proof also passed all fourteen scenarios after exact-body
 arming and cancellation-after-POST coverage were added.
+
+## Saved Owner-Scoped Interactive Review
+
+Browser implementation d0860a6 passed all twelve CI jobs in run 40060073175,
+including the new owned submission proof on Windows/Linux. Saved interactive
+review now reads one owner-scoped settings snapshot and revalidates all saved
+reference names against the exact owner/project/slot. Login uses the existing
+username/password slots; search has a separate optional search_query slot.
+References remain names only and are not resolved by review or HTTP.
+
+The review binds the entire validated saved configuration, including scoped input
+references and form mappings, to the fixed owned endpoint and operator-supplied
+explicit completion mapping. Revalidation rejects changed settings, removed
+references, altered target/policy/mappings and cross-owner access without silently
+refreshing the reviewed configuration. Free local identity/project limits remain
+unchanged. The expected positive/negative logical postcondition must match the
+chosen fixture; reviewers cannot substitute the opposite outcome.
+
+POST /api/projects/{project_id}/interactive/review accepts only fixture_id,
+completion (the existing typed mapping structure), and optional timeout_seconds.
+It requires an authenticated local session, trusted origin and CSRF token, and
+returns an explicitly non-executing summary/digest with no input references or
+values. It cannot create a job, launch a process, reserve paid capacity or grant
+execution authority; existing discovery/test plans remain non-executing.
+
+Eighteen focused persistence/settings/HTTP tests passed. Next: transactional queue
+admission and claim-time revalidation, current license/shared capacity checks,
+reference-only worker IPC and cancellation/results without screenshots. Until
+those are connected, no interactive run is exposed through the product. Real
+customer/public credential submission remains outside this fixed-fixture scope.

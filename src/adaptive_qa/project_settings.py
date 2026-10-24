@@ -10,7 +10,7 @@ from adaptive_qa.secrets import SecretReference
 from adaptive_qa.discovery_target import discovery_support
 
 
-SECRET_SLOTS = ('login_username', 'login_password', 'api_token', 'database_path')
+SECRET_SLOTS = ('login_username', 'login_password', 'api_token', 'database_path', 'search_query')
 
 
 def reference_name(owner_id, project_id, slot):
