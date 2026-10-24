@@ -11,7 +11,7 @@ import time
 
 import uvicorn
 from playwright.sync_api import sync_playwright, expect
-from adaptive_qa.local_free import create_free_app, LocalFreeProjects
+from adaptive_qa.local_free import create_free_app, LocalFreeProjects, LOCAL_ACTOR
 from check_dashboard_runs import QuietHandler
 
 
@@ -69,9 +69,18 @@ def main():
                     assert outcome['run']['status'] == 'completed'
                     assert outcome['discovery'] is None and outcome['interactive'] is None
                     expect(runs.locator('.run-outcome').filter(has_text='LOGIN-001')).to_contain_text('passed', timeout=10000)
+                    saved_project = projects.list(LOCAL_ACTOR)[0]
+                    binding = dict(path='/service/available', expected_status=200, json_field='available', expected_boolean=True)
+                    projects.save_configuration(LOCAL_ACTOR, saved_project.project_id,
+                        dict(base_url='http://127.0.0.1:8000/',allowed_hosts=['127.0.0.1'],
+                             allow_data_changes=False,secret_references={},local_api_binding=binding))
                     page.reload()
                     expect(page.get_by_role('button', name='+ Create project', exact=True)).to_be_disabled()
                     expect(page.get_by_role('button', name='Free local target Project configuration')).to_be_visible()
+                    page.get_by_role('button', name='Free local target Project configuration').click()
+                    page.get_by_role('button', name='Save configuration', exact=True).click()
+                    expect(page.get_by_text('Configuration saved. No tests were started.', exact=True)).to_be_visible()
+                    assert projects.configuration(LOCAL_ACTOR, saved_project.project_id)['local_api_binding'] == binding
                     assert not (root/'auth.sqlite').exists()
                     with projects._connection() as connection:
                         assert not connection.execute("SELECT 1 FROM sqlite_master WHERE name='dashboard_users'").fetchone()
@@ -84,7 +93,7 @@ def main():
             assert not thread.is_alive()
     output = Path('artifacts/local-free'); output.mkdir(parents=True, exist_ok=True)
     report = {'account_required': False, 'worker_entrypoint': 'dashboard free-worker-cycle',
-              'one_project_cap': True, 'real_local_login_check_passed': True,
+              'one_project_cap': True, 'real_local_login_check_passed': True, 'ui_preserved_saved_api_binding': True,
               'auth_database_created': False, 'central_requests': len(external), 'page_errors': errors}
     (output/'ui.json').write_text(json.dumps(report, indent=2)+'\n', encoding='utf-8')
     print(json.dumps(report))

@@ -318,7 +318,7 @@ def create_app(store: AuthStore, *, port=8765, projects=None, ui_directory=None)
     async def put_configuration(project_id: str, request: Request):
         owner = await run_in_threadpool(actor, request, mutation=True)
         data = _object(await request.body(), ('base_url', 'allowed_hosts',
-                                            'allow_data_changes', 'secret_references'), optional=('form_mappings','local_form_binding'))
+                                            'allow_data_changes', 'secret_references'), optional=('form_mappings','local_form_binding','local_api_binding'))
         return await run_in_threadpool(projects.save_configuration, owner, project_id, data)
 
     @app.patch('/api/projects/{project_id}')

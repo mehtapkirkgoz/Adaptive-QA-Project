@@ -48,6 +48,13 @@ class SavedApiReviewTests(unittest.TestCase):
             client.get('/api/auth/me')
             headers={'origin':'http://127.0.0.1:8765','x-csrf-token':client.cookies[CSRF_COOKIE]}
             url=f'/api/projects/{self.pid}/local-api/review'
+            configuration=f'/api/projects/{self.pid}/configuration'
+            saved=client.put(configuration,headers=headers,json=self.settings)
+            self.assertEqual(saved.status_code,200,saved.text)
+            self.assertEqual(saved.json()['local_api_binding'],self.binding)
+            invalid=client.put(configuration,headers=headers,json=dict(self.settings,local_api_binding=dict(self.binding,expected_boolean=1)))
+            self.assertEqual(invalid.status_code,400,invalid.text)
+            self.assertEqual(client.get(configuration).json()['local_api_binding'],self.binding)
             with patch('adaptive_qa.api_process.run_isolated_api_case') as child:
                 response=client.post(url,headers=headers,json={})
             self.assertEqual(response.status_code,200,response.text);child.assert_not_called()

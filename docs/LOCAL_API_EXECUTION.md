@@ -54,3 +54,12 @@ The current dashboard preserves this metadata on unrelated saves; an API editor
 and queue admission are not implemented yet. This endpoint therefore provides
 review only. Three persistence/HTTP checks verify restart, foreign ownership,
 configuration drift, invalid replacement/removal and session/Origin/CSRF guards.
+
+The HTTP configuration endpoint explicitly accepts the optional binding as well
+as the persistence layer. A browser regression caught a missing field in that HTTP
+allowlist; it was corrected and the HTTP tests now save valid/invalid replacements
+through the real PUT endpoint. The free browser drill also verifies that reloading
+and saving unrelated dashboard settings preserves a previously saved API binding,
+alongside real discovery/LOGIN-001 execution and zero external browser requests.
+The shared-settings regression completed 805 tests (804 passed, one Windows
+permission skip); focused HTTP and browser checks passed after the allowlist fix.
