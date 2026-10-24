@@ -8,7 +8,7 @@ from urllib.parse import urlencode
 from adaptive_qa.config import ProjectConfig
 from adaptive_qa.element_models import ElementMapping, LocatorSpec, LocatorStrategy
 from adaptive_qa.interactive_contracts import FormOperation, InteractiveFormContract
-from adaptive_qa.owned_submission import OwnedSubmissionContract, OwnedSubmissionGate, CONTENT_TYPE, ORIGIN
+from adaptive_qa.owned_submission import OwnedSubmissionContract, OwnedSubmissionGate, OwnedSubmissionTransport, CONTENT_TYPE, ORIGIN
 from adaptive_qa.secrets import SecretReference
 
 
@@ -87,3 +87,21 @@ class OwnedSubmissionTests(unittest.TestCase):
         gate=OwnedSubmissionGate(contract,project,current_fingerprint="b"*64)
         self.assertTrue(gate.admit(url=contract.endpoint_url,method="POST",content_type=CONTENT_TYPE,body=b"query=not-found"))
         self.assertNotEqual(contract.fingerprint(),self.contract.fingerprint())
+
+    def test_invalid_submission_never_connects_and_cannot_retry(self):
+        transport=OwnedSubmissionTransport(self.contract,self.project,current_fingerprint="b"*64)
+        with patch.object(transport._guard,"connect",side_effect=AssertionError("No socket")) as connect:
+            request=self.request();request["method"]="GET"
+            self.assertEqual(transport.submit(**request).outcome,"blocked")
+            self.assertEqual(transport.submit(**self.request()).outcome,"blocked")
+            connect.assert_not_called()
+
+    def test_connection_failure_is_sanitized_unknown_and_never_retried(self):
+        transport=OwnedSubmissionTransport(self.contract,self.project,current_fingerprint="b"*64)
+        with patch.object(transport._guard,"connect",side_effect=OSError("private-canary")) as connect:
+            result=transport.submit(**self.request())
+            self.assertEqual(result.outcome,"error")
+            self.assertIsNone(result.attempted_submissions)
+            self.assertNotIn("private-canary",repr(result))
+            self.assertEqual(transport.submit(**self.request()).outcome,"blocked")
+            connect.assert_called_once()

@@ -167,3 +167,23 @@ expansion, policy drift, secret/network inactivity, malformed requests and disti
 search/Unicode bindings. No transport is connected yet: the next step is pinned
 one-shot owned HTTP transport plus browser integration/redirect/canary checks.
 Existing read-only proxy policy, catalog, queues and external execution are unchanged.
+
+## Pinned One-Shot Owned Endpoint Transport
+
+The separate OwnedSubmissionTransport now sends only the admitted POST through
+DestinationGuard's exact numeric loopback peer validation. It forwards no browser
+cookies, Authorization headers or arbitrary request headers. Two-second socket I/O
+limits supplement (and do not replace) required future child process supervision.
+Redirects, encoded/chunked responses and non-fixed JSON outcomes are rejected;
+response bodies/headers and request values are never returned as result evidence.
+Connection/response uncertainty reports an unknown attempt count and consumes the
+gate; there is no automatic retry. The existing browser/read-only proxy is untouched.
+
+Eight unit tests passed. Five actual local endpoint scenarios passed: accepted,
+rejected, redirect, unexpected echoed response and dropped response. Exactly five
+POSTs reached the owned endpoint; zero canary/other requests or retries occurred.
+CI repeats this script on Windows/Linux and uploads its value-free report.
+This transport is not yet connected to Chromium, child IPC, catalog or product
+admission. Next: supervised browser submission using this exact gate, retaining
+pre-fill action/field checks, absent-before/present-after postconditions and the
+same cancellation/deadline controls. No public/customer POST is enabled.

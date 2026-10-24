@@ -90,3 +90,62 @@ class OwnedSubmissionGate:
                        for _, value in pairs)
         except (ValueError, UnicodeError):
             return False
+
+
+@dataclass(frozen=True)
+class OwnedSubmissionResult:
+    outcome: str
+    attempted_submissions: int | None
+
+    def __post_init__(self):
+        if (self.outcome not in ("accepted", "rejected", "blocked", "error")
+                or (self.attempted_submissions is not None
+                    and (type(self.attempted_submissions) is not int or self.attempted_submissions not in (0, 1)))
+                or (self.outcome in ("accepted", "rejected") and self.attempted_submissions != 1)):
+            raise ValueError("Invalid owned submission outcome.")
+
+
+class OwnedSubmissionTransport:
+    """One fixed local POST through a pinned peer; no cookies, redirects or retries.
+
+    Instantiate only inside an owned supervised child. Socket timeouts bound I/O;
+    the caller must still enforce the existing hard process deadline/cancellation.
+    """
+    def __init__(self, contract, project, *, current_fingerprint):
+        from adaptive_qa.egress import DestinationGuard
+        self._gate = OwnedSubmissionGate(contract, project, current_fingerprint=current_fingerprint)
+        self._guard = DestinationGuard(project, local_sample=True, max_requests=1)
+
+    def submit(self, *, url, method, content_type, body):
+        import http.client
+        from urllib.parse import urlsplit
+        if not self._gate.admit(url=url, method=method, content_type=content_type, body=body):
+            return OwnedSubmissionResult("blocked", 0)
+        connection = None
+        try:
+            target = self._guard.authorize(url)
+            parsed = urlsplit(url)
+            connection = http.client.HTTPConnection(target.hostname, target.port, timeout=2)
+            connection.sock = self._guard.connect(target, timeout_seconds=2)
+            connection.request("POST", parsed.path, body=body, headers={
+                "Host": "127.0.0.1:8000", "Content-Type": CONTENT_TYPE,
+                "Content-Length": str(len(body)), "Connection": "close"})
+            response = connection.getresponse()
+            if (response.status not in (200, 401)
+                    or response.getheader("Content-Type") != "application/json"
+                    or response.getheader("Location") is not None
+                    or response.getheader("Content-Encoding") is not None
+                    or response.getheader("Transfer-Encoding") is not None):
+                return OwnedSubmissionResult("error", 1)
+            raw = response.read(1025)
+            # Only fixed bytes are admitted; parsing arbitrary echoed JSON is unnecessary.
+            expected = b'{"outcome":"accepted"}' if response.status == 200 else b'{"outcome":"rejected"}'
+            if raw != expected:
+                return OwnedSubmissionResult("error", 1)
+            return OwnedSubmissionResult("accepted" if response.status == 200 else "rejected", 1)
+        except Exception:
+            # The peer may have processed the POST even if its response was lost.
+            return OwnedSubmissionResult("error", None)
+        finally:
+            if connection is not None:
+                connection.close()
