@@ -178,3 +178,15 @@ rename error prevented publishing the first inactive bundle; the destination was
 absent and a fresh bounded rebuild succeeded without replacing an existing bundle.
 Exact-commit remote CI/artifact acceptance remains pending; installed local proof
 does not authorize customer APIs or public backend deployment.
+
+## Remote Artifact Verification in Progress
+
+Core run 40105056865 for 3091a81 has ten successful completed jobs. At inspection,
+Windows packaged runtime and UI catalog/isolation were still running. All ten
+available artifact archives match the exact head SHA and GitHub size/SHA-256
+digest, pass ZIP integrity and contain 63 valid PNGs. Four inner inactive-release
+file digests were also verified. The remote reusable API report confirms five
+controlled GETs, two passing saved/confirmed HTTP-to-CLI jobs, no target requests
+at review/admission and no raw response persistence. Evidence is in
+evidence/api-ci-3091a81.json. This is a partial checkpoint: inspect both remaining
+jobs and artifacts before accepting the combined API operator implementation.

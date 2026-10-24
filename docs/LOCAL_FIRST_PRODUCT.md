@@ -419,3 +419,10 @@ fresh login to recovered storage. The full 814-test local regression passed with
 one Windows permission skip. See evidence/installed-api-3091a81.json. Continue
 exact-commit remote acceptance before declaring this API checkpoint accepted;
 general public/customer API authentication remains unimplemented.
+
+Remote API checkpoint 3091a81 now has ten successful completed jobs and ten
+downloaded/verified exact-head artifact archives, 63 validated PNGs and four inner
+release digests. Its saved API HTTP-to-CLI proof passed remotely. Windows packaged
+runtime and UI catalog/isolation were still running; do not mark remote acceptance
+complete until those jobs and their artifacts are verified. See
+evidence/api-ci-3091a81.json for this partial checkpoint.
