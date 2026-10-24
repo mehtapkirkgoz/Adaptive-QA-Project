@@ -560,3 +560,21 @@ runs/uploads the new UI-to-worker proof and screenshots. Exact-commit CI remains
 pending after push. Next verify/download the combined exact-commit artifacts and
 review remaining product limitations; general HTTPS still permits read-only
 checks, and no public/customer credential submission or hosting activation is enabled.
+
+## Combined Remote Evidence Checkpoint
+
+Core run 40083889591 for ae36b32 has eleven completed successful jobs; the UI
+catalog/isolation job was still running at inspection. All eleven available
+artifact ZIPs match the implementation SHA and GitHub size/digest, pass ZIP CRC,
+and contain 63 validated PNGs. All four inner inactive release digests match.
+The reusable editor report verifies actual saved/reviewed/confirmed login and
+search execution: two documents, two submissions, no malformed/external requests
+or page errors, unsaved-edit blocking and confirmation invalidation. Reusable
+browser reports passed on Windows and Linux. Metadata is recorded in
+evidence/reusable-ci-ae36b32.json. This is partial evidence, not final CI acceptance;
+the remaining job/artifact and later worker-cycle commits still require inspection.
+
+Local regression for the first bounded licensed worker-cycle increment completed
+798 tests (797 passed, one Windows permission skip). The free-mode follow-up also
+passed its two CLI checks, eight licensed CLI checks and eighteen legacy worker
+checks. Neither mode starts a background service or retries uncertain submissions.

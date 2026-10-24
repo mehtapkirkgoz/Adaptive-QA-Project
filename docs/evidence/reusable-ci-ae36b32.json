@@ -1,0 +1,186 @@
+{
+  "implementation_commit": "ae36b32af184463a565bc847edd50d78b1ea12f4",
+  "run_id": 40083889591,
+  "acceptance": "partial_pending_final_ci_job",
+  "jobs": [
+    {
+      "name": "Process lifecycle (ubuntu-24.04)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Process lifecycle (windows-2025)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Local browser check",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Controlled database checks (ubuntu-24.04)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Controlled API checks",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Packaged local runtime (ubuntu-24.04)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Controlled database checks (windows-2025)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Inactive release packaging",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "scaffold",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Browser integration checks",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Packaged local runtime (windows-2025)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "UI catalog and isolation",
+      "status": "in_progress",
+      "conclusion": null
+    }
+  ],
+  "artifacts": [
+    {
+      "id": 12556780864,
+      "name": "local-runtime-windows-2025",
+      "sha256": "9a46e7dd9709967ce81c0bc42a315237824247368cbc2904916bdb311d02f6bf",
+      "bytes": 3469,
+      "entries": 7,
+      "pngs": 0
+    },
+    {
+      "id": 12556750441,
+      "name": "inactive-release-ae36b32af184463a565bc847edd50d78b1ea12f4",
+      "sha256": "5f4e5e88543bfb67e1259072ca43b7857c519400b1fb42b62af06cef2d3b9667",
+      "bytes": 307076,
+      "entries": 5,
+      "pngs": 0
+    },
+    {
+      "id": 12556178172,
+      "name": "browser-integration-evidence",
+      "sha256": "8f20b25e5f77de0a6d7949b211e8a3848dbe99a3f3c1e4a1b00d71db2600345c",
+      "bytes": 2019458,
+      "entries": 110,
+      "pngs": 53
+    },
+    {
+      "id": 12556178015,
+      "name": "process-lifecycle-ubuntu-24.04",
+      "sha256": "4c4fc9a91935a7a563b48d1142f56d210ef0c182eb4cfd536703cfb038e77740",
+      "bytes": 210,
+      "entries": 1,
+      "pngs": 0
+    },
+    {
+      "id": 12556123397,
+      "name": "local-browser-evidence",
+      "sha256": "c2238da4bca141dfdd5374c0795a1daeba0ed12c998722269e1b6551a913fc1b",
+      "bytes": 1661784,
+      "entries": 21,
+      "pngs": 10
+    },
+    {
+      "id": 12556083546,
+      "name": "local-database-evidence-windows-2025",
+      "sha256": "7baa5f3410ccd22015dea3273762773052a1ced46075fde194ff538dc61d35e1",
+      "bytes": 1695,
+      "entries": 2,
+      "pngs": 0
+    },
+    {
+      "id": 12556083488,
+      "name": "inactive-rollback-plan-ae36b32af184463a565bc847edd50d78b1ea12f4",
+      "sha256": "6d6b629c45d9f2508ec4109c7f2a28564343603d04e2b5c087a31e63190bd327",
+      "bytes": 368,
+      "entries": 1,
+      "pngs": 0
+    },
+    {
+      "id": 12556048909,
+      "name": "process-lifecycle-windows-2025",
+      "sha256": "e155a1fbf3911cd83bdf1b574701a3ce97de35713dc7fd11f94476e19c611195",
+      "bytes": 213,
+      "entries": 1,
+      "pngs": 0
+    },
+    {
+      "id": 12556038786,
+      "name": "local-api-evidence",
+      "sha256": "9e761c39e2cbcae479eacf2d6589155556d68e9ae2757b2f359920f12b64e8ed",
+      "bytes": 16668,
+      "entries": 36,
+      "pngs": 0
+    },
+    {
+      "id": 12555953062,
+      "name": "local-runtime-ubuntu-24.04",
+      "sha256": "bdc0da7ef9127c6ae4a75f1dcabe6ca0d92fab24f2be27233c44327e4f821de3",
+      "bytes": 3444,
+      "entries": 7,
+      "pngs": 0
+    },
+    {
+      "id": 12555754969,
+      "name": "local-database-evidence-ubuntu-24.04",
+      "sha256": "5e5df529cf00754868d9532b0856fb62e0bb019e06735146902579a425c4e58c",
+      "bytes": 1684,
+      "entries": 2,
+      "pngs": 0
+    }
+  ],
+  "pngs_validated": 63,
+  "release_inner_digests_verified": 4,
+  "reusable_editor": {
+    "owned_local_only": true,
+    "ui_saved_reviewed_confirmed_executed": [
+      {
+        "operation": "login",
+        "expected": "positive",
+        "result": "passed"
+      },
+      {
+        "operation": "search",
+        "expected": "negative",
+        "result": "passed"
+      }
+    ],
+    "contacts": {
+      "documents": 2,
+      "posts": 2,
+      "bad": 0
+    },
+    "edit_clears_confirmation": true,
+    "unsaved_review_blocked": true,
+    "removal_verified": true,
+    "ui_external_requests": 0,
+    "page_errors": 0,
+    "mobile_overflow": false,
+    "credential_values_entered_in_ui": false
+  }
+}
