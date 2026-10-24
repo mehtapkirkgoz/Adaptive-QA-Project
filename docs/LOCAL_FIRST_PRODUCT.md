@@ -592,3 +592,11 @@ CLI/result/cancellation flows. Licensed login/execution/recovery and production/
 demo builds passed with no external requests or page errors. Mobile API layout
 was visually inspected. Unknown mutations are never retried; no queue or target
 execution policy changed. Exact-commit CI follows this increment.
+
+
+The 0f02b8e local package build hit a Windows staging-directory publication denial
+(WinError 5); no package activation or owner session change occurred. Added a
+bounded same-bundle publication window for Windows codes 5/32, preserving root
+and no-overwrite checks on every attempt. Nine release checks passed. The cause
+of the original OS denial is unknown; real rebuild/installed proof and remote CI
+remain pending. No test execution or target-operation retry was added.

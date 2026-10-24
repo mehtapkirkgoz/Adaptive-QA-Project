@@ -9,6 +9,7 @@ from pathlib import Path
 import shutil
 import subprocess
 import sys
+import time
 from tempfile import TemporaryDirectory
 import zipfile
 
@@ -18,6 +19,29 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def run(command, cwd, *, timeout=300):
     subprocess.run(command, cwd=cwd, check=True, timeout=timeout)
+
+
+def publish_bundle(bundle, destination, base):
+    """Publish once, allowing a short Windows file-handle release window."""
+    for attempt in range(5):
+        if (base.resolve() != base or bundle.resolve() != bundle
+                or not bundle.is_relative_to(base) or not bundle.is_dir()
+                or destination.parent != base or destination.resolve() != destination):
+            raise ValueError('Release publication path is unsafe.')
+        if destination.exists() or destination.is_symlink():
+            raise ValueError('Never overwrite a published release.')
+        try:
+            bundle.rename(destination)
+            return
+        except PermissionError as error:
+            if (sys.platform != 'win32' or getattr(error, 'winerror', None) not in (5, 32)
+                    or attempt == 4):
+                raise
+            # Only retry publication of the same inactive bytes to an unused
+            # destination. Recheck containment and nonexistence before each try.
+            print(json.dumps({'release_publication': 'retrying_windows_publication',
+                              'attempt': attempt + 1}), flush=True)
+            time.sleep(.1 * 2**attempt)
 
 
 def build_release(commit=None):
@@ -31,7 +55,7 @@ def build_release(commit=None):
         raise ValueError('Release storage must not redirect outside the repository.')
     base.mkdir(parents=True, exist_ok=True)
     destination = base / revision
-    if destination.exists():
+    if destination.exists() or destination.is_symlink():
         raise ValueError('This committed release already exists; never overwrite a published bundle.')
     with TemporaryDirectory(prefix='.build-', dir=base) as temporary:
         workspace = Path(temporary).resolve()
@@ -87,10 +111,7 @@ def build_release(commit=None):
                     'limitations': ['No runtime, fixtures, Chromium, credentials or databases are bundled.',
                                     'No service activation or byte-for-byte reproducibility is claimed.']}
         (bundle / 'release.json').write_text(json.dumps(manifest, indent=2) + '\n', encoding='utf-8')
-        # Both paths are confined to the checked absolute release root before publication.
-        if not bundle.is_relative_to(base) or destination.resolve() != destination:
-            raise ValueError('Release publication path is unsafe.')
-        bundle.rename(destination)
+        publish_bundle(bundle, destination, base)
     print(json.dumps({'source_commit': revision, 'release_directory': str(destination),
                       'activation_enabled': False}, indent=2))
 

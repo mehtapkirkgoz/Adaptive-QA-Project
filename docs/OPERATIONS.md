@@ -209,3 +209,18 @@ demo assets are uploaded to Pages. Backend/docs-only pushes do not republish it.
 CI separates dashboard/security, UI catalog/isolation and browser integrations
 into bounded jobs. Review every job and exact source commit/artifact evidence;
 a partial, cancelled or timed-out run is not sprint acceptance.
+
+
+## Inactive Release Publication on Windows
+
+A local inactive build encountered WinError 5 while renaming its completed
+staging directory. The underlying cause was not established; the runtime was
+not activated or modified. Publication now allows at most five rename attempts
+only for Windows access/sharing denials (codes 5/32), with 1.5 seconds total
+backoff. Every attempt rechecks canonical root containment and an unused final
+destination. Existing bundles, redirected paths and other errors are not retried
+or overwritten. This retries only an inactive filesystem publication, never a
+test, migration, installation or customer operation. Permanent denial still fails.
+Nine release publication/verification checks passed, including a destination
+appearing during the wait and preserved bytes on permanent failure. A fresh
+real package build/installed verification and exact-commit CI remain required.
