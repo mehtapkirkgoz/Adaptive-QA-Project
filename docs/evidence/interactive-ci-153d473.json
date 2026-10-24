@@ -1,0 +1,430 @@
+{
+  "run_id": 40067846716,
+  "implementation_commit": "153d473f6cae7b9060ab8faba442c36f055e6b3e",
+  "artifacts": [
+    {
+      "id": 12550525560,
+      "name": "inactive-release-153d473f6cae7b9060ab8faba442c36f055e6b3e",
+      "sha256": "d33ef74af92a319cecb26eafcdfa7559bf3adcb8d4dba30119b5788a0e034335",
+      "bytes": 301937,
+      "entries": 5,
+      "pngs": 0
+    },
+    {
+      "id": 12550460776,
+      "name": "local-runtime-windows-2025",
+      "sha256": "79e5d0a7b5497672e733a4fe872ef3d99835693b5891fb7dfe4a632e13a5ca1d",
+      "bytes": 2479,
+      "entries": 5,
+      "pngs": 0
+    },
+    {
+      "id": 12550415965,
+      "name": "process-lifecycle-ubuntu-24.04",
+      "sha256": "f76cf3595a1beade4e025f1f46b5a565ad050475a2b9ba389b8c2c55ab0f6e95",
+      "bytes": 210,
+      "entries": 1,
+      "pngs": 0
+    },
+    {
+      "id": 12550415939,
+      "name": "local-database-evidence-ubuntu-24.04",
+      "sha256": "ccc404b2dff6ce25061e58554e39dc0d312aa123019aebcd838845456aa78085",
+      "bytes": 1719,
+      "entries": 2,
+      "pngs": 0
+    },
+    {
+      "id": 12550401091,
+      "name": "local-database-evidence-windows-2025",
+      "sha256": "9584f2c6e7b3133c4d0f4390231a7004ddda6ec5feb8646f93ec3b1df88bedf4",
+      "bytes": 1696,
+      "entries": 2,
+      "pngs": 0
+    },
+    {
+      "id": 12550226728,
+      "name": "local-runtime-ubuntu-24.04",
+      "sha256": "a4b470d344005ed04eda440225852b4f1e2e547d6fa83ac0bac75d14dfe668e2",
+      "bytes": 2457,
+      "entries": 5,
+      "pngs": 0
+    },
+    {
+      "id": 12550166404,
+      "name": "ui-catalog-evidence",
+      "sha256": "a51332a2ee65c6cf8bf76eb24b296ae4a85b665c9055b0b578a5dc57513a0f63",
+      "bytes": 5479459,
+      "entries": 160,
+      "pngs": 147
+    },
+    {
+      "id": 12550146742,
+      "name": "inactive-rollback-plan-153d473f6cae7b9060ab8faba442c36f055e6b3e",
+      "sha256": "9509895054196cf2bb9f9518af1917e03354548779ce3323be443c6c18cc4853",
+      "bytes": 367,
+      "entries": 1,
+      "pngs": 0
+    },
+    {
+      "id": 12550042279,
+      "name": "browser-integration-evidence",
+      "sha256": "feea15fc2b35dd83c9b06f3c165973e35af0ff9a5d2f68023ce0a588fe242f1c",
+      "bytes": 2018549,
+      "entries": 110,
+      "pngs": 53
+    },
+    {
+      "id": 12549932892,
+      "name": "local-browser-evidence",
+      "sha256": "baf122d0f24fff33143b30924be247dbb371d486f166920147b6bb1148e15d23",
+      "bytes": 1558705,
+      "entries": 18,
+      "pngs": 8
+    },
+    {
+      "id": 12549644332,
+      "name": "process-lifecycle-windows-2025",
+      "sha256": "fa19deba94af900264cf8c94aac93dcd66e2b0078607c02101a14272e2aa8432",
+      "bytes": 213,
+      "entries": 1,
+      "pngs": 0
+    },
+    {
+      "id": 12548979917,
+      "name": "local-api-evidence",
+      "sha256": "138e96d70e930e320a63cfa886e6441cd8acb756f3b87e54e9202657a1dd36c8",
+      "bytes": 16715,
+      "entries": 36,
+      "pngs": 0
+    }
+  ],
+  "pngs_validated": 208,
+  "release_inner_digests_verified": 4,
+  "reports": {
+    "local-runtime-windows-2025": {
+      "owned_fixture_only": true,
+      "scenarios": [
+        {
+          "fixture": "login-transition",
+          "mode": "normal",
+          "status": "passed",
+          "endpoint_posts": 1,
+          "attempted_submissions": 1
+        },
+        {
+          "fixture": "login-rejected",
+          "mode": "normal",
+          "status": "passed",
+          "endpoint_posts": 1,
+          "attempted_submissions": 1
+        },
+        {
+          "fixture": "search-transition",
+          "mode": "normal",
+          "status": "passed",
+          "endpoint_posts": 1,
+          "attempted_submissions": 1
+        },
+        {
+          "fixture": "search-empty",
+          "mode": "normal",
+          "status": "passed",
+          "endpoint_posts": 1,
+          "attempted_submissions": 1
+        },
+        {
+          "fixture": "login-transition",
+          "mode": "wrong-action",
+          "status": "blocked",
+          "endpoint_posts": 0,
+          "attempted_submissions": 0
+        },
+        {
+          "fixture": "login-transition",
+          "mode": "wrong-field",
+          "status": "blocked",
+          "endpoint_posts": 0,
+          "attempted_submissions": 0
+        },
+        {
+          "fixture": "login-transition",
+          "mode": "premature",
+          "status": "error",
+          "endpoint_posts": 0,
+          "attempted_submissions": 0
+        },
+        {
+          "fixture": "login-transition",
+          "mode": "canary",
+          "status": "error",
+          "endpoint_posts": 0,
+          "attempted_submissions": 0
+        },
+        {
+          "fixture": "login-transition",
+          "mode": "altered-value",
+          "status": "error",
+          "endpoint_posts": 0,
+          "attempted_submissions": 0
+        },
+        {
+          "fixture": "login-transition",
+          "mode": "redirect",
+          "status": "error",
+          "endpoint_posts": 1,
+          "attempted_submissions": 1
+        },
+        {
+          "fixture": "login-transition",
+          "mode": "malformed",
+          "status": "error",
+          "endpoint_posts": 1,
+          "attempted_submissions": 1
+        },
+        {
+          "fixture": "login-transition",
+          "mode": "dropped",
+          "status": "error",
+          "endpoint_posts": 1,
+          "attempted_submissions": null
+        },
+        {
+          "fixture": "login-transition",
+          "mode": "duplicate",
+          "status": "error",
+          "endpoint_posts": 1,
+          "attempted_submissions": 1
+        },
+        {
+          "fixture": "login-transition",
+          "mode": "cancelled-post",
+          "status": "cancelled",
+          "endpoint_posts": 1,
+          "attempted_submissions": null
+        }
+      ],
+      "contacts": {
+        "documents": 17,
+        "posts": 11,
+        "canary": 0,
+        "unexpected": 0,
+        "bad_body": 0
+      },
+      "screenshots": 0,
+      "saved_queue_proof": {
+        "status": "completed",
+        "result": "passed",
+        "endpoint_posts": 1,
+        "no_plaintext_in_database": true
+      },
+      "mapped_queue_proof": [
+        {
+          "mode": "mapped",
+          "result": "passed",
+          "endpoint_posts": 1
+        },
+        {
+          "mode": "mapped-ambiguous",
+          "result": "blocked",
+          "endpoint_posts": 0
+        }
+      ]
+    },
+    "local-runtime-ubuntu-24.04": {
+      "owned_fixture_only": true,
+      "scenarios": [
+        {
+          "fixture": "login-transition",
+          "mode": "normal",
+          "status": "passed",
+          "endpoint_posts": 1,
+          "attempted_submissions": 1
+        },
+        {
+          "fixture": "login-rejected",
+          "mode": "normal",
+          "status": "passed",
+          "endpoint_posts": 1,
+          "attempted_submissions": 1
+        },
+        {
+          "fixture": "search-transition",
+          "mode": "normal",
+          "status": "passed",
+          "endpoint_posts": 1,
+          "attempted_submissions": 1
+        },
+        {
+          "fixture": "search-empty",
+          "mode": "normal",
+          "status": "passed",
+          "endpoint_posts": 1,
+          "attempted_submissions": 1
+        },
+        {
+          "fixture": "login-transition",
+          "mode": "wrong-action",
+          "status": "blocked",
+          "endpoint_posts": 0,
+          "attempted_submissions": 0
+        },
+        {
+          "fixture": "login-transition",
+          "mode": "wrong-field",
+          "status": "blocked",
+          "endpoint_posts": 0,
+          "attempted_submissions": 0
+        },
+        {
+          "fixture": "login-transition",
+          "mode": "premature",
+          "status": "error",
+          "endpoint_posts": 0,
+          "attempted_submissions": 0
+        },
+        {
+          "fixture": "login-transition",
+          "mode": "canary",
+          "status": "error",
+          "endpoint_posts": 0,
+          "attempted_submissions": 0
+        },
+        {
+          "fixture": "login-transition",
+          "mode": "altered-value",
+          "status": "error",
+          "endpoint_posts": 0,
+          "attempted_submissions": 0
+        },
+        {
+          "fixture": "login-transition",
+          "mode": "redirect",
+          "status": "error",
+          "endpoint_posts": 1,
+          "attempted_submissions": 1
+        },
+        {
+          "fixture": "login-transition",
+          "mode": "malformed",
+          "status": "error",
+          "endpoint_posts": 1,
+          "attempted_submissions": 1
+        },
+        {
+          "fixture": "login-transition",
+          "mode": "dropped",
+          "status": "error",
+          "endpoint_posts": 1,
+          "attempted_submissions": null
+        },
+        {
+          "fixture": "login-transition",
+          "mode": "duplicate",
+          "status": "error",
+          "endpoint_posts": 1,
+          "attempted_submissions": 1
+        },
+        {
+          "fixture": "login-transition",
+          "mode": "cancelled-post",
+          "status": "cancelled",
+          "endpoint_posts": 1,
+          "attempted_submissions": null
+        }
+      ],
+      "contacts": {
+        "documents": 17,
+        "posts": 11,
+        "canary": 0,
+        "unexpected": 0,
+        "bad_body": 0
+      },
+      "screenshots": 0,
+      "saved_queue_proof": {
+        "status": "completed",
+        "result": "passed",
+        "endpoint_posts": 1,
+        "no_plaintext_in_database": true
+      },
+      "mapped_queue_proof": [
+        {
+          "mode": "mapped",
+          "result": "passed",
+          "endpoint_posts": 1
+        },
+        {
+          "mode": "mapped-ambiguous",
+          "result": "blocked",
+          "endpoint_posts": 0
+        }
+      ]
+    },
+    "local_operator_ui": {
+      "review_does_not_execute": true,
+      "confirmation_cleared_on_edit": true,
+      "confirmation_cleared_on_admission": true,
+      "queued_cancellation": true,
+      "synthetic_unknown_outcome_visible": true,
+      "external_requests": 0,
+      "page_errors": 0,
+      "target_submissions": 0,
+      "mobile_overflow": false,
+      "accounts_created": 0
+    }
+  },
+  "scope": "owned_local_fixtures_only",
+  "customer_deployment_verified": false,
+  "overall_owner_acceptance": false,
+  "jobs": [
+    {
+      "name": "Packaged local runtime (windows-2025)",
+      "conclusion": "success"
+    },
+    {
+      "name": "scaffold",
+      "conclusion": "success"
+    },
+    {
+      "name": "Packaged local runtime (ubuntu-24.04)",
+      "conclusion": "success"
+    },
+    {
+      "name": "Controlled API checks",
+      "conclusion": "success"
+    },
+    {
+      "name": "Process lifecycle (windows-2025)",
+      "conclusion": "success"
+    },
+    {
+      "name": "Local browser check",
+      "conclusion": "success"
+    },
+    {
+      "name": "Process lifecycle (ubuntu-24.04)",
+      "conclusion": "success"
+    },
+    {
+      "name": "Controlled database checks (windows-2025)",
+      "conclusion": "success"
+    },
+    {
+      "name": "UI catalog and isolation",
+      "conclusion": "success"
+    },
+    {
+      "name": "Inactive release packaging",
+      "conclusion": "success"
+    },
+    {
+      "name": "Browser integration checks",
+      "conclusion": "success"
+    },
+    {
+      "name": "Controlled database checks (ubuntu-24.04)",
+      "conclusion": "success"
+    }
+  ],
+  "unit_tests_passed": 783
+}

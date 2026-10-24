@@ -383,3 +383,26 @@ an arbitrary-site login adapter: general HTTPS remains bounded read-only. Next
 verify exact-commit artifacts for the combined owned interactive pipeline, then
 prioritize reusable endpoint/response bindings and operator configuration rather
 than claiming customer deployment from these local fixture proofs.
+
+## Exact-Commit Interactive Verification
+
+Implementation 153d473f6cae7b9060ab8faba442c36f055e6b3e passed all twelve jobs
+in CI run 40067846716 and 783 unit tests. All twelve downloaded artifact ZIPs
+matched their GitHub SHA-256 digests, sizes and source head; ZIP integrity and
+208 PNGs were validated. Four inner release file digests and inactive activation
+state were also checked. Evidence is recorded in evidence/interactive-ci-153d473.json.
+
+Both Windows/Linux runtime artifacts independently confirm fourteen browser
+scenarios plus saved/default/mapped queue execution: seventeen documents, eleven
+POSTs, zero canary/unexpected/bad-body contacts, no target screenshots or persisted
+plaintext password. Ambiguous mappings were blocked before submission. The local
+UI artifact proves confirmation clearing, cancel/history and synthetic unknown
+completion wording with zero target/external requests, page errors or accounts.
+The downloaded mobile screenshot was visually inspected. This verifies the owned
+interactive pipeline only; general/customer interactive execution and overall
+owner product acceptance remain pending.
+
+Next implementation target: separate reusable local endpoint/field/response
+bindings from the fixed fixture registry, prove them on contrasting owned local
+fixtures, then connect scoped saved configuration. Keep public HTTPS read-only;
+no customer credentials or private-network activation are authorized by this proof.
