@@ -237,6 +237,7 @@ def create_app(store: AuthStore, *, port=8765, projects=None, ui_directory=None)
         from adaptive_qa.interactive_review import review_saved_interactive
         owner = await run_in_threadpool(actor, request, mutation=True)
         data = _object(await request.body(), ('fixture_id', 'completion'), optional=('timeout_seconds',))
+        if not isinstance(data['fixture_id'],str): raise ValueError()
         completion = decode_form_mappings({'project_id': project_id, 'mappings': [data['completion']]}).mappings[0]
         review = await run_in_threadpool(review_saved_interactive, projects, owner, project_id,
             fixture_id=data['fixture_id'], completion=completion, timeout_seconds=data.get('timeout_seconds', 15))
@@ -254,6 +255,7 @@ def create_app(store: AuthStore, *, port=8765, projects=None, ui_directory=None)
             from adaptive_qa.interactive_review import review_saved_interactive
             owner = await run_in_threadpool(actor, request, mutation=True)
             data = _object(await request.body(), ('fixture_id', 'completion', 'confirmed_contract_fingerprint'), optional=('timeout_seconds',))
+            if not isinstance(data['fixture_id'],str): raise ValueError()
             digest = data['confirmed_contract_fingerprint']
             if not isinstance(digest, str) or not re.fullmatch('[0-9a-f]{64}', digest):
                 raise ValueError()
@@ -262,6 +264,33 @@ def create_app(store: AuthStore, *, port=8765, projects=None, ui_directory=None)
                 fixture_id=data['fixture_id'], completion=completion, timeout_seconds=data.get('timeout_seconds', 15))
             if not hmac.compare_digest(digest, review.submission.fingerprint()):
                 raise ValueError()
+            return await run_in_threadpool(interactive.submit, owner, review)
+
+        @app.post('/api/projects/{project_id}/interactive/local/review')
+        async def review_reusable_local_form(project_id: str, request: Request):
+            from adaptive_qa.form_configuration import decode_form_mappings
+            from adaptive_qa.interactive_review import review_saved_local_form
+            owner = await run_in_threadpool(actor, request, mutation=True)
+            data = _object(await request.body(), ('completion',), optional=('timeout_seconds',))
+            completion = decode_form_mappings({'project_id': project_id, 'mappings': [data['completion']]}).mappings[0]
+            review = await run_in_threadpool(review_saved_local_form, projects, owner, project_id,
+                completion=completion, timeout_seconds=data.get('timeout_seconds', 15))
+            return review.public()
+
+        @app.post('/api/projects/{project_id}/interactive/local/jobs', status_code=202)
+        async def submit_reusable_local_form(project_id: str, request: Request):
+            import hmac
+            import re
+            from adaptive_qa.form_configuration import decode_form_mappings
+            from adaptive_qa.interactive_review import review_saved_local_form
+            owner = await run_in_threadpool(actor, request, mutation=True)
+            data = _object(await request.body(), ('completion', 'confirmed_contract_fingerprint'), optional=('timeout_seconds',))
+            digest = data['confirmed_contract_fingerprint']
+            if not isinstance(digest, str) or not re.fullmatch('[0-9a-f]{64}', digest): raise ValueError()
+            completion = decode_form_mappings({'project_id': project_id, 'mappings': [data['completion']]}).mappings[0]
+            review = await run_in_threadpool(review_saved_local_form, projects, owner, project_id,
+                completion=completion, timeout_seconds=data.get('timeout_seconds', 15))
+            if not hmac.compare_digest(digest, review.submission.fingerprint()): raise ValueError()
             return await run_in_threadpool(interactive.submit, owner, review)
 
         @app.get('/api/projects/{project_id}/interactive/jobs')
@@ -282,7 +311,7 @@ def create_app(store: AuthStore, *, port=8765, projects=None, ui_directory=None)
     async def put_configuration(project_id: str, request: Request):
         owner = await run_in_threadpool(actor, request, mutation=True)
         data = _object(await request.body(), ('base_url', 'allowed_hosts',
-                                            'allow_data_changes', 'secret_references'), optional=('form_mappings',))
+                                            'allow_data_changes', 'secret_references'), optional=('form_mappings','local_form_binding'))
         return await run_in_threadpool(projects.save_configuration, owner, project_id, data)
 
     @app.patch('/api/projects/{project_id}')

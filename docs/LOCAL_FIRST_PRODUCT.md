@@ -301,3 +301,8 @@ queue/licensing/cancellation, mapped-input child execution, explicit local opera
 confirmation and real local UI controls for four owned fixtures. See the latest
 INTERACTIVE_FORMS.md checkpoints. General-site interactive submission and overall
 product acceptance remain pending; the public demo remains non-executing.
+
+Reusable owned-loopback endpoint/field/boolean-response bindings now reach saved
+configuration, explicit owner review/confirmation and supervised queue workers.
+The corresponding local UI editor is the next unfinished step. See the latest
+INTERACTIVE_FORMS.md checkpoints; general HTTPS remains read-only.

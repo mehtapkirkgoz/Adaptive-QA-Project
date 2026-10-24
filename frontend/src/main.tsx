@@ -17,7 +17,7 @@ type Project = {project_id: string; name: string};
 type Plan = {execution_authorized: false; inspected_pages: number; discovery_status: string; discovery_job_id?: string;
   counts: {catalog: number; selected: number; skipped: number; blocked: number};
   cases: {case_id: string; name: string; test_type: string; decision: string; reason: string; target_binding?: string | null; document_path?: string | null; document_url?: string | null; changes_data?: boolean}[]};
-type Settings = {form_mappings?: FormMapping[]; discovery_support?: {supported: boolean; profile: string | null; execution_scope: string}; configured: boolean; base_url?: string; allowed_hosts?: string[];
+type Settings = {local_form_binding?: unknown; form_mappings?: FormMapping[]; discovery_support?: {supported: boolean; profile: string | null; execution_scope: string}; configured: boolean; base_url?: string; allowed_hosts?: string[];
   allow_data_changes?: boolean; available_secret_references: Record<string, string>;
   secret_references?: Record<string, {environment_variable: string; value: string}>};
 class ApiError extends Error { constructor(public status: number, message: string) {super(message);} }
@@ -97,7 +97,7 @@ function App() {
     event.preventDefault(); if (!selected || !settings) return;
     const secret_references = Object.fromEntries(slots.map(slot => [slot, settings.available_secret_references[slot]]));
     void perform(async () => {const data = await api<Settings>(`/api/projects/${selected.project_id}/configuration`, 'PUT', {
-      base_url: target, allowed_hosts: hosts.split('\n').map(h => h.trim()).filter(Boolean), allow_data_changes: changes, secret_references, form_mappings: formMappings});
+      base_url: target, allowed_hosts: hosts.split('\n').map(h => h.trim()).filter(Boolean), allow_data_changes: changes, secret_references, form_mappings: formMappings, ...(settings.local_form_binding ? {local_form_binding: settings.local_form_binding} : {})});
       setSettings(data); setPlan(null); setNotice('Configuration saved. No tests were started.');});
   }
   return <div className="shell">
@@ -136,7 +136,7 @@ function App() {
                 <div className="save-bar"><p className="hint">Saving configuration does not start a test.</p><button className="primary" type="submit">{busy ? 'Saving…' : 'Save configuration'}</button></div>
               </fieldset></form>
               <ExecutionScope settings={settings}/>
-              {(freeEdition || licensedEdition) && <InteractivePanel key={'interactive:' + selected.project_id + JSON.stringify(settings)}
+              {(freeEdition || licensedEdition) && !settings.local_form_binding && <InteractivePanel key={'interactive:' + selected.project_id + JSON.stringify(settings)}
                 projectId={selected.project_id} target={settings.base_url ?? ''} dataChanges={settings.allow_data_changes ?? false}
                 references={Object.keys(settings.secret_references ?? {})} request={api}/>}
 

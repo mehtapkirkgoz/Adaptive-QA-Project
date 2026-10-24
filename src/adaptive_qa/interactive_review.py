@@ -11,19 +11,20 @@ from adaptive_qa.owned_submission import FIXTURE_OPERATIONS, ORIGIN, OwnedSubmis
 from adaptive_qa.project_settings import reference_name, validate_settings
 from adaptive_qa.project_store import OwnedProject, ProjectNotFound, _id
 from adaptive_qa.secrets import SecretReference
+from adaptive_qa.local_form_binding import LocalFormBinding,decode_local_binding
 
 
 @dataclass(frozen=True)
 class SavedInteractiveReview:
     owner_id: str
     configuration: ProjectConfig
-    submission: OwnedSubmissionContract
+    submission: OwnedSubmissionContract | LocalFormBinding
     mappings: ProjectElementMappings
 
     def __post_init__(self):
         _id(self.owner_id)
         if (not isinstance(self.configuration, ProjectConfig)
-                or not isinstance(self.submission, OwnedSubmissionContract)
+                or not isinstance(self.submission, (OwnedSubmissionContract,LocalFormBinding))
                 or not isinstance(self.mappings, ProjectElementMappings)
                 or self.mappings.project_id != self.configuration.project_id):
             raise ValueError("A typed saved interactive review is required.")
@@ -31,12 +32,16 @@ class SavedInteractiveReview:
             current_fingerprint=self.submission.form.configuration_fingerprint)
 
     @property
+    def fixture_id(self):
+        return getattr(self.submission,'fixture_id',None)
+
+    @property
     def execution_authorized(self):
         return False
 
     def public(self):
         return dict(project_id=self.configuration.project_id, execution_authorized=False,
-                    scope="owned_fixture_only", operation=self.submission.form.operation.value,
+                    scope="owned_loopback_only" if isinstance(self.submission,LocalFormBinding) else "owned_fixture_only", operation=self.submission.form.operation.value,
                     changes_data=True, max_submissions=1, contract_fingerprint=self.submission.fingerprint(),
                     limitations=["Review does not enqueue, reserve capacity or authorize execution.",
                                  "Interactive execution is restricted to owned local fixtures."])
@@ -65,13 +70,20 @@ def _review_on_connection(connection, actor, project_id, *, fixture_id, completi
         raise ValueError("Saved interactive settings are required.")
     project=OwnedProject(row['project_id'],row['owner_id'],row['name'])
     settings=validate_settings(project,json.loads(row['settings_json']))
-    if not isinstance(fixture_id,str) or fixture_id not in FIXTURE_OPERATIONS:
-        raise ValueError("A fixed owned interactive fixture is required.")
-    operation=FIXTURE_OPERATIONS[fixture_id]
-    negative=fixture_id in ('login-rejected','search-empty')
-    logical=('login.rejected' if negative else 'login.accepted') if operation==FormOperation.LOGIN else ('search.empty' if negative else 'search.results')
-    if not isinstance(completion,ElementMapping) or completion.logical_name!=logical:
-        raise ValueError("The explicit postcondition must match the fixture outcome.")
+    reusable=fixture_id is None
+    if reusable:
+        raw=settings.get('local_form_binding')
+        if raw is None:raise ValueError('Saved reusable local binding is required.')
+        operation=FormOperation(raw['operation'])
+        # InteractiveFormContract below validates the explicit operation-specific assertion.
+    else:
+        if not isinstance(fixture_id,str) or fixture_id not in FIXTURE_OPERATIONS:
+            raise ValueError("A fixed owned interactive fixture is required.")
+        operation=FIXTURE_OPERATIONS[fixture_id]
+        negative=fixture_id in ('login-rejected','search-empty')
+        logical=('login.rejected' if negative else 'login.accepted') if operation==FormOperation.LOGIN else ('search.empty' if negative else 'search.results')
+        if not isinstance(completion,ElementMapping) or completion.logical_name!=logical:
+            raise ValueError("The explicit postcondition must match the fixture outcome.")
     slots=('login_username','login_password') if operation==FormOperation.LOGIN else ('search_query',)
     references=[]
     for slot in slots:
@@ -85,7 +97,8 @@ def _review_on_connection(connection, actor, project_id, *, fixture_id, completi
     fingerprint=configuration_fingerprint(settings)
     form=InteractiveFormContract(project.project_id,fingerprint,operation,tuple(references),completion,timeout_seconds)
     fields=('user','password') if operation==FormOperation.LOGIN else ('query',)
-    submission=OwnedSubmissionContract(form,fixture_id,config.base_url,ORIGIN+'/interactive-submit/'+fixture_id,fields)
+    submission=(decode_local_binding({key:value for key,value in raw.items() if key!='operation'},form) if reusable else
+        OwnedSubmissionContract(form,fixture_id,config.base_url,ORIGIN+'/interactive-submit/'+fixture_id,fields))
     submission.validate_project(config,current_fingerprint=fingerprint)
     return SavedInteractiveReview(project.owner_id,config,submission,saved_form_mappings(settings['form_mappings'],project.project_id))
 
@@ -98,8 +111,12 @@ def revalidate_saved_interactive(projects, actor, review):
     if actor.user_id!=review.owner_id:
         raise ProjectNotFound("Project not found.")
     form=review.submission.form
-    current=review_saved_interactive(projects,actor,form.project_id,fixture_id=review.submission.fixture_id,
+    current=review_saved_interactive(projects,actor,form.project_id,fixture_id=review.fixture_id,
         completion=form.completion,timeout_seconds=form.timeout_seconds)
     if current!=review:
         raise ValueError("Saved interactive settings changed; review them again.")
     return current
+
+
+def review_saved_local_form(projects,actor,project_id,*,completion,timeout_seconds=15):
+    return review_saved_interactive(projects,actor,project_id,fixture_id=None,completion=completion,timeout_seconds=timeout_seconds)

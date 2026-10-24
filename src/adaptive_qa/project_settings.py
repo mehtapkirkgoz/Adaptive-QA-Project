@@ -21,7 +21,7 @@ def reference_name(owner_id, project_id, slot):
 
 def validate_settings(project, data):
     fields = {'base_url', 'allowed_hosts', 'allow_data_changes', 'secret_references'}
-    if not isinstance(data, dict) or set(data) not in (fields, fields | {'form_mappings'}):
+    if not isinstance(data, dict) or not fields <= set(data) <= fields | {'form_mappings','local_form_binding'}:
         raise ValueError('Exact project settings fields are required.')
     url, hosts, references = data['base_url'], data['allowed_hosts'], data['secret_references']
     if not isinstance(url, str) or len(url) > 512:
@@ -44,15 +44,20 @@ def validate_settings(project, data):
             raise ValueError('Secret references must belong to this owner, project and slot.')
         SecretReference(name)  # Syntax only: never read process environment here.
     mappings = saved_form_mappings(data.get('form_mappings', []), project.project_id)
-    return {'form_mappings': json.loads(json.dumps([asdict(item) for item in mappings.mappings])), 'base_url': config.base_url, 'allowed_hosts': list(config.allowed_hosts),
+    result = {'form_mappings': json.loads(json.dumps([asdict(item) for item in mappings.mappings])), 'base_url': config.base_url, 'allowed_hosts': list(config.allowed_hosts),
             'allow_data_changes': config.allow_data_changes, 'secret_references': dict(references)}
+    if data.get('local_form_binding') is not None:
+        from adaptive_qa.local_form_settings import validate_saved_local_binding
+        result['local_form_binding'] = validate_saved_local_binding(data['local_form_binding'],project,config)
+    return result
 
 
 def public_settings(project, data):
     available = {slot: reference_name(project.owner_id, project.project_id, slot) for slot in SECRET_SLOTS}
     if data is None:
         return {'configured': False, 'available_secret_references': available, 'discovery_support': discovery_support(None)}
-    return {'configured': True, 'base_url': data['base_url'],
+    return {**({'local_form_binding':data['local_form_binding']} if data.get('local_form_binding') is not None else {}),
+            'configured': True, 'base_url': data['base_url'],
             'form_mappings': data.get('form_mappings', []),
             'discovery_support': discovery_support(data),
             'allowed_hosts': data['allowed_hosts'], 'allow_data_changes': data['allow_data_changes'],

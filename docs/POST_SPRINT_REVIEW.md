@@ -780,3 +780,46 @@ This entry point remains internal. Saved configuration/review/API/queue and loca
 UI continue to admit the four fixed fixtures only. Next connect typed reusable
 bindings to owner-scoped saved settings and explicit review confirmation without
 loosening public HTTPS read-only policy or activating customer/private networks.
+
+## Saved Reusable Local Binding Admission
+
+Supervised binding implementation c67e7ac passed CI run 40075398787. Project settings
+now accept one optional local_form_binding containing only operation, exact owned
+document/endpoint URLs, ordered input names and typed accepted/rejected boolean
+response assertions. Syntax validation never resolves values or authorizes a run;
+metadata can remain saved when data-change permission is revoked. Removing the
+binding disables reusable review. Existing configurations normalize unchanged.
+
+Owner-scoped review builds the real contract from saved metadata, actual scoped
+reference slots and an explicit operator-supplied completion mapping. The full
+saved configuration and binding/response/field definitions enter its digest.
+The same transactional queue revalidates that digest at submit/claim and uses the
+reusable supervised child only for a typed LocalFormBinding. Existing fixed
+fixture dispatch, license/shared capacity, cancellation, recovery and result
+sanitization remain. No arbitrary environment reference or plaintext input is
+accepted by the new admission routes.
+
+Local-only POST routes /api/projects/{project_id}/interactive/local/review and
+/api/projects/{project_id}/interactive/local/jobs take completion, optional timeout,
+and (for jobs) confirmed_contract_fingerprint. Saved metadata supplies the target;
+requests cannot override it. Fixed-fixture routes still require an explicit string
+fixture ID and do not silently select reusable dispatch. All local jobs share the
+existing bounded owned history/status/cancel routes and worker commands. Reviews
+remain non-executing and no request directly launches Chromium.
+
+Seven new persistence/HTTP/worker tests passed. The real reusable browser proof
+now additionally saves two contrasting bindings through authenticated HTTP, reviews
+and explicitly confirms each, and runs real scoped queue workers: positive login
+and negative search both passed with one POST each. Combined contacts: fifteen
+documents, ten POSTs, zero canary/bad requests; no plaintext credential persistence.
+Thirty existing interactive tests, six binding tests, six settings tests and seven
+fixed HTTP tests passed. TypeScript/production build and local UI proof passed.
+
+The UI preserves saved reusable metadata during ordinary configuration edits and
+hides the older fixed-fixture panel when such a binding is configured, avoiding
+silent fallback. The browser UI test verifies preservation without target access.
+A reusable binding editor/review panel is still needed; metadata can currently be
+configured through the authenticated local API. Response support remains one
+strict boolean JSON field and in-page form transitions; arbitrary HTML/native
+navigation/authentication protocols are not claimed. General HTTPS remains
+read-only and no customer/private-network activation is authorized.

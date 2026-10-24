@@ -23,7 +23,7 @@ class InteractiveWork:
 
 def _snapshot(review):
     form=review.submission.form
-    return dict(fixture_id=review.submission.fixture_id,completion=json.loads(json.dumps(asdict(form.completion))),
+    return dict(fixture_id=review.fixture_id,completion=json.loads(json.dumps(asdict(form.completion))),
         timeout_seconds=form.timeout_seconds,contract_fingerprint=review.submission.fingerprint(),
         configuration_fingerprint=form.configuration_fingerprint)
 
@@ -49,7 +49,7 @@ class OwnedInteractiveQueue:
     @staticmethod
     def _public(row):
         return dict(job_id=row['job_id'],project_id=row['project_id'],status=row['status'],
-                    scope='owned_fixture_only',result=json.loads(row['result_json']) if row['result_json'] else None)
+                    scope='owned_loopback_only' if json.loads(row['review_json']).get('fixture_id') is None else 'owned_fixture_only',result=json.loads(row['result_json']) if row['result_json'] else None)
 
     def _current(self,connection,row):
         data=json.loads(row['review_json'])
@@ -68,7 +68,7 @@ class OwnedInteractiveQueue:
         with self.projects._connection() as connection:
             connection.execute('BEGIN IMMEDIATE')
             form=review.submission.form
-            current=_review_on_connection(connection,actor,form.project_id,fixture_id=review.submission.fixture_id,
+            current=_review_on_connection(connection,actor,form.project_id,fixture_id=review.fixture_id,
                 completion=form.completion,timeout_seconds=form.timeout_seconds)
             if current!=review:raise ValueError('Review current settings before admission.')
             if hasattr(self.projects,'admit_execution'):self.projects.admit_execution(connection)
@@ -176,10 +176,15 @@ def process_owned_interactive_once(queue):
         if work is None:return None
         review=work.review
         try:
-            result=run_isolated_interactive_probe(review.submission.form,review.configuration,
-                fixture_id=review.submission.fixture_id,current_fingerprint=review.submission.form.configuration_fingerprint,
-                fixture_source='owned_submission',timeout_seconds=45,mappings=review.mappings,
-                should_cancel=lambda:queue.cancellation_requested(work))
+            from adaptive_qa.local_form_binding import LocalFormBinding
+            from adaptive_qa.interactive_process import run_isolated_local_form
+            options=dict(current_fingerprint=review.submission.form.configuration_fingerprint,
+                timeout_seconds=45,mappings=review.mappings,should_cancel=lambda:queue.cancellation_requested(work))
+            if isinstance(review.submission,LocalFormBinding):
+                result=run_isolated_local_form(review.submission,review.configuration,**options)
+            else:
+                result=run_isolated_interactive_probe(review.submission.form,review.configuration,
+                    fixture_id=review.fixture_id,fixture_source='owned_submission',**options)
         except Exception:
             result=InteractiveProbeResult(TestStatus.ERROR,'Controlled form probe could not complete.',None)
         status=queue.finish(work,result)
