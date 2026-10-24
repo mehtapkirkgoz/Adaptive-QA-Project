@@ -271,6 +271,8 @@ jobs:
         run: python scripts/check_interactive_http.py
       - name: Verify one-shot owned endpoint transport without redirects or retries
         run: python scripts/check_owned_submission.py
+      - name: Verify supervised Chromium submissions on owned fixtures only
+        run: python scripts/check_interactive_submission.py
       - name: Build reviewed historical release
         run: python scripts/build_release.py --commit a71bc2c69140b3d4bd993be7495ab2d360f8decc
       - name: Build current committed release
@@ -289,6 +291,7 @@ jobs:
             artifacts/interactive-probe/process.json
             artifacts/interactive-probe/http-process.json
             artifacts/interactive-probe/owned-submission.json
+            artifacts/interactive-probe/browser-submission.json
           retention-days: 7
           if-no-files-found: error
 

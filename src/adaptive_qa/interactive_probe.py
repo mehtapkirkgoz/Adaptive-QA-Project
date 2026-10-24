@@ -34,20 +34,32 @@ def _visible(page, mapping):
         bound.close()
 
 
-def _valid_submit(submit,url):
+def _valid_submit(submit,url,submission=None):
+    if submission is not None:
+        return submit.evaluate("""(el,binding)=>el.isConnected && el.form && ['BUTTON','INPUT'].includes(el.tagName)
+        && el.type==='submit' && !el.disabled
+        && (el.hasAttribute('formaction')?el.formAction:el.form.action)===binding.url
+        && (el.hasAttribute('formmethod')?el.formMethod:el.form.method).toLowerCase()==='post'
+        && (el.hasAttribute('formenctype')?el.formEnctype:el.form.enctype)==='application/x-www-form-urlencoded'
+        && ['','_self'].includes(el.hasAttribute('formtarget')?el.formTarget:el.form.target)""", {"url":submission.endpoint_url})
     return submit.evaluate("""(el,url)=>el.isConnected && el.form && ['BUTTON','INPUT'].includes(el.tagName)
     && el.type==='submit' && !el.disabled && (el.hasAttribute('formaction')?el.formAction:el.form.action)===url
     && (el.hasAttribute('formmethod')?el.formMethod:el.form.method).toLowerCase()==='get'
     && ['', '_self'].includes(el.hasAttribute('formtarget')?el.formTarget:el.form.target)""",url)
 
 
-def probe_controlled_form(page,contract,project,*,current_fingerprint,network_clean,mappings=None):
-    """Caller must own a fresh no-network context and dispose it without screenshots/tracing."""
+def probe_controlled_form(page,contract,project,*,current_fingerprint,network_clean,mappings=None,submission=None,before_submit=None):
+    """Caller owns a fresh guarded context; only a typed owned binding may submit."""
     attempted = 0
     try:
         if not isinstance(contract,InteractiveFormContract) or not callable(network_clean):
             raise ValueError()
         contract.validate_project(project,current_fingerprint=current_fingerprint)
+        if submission is not None:
+            from adaptive_qa.owned_submission import OwnedSubmissionContract
+            if not isinstance(submission,OwnedSubmissionContract) or submission.form!=contract or not callable(before_submit): raise ValueError()
+            submission.validate_project(project,current_fingerprint=current_fingerprint)
+        elif before_submit is not None: raise ValueError()
         validate_discovery_project(project,'controlled_local')
         if page.url!=project.base_url or not network_clean(): raise ValueError()
         deadline = monotonic()+contract.timeout_seconds
@@ -61,7 +73,8 @@ def probe_controlled_form(page,contract,project,*,current_fingerprint,network_cl
                 # An omitted type is valid for text inputs only, never for passwords.
                 if allowed==('password',) and control.get_attribute('type')!='password': raise ValueError()
                 if not control.is_enabled(): raise ValueError()
-            valid = _valid_submit(submit,project.base_url)
+            if submission is not None and tuple(control.get_attribute('name') for control in inputs)!=submission.field_names: raise ValueError()
+            valid = _valid_submit(submit,project.base_url,submission)
             if not valid or _visible(page,contract.completion): raise ValueError()
             # Resolve only after project, controls, action/method and precondition validation.
             values = [reference.resolve() for reference in contract.inputs]
@@ -70,7 +83,10 @@ def probe_controlled_form(page,contract,project,*,current_fingerprint,network_cl
                 if monotonic()>=deadline or not network_clean(): raise RuntimeError()
                 control.fill(value.value,timeout=max(1,int((deadline-monotonic())*1000)))
             if not network_clean() or page.url!=project.base_url or monotonic()>=deadline: raise RuntimeError()
-            if not _valid_submit(submit,project.base_url) or _visible(page,contract.completion): raise ValueError()
+            if not _valid_submit(submit,project.base_url,submission) or _visible(page,contract.completion): raise ValueError()
+            if submission is not None:
+                if tuple(control.get_attribute('name') for control in inputs)!=submission.field_names: raise ValueError()
+                before_submit(tuple(value.value for value in values))
             attempted = 1
             submit.click(timeout=max(1,int((deadline-monotonic())*1000)))
             while monotonic()<deadline:

@@ -105,3 +105,10 @@ class OwnedSubmissionTests(unittest.TestCase):
             self.assertNotIn("private-canary",repr(result))
             self.assertEqual(transport.submit(**self.request()).outcome,"blocked")
             connect.assert_called_once()
+
+    def test_browser_utf8_form_content_type_is_explicitly_supported(self):
+        request=self.request();request["content_type"]=CONTENT_TYPE+";charset=UTF-8"
+        self.assertTrue(self.gate().admit(**request))
+        for content_type in (CONTENT_TYPE+";charset=latin-1",CONTENT_TYPE+";boundary=x"):
+            request["content_type"]=content_type
+            self.assertFalse(self.gate().admit(**request))

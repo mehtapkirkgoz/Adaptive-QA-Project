@@ -54,7 +54,7 @@ class OwnedSubmissionContract:
     def fingerprint(self):
         payload = dict(form=self.form.fingerprint(), fixture=self.fixture_id,
                        document=self.document_url, endpoint=self.endpoint_url,
-                       fields=self.field_names, method=self.method, content_type=CONTENT_TYPE,
+                       fields=self.field_names, method=self.method, content_types=(CONTENT_TYPE, CONTENT_TYPE+";charset=UTF-8"),
                        max_body_bytes=self.max_body_bytes, max_attempts=1, redirects=False)
         return hashlib.sha256(json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 
@@ -75,7 +75,7 @@ class OwnedSubmissionGate:
         self._consumed = True
         contract = self.contract
         if (url != contract.endpoint_url or method != contract.method
-                or content_type != CONTENT_TYPE or type(body) is not bytes
+                or content_type not in (CONTENT_TYPE, CONTENT_TYPE+";charset=UTF-8") or type(body) is not bytes
                 or not 1 <= len(body) <= contract.max_body_bytes):
             return False
         try:

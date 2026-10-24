@@ -99,3 +99,12 @@ class InteractiveProcessTests(unittest.TestCase):
     def test_deadline_terminates_owned_child(self):self.owned_process('deadline')
     def test_active_cancellation_terminates_owned_child(self):self.owned_process('cancel')
     def test_callback_failure_terminates_owned_child(self):self.owned_process('callback-error')
+
+    def test_submission_source_rejects_unbound_fixture_before_spawn(self):
+        with patch('adaptive_qa.interactive_process.subprocess.Popen') as spawn:
+            project=replace(self.project,base_url='http://127.0.0.1:8000/interactive/busy')
+            with self.assertRaises(ValueError):
+                run_isolated_interactive_probe(self.contract,project,fixture_id='busy',current_fingerprint='b'*64,fixture_source='owned_submission')
+            spawn.assert_not_called()
+        payload=dict(contract=asdict(self.contract),project=asdict(self.project),fixture_id='login-transition',current_fingerprint='b'*64,fixture_source='owned_submission')
+        self.assertEqual(_decode(json.dumps(payload))[-1],'owned_submission')

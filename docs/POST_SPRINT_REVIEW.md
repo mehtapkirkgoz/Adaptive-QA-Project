@@ -507,3 +507,36 @@ This transport is not yet connected to Chromium, child IPC, catalog or product
 admission. Next: supervised browser submission using this exact gate, retaining
 pre-fill action/field checks, absent-before/present-after postconditions and the
 same cancellation/deadline controls. No public/customer POST is enabled.
+
+## Supervised Owned Browser Submission Proof
+
+Transport implementation 9b41637 passed CI run 40055689526. The new explicit
+owned_submission source revalidates its fixed endpoint binding before parent
+spawn and again after child decoding. All secrets still resolve only after DOM,
+project, action/method/encoding and absent-completion checks in the child.
+The route stays disarmed during filling; just before the one click it binds the
+exact URL-encoded expected values to the request. An altered value, premature
+fetch, wrong action/field or extra request cannot reach the endpoint. Only that
+exact body is forwarded through the separate numeric-IP-pinned transport; the
+read-only browser proxy still admits only the initial GET. Browser UTF-8
+URLSearchParams encoding has an explicit supported content-type variant.
+
+A successful result requires both one matching endpoint outcome and the expected
+new UI marker. Negative login/search outcomes use their own explicit postcondition.
+Unexpected responses, dropped responses, redirects and duplicate submissions fail
+closed without retry, echoed values, cookies or screenshots. Active cancellation
+after the server receives the POST terminates the owned child and reports unknown
+completion rather than claiming zero activity or retrying.
+
+Twenty-two focused unit tests passed. Fourteen actual supervised Chromium scenarios
+passed against contrasting owned controls: fourteen documents and nine POSTs,
+zero canary/unexpected requests or malformed forwarded bodies. The prior eight
+in-memory and eight document-only HTTP scenarios also passed unchanged, with zero
+POSTs. CI now repeats the new browser proof on Windows/Linux and uploads a separate
+value-free report. Exact-commit CI for this browser increment remains pending.
+
+This remains an internal fixed-fixture proof. Product/paid queue admission, scoped
+saved secret bindings, reusable completion mappings and user-visible controls are
+not yet connected. Next implement that admission contract while retaining the
+non-executing plan and existing data-change/licensing/project boundaries. No
+arbitrary/customer endpoint or public-site credential submission is enabled.
