@@ -1,13 +1,14 @@
 import {useEffect, useState} from 'react';
 import type {LocalFormSettings} from './LocalFormBindingEditor';
+import {LocalWorkerHelp} from './LocalWorkerHelp';
 
 type Job = {job_id: string; status: string; result: {status: string; attempted_submissions: number | null} | null};
 type Review = {execution_authorized: false; contract_fingerprint: string};
-type Props = {projectId: string; target: string; dataChanges: boolean; references: string[]; binding?: LocalFormSettings; hasUnsavedChanges?: boolean;
+type Props = {projectId: string; target: string; dataChanges: boolean; references: string[]; workerReferences?: string[]; licensed?: boolean; binding?: LocalFormSettings; hasUnsavedChanges?: boolean;
   request: <T>(path: string, method?: string, body?: unknown) => Promise<T>};
 const active = (job: Job) => ['queued', 'running', 'cancel_requested'].includes(job.status);
 
-export function InteractivePanel({projectId, target, dataChanges, references, request, binding, hasUnsavedChanges = false}: Props) {
+export function InteractivePanel({projectId, target, dataChanges, references, workerReferences = [], licensed = false, request, binding, hasUnsavedChanges = false}: Props) {
   const fixture = /^http:\/\/127\.0\.0\.1:8000\/interactive\/(login-transition|login-rejected|search-transition|search-empty)$/.exec(target)?.[1];
   const login = binding ? binding.operation === 'login' : fixture?.startsWith('login'), negative = fixture === 'login-rejected' || fixture === 'search-empty';
   const [outcome, setOutcome] = useState<'accepted' | 'rejected'>(negative ? 'rejected' : 'accepted');
@@ -74,6 +75,7 @@ export function InteractivePanel({projectId, target, dataChanges, references, re
       <button disabled={!ready || !confirmed || busy || polling} onClick={() => void enqueue()}>Queue one interactive submission</button>
     </div>}
     <p className="hint">A separate local worker processes queued jobs. Unknown completion is never retried automatically. Screenshots are disabled for this workflow.</p>
+    <LocalWorkerHelp licensed={licensed} references={workerReferences}/>
     {error && <p className="message error" role="alert">{error}</p>}
     {!jobs.length && <p className="hint">No interactive jobs yet.</p>}
     {jobs.map(job => <div className="discovery-job" key={job.job_id}>

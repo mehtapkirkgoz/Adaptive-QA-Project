@@ -87,6 +87,10 @@ def main():
                         assert saved['local_form_binding']['operation']==('login' if login else 'search')
                         panel=page.get_by_role('region',name='Controlled interactive forms')
                         expect(panel).to_be_visible()
+                        panel.get_by_text('Run queued jobs locally',exact=True).click()
+                        expect(panel.get_by_text('python -m adaptive_qa dashboard free-worker-cycle',exact=False)).to_be_visible()
+                        assert contacts==before,'Opening worker guidance contacted a target'
+                        panel.get_by_text('Run queued jobs locally',exact=True).click()
                         if not login:panel.get_by_label('Expected form outcome',exact=True).select_option('rejected')
                         panel.get_by_label('Completion test ID',exact=True).fill('ready' if login else 'empty')
                         panel.get_by_role('button',name='Review interactive submission',exact=True).click()

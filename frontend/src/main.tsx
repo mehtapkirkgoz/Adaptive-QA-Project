@@ -145,7 +145,9 @@ function App() {
               <ExecutionScope settings={settings}/>
               {(freeEdition || licensedEdition) && <InteractivePanel key={'interactive:' + selected.project_id + JSON.stringify(settings)}
                 projectId={selected.project_id} target={settings.base_url ?? ''} dataChanges={settings.allow_data_changes ?? false}
-                references={Object.keys(settings.secret_references ?? {})} request={api} binding={settings.local_form_binding} hasUnsavedChanges={unsaved}/>}
+                references={Object.keys(settings.secret_references ?? {})}
+                workerReferences={Object.values(settings.secret_references ?? {}).map(reference => reference.environment_variable)} licensed={licensedEdition}
+                request={api} binding={settings.local_form_binding} hasUnsavedChanges={unsaved}/>}
 
               <DiscoveryPanel key={'discovery:' + selected.project_id + JSON.stringify(settings)} projectId={selected.project_id} configured={supportsDiscovery(settings)} publicTarget={settings.discovery_support?.profile === 'public_https'} request={api} onReport={(report, jobId) => setPlan({...report, discovery_job_id: jobId})}/>
               <section className="plan-review"><h3>Test plan review</h3><p className="hint">Review the saved configuration. Unsaved edits are not included. Reviewing never starts tests or visits your target.</p>

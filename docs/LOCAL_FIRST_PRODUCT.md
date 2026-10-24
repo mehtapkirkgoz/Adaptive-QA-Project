@@ -344,3 +344,10 @@ explicit confirmation, CLI dispatch, supervised browser execution and refreshed
 persisted results. Empty discovery/run queues remained empty. Only two owned
 documents and two submissions were observed, with no malformed/external request
 or UI error. CI runs the same proof; no owner session was restarted.
+
+The interactive panel now includes expandable worker startup guidance with the
+correct free or licensed command, explicit example-path replacement and saved
+environment variable names only. It explains why queued jobs wait and why unknown
+submissions are not retried. Opening guidance never starts work or resolves values.
+The real UI/CLI/browser proof and production/demo builds passed after this change;
+the existing owner server was not restarted.

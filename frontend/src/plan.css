@@ -6,3 +6,6 @@
 
 .interactive-panel .discovery-job>span{flex-wrap:wrap}.interactive-panel .discovery-job code{white-space:nowrap;flex-shrink:0}
 .local-binding select,.interactive-panel select{display:block;width:100%;padding:10px 12px;margin-top:8px;border:1px solid #ccd7e3;border-radius:7px;background:#fff;color:#132c43;font:inherit}.local-binding .response-binding{margin-top:20px;padding-top:8px;border-top:1px solid #edf0f4}
+.local-worker-help { margin: 1rem 0; }
+.local-worker-help pre { overflow-wrap: anywhere; white-space: pre-wrap; }
+.local-worker-help li { overflow-wrap: anywhere; }
