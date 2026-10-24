@@ -91,3 +91,10 @@ class LocalCliTests(unittest.TestCase):
             with redirect_stdout(out): run(args)
             self.assertFalse(json.loads(out.getvalue())['activation_enabled'])
         self.assertTrue((recovered/'projects.sqlite').is_file())
+
+    def test_interactive_worker_command_uses_licensed_projects(self):
+        self.invoke('license-import','--license-file',str(self.document))
+        with patch('adaptive_qa.interactive_queue.process_owned_interactive_once',return_value=None) as worker:
+            self.invoke('interactive-once')
+        self.assertIsInstance(worker.call_args.args[0].projects,LicensedLocalProjects)
+        self.assertIn("error",self.invoke('recover-interactive'))

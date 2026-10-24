@@ -58,3 +58,39 @@ class WebInteractiveReviewTests(unittest.TestCase):
         response=self.client.post(self.url,headers=self.headers,json=self.body)
         self.assertEqual(response.status_code,400)
         self.assertFalse(self.projects.configuration(LOCAL_ACTOR,self.pid)['allow_data_changes'])
+
+    def test_only_confirmed_current_review_enqueues_without_starting_a_child(self):
+        digest=self.client.post(self.url,headers=self.headers,json=self.body).json()['contract_fingerprint']
+        jobs=self.url.removesuffix('/review')+'/jobs'
+        self.assertEqual(self.client.post(jobs,headers=self.headers,json=self.body).status_code,400)
+        with patch('adaptive_qa.interactive_process.run_isolated_interactive_probe') as child:
+            response=self.client.post(jobs,headers=self.headers,json=dict(self.body,confirmed_contract_fingerprint=digest))
+            self.assertEqual(response.status_code,202,response.text)
+            child.assert_not_called()
+        job=response.json()
+        self.assertEqual(job['status'],'queued')
+        self.assertEqual(self.client.get(jobs).json()['jobs'],[job])
+        self.assertEqual(self.client.get(jobs+'/'+job['job_id']).json(),job)
+        cancelled=self.client.post(jobs+'/'+job['job_id']+'/cancel',headers=self.headers,json={})
+        self.assertEqual(cancelled.json()['status'],'cancelled')
+        self.assertNotIn('claim_token',cancelled.text)
+
+    def test_changed_policy_or_postcondition_requires_a_new_confirmation(self):
+        digest=self.client.post(self.url,headers=self.headers,json=self.body).json()['contract_fingerprint']
+        jobs=self.url.removesuffix('/review')+'/jobs'
+        changed=dict(self.body,timeout_seconds=10,confirmed_contract_fingerprint=digest)
+        self.assertEqual(self.client.post(jobs,headers=self.headers,json=changed).status_code,400)
+        self.projects.save_configuration(LOCAL_ACTOR,self.pid,dict(self.settings,allow_data_changes=False))
+        self.assertEqual(self.client.post(jobs,headers=self.headers,json=dict(self.body,confirmed_contract_fingerprint=digest)).status_code,400)
+        self.assertEqual(self.client.get(jobs).json()['jobs'],[])
+
+    def test_execution_and_cancel_keep_session_and_csrf_guards(self):
+        jobs=self.url.removesuffix('/review')+'/jobs'
+        digest=self.client.post(self.url,headers=self.headers,json=self.body).json()['contract_fingerprint']
+        body=dict(self.body,confirmed_contract_fingerprint=digest)
+        headers={key:value for key,value in self.headers.items() if key!='x-csrf-token'}
+        self.assertEqual(self.client.post(jobs,headers=headers,json=body).status_code,401)
+        self.assertEqual(self.client.post(jobs+'/'+'0'*32+'/cancel',headers=headers,json={}).status_code,401)
+        self.client.cookies.clear()
+        self.assertEqual(self.client.get(jobs).status_code,401)
+        self.assertEqual(self.client.post(jobs,headers=self.headers,json=body).status_code,401)

@@ -89,6 +89,15 @@ class OwnedInteractiveQueue:
     def get(self,actor,project_id,job_id):
         with self.projects._connection() as connection:return self._public(self._owned(connection,actor,project_id,job_id))
 
+    def list(self,actor,project_id):
+        self.projects.get(actor,project_id)
+        with self.projects._connection() as connection:
+            rows=connection.execute('SELECT j.* FROM dashboard_interactive_jobs j '
+                'JOIN dashboard_projects p ON p.project_id=j.project_id AND p.owner_id=j.owner_id '
+                'WHERE j.project_id=? AND j.owner_id=? ORDER BY sequence DESC LIMIT 20',
+                (project_id,actor.user_id)).fetchall()
+            return tuple(self._public(row) for row in rows)
+
     def cancel(self,actor,project_id,job_id):
         with self.projects._connection() as connection:
             connection.execute('BEGIN IMMEDIATE')

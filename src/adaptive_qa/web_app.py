@@ -242,6 +242,42 @@ def create_app(store: AuthStore, *, port=8765, projects=None, ui_directory=None)
             fixture_id=data['fixture_id'], completion=completion, timeout_seconds=data.get('timeout_seconds', 15))
         return review.public()
 
+    if getattr(store, 'local_free', False) or getattr(store, 'local_licensed', False):
+        from adaptive_qa.interactive_queue import OwnedInteractiveQueue
+        interactive = OwnedInteractiveQueue(projects)
+
+        @app.post('/api/projects/{project_id}/interactive/jobs', status_code=202)
+        async def submit_interactive_fixture(project_id: str, request: Request):
+            import hmac
+            import re
+            from adaptive_qa.form_configuration import decode_form_mappings
+            from adaptive_qa.interactive_review import review_saved_interactive
+            owner = await run_in_threadpool(actor, request, mutation=True)
+            data = _object(await request.body(), ('fixture_id', 'completion', 'confirmed_contract_fingerprint'), optional=('timeout_seconds',))
+            digest = data['confirmed_contract_fingerprint']
+            if not isinstance(digest, str) or not re.fullmatch('[0-9a-f]{64}', digest):
+                raise ValueError()
+            completion = decode_form_mappings({'project_id': project_id, 'mappings': [data['completion']]}).mappings[0]
+            review = await run_in_threadpool(review_saved_interactive, projects, owner, project_id,
+                fixture_id=data['fixture_id'], completion=completion, timeout_seconds=data.get('timeout_seconds', 15))
+            if not hmac.compare_digest(digest, review.submission.fingerprint()):
+                raise ValueError()
+            return await run_in_threadpool(interactive.submit, owner, review)
+
+        @app.get('/api/projects/{project_id}/interactive/jobs')
+        def list_interactive_jobs(project_id: str, request: Request):
+            return {'jobs': interactive.list(actor(request), project_id)}
+
+        @app.get('/api/projects/{project_id}/interactive/jobs/{job_id}')
+        def get_interactive_job(project_id: str, job_id: str, request: Request):
+            return interactive.get(actor(request), project_id, job_id)
+
+        @app.post('/api/projects/{project_id}/interactive/jobs/{job_id}/cancel')
+        async def cancel_interactive_job(project_id: str, job_id: str, request: Request):
+            owner = await run_in_threadpool(actor, request, mutation=True)
+            _object(await request.body(), ())
+            return await run_in_threadpool(interactive.cancel, owner, project_id, job_id)
+
     @app.put('/api/projects/{project_id}/configuration')
     async def put_configuration(project_id: str, request: Request):
         owner = await run_in_threadpool(actor, request, mutation=True)

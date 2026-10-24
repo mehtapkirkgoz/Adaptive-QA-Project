@@ -314,3 +314,44 @@ existing non-executing plans retain their prior scope.
 
 Next: bounded local operator admission with explicit current review-digest
 confirmation, scoped job history/cancellation and licensed/free worker commands.
+
+## Confirmed Local Operator Admission
+
+Local free/licensed APIs now expose bounded owned-fixture job admission/history,
+status and cancellation. Admission requires the exact contract digest returned by
+an explicit fresh review, plus the same fixture, completion mapping and timeout.
+A stale digest, changed policy/assertion/settings, plaintext inputs or missing
+session/CSRF is rejected. The queue independently revalidates current saved state
+inside its transaction. HTTP never launches a child or resolves an input value.
+These execution routes are absent from the legacy organization/account composition;
+only local-first editions expose them. Review remains non-executing in all editions.
+
+Routes:
+- POST /api/projects/{project_id}/interactive/jobs: review fields plus confirmed_contract_fingerprint.
+- GET /api/projects/{project_id}/interactive/jobs: latest twenty owned jobs.
+- GET /api/projects/{project_id}/interactive/jobs/{job_id}: sanitized status/result.
+- POST /api/projects/{project_id}/interactive/jobs/{job_id}/cancel: empty JSON object.
+
+Trusted local operators can process exactly one job, or recover interrupted claims:
+
+```powershell
+python -m adaptive_qa dashboard free-interactive-once --database artifacts/local-free/projects.sqlite
+python -m adaptive_qa dashboard free-recover-interactive --database artifacts/local-free/projects.sqlite
+python -m adaptive_qa local interactive-once --workspace artifacts/local-free --trusted-keys publisher-public-keys.json
+python -m adaptive_qa local recover-interactive --workspace artifacts/local-free --trusted-keys publisher-public-keys.json
+```
+
+Free commands refuse a workspace with any licensing marker. Paid commands construct
+the licensed store and require the caller's trusted public-key file; claims still
+check license validity and shared capacity transactionally. Recovery cancels/errors
+interrupted work without resubmission. No account or secret value is added by free
+commands. The target scope is still the four fixed owned local fixture endpoints.
+The public Pages demo and real customer/public-site execution scope are unchanged.
+
+Seven HTTP and seven free/paid CLI tests passed. Next add local UI controls that
+show this scope clearly, clear confirmation after edits/admission, and display
+unknown submission completion without offering an automatic retry.
+
+Operator admission regression: 783 tests completed (782 passed, one Windows
+permission skip). The earlier interrupted local invocation produced no acceptance
+result; this completed fresh run is the regression checkpoint.
