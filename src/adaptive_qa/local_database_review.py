@@ -3,7 +3,7 @@ from dataclasses import asdict, dataclass, field
 import hashlib
 import json
 from pathlib import Path
-import re
+from adaptive_qa.local_database_settings import DatabaseCountBinding
 
 from adaptive_qa.database_models import DatabaseCase, DatabaseCheck, DatabaseConfiguration, DatabaseOperator, QueryTemplate
 from adaptive_qa.models import TestCase, TestType
@@ -30,10 +30,7 @@ class LocalDatabaseReview:
         project=self.configuration.project
         if project.base_url.rstrip('/')!='http://127.0.0.1:8000' or project.allowed_hosts!=('127.0.0.1',):
             raise ValueError('Only the controlled local fixture project is supported.')
-        if (not isinstance(self.table,str) or not re.fullmatch('[a-z][a-z0-9_]{0,63}',self.table)
-                or self.table.startswith('sqlite_') or type(self.expected_count) is not int
-                or not 0<=self.expected_count<=2147483647):
-            raise ValueError('An explicit application table and bounded record count are required.')
+        DatabaseCountBinding(self.table,self.expected_count)
         if (not isinstance(self.fixture_root,Path) or not self.fixture_root.is_absolute()
                 or '..' in self.fixture_root.parts or len(str(self.fixture_root))>512
                 or not isinstance(self.root_identity,tuple) or len(self.root_identity)!=2

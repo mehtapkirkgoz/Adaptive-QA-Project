@@ -249,6 +249,13 @@ def create_app(store: AuthStore, *, port=8765, projects=None, ui_directory=None)
         from adaptive_qa.api_queue import LocalApiQueue
         local_api = LocalApiQueue(projects)
 
+        @app.post('/api/projects/{project_id}/local-database/review')
+        async def review_saved_local_database(project_id: str, request: Request):
+            from adaptive_qa.saved_database_review import review_saved_database
+            owner = await run_in_threadpool(actor, request, mutation=True)
+            _object(await request.body(), ())
+            return await run_in_threadpool(review_saved_database, projects, owner, project_id)
+
         @app.post('/api/projects/{project_id}/local-api/jobs', status_code=202)
         async def submit_saved_local_api(project_id: str, request: Request):
             owner = await run_in_threadpool(actor, request, mutation=True)
@@ -340,7 +347,7 @@ def create_app(store: AuthStore, *, port=8765, projects=None, ui_directory=None)
     async def put_configuration(project_id: str, request: Request):
         owner = await run_in_threadpool(actor, request, mutation=True)
         data = _object(await request.body(), ('base_url', 'allowed_hosts',
-                                            'allow_data_changes', 'secret_references'), optional=('form_mappings','local_form_binding','local_api_binding'))
+                                            'allow_data_changes', 'secret_references'), optional=('form_mappings','local_form_binding','local_api_binding','local_database_binding'))
         return await run_in_threadpool(projects.save_configuration, owner, project_id, data)
 
     @app.patch('/api/projects/{project_id}')

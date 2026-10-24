@@ -12,6 +12,7 @@ import time
 import uvicorn
 from playwright.sync_api import sync_playwright, expect
 from adaptive_qa.local_free import create_free_app, LocalFreeProjects, LOCAL_ACTOR
+from adaptive_qa.project_settings import reference_name
 from check_dashboard_runs import QuietHandler
 
 
@@ -129,6 +130,16 @@ def main():
                     assert 'local_api_binding' not in projects.configuration(LOCAL_ACTOR,saved_project.project_id)
                     with projects._connection() as c:
                         assert c.execute('SELECT count(*) FROM dashboard_api_jobs').fetchone()[0]==2
+                    database_binding=dict(table='inventory',expected_count=3)
+                    projects.save_configuration(LOCAL_ACTOR,saved_project.project_id,dict(
+                        base_url='http://127.0.0.1:8000/',allowed_hosts=['127.0.0.1'],allow_data_changes=False,
+                        secret_references={'database_path':reference_name(LOCAL_ACTOR.user_id,saved_project.project_id,'database_path')},
+                        local_database_binding=database_binding))
+                    page.reload()
+                    page.get_by_role('button',name='Free local target Project configuration').click()
+                    page.get_by_role('button',name='Save configuration',exact=True).click()
+                    expect(page.get_by_text('Configuration saved. No tests were started.',exact=True)).to_be_visible()
+                    assert projects.configuration(LOCAL_ACTOR,saved_project.project_id)['local_database_binding']==database_binding
                     assert not (root/'auth.sqlite').exists()
                     with projects._connection() as connection:
                         assert not connection.execute("SELECT 1 FROM sqlite_master WHERE name='dashboard_users'").fetchone()
@@ -144,6 +155,7 @@ def main():
               'one_project_cap': True, 'real_local_login_check_passed': True, 'ui_preserved_saved_api_binding': True,
               'api_editor_save_reload_remove': True, 'api_jobs_explicitly_confirmed': 2, 'api_job_cancelled_before_execution': True,
               'api_ui_cli_result': 'passed', 'api_requests': len(api_contacts), 'api_unsaved_confirmation_cleared': True,
+              'ui_preserved_saved_database_binding': True,
               'auth_database_created': False, 'central_requests': len(external), 'page_errors': errors}
     (output/'ui.json').write_text(json.dumps(report, indent=2)+'\n', encoding='utf-8')
     print(json.dumps(report))

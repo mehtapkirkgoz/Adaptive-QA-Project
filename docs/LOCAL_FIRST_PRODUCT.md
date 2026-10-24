@@ -459,3 +459,12 @@ count failed, an outside-root reference was blocked, cancellation passed and fil
 hashes stayed unchanged. All 37 database-focused checks passed. See
 LOCAL_DATABASE_EXECUTION.md for remaining saved settings/queue/CLI/UI work; no
 customer database admission or catalog expansion is enabled.
+
+Count-only DB metadata can now be saved and reviewed from a single owner-scoped
+snapshot through a protected local endpoint. The database path remains a scoped
+environment reference; reviewing neither resolves it nor opens a target database.
+Foreign references, SQL/path metadata and stale owner access are rejected. All 40
+DB-focused checks, six settings checks, production/demo builds and the free browser
+save-preservation drill passed. No DB execution route/UI editor is enabled yet.
+Continue confirmed queue/worker integration with a fixed workspace/project fixture
+root, shared licensing/cancellation/recovery and no HTTP-selected filesystem roots.
