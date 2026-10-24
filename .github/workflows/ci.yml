@@ -195,6 +195,8 @@ jobs:
           npm run build
       - name: Verify built React dashboard
         run: python scripts/check_dashboard_ui.py
+      - name: Verify local interactive review and confirmation UI without target access
+        run: python scripts/check_interactive_dashboard.py
       - name: Verify organization roles and shared configuration UI
         run: python scripts/check_organization_ui.py
       - name: Verify two-organization admission isolation and real workers

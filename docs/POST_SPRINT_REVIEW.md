@@ -667,3 +667,31 @@ The public Pages demo and real customer/public-site execution scope are unchange
 Seven HTTP and seven free/paid CLI tests passed. Next add local UI controls that
 show this scope clearly, clear confirmation after edits/admission, and display
 unknown submission completion without offering an automatic retry.
+
+## Local Interactive Operator UI
+
+The real local-first dashboard now shows controlled interactive controls only for
+the four exact supported saved fixture URLs. It requires saved data-change
+permission and the operation's scoped references, then lets the operator review an
+explicit completion test ID/timeout and separately confirm one submission.
+Editing either field or admitting a job clears the review and confirmation. A
+failed/uncertain queue response clears confirmation and refreshes history instead
+of automatically resubmitting. Job history supports cancellation and distinguishes
+known counts from unknown completion. Browser screenshots remain disabled for
+interactive target execution; UI verification screenshots contain no input values.
+
+The built free local UI was verified in a fresh disposable workspace/server on
+port 8893, preserving the owner's existing running session. Desktop/mobile proofs
+cover review without target access, confirmation invalidation, queue/cancel and a
+clearly synthetic unknown worker outcome. There were zero target/external requests,
+page errors, registered accounts or mobile overflow. Both screenshots were
+visually reviewed. TypeScript/production/demo builds and the existing Pages demo
+browser checks passed: catalog 51 UI + 34 API + 15 database, no API/external request
+and no execution in the demo. CI uploads the new local UI evidence. Exact-commit
+CI for the operator API and this UI increment remains pending.
+
+The public demo behavior and legacy organization UI are unchanged. This is not
+an arbitrary-site login adapter: general HTTPS remains bounded read-only. Next
+verify exact-commit artifacts for the combined owned interactive pipeline, then
+prioritize reusable endpoint/response bindings and operator configuration rather
+than claiming customer deployment from these local fixture proofs.

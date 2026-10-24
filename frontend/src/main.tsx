@@ -1,3 +1,4 @@
+import {InteractivePanel} from './InteractivePanel';
 import {FormMappingsEditor} from './FormMappingsEditor';
 import type {FormMapping} from './FormMappingsEditor';
 import {useEffect, useState} from 'react';
@@ -135,6 +136,10 @@ function App() {
                 <div className="save-bar"><p className="hint">Saving configuration does not start a test.</p><button className="primary" type="submit">{busy ? 'Saving…' : 'Save configuration'}</button></div>
               </fieldset></form>
               <ExecutionScope settings={settings}/>
+              {(freeEdition || licensedEdition) && <InteractivePanel key={'interactive:' + selected.project_id + JSON.stringify(settings)}
+                projectId={selected.project_id} target={settings.base_url ?? ''} dataChanges={settings.allow_data_changes ?? false}
+                references={Object.keys(settings.secret_references ?? {})} request={api}/>}
+
               <DiscoveryPanel key={'discovery:' + selected.project_id + JSON.stringify(settings)} projectId={selected.project_id} configured={supportsDiscovery(settings)} publicTarget={settings.discovery_support?.profile === 'public_https'} request={api} onReport={(report, jobId) => setPlan({...report, discovery_job_id: jobId})}/>
               <section className="plan-review"><h3>Test plan review</h3><p className="hint">Review the saved configuration. Unsaved edits are not included. Reviewing never starts tests or visits your target.</p>
                 <button disabled={busy || !settings.configured} onClick={() => void perform(async () => {

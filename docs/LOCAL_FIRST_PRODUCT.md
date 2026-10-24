@@ -295,3 +295,9 @@ acceptance remains pending; unsupported legacy managed licensed switching remain
 explicit. Continue the remaining controlled interactive form implementation in
 INTERACTIVE_FORMS.md, then broader reusable execution work. Existing public/customer
 submission restrictions and non-executing plans remain authoritative.
+
+Controlled interactive follow-up now includes scoped saved review, transactional
+queue/licensing/cancellation, mapped-input child execution, explicit local operator
+confirmation and real local UI controls for four owned fixtures. See the latest
+INTERACTIVE_FORMS.md checkpoints. General-site interactive submission and overall
+product acceptance remain pending; the public demo remains non-executing.
