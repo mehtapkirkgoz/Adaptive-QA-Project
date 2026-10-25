@@ -25,10 +25,10 @@ class DashboardRunWorkerTests(unittest.TestCase):
         self.queue.cancel(self.fixture.actor, self.fixture.pid, self.run['run_id'])
         document = self.fixture.submit(('DOC-001',))
         result = TestResult('DOC-001', TestStatus.PASSED, .1, 'Document passed.')
-        with patch('adaptive_qa.dashboard_run_worker.run_isolated_sample_test', return_value=result) as adapter, \
+        with patch('adaptive_qa.dashboard_run_worker.run_isolated_document_test', return_value=result) as adapter, \
                 patch.object(self.queue, 'record_execution_context') as record:
             self.assertEqual(process_run_once(self.queue)['status'], 'completed')
-            self.assertEqual(adapter.call_args.kwargs['document_path'], '/')
+            self.assertEqual(adapter.call_args.kwargs['profile'], 'controlled_local')
             record.assert_not_called()
         self.assertIsNone(self.queue.comparison_context(self.fixture.actor, self.fixture.pid, document['run_id'])['execution_context'])
 

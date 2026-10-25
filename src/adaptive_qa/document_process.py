@@ -45,12 +45,18 @@ def _execute(case_id, project, profile, evidence_root, *, family='document', map
     started = perf_counter()
     evidence = evidence_root / (uuid4().hex + '.png')
     denied = 0
+    reason = 'Document loading, coverage or execution was incomplete.'
     guard = DestinationGuard(project, local_sample=profile == 'controlled_local', max_requests=100)
     def route_request(route):
         nonlocal denied
         try:
             if route.request.method not in ('GET', 'HEAD'):
                 raise ValueError('Read-only methods are required.')
+            if family == 'document' and (route.request.resource_type != 'document' or route.request.frame != page.main_frame):
+                # Source-HTML assertions intentionally exclude assets and embedded documents.
+                # No request, DNS lookup, script or form action is needed for these checks.
+                route.abort('blockedbyclient')
+                return
             validate_discovery_url(route.request.url, project, profile)
         except ValueError:
             denied += 1
@@ -61,7 +67,7 @@ def _execute(case_id, project, profile, evidence_root, *, family='document', map
         with EgressProxy(guard) as proxy, sync_playwright() as playwright:
             browser = playwright.chromium.launch(timeout=10000, **chromium_proxy_options(proxy.url))
             try:
-                context = browser.new_context(service_workers='block', accept_downloads=False)
+                context = browser.new_context(service_workers='block', accept_downloads=False, java_script_enabled=family != 'document')
                 try:
                     context.set_default_timeout(3000)
                     context.set_default_navigation_timeout(10000)
@@ -69,20 +75,24 @@ def _execute(case_id, project, profile, evidence_root, *, family='document', map
                     context.route_web_socket('**/*', lambda connection: connection.close())
                     page = context.new_page()
                     try:
+                        reason = 'The bound HTML document could not be loaded.'
                         response = page.goto(project.base_url, wait_until='domcontentloaded')
                         if (response is None or response.status != 200 or page.url != project.base_url
                                 or 'text/html' not in response.headers.get('content-type', '').lower()):
                             raise RuntimeError('The bound HTML document was not loaded.')
+                        reason = 'Document execution was incomplete.'
                         if family == 'form':
                             FORM_CHECKS[case_id](page, project_id=project.project_id, mappings=mappings)
                         else:
                             DOCUMENT_CHECKS[case_id](page)
-                        # Missing resources must never produce a passing document verdict.
+                        # Source-HTML checks exclude assets by contract; main navigation and rendered form coverage remain strict.
                         if denied or guard.denied or page.url != project.base_url:
+                            reason = 'Destination policy or rendered coverage was incomplete.'
                             raise RuntimeError('Network coverage is incomplete.')
                     finally:
                         _capture_evidence(page, evidence)
                         if denied or guard.denied or page.url != project.base_url:
+                            reason = 'Destination policy or rendered coverage was incomplete.'
                             raise RuntimeError('Network coverage or the bound target changed.')
                 finally:
                     context.close()
@@ -96,9 +106,9 @@ def _execute(case_id, project, profile, evidence_root, *, family='document', map
         status = TestStatus.ERROR
     else:
         status = TestStatus.PASSED
-    messages = {TestStatus.PASSED: 'The independent document check passed.',
-                TestStatus.FAILED: 'The independent document assertion failed.',
-                TestStatus.ERROR: 'Document loading, coverage or execution was incomplete.',
+    messages = {TestStatus.PASSED: 'The source HTML structure check passed; scripts and assets were not evaluated.',
+                TestStatus.FAILED: 'The source HTML structure assertion failed.',
+                TestStatus.ERROR: reason,
                 TestStatus.BLOCKED: 'Configured form controls are missing or ambiguous.'}
     if family == 'form':
         messages[TestStatus.PASSED] = 'The read-only form check passed; no form was submitted.'

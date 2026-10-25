@@ -276,6 +276,19 @@ class DashboardRunQueue:
             results.append({'case_id': result.case_id, 'status': result.status,
                             'duration_seconds': result.duration_seconds,
                             'message': f'Test execution outcome: {result.status.value}.'})
+            safe_reasons = {
+                'The source HTML structure check passed; scripts and assets were not evaluated.': 'source_html_passed',
+                'The source HTML structure assertion failed.': 'source_html_assertion_failed',
+                'The bound HTML document could not be loaded.': 'html_document_not_loaded',
+                'Destination policy or rendered coverage was incomplete.': 'destination_or_coverage_blocked',
+                'Document execution was incomplete.': 'document_execution_incomplete',
+                'Document execution exceeded its deadline.': 'document_deadline_exceeded',
+                'Document child exited unexpectedly.': 'document_process_error',
+                'Document child returned an invalid result.': 'document_process_error',
+            }
+            if result.message in safe_reasons:
+                results[-1]['reason_code'] = safe_reasons[result.message]
+
             if evidence_png is not None:
                 evidence_id = uuid4().hex
                 expires_at = self.clock() + self.retention_seconds

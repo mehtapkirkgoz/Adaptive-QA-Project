@@ -179,6 +179,9 @@ stage('complete')
             if (not simple.get('installed_wheel') or not simple.get('managed_workers')
                     or simple.get('one_click_admissions') != 1 or simple.get('manual_worker_commands') != 0
                     or not simple.get('all_recorded_passed') or not simple.get('reload_did_not_replay')
+                    or not simple.get('unified_english_workspace')
+                    or not simple.get('empty_and_execution_error_states_verified')
+                    or not simple.get('partial_outcome_state_verified')
                     or simple.get('ui_external_requests') or simple.get('page_errors')):
                 raise ValueError('Installed one-button site check evidence is incomplete.')
             simple_output=ROOT/'artifacts/site-check';simple_output.mkdir(parents=True,exist_ok=True)

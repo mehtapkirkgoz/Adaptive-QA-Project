@@ -358,6 +358,8 @@ jobs:
         run: |
           python scripts/check_https_api.py
           python scripts/check_https_api.py --licensed
+      - name: Verify source HTML checks exclude assets without relaxing egress
+        run: python scripts/check_html_inspection.py
       - name: Verify one-button managed local site checks
         run: |
           python scripts/check_site_check_ui.py
@@ -389,6 +391,7 @@ jobs:
             artifacts/https-api/*.png
             artifacts/site-check/*.json
             artifacts/site-check/*.png
+            artifacts/html-inspection/*.json
             artifacts/interactive-probe/*.json
           retention-days: 7
           if-no-files-found: warn

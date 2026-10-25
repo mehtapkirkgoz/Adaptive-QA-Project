@@ -74,6 +74,8 @@ class SiteChecks:
             if status == 'completed' and run['results'] and all(r['status'] in ('error', 'blocked', 'cancelled') for r in run['results']):
                 out['status'] = 'execution_error'
                 out['diagnostic_code'] = 'no_reliable_test_outcomes'
+            elif status == 'completed' and any(r['status'] not in ('passed','failed') for r in run['results']):
+                out['status'] = 'partial'
             out['outcome_counts'] = {key: sum(r['status'] == key for r in run['results'])
                                      for key in ('passed','failed','error','blocked','cancelled','skipped')}
 
@@ -205,7 +207,8 @@ class SiteChecks:
             summary = dict(inspected_pages=report['inspected_pages'], requested=len(selected),
                 not_run=len(report['cases'])-len(selected),
                 names={c['case_id']: c['name'] for c in report['cases'] if c['case_id'] in selected},
-                limitations=['read_only', 'five_page_discovery', 'ten_check_limit', 'no_login_api_database', 'no_ai_claim'])
+                execution_scope='source_html_structure_and_read_only_forms',
+                limitations=['source_html_only', 'read_only', 'five_page_discovery', 'ten_check_limit', 'no_login_api_database', 'no_ai_claim'])
             self._update(check_id, summary_json=json.dumps(summary))
             # Cancellation and child-run publication share a transition lock.
             with self.transition:

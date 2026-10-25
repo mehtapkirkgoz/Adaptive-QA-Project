@@ -281,7 +281,7 @@ def main():
                     with page.expect_response(lambda response:response.url.endswith('/runs') and response.status==401):
                         delayed[0].fulfill(status=401,content_type='application/json',body='{}')
                     page.wait_for_load_state('networkidle')
-                    expect(page.get_by_role('heading',name='Project workspace',exact=True)).to_be_visible()
+                    expect(page.get_by_role('heading',name='Check your website.',exact=True)).to_be_visible()
                     expect(page.get_by_role('heading',name='Reopen local workspace',exact=True)).to_have_count(0)
                     page.unroute('**/api/projects/*/runs',hold_old_history)
                     assert not (root/'auth.sqlite').exists()

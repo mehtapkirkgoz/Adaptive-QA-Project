@@ -48,7 +48,10 @@ def process_run_once(queue):
                 if document_path != '/' and case_id not in DOCUMENT_CHECKS and case_id not in FORM_CHECKS:
                     raise ValueError('Only independent read-only cases support this path.')
                 deadline = min(30, 120 - (monotonic() - started))
-                if case_id in FORM_CHECKS and (profile == 'public_https' or document_path != '/' or work.configuration.get('form_mappings')):
+                if case_id in DOCUMENT_CHECKS:
+                    result = run_isolated_document_test(case_id, project, profile=profile, timeout_seconds=deadline,
+                        should_cancel=stop, evidence_directory=evidence_root)
+                elif case_id in FORM_CHECKS and (profile == 'public_https' or document_path != '/' or work.configuration.get('form_mappings')):
                     result = run_isolated_form_test(case_id, project, profile=profile, timeout_seconds=deadline,
                         should_cancel=stop, evidence_directory=evidence_root,
                         mappings=saved_form_mappings(work.configuration.get('form_mappings', []), work.project_id))

@@ -87,6 +87,21 @@ class SiteCheckTests(unittest.TestCase):
         self.assertEqual(persisted['status'],'completed')
         self.assertNotIn('private diagnostic',str(public))
 
+    def test_partial_execution_uses_safe_diagnostics_and_remains_distinct_from_failures(self):
+        def result(case,*args,**kwargs):
+            if case=='DOC-001': return TestResult(case,TestStatus.PASSED,.01,'The source HTML structure check passed; scripts and assets were not evaluated.')
+            return TestResult(case,TestStatus.ERROR,.01,'The bound HTML document could not be loaded.')
+        with patch('adaptive_qa.dashboard_worker.discover_configured_target',side_effect=self.discovery), \
+                patch('adaptive_qa.dashboard_run_worker.run_isolated_document_test',side_effect=result):
+            check=self.service.submit(LOCAL_ACTOR,self.url);self.service.thread.join(5)
+        public=self.service.get(LOCAL_ACTOR,check['check_id'])
+        self.assertEqual(public['status'],'partial')
+        self.assertEqual(public['outcome_counts']['passed'],1)
+        self.assertEqual(public['outcome_counts']['error'],4)
+        self.assertEqual(public['outcome_counts']['failed'],0)
+        self.assertEqual(public['results'][0]['reason_code'],'source_html_passed')
+        self.assertTrue(all(r['reason_code']=='html_document_not_loaded' for r in public['results'][1:]))
+
     def test_restore_cancels_managed_state_without_replaying_children(self):
         from adaptive_qa.local_backup import create_local_backup, restore_local_backup
         with patch('adaptive_qa.dashboard_worker.discover_configured_target', side_effect=RuntimeError()):

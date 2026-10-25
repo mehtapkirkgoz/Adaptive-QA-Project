@@ -47,7 +47,6 @@ async function api<T>(path: string, method = 'GET', body?: unknown): Promise<T> 
 
 function App() {
   const [simpleAvailable, setSimpleAvailable] = useState(false);
-  const [advanced, setAdvanced] = useState(() => location.hash === '#advanced');
   const [freeEdition, setFreeEdition] = useState(false);
   const [licensedEdition, setLicensedEdition] = useState(false);
   const [signedIn, setSignedIn] = useState(false), [checking, setChecking] = useState(true);
@@ -82,13 +81,13 @@ function App() {
     try {return await api<T>(path, method, body);}
     catch (e) {if (e instanceof ApiError && e.status === 401 && epoch === sessionEpoch.current) fail(e); throw e;}
   }
-  async function perform(task: () => Promise<void>) {
-    setBusy(true); setError(''); setNotice('');
+  async function perform(task: () => Promise<unknown>, keepNotice = false) {
+    setBusy(true); setError(''); if (!keepNotice) setNotice('');
     try {await task();} catch (e) {fail(e);} finally {setBusy(false);}
   }
   async function load(page = 0) {
     const data = await api<{projects: Project[]}>(`/api/projects?limit=20&offset=${page}`);
-    setProjects(data.projects); setOffset(page);
+    setProjects(data.projects); setOffset(page); return data.projects;
   }
   useEffect(() => {let alive = true;
     (async () => {try {const session = await api<{edition?: string; simple_site_checks?: boolean}>('/api/auth/me');
@@ -99,14 +98,14 @@ function App() {
     finally {if (alive) setChecking(false);}})();
     return () => {alive = false;};
   }, []);
-  async function choose(project: Project) {
+  async function choose(project: Project, keepNotice = false) {
     await perform(async () => {
       setSelected(null); setSettings(null); setPlan(null);
       const data = await api<Settings>(`/api/projects/${project.project_id}/configuration`);
       setSelected(project); setSettings(data); setTarget(data.base_url ?? '');
       setHosts(data.allowed_hosts?.join('\n') ?? ''); setChanges(data.allow_data_changes ?? false);
       setSlots(Object.keys(data.secret_references ?? {})); setFormMappings(data.form_mappings ?? []); setLocalBinding(data.local_form_binding ?? null); setApiBinding(data.local_api_binding ?? null); setDatabaseBinding(data.local_database_binding ?? null);
-    });
+    }, keepNotice);
   }
   function login(event: FormEvent<HTMLFormElement>) {
     event.preventDefault(); const form = event.currentTarget, data = new FormData(form);
@@ -138,26 +137,7 @@ function App() {
     || JSON.stringify(formMappings) !== JSON.stringify(settings.form_mappings ?? []) || JSON.stringify(localBinding) !== JSON.stringify(settings.local_form_binding ?? null)
     || JSON.stringify(apiBinding) !== JSON.stringify(settings.local_api_binding ?? null)
     || JSON.stringify(databaseBinding) !== JSON.stringify(settings.local_database_binding ?? null));
-  if (signedIn && simpleAvailable && !advanced) return <SiteCheck request={workspaceRequest} onAdvanced={() => {setAdvanced(true); void load();}}/>;
-  return <div className="shell">
-    <aside><a className="brand" href="/" aria-label="Adaptive QA home"><span className="mark">AQ</span> Adaptive QA</a>
-      <p className="eyebrow">WORKSPACE</p><div className="nav-item">Projects <span aria-hidden="true">●</span></div>
-      <div className="sidebar-note"><span className="dot"/> Local workspace<p>Configure with confidence.<br/>Keep every project in scope.</p></div>
-    </aside>
-    <div className="workspace"><header><span>Workspace <span className="slash">/</span> Projects</span><div className="header-actions">{simpleAvailable && <button onClick={() => setAdvanced(false)}>Kolay site kontrolü</button>}<span className="badge">{freeEdition ? 'FREE · LOCAL' : 'LOCAL'}</span>
-      {signedIn && !freeEdition && <button className="quiet" disabled={busy} onClick={() => void perform(async () => {await api('/api/auth/logout', 'POST', {}); clear();})}>Sign out</button>}</div></header>
-      <main><div className="page-title"><div><p className="eyebrow">ADAPTIVE TESTING</p><h1>{signedIn ? 'Project workspace' : 'Welcome to your workspace'}</h1>
-        <p className="subtitle">{signedIn ? 'Manage your projects and define what is in scope.' : freeEdition ? 'Reopen your account-free local workspace.' : 'Sign in to manage your QA projects.'}</p></div><span className="step">LOCAL WORKSPACE</span></div>
-        {error && <div role="alert" className="message error">{error}</div>}
-        {notice && <div role="status" className="message success">{notice}</div>}
-        {checking ? <p role="status">Checking your session…</p> : !signedIn && freeEdition ? <section className="card login" aria-label="Reopen local workspace">
-          <h2>Reopen local workspace</h2><p>No account is required. Reopening restores access to saved projects; it does not retry a save or start tests.</p>
-          <button className="primary" disabled={busy} onClick={reopenFreeWorkspace}>{busy ? 'Reopening…' : 'Reopen workspace'}</button>
-        </section> : !signedIn ? <section className="card login"><p className="eyebrow">YOUR ACCOUNT</p><h2>Sign in</h2>
-          <form onSubmit={login}><fieldset disabled={busy}><label>Email<input name="email" type="email" autoComplete="username" required maxLength={254}/></label>
-            <label>Password<input name="password" type="password" autoComplete="current-password" required/></label>
-            <button className="primary" type="submit">{busy ? 'Signing in…' : 'Sign in'}</button></fieldset></form><p className="hint">Use the account created by your local workspace administrator.</p></section>
-        : <>{!freeEdition && !licensedEdition && <OrganizationPanel request={workspaceRequest}/>}
+  const projectTools = <>{!freeEdition && !licensedEdition && <OrganizationPanel request={workspaceRequest}/>}
             {licensedEdition && <LicensePanel request={workspaceRequest}/>}
             {freeEdition && <p className="hint">Free local edition: one active site/project. No account required. Targets and results stay on this computer.</p>}<section className="card create"><div><h2>Your projects</h2><p className="hint">Start with a name. Add target settings when you are ready.</p></div>
           <form onSubmit={create}><fieldset disabled={busy} className="inline"><label className="sr-only" htmlFor="new-project">New project name</label><input id="new-project" name="name" placeholder="New project name" required maxLength={100}/><button className="primary" disabled={freeEdition && projects.length > 0}>+ Create project</button></fieldset></form></section>
@@ -168,9 +148,9 @@ function App() {
             <section className="card details">{!selected || !settings ? <div className="empty detail-empty"><span className="empty-icon">⌘</span><h2>{busy ? 'Loading…' : 'Select a project'}</h2><p>Review its target, allowed hosts and secret references.</p></div> : <>
               <div className="section-label"><h2>Project settings</h2><span className="badge">{settings.configured ? 'CONFIGURED' : 'NEW'}</span></div>
               <form onSubmit={rename} key={selected.project_id + selected.name}><fieldset disabled={busy}><div className="inline"><label>Project name<input name="name" defaultValue={selected.name} required maxLength={100}/></label><button type="submit">Rename</button></div></fieldset></form>
-              <form onSubmit={save}><fieldset disabled={busy}><label>Target URL<input type="url" value={target} onChange={e => setTarget(e.target.value)} placeholder="http://127.0.0.1:8000/" maxLength={512} required/></label>
-                <label>Allowed hosts<textarea aria-label="Allowed hosts" value={hosts} onChange={e => setHosts(e.target.value)} rows={3} placeholder="127.0.0.1" required/></label><p className="hint">One exact hostname per line. No ports or wildcards.</p>
-                <label className="check"><input type="checkbox" checked={changes} onChange={e => setChanges(e.target.checked)}/><span>Allow tests that change data</span></label>
+              <form onSubmit={save}><fieldset disabled={busy}><label>Target URL<input type="url" value={target} onChange={e => setTarget(e.target.value)} placeholder="https://example.com/" maxLength={512} required/></label>
+                <label>Allowed hosts<textarea aria-label="Allowed hosts" value={hosts} onChange={e => setHosts(e.target.value)} rows={3} placeholder="127.0.0.1" required/></label><p className="hint">Usually the domain from your URL, such as example.com. One exact hostname per line; no protocol, path, port or wildcard.</p>
+                <label className="check"><input type="checkbox" checked={changes} onChange={e => setChanges(e.target.checked)}/><span>Allow tests that change data</span></label><p className="hint">Leave this off for automatic website checks. Interactive changes require a separate explicit test contract.</p>
                 <FormMappingsEditor key={selected.project_id + JSON.stringify(settings)} value={formMappings} onChange={setFormMappings}/>
                 {(freeEdition || licensedEdition) && <LocalFormBindingEditor target={target} value={localBinding} onChange={setLocalBinding}/>}
                 {(freeEdition || licensedEdition) && <LocalApiEditor target={target} publicHttpsEnabled={settings.api_binding_profiles?.includes('public_https') ?? false} value={apiBinding} onChange={setApiBinding}/>}
@@ -208,7 +188,71 @@ function App() {
               </section><RunPanel key={'runs:' + selected.project_id + JSON.stringify(settings)} projectId={selected.project_id} discoveryJobId={plan?.discovery_job_id}
                 candidateNames={Object.fromEntries(plan?.cases.map(item => [item.case_id, item.name]) ?? [])}
                 candidates={plan?.cases.filter(item => item.decision === 'selected' && item.test_type === 'ui' && matchesSavedTarget(settings, item) && item.changes_data === false).map(item => item.case_id) ?? []} request={workspaceRequest}/></>}
-            </section></div><div className="roadmap"><span className="dot"/><p>Local discovery, explicit UI runs and owner-authorized screenshots are available.</p></div></>}
+            </section></div><div className="roadmap"><span className="dot"/><p>Local discovery, explicit UI runs and owner-authorized screenshots are available.</p></div></>;
+  const expandOptions = location.hash === '#advanced';
+  const saveOptionsButton = <div className="save-bar"><p className="hint">Save only applies these options. It never starts a check.</p><button className="primary" type="submit">{busy ? 'Saving…' : 'Save configuration'}</button></div>;
+  const localTools = <div className="unified-options">
+    <details open={expandOptions}><summary><strong>Saved sites</strong><span>Choose or name a local project</span></summary>
+      {licensedEdition && <LicensePanel request={workspaceRequest}/>}
+      <h2>Your projects</h2><form onSubmit={create}><fieldset disabled={busy} className="inline"><label className="sr-only" htmlFor="saved-project-name">New project name</label><input id="saved-project-name" name="name" placeholder="New project name" required maxLength={100}/><button disabled={freeEdition && projects.length>0}>+ Create project</button></fieldset></form>
+      <p className="hint">{freeEdition ? 'One active site is included. Testing another URL reuses this project and keeps its results.' : 'Projects and local administration follow your installed license.'}</p>
+      {selected && <form onSubmit={rename} key={selected.project_id+selected.name}><fieldset disabled={busy} className="inline"><label>Project name<input name="name" defaultValue={selected.name} required maxLength={100}/></label><button>Rename</button></fieldset></form>}
+      <div className="pagination"><button disabled={busy||offset===0} onClick={()=>void perform(()=>load(Math.max(0,offset-20)))}>Previous</button><span>Page {offset/20+1}</span><button disabled={busy||projects.length<20} onClick={()=>void perform(()=>load(offset+20))}>Next</button></div>
+
+      {projects.map(project=><button className="project-row" key={project.project_id} disabled={busy} onClick={()=>void choose(project)}>{project.name}<small>Project configuration</small></button>)}
+    </details>
+    {!selected || !settings ? <p className="hint">Select a saved site above to edit its optional configuration.</p> : <>
+      <h2>Project settings</h2><p className="hint">Current project: {selected.name}. These options are only needed for checks beyond the automatic URL inspection.</p>
+      <form onSubmit={save}><fieldset disabled={busy}>
+        <details open={expandOptions}><summary><strong>Website scope</strong><span>Saved URL, allowed domains and data-change permission</span></summary>
+          <label>Target URL<input type="url" required maxLength={512} value={target} onChange={e=>setTarget(e.target.value)} placeholder="https://example.com/"/></label>
+          <label>Allowed hosts<textarea aria-label="Allowed hosts" value={hosts} onChange={e=>setHosts(e.target.value)} rows={2} required/></label>
+          <p className="hint">Use the domain from the URL, such as example.com. One per line; no protocol, path, port or wildcard.</p>
+          <label className="check"><input type="checkbox" checked={changes} onChange={e=>setChanges(e.target.checked)}/><span>Allow tests that change data</span></label><p className="hint">Leave off for automatic website checks. Interactive changes need a separate explicit contract.</p>
+        </details>
+        <details open={expandOptions}><summary><strong>API response</strong><span>Check a known endpoint and expected response</span></summary><p className="hint">Optional. Use the saved URL as the API origin and enter its endpoint path below.</p><LocalApiEditor target={target} publicHttpsEnabled={settings.api_binding_profiles?.includes('public_https')??false} value={apiBinding} onChange={setApiBinding}/></details>
+        <details open={expandOptions}><summary><strong>Database check</strong><span>Configure an owned local SQLite count</span></summary><p className="hint">Optional. A website URL does not grant access to its database.</p><LocalDatabaseEditor target={target} value={databaseBinding} onChange={setDatabaseBinding}/></details>
+        <details open={expandOptions}><summary><strong>Form matching</strong><span>Map known form fields for explicit checks</span></summary><FormMappingsEditor key={selected.project_id+JSON.stringify(settings)} value={formMappings} onChange={setFormMappings}/><LocalFormBindingEditor target={target} value={localBinding} onChange={setLocalBinding}/></details>
+        <details open={expandOptions}><summary><strong>Local secret references</strong><span>Choose environment references without entering secret values</span></summary><p className="hint">Leave these unselected for public read-only checks. Values stay in your worker environment.</p>
+          {Object.keys(settings.available_secret_references).map(slot=><label className="check" key={slot}><input type="checkbox" checked={slots.includes(slot)} onChange={e=>setSlots(e.target.checked?[...slots,slot]:slots.filter(value=>value!==slot))}/><span>{slot.replaceAll('_',' ')}</span></label>)}
+          {slots.length>0 && <details><summary>Environment variable names</summary>{slots.map(slot=><code key={slot}>{settings.available_secret_references[slot]}</code>)}</details>}
+        </details>{saveOptionsButton}
+      </fieldset></form>
+      <details open={expandOptions}><summary><strong>Run configured checks</strong><span>Review and confirm explicit API, database or form work</span></summary>
+        <ExecutionScope settings={settings}/>
+        {settings.local_api_binding && <LocalApiPanel key={'api:'+selected.project_id+JSON.stringify(settings)} projectId={selected.project_id} target={settings.base_url??''} binding={settings.local_api_binding} unsaved={unsaved} licensed={licensedEdition} request={workspaceRequest}/>}
+        {settings.local_database_binding && <LocalDatabasePanel key={'database:'+selected.project_id+JSON.stringify(settings)} projectId={selected.project_id} binding={settings.local_database_binding} unsaved={unsaved} licensed={licensedEdition} databaseReference={settings.secret_references?.database_path?.environment_variable} request={workspaceRequest}/>}
+        <InteractivePanel key={'interactive:'+selected.project_id+JSON.stringify(settings)} projectId={selected.project_id} target={settings.base_url??''} dataChanges={settings.allow_data_changes??false} references={Object.keys(settings.secret_references??{})} workerReferences={Object.values(settings.secret_references??{}).map(reference=>reference.environment_variable)} licensed={licensedEdition} request={workspaceRequest} binding={settings.local_form_binding} hasUnsavedChanges={unsaved}/>
+      </details>
+      <details open={expandOptions}><summary><strong>Manual selection and reports</strong><span>Inspect saved discovery, choose cases and review run history</span></summary>
+        <DiscoveryPanel key={'discovery:'+selected.project_id+JSON.stringify(settings)} projectId={selected.project_id} configured={supportsDiscovery(settings)} canQueue={!busy&&!unsaved} publicTarget={settings.discovery_support?.profile==='public_https'} request={workspaceRequest} onReport={(report,jobId)=>setPlan({...report,discovery_job_id:jobId})}/>
+        <section className="plan-review"><h3>Test plan review</h3><p className="hint">Reviewing never starts work. Save options first.</p><button disabled={busy||!settings.configured} onClick={()=>void perform(async()=>{setPlan(null);setPlan(await api<Plan>(`/api/projects/${selected.project_id}/plan`));})}>Review saved plan</button>
+          {plan && <div><p className="message">{plan.discovery_status==='completed'?`Discovery completed. ${plan.inspected_pages} pages inspected; uninspected routes remain outside this plan.`:'Discovery has not run. No pages have been inspected. Features remain unknown.'}</p><p className="hint">Catalog: {plan.counts.catalog} · Selected: {plan.counts.selected} · Skipped: {plan.counts.skipped} · Blocked: {plan.counts.blocked}</p><div className="plan-cases">{plan.cases.map(item=><details key={item.case_id}><summary>{item.case_id} · {item.name} · {item.decision}</summary><p>{item.test_type} — {item.reason}</p></details>)}</div></div>}
+        </section>
+        <RunPanel key={'runs:'+selected.project_id+JSON.stringify(settings)} projectId={selected.project_id} discoveryJobId={plan?.discovery_job_id} candidateNames={Object.fromEntries(plan?.cases.map(item=>[item.case_id,item.name])??[])} candidates={plan?.cases.filter(item=>item.decision==='selected'&&item.test_type==='ui'&&matchesSavedTarget(settings,item)&&item.changes_data===false).map(item=>item.case_id)??[]} request={workspaceRequest}/>
+      </details>
+    </>}
+  </div>;
+  if (signedIn && simpleAvailable) return <SiteCheck feedback={<>{error && <p role="alert" className="message error">{error}</p>}{notice && <p role="status" className="message success">{notice}</p>}</>} onSignOut={!freeEdition ? () => {void perform(async () => {await api('/api/auth/logout','POST',{});clear();});} : undefined} edition={freeEdition ? 'FREE · LOCAL' : 'LICENSED · LOCAL'} request={workspaceRequest} tools={localTools} hasUnsavedOptions={unsaved} onCheckCreated={pid => {setSelected(null);setSettings(null);void perform(async () => {const items=await load();const project=items.find(item=>item.project_id===pid);if(project) await choose(project);});}} onOptionsOpen={pid => {void perform(async () => {const items=await load();const project=items.find(item=>item.project_id===pid) ?? items[0];if(project && (!selected || selected.project_id!==project.project_id)) await choose(project, true);}, true);}}/>;
+  return <div className="shell">
+    <aside><a className="brand" href="/" aria-label="Adaptive QA home"><span className="mark">AQ</span> Adaptive QA</a>
+      <p className="eyebrow">WORKSPACE</p><div className="nav-item">Projects <span aria-hidden="true">●</span></div>
+      <div className="sidebar-note"><span className="dot"/> Local workspace<p>Configure with confidence.<br/>Keep every project in scope.</p></div>
+    </aside>
+    <div className="workspace"><header><span>Workspace <span className="slash">/</span> Projects</span><div className="header-actions"><span className="badge">{freeEdition ? 'FREE · LOCAL' : 'LOCAL'}</span>
+      {signedIn && !freeEdition && <button className="quiet" disabled={busy} onClick={() => void perform(async () => {await api('/api/auth/logout', 'POST', {}); clear();})}>Sign out</button>}</div></header>
+      <main><div className="page-title"><div><p className="eyebrow">ADAPTIVE TESTING</p><h1>{signedIn ? 'Project workspace' : 'Welcome to your workspace'}</h1>
+        <p className="subtitle">{signedIn ? 'Manage your projects and define what is in scope.' : freeEdition ? 'Reopen your account-free local workspace.' : 'Sign in to manage your QA projects.'}</p></div><span className="step">LOCAL WORKSPACE</span></div>
+        {error && <div role="alert" className="message error">{error}</div>}
+        {notice && <div role="status" className="message success">{notice}</div>}
+        {checking ? <p role="status">Checking your session…</p> : !signedIn && freeEdition ? <section className="card login" aria-label="Reopen local workspace">
+          <h2>Reopen local workspace</h2><p>No account is required. Reopening restores access to saved projects; it does not retry a save or start tests.</p>
+          <button className="primary" disabled={busy} onClick={reopenFreeWorkspace}>{busy ? 'Reopening…' : 'Reopen workspace'}</button>
+        </section> : !signedIn ? <section className="card login"><p className="eyebrow">YOUR ACCOUNT</p><h2>Sign in</h2>
+          <form onSubmit={login}><fieldset disabled={busy}><label>Email<input name="email" type="email" autoComplete="username" required maxLength={254}/></label>
+            <label>Password<input name="password" type="password" autoComplete="current-password" required/></label>
+            <button className="primary" type="submit">{busy ? 'Signing in…' : 'Sign in'}</button></fieldset></form><p className="hint">Use the account created by your local workspace administrator.</p></section>
+        : projectTools}
       </main><footer>ADAPTIVE QA <span>Controlled scope. Clear evidence.</span></footer>
     </div></div>;
 }

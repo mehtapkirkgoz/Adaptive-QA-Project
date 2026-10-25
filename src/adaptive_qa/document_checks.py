@@ -1,4 +1,4 @@
-"""Read-only HTML quality checks independent of login, commerce and button names."""
+"""Read-only initial HTML structure checks; scripts and asset rendering are outside this contract."""
 
 from adaptive_qa.models import TestCase, TestType
 
@@ -53,5 +53,5 @@ _DESCRIPTIONS = (
     ('Fragment links resolve', 'Resolve local fragment targets without following links', 'Each non-empty local fragment has an ID or named anchor target.'),
 )
 DOCUMENT_CASES = tuple(TestCase(case_id, name, TestType.UI, (),
-    ('Inspect an authorized HTML document', step), expected)
+    ('Inspect the initial authorized HTML structure without scripts, styles, images or embedded documents', step), expected)
     for case_id, (name, step, expected) in zip(DOCUMENT_CHECKS, _DESCRIPTIONS, strict=True))
