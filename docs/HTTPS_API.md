@@ -14,7 +14,7 @@ existing guards. This is product follow-up, not a reopened sprint.
 - [x] Expose the profile in the local UI with accurate endpoint/scope guidance.
 - [x] Prove saved UI/worker execution and failure boundaries on controlled TLS
   fixtures; retain existing free/licensed queue/cancellation/recovery checks.
-- [ ] Complete exact-commit CI/artifact acceptance and current usage documentation.
+- [x] Complete exact-commit CI/artifact acceptance and current usage documentation.
 
 The first public profile is unauthenticated GET/HEAD only, with an explicitly
 configured origin and response assertions. No query/body, bearer authentication,
@@ -22,6 +22,11 @@ write operations or redirect following is enabled. Existing local fixtures retai
 their default profile. DNS is validated at execution, not during offline review.
 TLS verification cannot be disabled by a project setting. The supervised child
 retains its 15-second total deadline and bounded response processing.
+
+## Implementation History
+
+The following notes record the intermediate implementation stages; final acceptance
+is recorded below.
 
 Six focused checks passed, including real TLS against an owned loopback harness
 with a test-only connector and temporary CA. The harness preserves the public
@@ -112,9 +117,30 @@ proof on owned port 8891 passed. Mobile HTTPS outcome reasons now wrap below the
 job header and were visually inspected at 390px; the licensed TLS proof passed
 again. No owner session was restarted.
 
-Next: inspect b965faf Core 40154365536 and the latest follow-up Core run, fix any
-failures, then verify source/digest/CRC/release/browser artifact evidence before
-checking off remote acceptance. Preserve the existing 8766 preview: its older
-Python process intentionally does not advertise the new HTTPS capability.
-Starting the updated runtime is a separate local session transition, not a UI
-asset refresh. Do not activate a public backend or test customer sites.
+## Final Controlled Acceptance
+
+Implementation b965faf / Core 40154365536 and follow-up 8dd1af5 / Core
+40154721472 both passed all twelve jobs. Each exact source commit's twelve
+artifact ZIPs matched GitHub size and SHA-256 metadata, passed CRC checks, and
+contained 212 structurally validated PNGs. Each inactive release manifest matched
+its source commit and all four inner file sizes/digests; activation remained off.
+Safe archive evidence is in docs/evidence/https-ci-b965faf.json and
+https-ci-8dd1af5.json. The earlier a490c53 failed run remains historical.
+
+Both runs include free, licensed and installed-wheel licensed HTTPS reports.
+Each report confirms six admitted jobs, three passing contracts, four actual
+owned TLS HTTP requests, redirect refusal, untrusted certificate rejection before
+HTTP, cancellation without execution, no secret headers, no external UI requests
+and no page errors. The final free browser report also proves discovery admission
+is blocked during unsaved and pending configuration saves.
+
+This completes the explicitly scoped unauthenticated HTTPS API follow-up on
+controlled fixtures. It does not prove customer-network deployment. Authentication,
+query/body requests and writes remain unsupported for public HTTPS. The catalog
+and public non-executing demo behavior remain unchanged.
+
+Preserve the existing 8766 preview: its older Python process intentionally does not
+advertise the new HTTPS capability. Start an updated runtime after finishing that
+session, using the commands above; refreshing assets alone cannot upgrade Python.
+No owner session was restarted and no public backend was activated. Overall
+product acceptance remains with the owner.

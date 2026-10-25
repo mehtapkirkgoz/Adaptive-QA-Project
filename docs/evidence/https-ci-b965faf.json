@@ -1,0 +1,251 @@
+{
+  "implementation_commit": "b965faf37b7f00be5f4f41ff7e0735f1269b5f28",
+  "run_id": 40154365536,
+  "acceptance": "all_twelve_jobs_and_artifacts_verified",
+  "jobs": [
+    {
+      "name": "Process lifecycle (windows-2025)",
+      "conclusion": "success"
+    },
+    {
+      "name": "Controlled database checks (ubuntu-24.04)",
+      "conclusion": "success"
+    },
+    {
+      "name": "Local browser check",
+      "conclusion": "success"
+    },
+    {
+      "name": "scaffold",
+      "conclusion": "success"
+    },
+    {
+      "name": "Inactive release packaging",
+      "conclusion": "success"
+    },
+    {
+      "name": "Packaged local runtime (ubuntu-24.04)",
+      "conclusion": "success"
+    },
+    {
+      "name": "Controlled database checks (windows-2025)",
+      "conclusion": "success"
+    },
+    {
+      "name": "Browser integration checks",
+      "conclusion": "success"
+    },
+    {
+      "name": "Process lifecycle (ubuntu-24.04)",
+      "conclusion": "success"
+    },
+    {
+      "name": "Controlled API checks",
+      "conclusion": "success"
+    },
+    {
+      "name": "Packaged local runtime (windows-2025)",
+      "conclusion": "success"
+    },
+    {
+      "name": "UI catalog and isolation",
+      "conclusion": "success"
+    }
+  ],
+  "artifacts": [
+    {
+      "id": 12584276317,
+      "name": "process-lifecycle-windows-2025",
+      "digest": "sha256:983fa8026a3ecde22eb56a75501b015faf5e51e83970454a3a24c73a50015354",
+      "bytes": 213,
+      "zip_crc_verified": true,
+      "png_count": 0,
+      "reports": {}
+    },
+    {
+      "id": 12584236948,
+      "name": "local-runtime-windows-2025",
+      "digest": "sha256:7be8c1def4c50b2b6d25bee6230afb4e7d0372a6d49ba78bd4d26f06c5987666",
+      "bytes": 3471,
+      "zip_crc_verified": true,
+      "png_count": 0,
+      "reports": {}
+    },
+    {
+      "id": 12584156926,
+      "name": "ui-catalog-evidence",
+      "digest": "sha256:bc96bc33037f18f4cff19d837bb8d3eab4a83a5ae8d246301d8d5df98dd4b04f",
+      "bytes": 5587818,
+      "zip_crc_verified": true,
+      "png_count": 149,
+      "reports": {
+        "local-free/ui.json": {
+          "account_required": false,
+          "worker_entrypoint": "dashboard free-worker-cycle",
+          "one_project_cap": true,
+          "real_local_login_check_passed": true,
+          "ui_preserved_saved_api_binding": true,
+          "api_editor_save_reload_remove": true,
+          "api_jobs_explicitly_confirmed": 2,
+          "api_job_cancelled_before_execution": true,
+          "api_ui_cli_result": "passed",
+          "api_requests": 1,
+          "api_unsaved_confirmation_cleared": true,
+          "ui_preserved_saved_database_binding": true,
+          "database_editor_save_reload_remove": true,
+          "database_jobs_explicitly_confirmed": 2,
+          "database_job_cancelled_before_execution": true,
+          "database_ui_cli_result": "passed",
+          "database_fixture_unchanged": true,
+          "database_unsaved_confirmation_cleared": true,
+          "empty_numeric_inputs_blocked": true,
+          "redirect_api_expectation_blocked": true,
+          "free_session_reopen_without_login_or_mutation_retry": true,
+          "nested_panel_session_loss_recovered_without_requeue": true,
+          "api_and_database_history_failure_blocks_admission_until_manual_refresh": true,
+          "late_old_session_failure_does_not_clear_reopened_workspace": true,
+          "auth_database_created": false,
+          "central_requests": 0,
+          "page_errors": []
+        },
+        "https-api/free.json": {
+          "licensed": false,
+          "installed_wheel": false,
+          "explicitly_confirmed_jobs": 6,
+          "passed_status_contracts": 3,
+          "status_only_non_json_passed": true,
+          "redirect_failed_without_follow": true,
+          "untrusted_tls_failed_before_http": true,
+          "cancelled_without_retry": true,
+          "unsaved_confirmation_cleared": true,
+          "older_backend_capability_fail_closed": true,
+          "actual_fixture_http_requests": 4,
+          "ui_external_requests": 0,
+          "page_errors": [],
+          "secret_headers_sent": false,
+          "test_socket_override": "owned_fixture_only",
+          "customer_network_verified": false
+        },
+        "https-api/installed-licensed.json": {
+          "licensed": true,
+          "installed_wheel": true,
+          "explicitly_confirmed_jobs": 6,
+          "passed_status_contracts": 3,
+          "status_only_non_json_passed": true,
+          "redirect_failed_without_follow": true,
+          "untrusted_tls_failed_before_http": true,
+          "cancelled_without_retry": true,
+          "unsaved_confirmation_cleared": true,
+          "older_backend_capability_fail_closed": true,
+          "actual_fixture_http_requests": 4,
+          "ui_external_requests": 0,
+          "page_errors": [],
+          "secret_headers_sent": false,
+          "test_socket_override": "owned_fixture_only",
+          "customer_network_verified": false
+        },
+        "https-api/licensed.json": {
+          "licensed": true,
+          "installed_wheel": false,
+          "explicitly_confirmed_jobs": 6,
+          "passed_status_contracts": 3,
+          "status_only_non_json_passed": true,
+          "redirect_failed_without_follow": true,
+          "untrusted_tls_failed_before_http": true,
+          "cancelled_without_retry": true,
+          "unsaved_confirmation_cleared": true,
+          "older_backend_capability_fail_closed": true,
+          "actual_fixture_http_requests": 4,
+          "ui_external_requests": 0,
+          "page_errors": [],
+          "secret_headers_sent": false,
+          "test_socket_override": "owned_fixture_only",
+          "customer_network_verified": false
+        }
+      }
+    },
+    {
+      "id": 12584066422,
+      "name": "local-database-evidence-ubuntu-24.04",
+      "digest": "sha256:26b476015dc9d3868dab3bc3ba968527364d4a0e7aee0b248df47b4fb4bbd5cb",
+      "bytes": 2100,
+      "zip_crc_verified": true,
+      "png_count": 0,
+      "reports": {}
+    },
+    {
+      "id": 12583802102,
+      "name": "process-lifecycle-ubuntu-24.04",
+      "digest": "sha256:4079c0155491e7be67b44a7f5f41e4fb90691e7d9c45f0c6412b6a743a2c96ce",
+      "bytes": 210,
+      "zip_crc_verified": true,
+      "png_count": 0,
+      "reports": {}
+    },
+    {
+      "id": 12583727896,
+      "name": "local-browser-evidence",
+      "digest": "sha256:f5248bd1540c168ffa2de5a0d25f9e299a70842d6c5bf81015150ea990509496",
+      "bytes": 1666067,
+      "zip_crc_verified": true,
+      "png_count": 10,
+      "reports": {}
+    },
+    {
+      "id": 12583697989,
+      "name": "local-runtime-ubuntu-24.04",
+      "digest": "sha256:e3544cad31cf62eb39e421d90cdaf9d991516ed8633f3fb0864b5f7af9963c60",
+      "bytes": 3445,
+      "zip_crc_verified": true,
+      "png_count": 0,
+      "reports": {}
+    },
+    {
+      "id": 12583568049,
+      "name": "inactive-rollback-plan-b965faf37b7f00be5f4f41ff7e0735f1269b5f28",
+      "digest": "sha256:39c9276f92de817f33941338a591888d98f1d78512a59dff558fb7f0b42b86cf",
+      "bytes": 369,
+      "zip_crc_verified": true,
+      "png_count": 0,
+      "reports": {}
+    },
+    {
+      "id": 12583493082,
+      "name": "local-api-evidence",
+      "digest": "sha256:dced8ff2eb02232a5501f6a15c685ec0bc7073e0fa1dc4dce1dde2b17cecae14",
+      "bytes": 17029,
+      "zip_crc_verified": true,
+      "png_count": 0,
+      "reports": {}
+    },
+    {
+      "id": 12583433233,
+      "name": "local-database-evidence-windows-2025",
+      "digest": "sha256:0b4f3fd30021d574005dcd30d98318d01608c8689432a083eb9d4baffb6475ce",
+      "bytes": 2116,
+      "zip_crc_verified": true,
+      "png_count": 0,
+      "reports": {}
+    },
+    {
+      "id": 12583423176,
+      "name": "browser-integration-evidence",
+      "digest": "sha256:6cd1674d2674090e16fea3f57563281eb523b860978f8b4a481352c4476b4253",
+      "bytes": 2019748,
+      "zip_crc_verified": true,
+      "png_count": 53,
+      "reports": {}
+    },
+    {
+      "id": 12583398209,
+      "name": "inactive-release-b965faf37b7f00be5f4f41ff7e0735f1269b5f28",
+      "digest": "sha256:6bc87e685861428cea1ff175e07d6c3cb43e750de6288debf72f9c6c066216ba",
+      "bytes": 325890,
+      "zip_crc_verified": true,
+      "png_count": 0,
+      "reports": {}
+    }
+  ],
+  "png_count": 212,
+  "customer_network_verified": false
+}

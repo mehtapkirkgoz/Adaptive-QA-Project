@@ -1,7 +1,9 @@
 # Local-First Product Conversion
 
 Current work: the owner explicitly selected general HTTPS API support on
-2026-10-25. Follow [HTTPS_API.md](HTTPS_API.md) for the next unfinished step.
+2026-10-25. Follow [HTTPS_API.md](HTTPS_API.md) for completed controlled acceptance, usage and evidence.
+HTTPS follow-up 8dd1af5 / Core 40154721472 passed all twelve jobs and archives;
+overall owner acceptance remains pending.
 The bounded local edition remains the accepted baseline for this follow-up.
 Latest runtime checkpoint 4b77ba5 and Windows publication checkpoint ab08898 both
 passed all twelve CI jobs and artifact verification. See
