@@ -7,7 +7,10 @@ from adaptive_qa.secrets import SecretReference
 
 def validate_saved_local_binding(raw,project,config):
     required={'operation','document_url','endpoint_url','field_names','accepted','rejected'}
-    if not isinstance(raw,dict) or set(raw)!=required:raise ValueError('Exact reusable local binding fields are required.')
+    if (not isinstance(raw,dict) or (set(raw)!=required and
+            not (set(raw)==required|{'profile'} and raw['profile']=='public_https'))):
+        raise ValueError('Exact reusable form fields and an explicit supported profile are required.')
+    public=raw.get('profile')=='public_https'
     operation=FormOperation(raw['operation'])
     slots=('login_username','login_password') if operation==FormOperation.LOGIN else ('search_query',)
     from adaptive_qa.project_settings import reference_name
@@ -17,7 +20,16 @@ def validate_saved_local_binding(raw,project,config):
     form=InteractiveFormContract(project.project_id,'0'*64,operation,references,
         ElementMapping('login.accepted' if operation==FormOperation.LOGIN else 'search.results',
             (LocatorSpec(LocatorStrategy.TEST_ID,'review-required'),)))
-    binding=decode_local_binding({key:value for key,value in raw.items() if key!='operation'},form)
+    metadata={key:value for key,value in raw.items() if key not in ('operation','profile')}
+    if public:
+        from urllib.parse import urlsplit
+        from adaptive_qa.public_form_proposal import decode_public_proposal,encode_public_proposal
+        binding=decode_public_proposal(metadata,form)
+        if binding.document_url!=config.base_url or config.allowed_hosts!=(urlsplit(binding.document_url).hostname,):
+            raise ValueError('Saved HTTPS form metadata must match one exact project origin.')
+        import json
+        return {'profile':'public_https','operation':operation.value,**json.loads(json.dumps(encode_public_proposal(binding)))}
+    binding=decode_local_binding(metadata,form)
     if binding.document_url!=config.base_url or config.allowed_hosts!=('127.0.0.1',):
         raise ValueError('Reusable local settings must match the exact owned project document.')
     import json

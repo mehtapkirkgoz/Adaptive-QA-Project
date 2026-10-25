@@ -197,9 +197,25 @@ Production exposes neither override and explicitly retains ignore_https_errors=F
 the untrusted-browser-certificate scenario runs without that test pin and sends no POST.
 These are controlled fixture proofs, not Internet/customer deployment acceptance.
 CI now runs the browser proof on Windows/Linux and requires it again from the installed
-wheel outside the checkout. Exact-commit artifact acceptance for this increment is pending.
+wheel outside the checkout. Exact-commit artifact acceptance is recorded below.
 
-Next: authenticated personal-project review/admission, stale configuration checks,
+Saved personal-project review foundation now supports an explicit `public_https`
+metadata profile. Saving remains syntax-only, including when data changes are disabled;
+review requires the exact saved owner/project references, explicit completion mapping,
+one matching HTTPS origin and data-change permission. Revalidation rejects changed
+settings. Review performs no DNS, input resolution or queue admission. The existing
+local execution queue rejects this separate review type. Six focused tests cover
+ownership, stale settings, policy, profile/origin validation and non-execution.
+The full 900-test regression passed with one existing Windows permission skip;
+the subsequently added local-queue rejection test passed in the six-test focused suite.
+Core 40221004605 at fde37698c766055da13bc40ad215f1ad85841d57 completed all twelve
+jobs successfully. All twelve archives passed SHA-256/size/ZIP checks and 220 PNGs
+were validated. Windows, Linux and installed-wheel browser reports each contain the
+expected seventeen scenarios/eight owned POSTs with every new private profile removed;
+three supervised transport reports each passed twenty-one tests. Exact evidence:
+[public-browser-ci-fde3769.json](evidence/public-browser-ci-fde3769.json).
+
+Next: authenticated personal-project admission, stale configuration checks,
 claim/cancellation/recovery and explicit single-operation confirmation, then the local
 inline operator UI. Do not add automatic public form submission to the URL-only flow.
 Keep shared/multiuser public workflows disabled until separately specified. Existing
