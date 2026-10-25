@@ -268,11 +268,16 @@ def main():
                     delayed=[]
                     def hold_old_history(route):
                         delayed.append(route)
-                    page.route('**/api/projects/*/runs',hold_old_history)
+                    # Hold exactly one old-session response; other history refreshes may
+                    # legitimately overlap when the unified workspace mounts panels.
+                    page.route('**/api/projects/*/runs',hold_old_history,times=1)
                     with page.expect_request(lambda request:request.method=='GET' and request.url.endswith('/runs')):
                         page.get_by_role('button',name='Free local target Project configuration').click()
                     expect(page.get_by_role('button',name='Save configuration',exact=True)).to_be_visible()
-                    assert len(delayed)==1
+                    deadline=time.monotonic()+5
+                    while not delayed and time.monotonic()<deadline:
+                        page.wait_for_timeout(25)
+                    assert len(delayed)==1, 'Old-session history route was not intercepted'
                     page.context.clear_cookies()
                     page.get_by_role('button',name='Save configuration',exact=True).click()
                     expect(page.get_by_role('heading',name='Reopen local workspace',exact=True)).to_be_visible()

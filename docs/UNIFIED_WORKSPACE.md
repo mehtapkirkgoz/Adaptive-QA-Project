@@ -115,3 +115,16 @@ fix. Its earlier records remain unchanged; a new explicit Test website request i
 required to create new outcomes. This scoped request is technically ready for
 owner review. No complete-site quality guarantee, universal case coverage, AI
 model execution, customer deployment or public backend activation is claimed.
+
+## CI History Interception Follow-up
+
+The documentation commit c637916 / Core 40194562334 passed eleven jobs but
+failed the account-free UI proof at its delayed-history interception count.
+The fixture assumed a single overlapping history request and inspected the route
+callback before explicitly waiting for interception. The proof now holds exactly
+one old-session response and waits up to five seconds for its route callback;
+other legitimate refreshes continue normally. It still delivers the stale 401
+after reopening and verifies that it cannot clear the new workspace or replay
+a mutation. No runtime or owner data changed. The complete local free UI proof
+passed with API/database execution, unchanged database fixture, zero central
+requests and no page errors. Replacement exact-commit CI remains pending.
