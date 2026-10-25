@@ -101,3 +101,9 @@ Public HTTPS proposal foundation is implemented and locally verified in
 PUBLIC_FORM_PROPOSALS.md. It remains non-executing; existing local workers reject
 its type. Continue with the separate reviewed authority and controlled TLS transport
 proof, preserving all read-only automatic checks and owner data.
+
+Response child checkpoint aaea425 / Core 40216894876 is accepted with twelve
+verified archives. The current internal HTTP/UI prototype is locally verified but
+still requires exact-commit CI acceptance and a supervised guarded browser worker.
+Follow PUBLIC_FORM_PROPOSALS.md; do not repeat accepted native/response proofs merely
+to fill quota or expose public form controls before the remaining boundaries exist.

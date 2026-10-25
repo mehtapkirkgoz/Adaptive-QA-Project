@@ -213,6 +213,17 @@ stage('complete')
                 raise ValueError('Installed internal HTTPS submission evidence is incomplete.')
             public_output=ROOT/'artifacts/public-submission';public_output.mkdir(parents=True,exist_ok=True)
             (public_output/'installed.json').write_text(json.dumps(public,indent=2)+'\n',encoding='utf-8')
+            subprocess.run([sys.executable,str(ROOT/'scripts/check_public_form_probe.py')],cwd=temporary,
+                env=browser_environment,check=True,timeout=120)
+            probe=json.loads((Path(temporary)/'artifacts/public-submission/browser-probe.json').read_text(encoding='utf-8'))
+            if (not probe.get('installed_wheel') or len(probe.get('scenarios',[]))!=14
+                    or [item['status'] for item in probe['scenarios']]!=['passed']*3+['blocked']*7+['error']*2+['failed']*2
+                    or not probe.get('documents_fulfilled_in_memory') or not probe.get('actual_posts_used_owned_tls')
+                    or probe.get('supervised_browser_worker') or probe.get('queue_or_ui_admission_enabled')
+                    or probe.get('public_customer_targets_contacted') or probe.get('raw_inputs_in_report')
+                    or probe.get('screenshots_or_traces_taken')):
+                raise ValueError('Installed controlled HTTP/UI transition evidence is incomplete.')
+            (public_output/'installed-browser-probe.json').write_text(json.dumps(probe,indent=2)+'\n',encoding='utf-8')
 
 
     print(json.dumps({'source_commit': revision, 'files_verified': len(manifest['files']),

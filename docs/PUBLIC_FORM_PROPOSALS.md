@@ -42,6 +42,14 @@ owner data are unchanged. Exact-commit CI remains pending for this new foundatio
 
 ## Next Required Implementation
 
+Response-contract child acceptance: aaea425 / Core 40216894876, twelve successful
+jobs and verified archives, 220 validated PNGs. Windows/Linux and installed-wheel
+reports each passed the twenty-check internal submission proof. Evidence is in
+evidence/public-child-ci-aaea425.json. This proves the scoped response child, not
+a public browser workflow or customer deployment. The sections below retain the
+sequence of implementation checkpoints; earlier pending statements are historical.
+
+
 - [x] Separate reviewed execution authority from a non-executing proposal; do not
   broaden the existing local worker's accepted types.
 - [x] Prove a one-shot HTTPS transport on owned TLS fixtures only: numeric IP pinning,
@@ -49,8 +57,11 @@ owner data are unchanged. Exact-commit CI remains pending for this new foundatio
   bounded bodies and response assertions, sanitized outcomes and uncertain delivery.
 - [x] Add an internal supervised response-contract child with hard deadlines,
   cancellation, exact owner/project reference slots and private bounded IPC.
-- [ ] Add actual browser control/action preconditions, completion assertions and
-  evidence masking. The current response-contract child does not prove these.
+- [x] Prototype reviewed form control/action preconditions and require both the
+  verified HTTP response and pinned UI transition on controlled fixtures.
+- [ ] Add a supervised public browser worker with guarded real document loading,
+  per-input traffic restrictions, hard cancellation and masked evidence. The
+  in-memory document prototype does not establish that runtime boundary.
 - [ ] Add authenticated owner/queue/configuration admission before connecting UI
   controls; trusted caller-supplied owner/fingerprint metadata is not authentication.
 - [ ] Require an explicit per-operation local review/confirmation. URL-only read-only
@@ -117,3 +128,30 @@ acceptance is pending for this new child increment.
 Next work is browser control/action validation and completion/evidence, then separate
 authenticated queue/admission confirmation. Do not map a response-contract acceptance
 to a successful website workflow or silently submit forms from the automatic URL flow.
+
+## Controlled HTTP/UI Transition Prototype
+
+The internal public_form_probe module validates exact project/owner reference slots,
+editable connected controls, masked password types, effective form action/method,
+field names and an absent pinned completion marker before resolving inputs. Its
+trusted caller must freeze unrelated traffic and pin the POST peer before input
+resolution, compare the browser's exact POST with the reviewed input serialization,
+and forward only the asserted boolean response. After filling it rechecks action,
+field names, marker absence, page identity and network cleanliness. A marker alone
+cannot pass: the matching accepted/rejected HTTP outcome and the explicit UI marker
+must both be observed after one attempted submission. Fixed sanitized messages are
+returned; this prototype takes no screenshots or traces.
+
+Fourteen real Chromium scenarios passed using owned documents fulfilled in memory
+and four actual POSTs to an owned loopback TLS harness: positive search, Turkish
+login, negative search, pre-existing/input-triggered markers, wrong action/fields,
+unmasked/ambiguous controls, changed action, blocked canary/altered body, marker-only
+spoofing and absent completion after a valid HTTP response. Preconditions resolve
+zero input references where appropriate. Nothing contacts a customer/Internet site.
+This is an internal prototype, not a supervised public browser worker or UI feature.
+
+CI and installed release verification now require the same fourteen-case prototype
+with accurately limited scope reports. Exact-commit acceptance for this prototype
+remains pending; aaea425 acceptance above covers only the preceding response child.
+Continue with the real guarded browser worker, masked evidence and authenticated
+queue/admission review. The URL-only automatic flow stays read-only.

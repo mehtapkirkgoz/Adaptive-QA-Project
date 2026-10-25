@@ -362,6 +362,8 @@ jobs:
           python scripts/check_https_api.py --licensed
       - name: Verify source HTML checks exclude assets without relaxing egress
         run: python scripts/check_html_inspection.py
+      - name: Verify reviewed HTTP and UI transitions on owned document and TLS fixtures
+        run: python scripts/check_public_form_probe.py
       - name: Verify one-button managed local site checks
         run: |
           python scripts/check_site_check_ui.py
