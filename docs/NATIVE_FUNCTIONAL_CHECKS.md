@@ -84,10 +84,10 @@ the page; a page without an email control does not gain synthetic passing tests.
 
 ## Next Functional Work
 
-- [ ] Prepare a non-executing public HTTPS form proposal that reuses existing
+- [x] Prepare a non-executing public HTTPS form proposal that reuses existing
   typed input references, explicit completion expectations and data-change permission.
   Pin exact same-origin document/endpoint, no redirects and one future submission.
-- [ ] Prove proposal validation never resolves credentials or performs network I/O,
+- [x] Prove proposal validation never resolves credentials or performs network I/O,
   and existing executable local admission rejects the proposal type.
 - [ ] Implement any future HTTPS worker only with controlled TLS fixtures, explicit
   one-operation consent, safe input/evidence handling and full destination guards.
@@ -96,3 +96,8 @@ the page; a page without an email control does not gain synthetic passing tests.
 Native checks do not establish successful sign-in/search/business workflows. The
 next foundation must not be presented as an executing feature before it is wired
 and verified. Existing local interactive contracts and customer data stay intact.
+
+Public HTTPS proposal foundation is implemented and locally verified in
+PUBLIC_FORM_PROPOSALS.md. It remains non-executing; existing local workers reject
+its type. Continue with the separate reviewed authority and controlled TLS transport
+proof, preserving all read-only automatic checks and owner data.
