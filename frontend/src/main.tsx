@@ -190,7 +190,7 @@ function App() {
                 workerReferences={Object.values(settings.secret_references ?? {}).map(reference => reference.environment_variable)} licensed={licensedEdition}
                 request={workspaceRequest} binding={settings.local_form_binding} hasUnsavedChanges={unsaved}/>}
 
-              <DiscoveryPanel key={'discovery:' + selected.project_id + JSON.stringify(settings)} projectId={selected.project_id} configured={supportsDiscovery(settings)} publicTarget={settings.discovery_support?.profile === 'public_https'} request={workspaceRequest} onReport={(report, jobId) => setPlan({...report, discovery_job_id: jobId})}/>
+              <DiscoveryPanel key={'discovery:' + selected.project_id + JSON.stringify(settings)} projectId={selected.project_id} configured={supportsDiscovery(settings)} canQueue={!busy && !unsaved} publicTarget={settings.discovery_support?.profile === 'public_https'} request={workspaceRequest} onReport={(report, jobId) => setPlan({...report, discovery_job_id: jobId})}/>
               <section className="plan-review"><h3>Test plan review</h3><p className="hint">Review the saved configuration. Unsaved edits are not included. Reviewing never starts tests or visits your target.</p>
                 <button disabled={busy || !settings.configured} onClick={() => void perform(async () => {
                   setPlan(null); setPlan(await api<Plan>(`/api/projects/${selected.project_id}/plan`));

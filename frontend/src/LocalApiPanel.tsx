@@ -39,7 +39,7 @@ export function LocalApiPanel({projectId, target, binding, unsaved, licensed, re
       try {setJobs((await request<{jobs: Job[]}>(base + '/jobs')).jobs);} catch { /* Preserve uncertainty. */ }
     } finally {setBusy(false);}
   }
-  return <section className="plan-review" aria-label="Explicit API execution">
+  return <section className="plan-review local-api-panel" aria-label="Explicit API execution">
     <h3>Explicit API execution</h3>
     <p>Saved GET <code style={{overflowWrap:'anywhere'}}>{publicHttps ? target.replace(/\/$/,'') + binding.path : binding.path}</code> · HTTP {binding.expected_status} · {binding.response_mode === 'status_only' ? 'Status-only contract' : <code>{binding.json_field} = {String(binding.expected_boolean)}</code>}</p>
     <p className="hint">{publicHttps ? 'Public HTTPS on port 443 with validated public IPs and verified TLS. Redirects are not followed.' : 'Owned loopback API only.'} Review does not contact the endpoint. A separate local worker executes one confirmed request; no authentication or request values are used.</p>
@@ -58,7 +58,7 @@ export function LocalApiPanel({projectId, target, binding, unsaved, licensed, re
     <button disabled={busy || historyLoading} onClick={refreshHistory}>Refresh API history</button>
     {historyLoading && <p role="status">Loading API history…</p>}
     {historyReady && !jobs.length && <p className="hint">No API jobs yet.</p>}
-    {jobs.map(job => <div className="discovery-job" key={job.job_id}><span><code>{job.job_id.slice(0, 8)}</code><strong>{job.status.replaceAll('_', ' ')}</strong>{job.result && <small>API result: {job.result.status}</small>}{job.result?.reason && <small>{reasons[job.result.reason] ?? 'The API operation returned an unavailable outcome reason.'}</small>}</span>
+    {jobs.map(job => <div className="discovery-job" key={job.job_id}><span><code>{job.job_id.slice(0, 8)}</code><strong>{job.status.replaceAll('_', ' ')}</strong>{job.result && <small>API result: {job.result.status}</small>}{job.result?.reason && <small className="api-reason">{reasons[job.result.reason] ?? 'The API operation returned an unavailable outcome reason.'}</small>}</span>
       {active(job) && <button disabled={busy || job.status === 'cancel_requested'} onClick={() => {
         setBusy(true); setError('');
         void request<Job>(base + '/jobs/' + job.job_id + '/cancel', 'POST', {}).then(updated => setJobs(previous => previous.map(item => item.job_id === updated.job_id ? updated : item)))

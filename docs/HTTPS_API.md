@@ -91,3 +91,30 @@ destination policy, HTTP status and JSON contract failures have safe UI labels;
 raw worker exceptions/response bodies/headers are not persisted. Legacy local
 job result shapes stay unchanged. Installed package proof and exact-commit remote
 CI/artifact acceptance remain pending after this implementation increment.
+
+
+## Installed Proof and CI Follow-up
+
+The b965faf inactive release installed outside the checkout and passed the new
+licensed HTTPS UI -> actual CLI -> supervised TLS child proof, including all six
+jobs, status-only non-JSON success, certificate rejection and no secret headers.
+All four release file digests matched and the fixture routing tool was absent
+from the wheel. Full regression at that commit: 850 tests, 849 passed and one
+Windows permission skip. Safe local evidence: docs/evidence/https-local-b965faf.json.
+These are local installed results; remote exact-commit acceptance remains pending.
+
+Intermediate a490c53 / Core 40153850838 failed the legacy dashboard queued-state
+assertion after an asynchronous target save. It is not accepted. The follow-up
+now disables new discovery admission while settings are unsaved/saving, while
+retaining cancellation access, and the UI check waits for the actual saved HTTP
+response. A held-save free browser regression and the full legacy dashboard
+proof on owned port 8891 passed. Mobile HTTPS outcome reasons now wrap below the
+job header and were visually inspected at 390px; the licensed TLS proof passed
+again. No owner session was restarted.
+
+Next: inspect b965faf Core 40154365536 and the latest follow-up Core run, fix any
+failures, then verify source/digest/CRC/release/browser artifact evidence before
+checking off remote acceptance. Preserve the existing 8766 preview: its older
+Python process intentionally does not advertise the new HTTPS capability.
+Starting the updated runtime is a separate local session transition, not a UI
+asset refresh. Do not activate a public backend or test customer sites.

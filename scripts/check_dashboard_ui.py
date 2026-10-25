@@ -243,7 +243,8 @@ def main(port=8765):
                     expect(page.get_by_text('This report uses older target or policy settings.', exact=False)).to_be_visible()
                     expect(page.get_by_label('Plan review results')).to_have_count(0)
                     page.get_by_label('Target URL').fill('http://127.0.0.1:8000/variants/english.html')
-                    page.get_by_role('button', name='Save configuration', exact=True).click()
+                    with page.expect_response(lambda response: response.request.method=='PUT' and response.url.endswith('/configuration') and response.status==200):
+                        page.get_by_role('button', name='Save configuration', exact=True).click()
                     expect(page.get_by_label('Saved target execution support', exact=True)).to_contain_text('five independent document checks')
                     discovery.get_by_role('button', name='Queue local discovery', exact=True).click()
                     expect(discovery.get_by_text('queued', exact=True)).to_be_visible()

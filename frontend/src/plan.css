@@ -9,3 +9,5 @@
 .local-worker-help { margin: 1rem 0; }
 .local-worker-help pre { overflow-wrap: anywhere; white-space: pre-wrap; }
 .local-worker-help li { overflow-wrap: anywhere; }
+
+.local-api-panel .discovery-job>span{flex-wrap:wrap;min-width:0;max-width:100%}.local-api-panel .discovery-job code{white-space:nowrap;flex-shrink:0}.local-api-panel .api-reason{flex-basis:100%}

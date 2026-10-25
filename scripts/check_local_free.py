@@ -68,6 +68,24 @@ def main():
                     page.get_by_label('Target URL', exact=True).fill('http://127.0.0.1:8000/')
                     page.get_by_label('Allowed hosts', exact=True).fill('127.0.0.1')
                     page.get_by_role('button', name='Save configuration', exact=True).click()
+                    expect(page.get_by_text('Configuration saved. No tests were started.',exact=True)).to_be_visible()
+                    page.get_by_label('Target URL',exact=True).fill('http://127.0.0.1:8000/variants/english.html')
+                    expect(page.get_by_role('button',name='Queue local discovery',exact=True)).to_be_disabled()
+                    held_save=[]
+                    def delay_save(route):
+                        if route.request.method=='PUT':held_save.append(route)
+                        else:route.continue_()
+                    page.route('**/configuration',delay_save)
+                    with page.expect_request(lambda request:request.method=='PUT' and request.url.endswith('/configuration')):
+                        page.get_by_role('button',name='Save configuration',exact=True).click()
+                    expect(page.get_by_role('button',name='Queue local discovery',exact=True)).to_be_disabled()
+                    assert len(held_save)==1
+                    held_save[0].continue_()
+                    expect(page.get_by_text('Configuration saved. No tests were started.',exact=True)).to_be_visible()
+                    page.unroute('**/configuration',delay_save)
+                    page.get_by_label('Target URL',exact=True).fill('http://127.0.0.1:8000/')
+                    page.get_by_role('button',name='Save configuration',exact=True).click()
+                    expect(page.get_by_text('Configuration saved. No tests were started.',exact=True)).to_be_visible()
                     page.get_by_role('button', name='Queue local discovery', exact=True).click()
                     expect(page.get_by_text('queued', exact=True)).to_be_visible()
                     projects = LocalFreeProjects(database)
@@ -290,6 +308,7 @@ def main():
               'nested_panel_session_loss_recovered_without_requeue': True,
               'api_and_database_history_failure_blocks_admission_until_manual_refresh': True,
               'late_old_session_failure_does_not_clear_reopened_workspace': True,
+              'discovery_admission_blocked_during_unsaved_and_pending_save': True,
               'auth_database_created': False, 'central_requests': len(external), 'page_errors': errors}
     (output/'ui.json').write_text(json.dumps(report, indent=2)+'\n', encoding='utf-8')
     print(json.dumps(report))
