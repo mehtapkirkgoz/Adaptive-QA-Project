@@ -1,5 +1,10 @@
 # Sprint Control
 
+Native email functional increment accepted at c48eaff / Core 40198595428:
+all twelve jobs and archives verified, including installed supervised children.
+Follow NATIVE_FUNCTIONAL_CHECKS.md for the next unfinished functional foundation;
+no public/customer form submission is authorized by this checkpoint.
+
 Current owner follow-up (2026-10-25): continue remaining functional coverage
 work after reviewing the automatic HTML-only limits. Follow
 [NATIVE_FUNCTIONAL_CHECKS.md](NATIVE_FUNCTIONAL_CHECKS.md). Preserve the unified

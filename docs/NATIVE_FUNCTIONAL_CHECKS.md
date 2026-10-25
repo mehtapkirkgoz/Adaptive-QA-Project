@@ -29,9 +29,9 @@ Existing configured interactive contracts remain separate and explicit.
 
 - [x] Source supervised proof: passes, restrictive-pattern failure, absent,
   ambiguous/disabled controls, redirect denial, zero input/submission side effects.
-- [ ] Real one-button free/licensed UI admission and installed-wheel execution.
-- [ ] Appropriate unit regression, exact-commit CI and artifact evidence.
-- [ ] Safely update the owner preview without interrupting active work.
+- [x] Real one-button free/licensed UI admission and installed-wheel execution.
+- [x] Appropriate unit regression, exact-commit CI and artifact evidence.
+- [x] Safely update the owner preview without interrupting active work.
 
 Future workflow expansion requires explicit typed expectations and operation
 permission. Do not infer successful business behavior merely from a click or
@@ -67,3 +67,32 @@ passed, including preserved custom mappings, role/revocation isolation, actual
 shared execution/evidence and zero external UI requests/page errors. Thirty-nine
 focused planning/admission/orchestration tests passed, including absent, hidden,
 ambiguous and different-page email evidence. Replacement exact-commit CI is pending.
+
+## Accepted Native Increment
+
+c48eaff / Core 40198595428 passed all twelve jobs. Twelve archives matched API
+size/SHA-256 metadata and ZIP CRC; 220 PNGs were structurally validated. The inactive
+release matched its source commit and four inner file digests. Free, licensed and
+installed one-button reports each recorded nine passing checks on the owned fixture,
+including both native email cases. Installed HTML/native proofs matched the source
+positive, negative, unavailable and guarded-navigation outcomes with zero writes.
+Evidence: evidence/native-ci-c48eaff.json and evidence/native-local-c48eaff.json.
+The owner preview was upgraded with a backup, no active work interrupted, all twelve
+prior table row digests preserved, and no target check replayed. The 100-case catalog
+and public demo behavior remain unchanged. Applicable test count still depends on
+the page; a page without an email control does not gain synthetic passing tests.
+
+## Next Functional Work
+
+- [ ] Prepare a non-executing public HTTPS form proposal that reuses existing
+  typed input references, explicit completion expectations and data-change permission.
+  Pin exact same-origin document/endpoint, no redirects and one future submission.
+- [ ] Prove proposal validation never resolves credentials or performs network I/O,
+  and existing executable local admission rejects the proposal type.
+- [ ] Implement any future HTTPS worker only with controlled TLS fixtures, explicit
+  one-operation consent, safe input/evidence handling and full destination guards.
+  Public/customer submission remains disabled until that separate acceptance exists.
+
+Native checks do not establish successful sign-in/search/business workflows. The
+next foundation must not be presented as an executing feature before it is wired
+and verified. Existing local interactive contracts and customer data stay intact.

@@ -1,0 +1,439 @@
+{
+  "implementation_commit": "c48eaff51b0fc0aa42358177e6df03c939f04179",
+  "run_id": 40198595428,
+  "artifacts": [
+    {
+      "id": 12601745345,
+      "name": "ui-catalog-evidence",
+      "digest": "sha256:8235078e592d32c79e6add2a9f6e0d3a7b7786164daf4cfd099a5dc40d8d39cc",
+      "bytes": 6581460,
+      "zip_crc_verified": true,
+      "png_count": 157,
+      "release_verified": false,
+      "reports": {
+        "matching/configured-document.json": {
+          "source_html_excludes_scripts": true,
+          "outcomes": [
+            {
+              "case_id": "DOC-001",
+              "status": "passed",
+              "fixture": "/information.html"
+            },
+            {
+              "case_id": "DOC-002",
+              "status": "passed",
+              "fixture": "/information.html"
+            },
+            {
+              "case_id": "DOC-003",
+              "status": "passed",
+              "fixture": "/information.html"
+            },
+            {
+              "case_id": "DOC-004",
+              "status": "passed",
+              "fixture": "/information.html"
+            },
+            {
+              "case_id": "DOC-005",
+              "status": "passed",
+              "fixture": "/information.html"
+            },
+            {
+              "case_id": "DOC-001",
+              "status": "passed",
+              "fixture": "/shop.html"
+            },
+            {
+              "case_id": "DOC-002",
+              "status": "passed",
+              "fixture": "/shop.html"
+            },
+            {
+              "case_id": "DOC-003",
+              "status": "passed",
+              "fixture": "/shop.html"
+            },
+            {
+              "case_id": "DOC-004",
+              "status": "passed",
+              "fixture": "/shop.html"
+            },
+            {
+              "case_id": "DOC-005",
+              "status": "passed",
+              "fixture": "/shop.html"
+            },
+            {
+              "case_id": "DOC-001",
+              "status": "failed",
+              "fixture": "/negative-DOC-001.html"
+            },
+            {
+              "case_id": "DOC-002",
+              "status": "failed",
+              "fixture": "/negative-DOC-002.html"
+            },
+            {
+              "case_id": "DOC-003",
+              "status": "failed",
+              "fixture": "/negative-DOC-003.html"
+            },
+            {
+              "case_id": "DOC-004",
+              "status": "failed",
+              "fixture": "/negative-DOC-004.html"
+            },
+            {
+              "case_id": "DOC-005",
+              "status": "failed",
+              "fixture": "/negative-DOC-005.html"
+            },
+            {
+              "case_id": "DOC-001",
+              "status": "error",
+              "fixture": "/redirect.html"
+            },
+            {
+              "case_id": "DOC-001",
+              "status": "passed",
+              "fixture": "/blocked.html"
+            },
+            {
+              "case_id": "DOC-001",
+              "status": "failed",
+              "fixture": "/blocked-invalid.html"
+            }
+          ],
+          "contacts": {
+            "canary": 0,
+            "writes": 0
+          },
+          "public_https_tested": false,
+          "dashboard_activation": false
+        },
+        "local-free/ui.json": {
+          "account_required": false,
+          "worker_entrypoint": "dashboard free-worker-cycle",
+          "one_project_cap": true,
+          "real_local_login_check_passed": true,
+          "ui_preserved_saved_api_binding": true,
+          "api_editor_save_reload_remove": true,
+          "api_jobs_explicitly_confirmed": 2,
+          "api_job_cancelled_before_execution": true,
+          "api_ui_cli_result": "passed",
+          "api_requests": 1,
+          "api_unsaved_confirmation_cleared": true,
+          "ui_preserved_saved_database_binding": true,
+          "database_editor_save_reload_remove": true,
+          "database_jobs_explicitly_confirmed": 2,
+          "database_job_cancelled_before_execution": true,
+          "database_ui_cli_result": "passed",
+          "database_fixture_unchanged": true,
+          "database_unsaved_confirmation_cleared": true,
+          "empty_numeric_inputs_blocked": true,
+          "redirect_api_expectation_blocked": true,
+          "free_session_reopen_without_login_or_mutation_retry": true,
+          "nested_panel_session_loss_recovered_without_requeue": true,
+          "api_and_database_history_failure_blocks_admission_until_manual_refresh": true,
+          "late_old_session_failure_does_not_clear_reopened_workspace": true,
+          "discovery_admission_blocked_during_unsaved_and_pending_save": true,
+          "auth_database_created": false,
+          "central_requests": 0,
+          "page_errors": []
+        },
+        "https-api/free.json": {
+          "licensed": false,
+          "installed_wheel": false,
+          "explicitly_confirmed_jobs": 6,
+          "passed_status_contracts": 3,
+          "status_only_non_json_passed": true,
+          "redirect_failed_without_follow": true,
+          "untrusted_tls_failed_before_http": true,
+          "cancelled_without_retry": true,
+          "unsaved_confirmation_cleared": true,
+          "older_backend_capability_fail_closed": true,
+          "actual_fixture_http_requests": 4,
+          "ui_external_requests": 0,
+          "page_errors": [],
+          "secret_headers_sent": false,
+          "test_socket_override": "owned_fixture_only",
+          "customer_network_verified": false
+        },
+        "https-api/installed-licensed.json": {
+          "licensed": true,
+          "installed_wheel": true,
+          "explicitly_confirmed_jobs": 6,
+          "passed_status_contracts": 3,
+          "status_only_non_json_passed": true,
+          "redirect_failed_without_follow": true,
+          "untrusted_tls_failed_before_http": true,
+          "cancelled_without_retry": true,
+          "unsaved_confirmation_cleared": true,
+          "older_backend_capability_fail_closed": true,
+          "actual_fixture_http_requests": 4,
+          "ui_external_requests": 0,
+          "page_errors": [],
+          "secret_headers_sent": false,
+          "test_socket_override": "owned_fixture_only",
+          "customer_network_verified": false
+        },
+        "https-api/licensed.json": {
+          "licensed": true,
+          "installed_wheel": false,
+          "explicitly_confirmed_jobs": 6,
+          "passed_status_contracts": 3,
+          "status_only_non_json_passed": true,
+          "redirect_failed_without_follow": true,
+          "untrusted_tls_failed_before_http": true,
+          "cancelled_without_retry": true,
+          "unsaved_confirmation_cleared": true,
+          "older_backend_capability_fail_closed": true,
+          "actual_fixture_http_requests": 4,
+          "ui_external_requests": 0,
+          "page_errors": [],
+          "secret_headers_sent": false,
+          "test_socket_override": "owned_fixture_only",
+          "customer_network_verified": false
+        },
+        "site-check/free.json": {
+          "licensed": false,
+          "installed_wheel": false,
+          "supervised_child_package_verified": false,
+          "one_click_admissions": 1,
+          "explicit_check_requests": 3,
+          "failed_checks_shown_separately": true,
+          "cancellation_verified": true,
+          "managed_workers": true,
+          "manual_worker_commands": 0,
+          "recorded_results": 9,
+          "inspected_pages": 1,
+          "all_recorded_passed": true,
+          "reload_did_not_replay": true,
+          "advanced_controls_preserved": true,
+          "unified_english_workspace": true,
+          "native_email_checks_automatically_executed": true,
+          "empty_and_execution_error_states_verified": true,
+          "partial_outcome_state_verified": true,
+          "mobile_overflow": false,
+          "ui_external_requests": 0,
+          "page_errors": [],
+          "target_scope": "owned_controlled_loopback_fixture",
+          "customer_deployment_verified": false
+        },
+        "site-check/installed-licensed.json": {
+          "licensed": true,
+          "installed_wheel": true,
+          "supervised_child_package_verified": true,
+          "one_click_admissions": 1,
+          "explicit_check_requests": 3,
+          "failed_checks_shown_separately": true,
+          "cancellation_verified": true,
+          "managed_workers": true,
+          "manual_worker_commands": 0,
+          "recorded_results": 9,
+          "inspected_pages": 1,
+          "all_recorded_passed": true,
+          "reload_did_not_replay": true,
+          "advanced_controls_preserved": true,
+          "unified_english_workspace": true,
+          "native_email_checks_automatically_executed": true,
+          "empty_and_execution_error_states_verified": true,
+          "partial_outcome_state_verified": true,
+          "mobile_overflow": false,
+          "ui_external_requests": 0,
+          "page_errors": [],
+          "target_scope": "owned_controlled_loopback_fixture",
+          "customer_deployment_verified": false
+        },
+        "site-check/licensed.json": {
+          "licensed": true,
+          "installed_wheel": false,
+          "supervised_child_package_verified": false,
+          "one_click_admissions": 1,
+          "explicit_check_requests": 3,
+          "failed_checks_shown_separately": true,
+          "cancellation_verified": true,
+          "managed_workers": true,
+          "manual_worker_commands": 0,
+          "recorded_results": 9,
+          "inspected_pages": 1,
+          "all_recorded_passed": true,
+          "reload_did_not_replay": true,
+          "advanced_controls_preserved": true,
+          "unified_english_workspace": true,
+          "native_email_checks_automatically_executed": true,
+          "empty_and_execution_error_states_verified": true,
+          "partial_outcome_state_verified": true,
+          "mobile_overflow": false,
+          "ui_external_requests": 0,
+          "page_errors": [],
+          "target_scope": "owned_controlled_loopback_fixture",
+          "customer_deployment_verified": false
+        },
+        "html-inspection/installed.json": {
+          "legacy_native_email_contract_consistent": true,
+          "native_email_outcomes": [
+            "passed",
+            "passed",
+            "failed",
+            "blocked",
+            "blocked",
+            "blocked",
+            "error"
+          ],
+          "native_email_no_input_events_or_submissions": true,
+          "installed_wheel": true,
+          "source_html_passes": 5,
+          "source_html_assertion_failures": 2,
+          "redirect_blocked": true,
+          "rendered_form_coverage_still_fails_closed": true,
+          "scripts_assets_and_frames_excluded": true,
+          "mutation_requests": 0,
+          "private_destination_not_contacted": true,
+          "scope": "owned_controlled_fixture"
+        },
+        "html-inspection/report.json": {
+          "legacy_native_email_contract_consistent": true,
+          "native_email_outcomes": [
+            "passed",
+            "passed",
+            "failed",
+            "blocked",
+            "blocked",
+            "blocked",
+            "error"
+          ],
+          "native_email_no_input_events_or_submissions": true,
+          "installed_wheel": false,
+          "source_html_passes": 5,
+          "source_html_assertion_failures": 2,
+          "redirect_blocked": true,
+          "rendered_form_coverage_still_fails_closed": true,
+          "scripts_assets_and_frames_excluded": true,
+          "mutation_requests": 0,
+          "private_destination_not_contacted": true,
+          "scope": "owned_controlled_fixture"
+        }
+      }
+    },
+    {
+      "id": 12601690009,
+      "name": "local-runtime-windows-2025",
+      "digest": "sha256:e5f3f9fd1a88e7aea639c9b88989e57a8aab20bd3b98efc1ecf35a7559738fef",
+      "bytes": 3471,
+      "zip_crc_verified": true,
+      "png_count": 0,
+      "release_verified": false,
+      "reports": {}
+    },
+    {
+      "id": 12601540040,
+      "name": "process-lifecycle-windows-2025",
+      "digest": "sha256:b1aafaa333ba65a1f8be9b264deff53ab2f0f08b746180d381fa0cfe6acda8fd",
+      "bytes": 213,
+      "zip_crc_verified": true,
+      "png_count": 0,
+      "release_verified": false,
+      "reports": {}
+    },
+    {
+      "id": 12601505317,
+      "name": "local-runtime-ubuntu-24.04",
+      "digest": "sha256:484d4ddda9af4573be42124fbcec78c2d448ff67fbd363a48f3e19aedccaa465",
+      "bytes": 3445,
+      "zip_crc_verified": true,
+      "png_count": 0,
+      "release_verified": false,
+      "reports": {}
+    },
+    {
+      "id": 12601300407,
+      "name": "browser-integration-evidence",
+      "digest": "sha256:2507121625f81e228035e0b90f4d786407f9a45867b4559300ad67af5fd60121",
+      "bytes": 2017498,
+      "zip_crc_verified": true,
+      "png_count": 53,
+      "release_verified": false,
+      "reports": {}
+    },
+    {
+      "id": 12601190311,
+      "name": "local-database-evidence-ubuntu-24.04",
+      "digest": "sha256:63054283a71a1068a2b717b4915679bd1fc04a146ad367ffe1a3816f743fe80f",
+      "bytes": 2087,
+      "zip_crc_verified": true,
+      "png_count": 0,
+      "release_verified": false,
+      "reports": {}
+    },
+    {
+      "id": 12601150386,
+      "name": "inactive-release-c48eaff51b0fc0aa42358177e6df03c939f04179",
+      "digest": "sha256:79db59e88c10cb9549b9ff62def4f19d4f42b01d99784c5dc50e89afd24a4029",
+      "bytes": 337602,
+      "zip_crc_verified": true,
+      "png_count": 0,
+      "release_verified": true,
+      "reports": {}
+    },
+    {
+      "id": 12601140164,
+      "name": "local-browser-evidence",
+      "digest": "sha256:917fcb5150508cd0227212f838ae4db5d8f777df5f1dac3f80e620434a0e626b",
+      "bytes": 1697510,
+      "zip_crc_verified": true,
+      "png_count": 10,
+      "release_verified": false,
+      "reports": {}
+    },
+    {
+      "id": 12600544825,
+      "name": "inactive-rollback-plan-c48eaff51b0fc0aa42358177e6df03c939f04179",
+      "digest": "sha256:9b8834e104f7a6bb810c37ccec91e830224f0cbaa6eb04caf0b7d73824ecfe2a",
+      "bytes": 368,
+      "zip_crc_verified": true,
+      "png_count": 0,
+      "release_verified": false,
+      "reports": {}
+    },
+    {
+      "id": 12599999560,
+      "name": "local-api-evidence",
+      "digest": "sha256:5a922a1296763c35109bf530ac41d5c8a4aa3e06abcc201cdd797a6da5d88c72",
+      "bytes": 17101,
+      "zip_crc_verified": true,
+      "png_count": 0,
+      "release_verified": false,
+      "reports": {}
+    },
+    {
+      "id": 12599939603,
+      "name": "process-lifecycle-ubuntu-24.04",
+      "digest": "sha256:5f8d401854c176c2adbe747f0b7737022198ea33542135d1cd88680318abb4b0",
+      "bytes": 210,
+      "zip_crc_verified": true,
+      "png_count": 0,
+      "release_verified": false,
+      "reports": {}
+    },
+    {
+      "id": 12599769995,
+      "name": "local-database-evidence-windows-2025",
+      "digest": "sha256:a40a86912ecb526dc11a3e2fb73b910d87dd15431a2b74cb71176219a2b5cb0f",
+      "bytes": 2093,
+      "zip_crc_verified": true,
+      "png_count": 0,
+      "release_verified": false,
+      "reports": {}
+    }
+  ],
+  "png_count": 220,
+  "customer_deployment_verified": false,
+  "acceptance": {
+    "all_twelve_jobs_passed": true,
+    "native_reports_asserted": true,
+    "installed_supervised_children_verified": true,
+    "public_customer_tests_performed": false
+  }
+}
