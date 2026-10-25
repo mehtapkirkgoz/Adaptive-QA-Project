@@ -260,3 +260,21 @@ Next: exact-commit queue/HTTP/UI acceptance and installed proof, then preserve/u
 the owner preview only after those checks pass. Do not add automatic public form submission to the URL-only flow.
 Keep shared/multiuser public workflows disabled until separately specified. Existing
 local interactive bindings, closed Sprint 10 tracking and the public demo remain intact.
+
+Preview build isolation: the existing process on port 8766 serves `frontend/dist`
+directly. A source build briefly replaced its files during verification; the accepted
+c48eaff dashboard was restored from the SHA-256-verified release archive, assets first
+and index last, without restarting the process or touching the workspace database.
+The served index was checked against that restored bundle. Future candidate builds
+must use a separate output directory and `ADAPTIVE_QA_VERIFY_UI` for UI proofs while
+the preview uses this folder. Release builds already use an isolated source export.
+
+Installed verification completed locally for the inactive 61dba4b bundle: all four
+manifest files verified, the 100-case catalog preserved, licensed/local UI recovery,
+native checks, twenty-one transport tests, seventeen direct browser scenarios and five
+saved queue scenarios passed. The actual bundled interface also saved/reviewed/confirmed
+and cancelled an HTTPS workflow with zero target contacts, while two existing local
+form submissions passed through installed worker processes. The verifier now requires
+this installed form UI proof in CI. Core 40223033502 at 61dba4b was cancelled, not
+accepted; do not substitute the local proof for exact-commit CI acceptance. Core
+40222978429 at 020450a completed successfully; its archive acceptance is next.

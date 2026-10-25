@@ -11,6 +11,14 @@ import os
 import subprocess
 import sys
 
+INSTALLED=os.environ.get('ADAPTIVE_QA_VERIFY_SITE')
+if INSTALLED:sys.path.insert(0,str(Path(INSTALLED).resolve(strict=True)))
+import adaptive_qa
+if INSTALLED:
+    assert Path(adaptive_qa.__file__).resolve().is_relative_to(Path(INSTALLED).resolve())
+    child=subprocess.check_output([sys.executable,'-c','import adaptive_qa;print(adaptive_qa.__file__)'],text=True).strip()
+    assert Path(child).resolve().is_relative_to(Path(INSTALLED).resolve())
+
 import uvicorn
 from playwright.sync_api import sync_playwright,expect
 from check_owned_submission import server as fixture_server
@@ -45,7 +53,8 @@ def main():
     with TemporaryDirectory(prefix='reusable-ui-') as temporary,fixture_server(Fixture,8000):
         database=Path(temporary)/'projects.sqlite';projects=LocalFreeProjects(database)
         project=projects.create(LOCAL_ACTOR,'Reusable editor proof');queue=OwnedInteractiveQueue(projects)
-        app=create_free_app(database,port=port,ui_directory=Path('frontend/dist'))
+        ui=Path(os.environ.get('ADAPTIVE_QA_VERIFY_UI','frontend/dist'))
+        app=create_free_app(database,port=port,ui_directory=ui)
         service=uvicorn.Server(uvicorn.Config(app,host='127.0.0.1',port=port,log_level='critical',access_log=False,proxy_headers=False))
         thread=Thread(target=service.run,daemon=True);thread.start();errors=[];external=[];proofs=[]
         try:
@@ -174,7 +183,8 @@ def main():
         edit_clears_confirmation=True,unsaved_review_blocked=True,removal_verified=True,
         ui_external_requests=0,page_errors=0,mobile_overflow=False,credential_values_entered_in_ui=False,
         https_saved_reviewed_confirmed_cancelled=True,https_ui_target_contacts=0,
-        https_edit_clears_confirmation=True)
+        https_edit_clears_confirmation=True,installed_wheel=bool(INSTALLED),
+        supervised_child_package_verified=bool(INSTALLED))
     (output/'reusable-editor.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8');print(json.dumps(report))
 
 

@@ -253,6 +253,18 @@ stage('complete')
                     or queued.get('screenshots_or_traces_taken')):
                 raise ValueError('Installed saved HTTPS queue evidence is incomplete.')
             (public_output/'installed-browser-queue.json').write_text(json.dumps(queued,indent=2)+'\n',encoding='utf-8')
+            subprocess.run([sys.executable,str(ROOT/'scripts/check_reusable_form_ui.py')],cwd=temporary,
+                env=browser_environment,check=True,timeout=120)
+            form_ui=json.loads((Path(temporary)/'artifacts/dashboard/reusable-editor.json').read_text(encoding='utf-8'))
+            if (not form_ui.get('installed_wheel') or not form_ui.get('supervised_child_package_verified')
+                    or not form_ui.get('https_saved_reviewed_confirmed_cancelled')
+                    or not form_ui.get('https_edit_clears_confirmation')
+                    or form_ui.get('https_ui_target_contacts')!=0
+                    or form_ui.get('ui_external_requests')!=0 or form_ui.get('page_errors')!=0
+                    or form_ui.get('mobile_overflow') or form_ui.get('credential_values_entered_in_ui')
+                    or form_ui.get('contacts')!=dict(documents=2,posts=2,bad=0)):
+                raise ValueError('Installed local/HTTPS form interface evidence is incomplete.')
+            (public_output/'installed-form-ui.json').write_text(json.dumps(form_ui,indent=2)+'\n',encoding='utf-8')
 
 
     print(json.dumps({'source_commit': revision, 'files_verified': len(manifest['files']),
