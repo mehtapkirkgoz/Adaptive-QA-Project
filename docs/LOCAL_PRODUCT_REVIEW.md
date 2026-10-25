@@ -1,6 +1,8 @@
 # Local Product Review
 
-Current runtime implementation: `4b77ba5f4dac3d190b9234851fbdd7f81ebe27dd`.
+Current runtime implementation: `8dd1af5eeb0f96730a1419a4071aeec5edec60e6`.
+The preserved preview on port 8766 still uses the earlier running Python process;
+refreshing browser assets does not upgrade that process.
 The single-device edition and its bounded operator flows are technically verified.
 Overall owner product acceptance remains pending.
 
@@ -8,10 +10,16 @@ Overall owner product acceptance remains pending.
 
 | Scope | Implementation | Core checks | Verification |
 |---|---|---|---|
+| Explicit public HTTPS API and save admission guard | 8dd1af5 | 40154721472 | 12 successful jobs, 12 verified archives, 212 validated PNGs, four inner release file digests |
 | Latest session/history recovery, including delayed old responses | 4b77ba5 | 40133176124 | 12 successful jobs, 12 verified archives, 210 validated PNGs, four inner release file digests |
 | Bounded Windows inactive publication | ab08898 | 40132928164 | 12 successful jobs, 12 verified archives, 210 validated PNGs, four inner release file digests |
 
-The complete local regression at 4b77ba5 ran 838 tests: 837 passed and one Windows
+The HTTPS implementation regression at b965faf ran 850 tests: 849 passed and one
+Windows permission skip. Its installed TLS proof and the final follow-up are in
+[HTTPS usage and acceptance](HTTPS_API.md) and
+[exact-commit HTTPS evidence](evidence/https-ci-8dd1af5.json).
+
+The earlier complete local regression at 4b77ba5 ran 838 tests: 837 passed and one Windows
 permission check was skipped. Both checkpoints include free, source-licensed and
 installed-licensed browser evidence with no external browser requests/page errors.
 See [latest recovery evidence](evidence/latest-recovery-ci-4b77ba5.json),
@@ -26,6 +34,11 @@ It starts empty, requires no account and serves the current built dashboard.
 No project, target request or test was created by opening it. An existing owner
 workspace was not replaced or restarted. This is a loopback development preview,
 not a public backend or an automatically installed service.
+
+The HTTPS API binding is available only in the updated runtime. The preserved
+8766 process does not advertise it, so the UI disables that profile. Complete any
+active work before stopping that process and starting the updated runtime against
+the same database; do not replace or reset the workspace.
 
 If that preview is still running, use it directly rather than launching a second
 server on the same port. Its process metadata/logs are in the ignored review
@@ -59,10 +72,14 @@ disabled.
 
 - General public HTTPS discovery and document/form inspection are read-only;
   they do not sign in, fill fields or submit searches.
-- Interactive submissions and reusable API/database execution are demonstrated
-  on explicitly configured owned controlled local fixtures. The API profile
-  does not provide general customer authentication, and the database profile
-  provides a confined SQLite count rather than arbitrary SQL or remote connectors.
+- Explicit public HTTPS API execution supports unauthenticated GET/HEAD status
+  contracts and optional top-level JSON boolean assertions. The dashboard offers
+  GET with an explicit origin, path and per-request confirmation. No query/body,
+  authentication, writes or redirect following is enabled. It was verified on
+  owned TLS fixtures, not customer networks. See [HTTPS_API.md](HTTPS_API.md).
+- Interactive submissions and database execution remain demonstrated on owned
+  controlled local fixtures. The database profile provides a confined SQLite
+  count rather than arbitrary SQL or remote connectors.
 - Signed paid licensing and password-authenticated local administration are
   implemented and verified with disposable keys/accounts. Actual publisher trust,
   customer license issuance, sales/payment operations and customer deployment
