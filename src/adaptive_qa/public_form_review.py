@@ -43,7 +43,7 @@ class SavedPublicFormReview:
             screenshots=False, limitations=[
                 'Review never enqueues, reserves capacity, resolves inputs or contacts the target.',
                 'One same-origin POST and exact boolean JSON/UI expectations; no redirects or cookies.',
-                'The authenticated queue/admission integration is not enabled by this review.'])
+                'Execution requires separate authenticated confirmation of this exact single-operation fingerprint.'])
 
 
 def _review_on_connection(connection, actor, project_id, *, completion, timeout_seconds=15):

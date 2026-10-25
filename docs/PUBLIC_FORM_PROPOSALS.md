@@ -226,7 +226,17 @@ the existing eight local queue tests also pass. Full regression: 906 tests passe
 one existing Windows permission skip; the two final snapshot/finalization tests also
 passed in the focused suite. No public HTTP route is enabled yet.
 
-Next: exact-commit queue acceptance, authenticated single-device HTTP integration and
+Local free/licensed HTTP integration adds separate HTTPS review and confirmed-job
+endpoints inside the existing single-device branch. The local session, Origin/CSRF,
+strict body schema, owner lookup and data-change controls apply to both endpoints.
+Shared authenticated mode exposes neither endpoint. Review and enqueue never resolve
+inputs or contact targets. Four HTTP tests cover non-execution, current confirmation,
+CSRF/Origin, missing projects, stale configuration, permission and shared-mode exclusion.
+The complete 912-test regression passed with one existing Windows permission skip.
+The owner preview remains on the previously accepted native-check runtime; these new
+workflows have not been activated there.
+
+Next: exact-commit queue/HTTP acceptance, integrated owned-TLS queue proof and
 the local inline operator UI. Do not add automatic public form submission to the URL-only flow.
 Keep shared/multiuser public workflows disabled until separately specified. Existing
 local interactive bindings, closed Sprint 10 tracking and the public demo remain intact.

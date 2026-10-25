@@ -359,6 +359,29 @@ def create_app(store: AuthStore, *, port=8765, projects=None, ui_directory=None)
                 raise ValueError()
             return await run_in_threadpool(interactive.submit, owner, review)
 
+        @app.post('/api/projects/{project_id}/interactive/https/review')
+        async def review_saved_https_form(project_id: str, request: Request):
+            from adaptive_qa.form_configuration import decode_form_mappings
+            from adaptive_qa.public_form_review import review_saved_public_form
+            owner = await run_in_threadpool(actor, request, mutation=True)
+            data = _object(await request.body(), ('completion',), optional=('timeout_seconds',))
+            completion = decode_form_mappings({'project_id': project_id, 'mappings': [data['completion']]}).mappings[0]
+            review = await run_in_threadpool(review_saved_public_form, projects, owner, project_id,
+                completion=completion, timeout_seconds=data.get('timeout_seconds', 15))
+            return review.public()
+
+        @app.post('/api/projects/{project_id}/interactive/https/jobs', status_code=202)
+        async def submit_saved_https_form(project_id: str, request: Request):
+            from adaptive_qa.form_configuration import decode_form_mappings
+            from adaptive_qa.public_form_review import review_saved_public_form
+            owner = await run_in_threadpool(actor, request, mutation=True)
+            data = _object(await request.body(), ('completion', 'confirmed_contract_fingerprint'), optional=('timeout_seconds',))
+            completion = decode_form_mappings({'project_id': project_id, 'mappings': [data['completion']]}).mappings[0]
+            review = await run_in_threadpool(review_saved_public_form, projects, owner, project_id,
+                completion=completion, timeout_seconds=data.get('timeout_seconds', 15))
+            return await run_in_threadpool(interactive.submit_public, owner, review,
+                confirmed_fingerprint=data['confirmed_contract_fingerprint'])
+
         @app.post('/api/projects/{project_id}/interactive/local/review')
         async def review_reusable_local_form(project_id: str, request: Request):
             from adaptive_qa.form_configuration import decode_form_mappings
