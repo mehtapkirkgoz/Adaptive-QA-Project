@@ -23,6 +23,11 @@ class InteractiveWork:
 
 def _snapshot(review):
     form=review.submission.form
+    from adaptive_qa.public_form_review import SavedPublicFormReview
+    if isinstance(review,SavedPublicFormReview):
+        return dict(profile='public_https',completion=json.loads(json.dumps(asdict(form.completion))),
+            timeout_seconds=form.timeout_seconds,contract_fingerprint=review.submission.fingerprint(),
+            configuration_fingerprint=form.configuration_fingerprint)
     return dict(fixture_id=review.fixture_id,completion=json.loads(json.dumps(asdict(form.completion))),
         timeout_seconds=form.timeout_seconds,contract_fingerprint=review.submission.fingerprint(),
         configuration_fingerprint=form.configuration_fingerprint)
@@ -49,10 +54,19 @@ class OwnedInteractiveQueue:
     @staticmethod
     def _public(row):
         return dict(job_id=row['job_id'],project_id=row['project_id'],status=row['status'],
-                    scope='owned_loopback_only' if json.loads(row['review_json']).get('fixture_id') is None else 'owned_fixture_only',result=json.loads(row['result_json']) if row['result_json'] else None)
+                    scope='reviewed_public_https' if json.loads(row['review_json']).get('profile')=='public_https' else 'owned_loopback_only' if json.loads(row['review_json']).get('fixture_id') is None else 'owned_fixture_only',result=json.loads(row['result_json']) if row['result_json'] else None)
 
     def _current(self,connection,row):
         data=json.loads(row['review_json'])
+        if isinstance(data,dict) and data.get('profile')=='public_https':
+            if set(data)!={'profile','completion','timeout_seconds','contract_fingerprint','configuration_fingerprint'}:
+                raise ValueError('Invalid queued HTTPS snapshot.')
+            from adaptive_qa.public_form_review import _review_on_connection as public_review
+            completion=decode_form_mappings({'project_id':row['project_id'],'mappings':[data['completion']]}).mappings[0]
+            review=public_review(connection,ProjectActor(row['owner_id']),row['project_id'],completion=completion,
+                timeout_seconds=data['timeout_seconds'])
+            if _snapshot(review)!=data:raise ValueError('Queued HTTPS settings changed.')
+            return review
         if not isinstance(data,dict) or set(data)!={'fixture_id','completion','timeout_seconds','contract_fingerprint','configuration_fingerprint'}:
             raise ValueError('Invalid queued interactive snapshot.')
         completion=decode_form_mappings({'project_id':row['project_id'],'mappings':[data['completion']]}).mappings[0]
@@ -64,12 +78,27 @@ class OwnedInteractiveQueue:
     def submit(self,actor,review):
         self.projects._actor(actor)
         if not isinstance(review,SavedInteractiveReview):raise ValueError('A typed saved review is required.')
+        return self._admit_review(actor,review)
+
+    def submit_public(self,actor,review,*,confirmed_fingerprint):
+        """Internal explicit single-operation admission; no HTTP route activation."""
+        self.projects._actor(actor)
+        from adaptive_qa.public_form_review import SavedPublicFormReview
+        if not isinstance(review,SavedPublicFormReview):raise ValueError('A typed saved HTTPS review is required.')
+        if (not isinstance(confirmed_fingerprint,str) or len(confirmed_fingerprint)!=64 or
+                any(character not in '0123456789abcdef' for character in confirmed_fingerprint) or
+                not secrets.compare_digest(confirmed_fingerprint,review.submission.fingerprint())):
+            raise ValueError('Confirm the exact current single-operation review.')
+        return self._admit_review(actor,review)
+
+    def _admit_review(self,actor,review):
         if actor.user_id!=review.owner_id:raise ProjectNotFound('Project not found.')
         with self.projects._connection() as connection:
             connection.execute('BEGIN IMMEDIATE')
             form=review.submission.form
-            current=_review_on_connection(connection,actor,form.project_id,fixture_id=review.fixture_id,
-                completion=form.completion,timeout_seconds=form.timeout_seconds)
+            snapshot=_snapshot(review)
+            current=self._current(connection,dict(review_json=json.dumps(snapshot),owner_id=actor.user_id,
+                project_id=form.project_id))
             if current!=review:raise ValueError('Review current settings before admission.')
             if hasattr(self.projects,'admit_execution'):self.projects.admit_execution(connection)
             active="status IN ('queued','running','cancel_requested')"
@@ -177,10 +206,16 @@ def process_owned_interactive_once(queue):
         review=work.review
         try:
             from adaptive_qa.local_form_binding import LocalFormBinding
+            from adaptive_qa.public_form_proposal import PublicFormProposal
             from adaptive_qa.interactive_process import run_isolated_local_form
             options=dict(current_fingerprint=review.submission.form.configuration_fingerprint,
                 timeout_seconds=45,mappings=review.mappings,should_cancel=lambda:queue.cancellation_requested(work))
-            if isinstance(review.submission,LocalFormBinding):
+            if isinstance(review.submission,PublicFormProposal):
+                from adaptive_qa.public_browser_process import run_isolated_public_browser
+                from adaptive_qa.public_submission import ReviewedPublicForm
+                result=run_isolated_public_browser(ReviewedPublicForm(review.submission,review.submission.fingerprint()),
+                    review.configuration,owner_id=work.owner_id,**options)
+            elif isinstance(review.submission,LocalFormBinding):
                 result=run_isolated_local_form(review.submission,review.configuration,**options)
             else:
                 result=run_isolated_interactive_probe(review.submission.form,review.configuration,

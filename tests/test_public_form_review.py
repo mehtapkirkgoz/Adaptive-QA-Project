@@ -72,3 +72,83 @@ class SavedPublicFormReviewTests(unittest.TestCase):
         with patch.object(SecretReference,'resolve',side_effect=AssertionError('No values')),self.assertRaises(ValueError):
             queue.submit(self.owner,self.review())
 
+
+class PublicFormQueueTests(unittest.TestCase):
+    setUp=SavedPublicFormReviewTests.setUp
+    save=SavedPublicFormReviewTests.save
+    review=SavedPublicFormReviewTests.review
+
+    def queue(self):
+        from adaptive_qa.interactive_queue import OwnedInteractiveQueue
+        return OwnedInteractiveQueue(self.store)
+
+    def submit(self,queue):
+        review=self.review()
+        return queue.submit_public(self.owner,review,confirmed_fingerprint=review.submission.fingerprint())
+
+    def test_explicit_confirmation_and_ownership_before_admission(self):
+        queue=self.queue();review=self.review()
+        for fingerprint in ('',None,'0'*64,'ş'*64):
+            with self.assertRaises(ValueError):queue.submit_public(self.owner,review,confirmed_fingerprint=fingerprint)
+        with self.assertRaises(ProjectNotFound):
+            queue.submit_public(self.other,review,confirmed_fingerprint=review.submission.fingerprint())
+        self.assertEqual(queue.list(self.owner,self.pid),())
+
+    def test_stale_claim_and_running_cancellation_never_replay(self):
+        queue=self.queue();job=self.submit(queue)
+        self.save(dict(self.data,allow_data_changes=False))
+        self.assertIsNone(queue.claim_next())
+        self.assertEqual(queue.get(self.owner,self.pid,job['job_id'])['status'],'error')
+        self.save();self.submit(queue);work=queue.claim_next()
+        self.save(dict(self.data,secret_references={}))
+        self.assertTrue(queue.cancellation_requested(work))
+
+    def test_worker_uses_supervised_public_path_and_sanitizes_result(self):
+        from adaptive_qa.interactive_queue import process_owned_interactive_once
+        from adaptive_qa.interactive_probe import InteractiveProbeResult
+        from adaptive_qa.models import TestStatus
+        queue=self.queue();job=self.submit(queue)
+        with patch('adaptive_qa.public_browser_process.run_isolated_public_browser',
+                return_value=InteractiveProbeResult(TestStatus.PASSED,'private-canary',1)) as child:
+            self.assertEqual(process_owned_interactive_once(queue)['status'],'completed')
+        self.assertEqual(child.call_args.kwargs['owner_id'],self.owner.user_id)
+        result=queue.get(self.owner,self.pid,job['job_id'])
+        self.assertEqual(result['scope'],'reviewed_public_https')
+        self.assertEqual(result['result'],dict(status='passed',attempted_submissions=1))
+        self.assertNotIn('private-canary',str(result))
+
+    def test_capacity_recovery_and_claim_tokens_are_shared(self):
+        from dataclasses import replace
+        queue=self.queue()
+        for _ in range(5):self.submit(queue)
+        with self.assertRaises(ValueError):self.submit(queue)
+        work=queue.claim_next()
+        with self.assertRaises(ValueError):queue.cancellation_requested(replace(work,claim_token='wrong'))
+        self.assertEqual(queue.recover_interrupted(),dict(cancelled=0,error=1))
+        with self.assertRaises(ValueError):queue.cancellation_requested(work)
+
+    def test_queued_cancel_never_starts_child(self):
+        from adaptive_qa.interactive_queue import process_owned_interactive_once
+        queue=self.queue();job=self.submit(queue)
+        queue.cancel(self.owner,self.pid,job['job_id'])
+        with patch('adaptive_qa.public_browser_process.run_isolated_public_browser') as child:
+            self.assertIsNone(process_owned_interactive_once(queue));child.assert_not_called()
+
+    def test_changed_settings_cannot_finalize_a_success(self):
+        from adaptive_qa.interactive_probe import InteractiveProbeResult
+        from adaptive_qa.models import TestStatus
+        queue=self.queue();self.submit(queue);work=queue.claim_next()
+        self.save(dict(self.data,allow_data_changes=False))
+        self.assertEqual(queue.finish(work,InteractiveProbeResult(TestStatus.PASSED,'ignored',1)),'error')
+        self.assertEqual(queue.get(self.owner,self.pid,work.job_id)['result']['status'],'error')
+
+    def test_unknown_snapshot_fields_fail_closed_without_dispatch(self):
+        import json
+        queue=self.queue();job=self.submit(queue)
+        with self.store._connection() as connection:
+            raw=connection.execute('SELECT review_json FROM dashboard_interactive_jobs WHERE job_id=?',(job['job_id'],)).fetchone()[0]
+            snapshot=json.loads(raw);snapshot['execution_authorized']=True
+            connection.execute('UPDATE dashboard_interactive_jobs SET review_json=? WHERE job_id=?',(json.dumps(snapshot),job['job_id']))
+        self.assertIsNone(queue.claim_next())
+        self.assertEqual(queue.get(self.owner,self.pid,job['job_id'])['status'],'error')
+

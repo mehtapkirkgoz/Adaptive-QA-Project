@@ -215,8 +215,18 @@ expected seventeen scenarios/eight owned POSTs with every new private profile re
 three supervised transport reports each passed twenty-one tests. Exact evidence:
 [public-browser-ci-fde3769.json](evidence/public-browser-ci-fde3769.json).
 
-Next: authenticated personal-project admission, stale configuration checks,
-claim/cancellation/recovery and explicit single-operation confirmation, then the local
-inline operator UI. Do not add automatic public form submission to the URL-only flow.
+Internal personal-project admission now requires `submit_public` with the exact
+current contract fingerprint. Legacy `submit` still rejects HTTPS reviews. The shared
+transactional queue preserves existing local snapshot shapes and capacity accounting;
+HTTPS snapshots carry an explicit profile. Claims, cancellation, result finalization
+and recovery revalidate saved settings and retain claim-token checks. The worker dispatches
+only to the supervised public browser process and stores status/attempt count, never
+adapter messages or inputs. Thirteen focused tests cover review and queue behavior;
+the existing eight local queue tests also pass. Full regression: 906 tests passed with
+one existing Windows permission skip; the two final snapshot/finalization tests also
+passed in the focused suite. No public HTTP route is enabled yet.
+
+Next: exact-commit queue acceptance, authenticated single-device HTTP integration and
+the local inline operator UI. Do not add automatic public form submission to the URL-only flow.
 Keep shared/multiuser public workflows disabled until separately specified. Existing
 local interactive bindings, closed Sprint 10 tracking and the public demo remain intact.
