@@ -32,6 +32,7 @@ class DestinationGuard:
         self.requests = 0
         self.redirects = 0
         self.denied = 0
+        self.redirect_outside_scope = False
         self._lock = Lock()
 
     def authorize(self, url: str) -> ValidatedTarget:
@@ -48,7 +49,10 @@ class DestinationGuard:
             self.redirects += 1
             if self.redirects > 10:
                 raise ValueError("Redirect budget exceeded.")
-        self.authorize(urljoin(current_url, location))
+        try:self.authorize(urljoin(current_url, location))
+        except ValueError:
+            self.redirect_outside_scope=True
+            raise
 
     def connect(self, target: ValidatedTarget, *, timeout_seconds: float = 5) -> socket.socket:
         """Connect to a checked numeric IP, never resolve the hostname again."""

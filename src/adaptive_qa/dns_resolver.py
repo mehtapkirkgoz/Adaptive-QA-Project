@@ -6,6 +6,7 @@ import subprocess
 import sys
 
 from adaptive_qa.targets import resolve_addresses
+from adaptive_qa.discovery_diagnostics import DestinationDNSError
 
 
 def resolve_with_deadline(hostname: str, port: int) -> tuple[str, ...]:
@@ -24,7 +25,7 @@ def resolve_with_deadline(hostname: str, port: int) -> tuple[str, ...]:
             raise ValueError("Invalid DNS result.")
         return tuple(addresses)
     except (OSError, subprocess.TimeoutExpired, ValueError) as error:
-        raise ValueError("Destination DNS resolution failed or exceeded its deadline.") from error
+        raise DestinationDNSError("Destination DNS resolution failed or exceeded its deadline.") from error
 
 
 def main() -> None:

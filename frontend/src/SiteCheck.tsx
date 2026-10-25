@@ -3,7 +3,7 @@ import type {ReactNode} from 'react';
 
 type Result = {case_id: string; status: string; message: string; reason_code?: string; duration_seconds: number; evidence_id?: string};
 type Check = {check_id: string; project_id: string; url: string; status: string; inspected_pages?: number;
-  requested?: number; not_run?: number; names?: Record<string, string>; results?: Result[]; run_id?: string};
+  requested?: number; not_run?: number; names?: Record<string, string>; results?: Result[]; run_id?: string; diagnostic_code?: string};
 type Props = {request: <T>(path: string, method?: string, body?: unknown) => Promise<T>; tools: ReactNode; feedback: ReactNode; onOptionsOpen: (projectId?: string) => void; onCheckCreated: (projectId: string) => void; hasUnsavedOptions: boolean; edition: string; onSignOut?: () => void};
 const reasons: Record<string, string> = {
   native_email_passed: 'Browser email validation matched the expected outcome on an isolated field copy. No page input or submission occurred.',
@@ -25,6 +25,17 @@ function outcomeStatus(check: Check) {
 const stages: Record<string, string> = {discovering: 'Inspecting the site…', testing: 'Running applicable checks…',
   cancelling: 'Stopping the check…', partial: 'Check finished with incomplete tests', completed: 'Check finished', cancelled: 'Check stopped',
   execution_error: 'Tests could not be evaluated', error: 'Check could not finish', interrupted: 'Check interrupted when the application closed', no_tests: 'No applicable checks found'};
+const accessReasons: Record<string,string> = {
+  dns_resolution_failed: 'The domain name could not be resolved on this computer. Check the spelling and whether the address opens in your browser. DNS may also be temporarily unavailable.',
+  destination_blocked: 'The address resolved outside the supported public destination scope. Private network addresses are not supported by this check.',
+  tls_verification_failed: 'The HTTPS certificate could not be verified. The connection was stopped before inspecting the page.',
+  connection_failed: 'A connection to the website could not be established. Check that the exact HTTPS address is reachable from this computer.',
+  inspection_timeout: 'The site inspection exceeded its time limit. The server may be slow or unreachable; no website verdict is available.',
+  access_denied: 'The server refused or limited access (HTTP 401, 403 or 429). Sign-in or bot protection may prevent automatic inspection.',
+  target_http_error: 'The website returned an unsuccessful HTTP response, so its page could not be inspected.',
+  redirect_outside_scope: 'The page redirected to a different hostname outside this check. Open the address in your browser and use its final HTTPS URL, including www if present.',
+  inspection_process_error: 'The isolated inspection process could not return usable page evidence. This is a technical error, not a failed website test.',
+  inspection_unavailable: 'No usable page could be inspected. Check the final HTTPS address, website availability and access requirements.'};
 
 export function SiteCheck({request, tools, feedback, onOptionsOpen, onCheckCreated, hasUnsavedOptions, edition, onSignOut}: Props) {
   const [url, setUrl] = useState(''), [check, setCheck] = useState<Check | null>(null);
@@ -99,6 +110,7 @@ export function SiteCheck({request, tools, feedback, onOptionsOpen, onCheckCreat
       <div className="site-check-totals"><div><strong>{results.length ? passed.length : "—"}</strong><span>Passed</span></div><div><strong>{results.length ? failed.length : "—"}</strong><span>Failed</span></div>
         <div><strong>{results.length ? other.length : "—"}</strong><span>Not evaluated</span></div><div><strong>{check.inspected_pages ?? '—'}</strong><span>Pages inspected</span></div></div>
       {!active(check) && ['error', 'interrupted', 'execution_error'].includes(outcomeStatus(check)) && <p className="message error">Technical or access errors prevented a reliable verdict. This is not evidence that your website failed. Review the recorded outcomes below. A retry only starts when you press Test website.</p>}
+      {!active(check) && accessReasons[check.diagnostic_code ?? ''] && <p className="message error" role="status">{accessReasons[check.diagnostic_code!]}</p>}
       {!active(check) && !results.length && <p className="message" role="status"><strong>No tests were evaluated.</strong> No pass or fail verdict is available for this check.</p>}
       {groups.map(group => !!group.items.length && <section className={`site-check-group ${group.kind}`} key={group.kind}><h3>{group.title} · {group.items.length}</h3>
         {group.items.map(result => <article key={result.case_id}><strong>{check.names?.[result.case_id] ?? result.case_id}</strong>

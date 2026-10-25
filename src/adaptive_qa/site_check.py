@@ -190,7 +190,10 @@ class SiteChecks:
             if self._row(actor, check_id)['status'] == 'cancelling' or job['status'] == 'cancelled':
                 self._update(check_id, status='cancelled'); return
             if job['status'] != 'completed':
-                self._update(check_id, status='error'); return
+                from adaptive_qa.discovery_diagnostics import ACCESS_DIAGNOSTICS
+                code=job.get('diagnostic_code','inspection_unavailable')
+                if not isinstance(code,str) or code not in ACCESS_DIAGNOSTICS:code='inspection_unavailable'
+                self._update(check_id, status='error',summary_json=json.dumps(dict(diagnostic_code=code))); return
             report = job['report']
             settings = self.projects.configuration(actor, project_id)
             eligible = []

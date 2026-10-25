@@ -22,6 +22,7 @@ from adaptive_qa.catalog import TEST_CASES
 from adaptive_qa.planning import build_test_plan
 from adaptive_qa.document_target import validate_document_path
 from adaptive_qa.discovery_target import validate_discovery_project, validate_discovery_url
+from adaptive_qa.discovery_diagnostics import DestinationDNSError
 
 
 _LOCAL_PROJECT = ProjectConfig('local-discovery', 'Local Discovery',
@@ -44,6 +45,12 @@ def _collect_sample(budget: CrawlBudget, start_path='/') -> dict:
 def _collect_project(project, budget, profile):
     validate_discovery_project(project, profile)
     guard = DestinationGuard(project, local_sample=profile == 'controlled_local', max_requests=budget.max_requests)
+    if profile=='public_https':
+        try:guard.authorize(project.base_url)
+        except DestinationDNSError:
+            return {**_failed_discovery('destination_unavailable',project),'diagnostic_code':'dns_resolution_failed'}
+        except ValueError:
+            return {**_failed_discovery('destination_unavailable',project),'diagnostic_code':'destination_blocked'}
     def authorize(url):
         return validate_discovery_url(url, project, profile)
     with EgressProxy(guard) as proxy, sync_playwright() as playwright:
@@ -51,14 +58,19 @@ def _collect_project(project, budget, profile):
         try:
             context = browser.new_context(service_workers='block', accept_downloads=False)
             denied_routes = 0
+            blocked_navigation = False
+            navigation_failure = None
+            last_http_status = None
             def route_request(route):
-                nonlocal denied_routes
+                nonlocal denied_routes,blocked_navigation
                 try:
                     if route.request.method not in ('GET', 'HEAD'):
                         raise ValueError('Only read requests are allowed.')
                     authorize(route.request.url)
                 except ValueError:
                     denied_routes += 1
+                    if route.request.is_navigation_request() and route.request.frame==page.main_frame:
+                        blocked_navigation=True
                     route.abort('blockedbyclient')
                 else:
                     route.continue_()
@@ -66,8 +78,18 @@ def _collect_project(project, budget, profile):
             context.route_web_socket('**/*', lambda connection: connection.close())
             page = context.new_page()
             def load(url, remaining):
-                response = page.goto(url, wait_until='domcontentloaded',
-                                     timeout=max(1, min(10000, remaining * 1000)))
+                nonlocal navigation_failure,last_http_status
+                try:
+                    response = page.goto(url, wait_until='domcontentloaded',
+                                         timeout=max(1, min(10000, remaining * 1000)))
+                except Exception as error:
+                    # Inspect browser error markers only; never export the message/URL.
+                    text=str(error)
+                    navigation_failure=('tls_verification_failed' if 'net::ERR_CERT_' in text else
+                        'dns_resolution_failed' if 'net::ERR_NAME_NOT_RESOLVED' in text else
+                        'inspection_timeout' if type(error).__name__=='TimeoutError' else 'connection_failed')
+                    raise
+                last_http_status=response.status if response is not None else None
                 if response is None or not 200 <= response.status < 300:
                     raise RuntimeError('Page did not return a successful response.')
                 authorize(page.url)
@@ -79,7 +101,14 @@ def _collect_project(project, budget, profile):
             if guard.denied or denied_routes:
                 limitations.add('network_policy_denial')
             plan = build_test_plan(replace(result, limitations=tuple(sorted(limitations))), TEST_CASES, project)
-            return {**asdict(result), 'limitations': sorted(limitations), 'plan': asdict(plan),
+            diagnostic={}
+            if not result.pages:
+                code=('redirect_outside_scope' if blocked_navigation or guard.redirect_outside_scope else
+                    'access_denied' if last_http_status in (401,403,429) else
+                    'target_http_error' if last_http_status is not None and not 200<=last_http_status<300 else
+                    navigation_failure or 'inspection_unavailable')
+                diagnostic={'diagnostic_code':code}
+            return {**asdict(result), **diagnostic, 'limitations': sorted(limitations), 'plan': asdict(plan),
                     'requests': min(guard.requests, budget.max_requests),
                     'request_authorization_attempts': guard.requests,
                     'scope': 'inspected_pages_only'}

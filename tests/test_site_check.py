@@ -48,6 +48,19 @@ class SiteCheckTests(unittest.TestCase):
         with self.assertRaises(ProjectNotFound):
             self.service.get(ProjectActor('a'*32), check['check_id'])
 
+    def test_access_failures_are_explicit_and_do_not_start_tests_or_store_raw_text(self):
+        for supplied,expected in (('dns_resolution_failed','dns_resolution_failed'),
+                ('private-value','inspection_unavailable')):
+            payload=dict(pages=[],limitations=[],diagnostic_code=supplied,raw_error='private-canary')
+            with patch('adaptive_qa.dashboard_worker.discover_configured_target',return_value=payload), \
+                    patch('adaptive_qa.site_check.process_run_once') as runner:
+                check=self.service.submit(LOCAL_ACTOR,self.url);self.service.thread.join(5)
+            outcome=self.service.get(LOCAL_ACTOR,check['check_id'])
+            self.assertEqual(outcome['status'],'error');self.assertEqual(outcome['diagnostic_code'],expected)
+            self.assertNotIn('results',outcome);runner.assert_not_called()
+        self.assertNotIn(b'private-canary',self.projects.database.read_bytes())
+        self.assertNotIn(b'private-value',self.projects.database.read_bytes())
+
     def test_native_email_probes_selected_only_for_observed_saved_page(self):
         def discovery(*args, **kwargs):
             page=PageSnapshot(self.url, forms=(FormSnapshot(fields=(FieldSnapshot('email'),)),), collection_complete=True)

@@ -24,6 +24,10 @@ def main():
                 canary.append(True)
                 self.send_response(404); self.end_headers(); return
             requests.append(self.path)
+            if self.path in ('/redirect.html','/foreign-redirect.html'):
+                self.send_response(302)
+                self.send_header('Location','/account.html' if self.path=='/redirect.html' else 'http://127.0.0.1:8001/blocked')
+                self.end_headers();return
             html = pages.get(self.path)
             body = (html or 'Not found').encode()
             self.send_response(200 if html else 404)
@@ -51,6 +55,12 @@ def main():
                 assert 'network_policy_denial' in result['limitations']
                 assert features['login'] == 'unknown', 'Denied resources must not establish feature absence.'
             reports.append({'fixture': path, 'features': features, 'limitations': result['limitations']})
+        project=ProjectConfig('redirect-proof','Owned redirect proof','http://127.0.0.1:8000/redirect.html',('127.0.0.1',))
+        redirected=discover_configured_target(project,CrawlBudget(max_pages=1,timeout_seconds=15),profile='controlled_local')
+        assert len(redirected['pages'])==1 and redirected['pages'][0]['url'].endswith('/account.html')
+        project=ProjectConfig('foreign-redirect-proof','Owned redirect scope','http://127.0.0.1:8000/foreign-redirect.html',('127.0.0.1',))
+        blocked=discover_configured_target(project,CrawlBudget(max_pages=1,timeout_seconds=15),profile='controlled_local')
+        assert blocked['pages']==[] and blocked['diagnostic_code']=='redirect_outside_scope'
         assert not canary and '/' not in requests
     finally:
         for server in servers: server.shutdown(); server.server_close()
@@ -59,6 +69,7 @@ def main():
               'separate_child_processes': True, 'non_executing_plans': True,
               'denied_resources_preserve_unknown': True, 'canary_contacts': len(canary),
               'public_profile_network_tested': False, 'dashboard_external_activation': False,
+              'same_origin_redirect_inspected':True,'foreign_redirect_explained_without_contact':True,
               'reports': reports}
     output = Path('artifacts/matching/configured-discovery.json')
     output.parent.mkdir(parents=True, exist_ok=True)

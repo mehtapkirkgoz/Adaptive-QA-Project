@@ -16,6 +16,7 @@ from adaptive_qa.worker_lock import worker_lock
 from adaptive_qa.document_target import controlled_start_path
 from adaptive_qa.native_form_checks import has_unique_email
 from adaptive_qa.discovery_target import configured_discovery, validate_discovery_url
+from adaptive_qa.discovery_diagnostics import failed_discovery_code
 
 
 def configuration_fingerprint(configuration):
@@ -74,9 +75,13 @@ def process_discovery_once(queue):
                 payload = discover_local_sample(budget, should_cancel=cancellation, **binding)
             else:
                 payload = discover_configured_target(config, budget, profile=profile, should_cancel=cancellation)
+            diagnostic=failed_discovery_code(payload)
+            if diagnostic is not None:
+                status=queue.finish(work,failed=True,diagnostic_code=diagnostic)
+                return {'job_id':work.job_id,'project_id':work.project_id,'status':status}
             report = _report(work, payload)
         except Exception:
-            status = queue.finish(work, failed=True)
+            status = queue.finish(work, failed=True,diagnostic_code='inspection_process_error')
         else:
             status = queue.finish(work, report=report)
         return {'job_id': work.job_id, 'project_id': work.project_id, 'status': status}

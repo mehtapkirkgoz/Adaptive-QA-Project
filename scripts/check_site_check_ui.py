@@ -126,13 +126,15 @@ def main(licensed=False):
                     page.locator('.workspace-options > summary').click()
                     expect(page.get_by_role('heading',name='Check finished',exact=True)).to_be_visible()
                     assert len(admissions)==3
-                    no_result=dict(check,check_id='e'*32,status='error',results=[],requested=0)
+                    no_result=dict(check,check_id='e'*32,status='error',results=[],requested=0,diagnostic_code='dns_resolution_failed')
                     def history_state(route): route.fulfill(status=200,content_type='application/json',body=json.dumps({'checks':[no_result]}))
                     page.route('**/api/site-checks',history_state)
                     page.reload()
                     expect(page.get_by_text('No tests were evaluated.',exact=True)).to_be_visible()
                     expect(page.get_by_role('heading',name='Check could not finish',exact=True)).to_be_visible()
+                    expect(page.get_by_text('The domain name could not be resolved on this computer.',exact=False)).to_be_visible()
                     assert page.locator('.site-check-totals strong').nth(0).inner_text()=='—'
+                    no_result.pop('diagnostic_code')
                     no_result.update(status='execution_error',requested=5,results=[dict(case_id='DOC-001',status='error',message='Test execution outcome: error.',duration_seconds=.1)])
                     page.reload()
                     expect(page.get_by_role('heading',name='Tests could not be evaluated',exact=True)).to_be_visible()
@@ -149,7 +151,7 @@ def main(licensed=False):
                         explicit_check_requests=3,failed_checks_shown_separately=True,cancellation_verified=True,managed_workers=True,manual_worker_commands=0,recorded_results=len(check['results']),
                         inspected_pages=check['inspected_pages'],all_recorded_passed=True,reload_did_not_replay=True,
                         advanced_controls_preserved=True,unified_english_workspace=True,native_email_checks_automatically_executed=True,empty_and_execution_error_states_verified=True,partial_outcome_state_verified=True,mobile_overflow=False,ui_external_requests=0,page_errors=[],
-                        target_scope='owned_controlled_loopback_fixture',customer_deployment_verified=False)
+                        target_scope='owned_controlled_loopback_fixture',customer_deployment_verified=False,explicit_dns_failure_explanation=True)
                     (artifact/(label+'.json')).write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
                     print(json.dumps(report))
                 finally: browser.close()

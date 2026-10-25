@@ -40,7 +40,8 @@ class ConfiguredDiscoveryTests(unittest.TestCase):
 
     def test_public_collector_uses_public_guard_before_browser_or_proxy_startup(self):
         class StopBeforeNetwork(Exception): pass
-        with patch('adaptive_qa.local_discovery.EgressProxy', side_effect=StopBeforeNetwork) as proxy:
+        with patch('adaptive_qa.egress.resolve_with_deadline',return_value=('93.184.216.34',)), \
+                patch('adaptive_qa.local_discovery.EgressProxy', side_effect=StopBeforeNetwork) as proxy:
             with self.assertRaises(StopBeforeNetwork):
                 _collect_project(self.project(), CrawlBudget(), 'public_https')
         guard = proxy.call_args.args[0]
@@ -59,3 +60,16 @@ class ConfiguredDiscoveryTests(unittest.TestCase):
         self.assertEqual(result['pages'], [])
         self.assertIn('cancelled', result['limitations'])
         self.assertFalse(result['plan']['execution_authorized'])
+
+    def test_dns_and_private_resolution_fail_without_starting_a_browser(self):
+        from adaptive_qa.discovery_diagnostics import DestinationDNSError
+        with patch('adaptive_qa.egress.resolve_with_deadline',side_effect=DestinationDNSError('private-canary')), \
+                patch('adaptive_qa.local_discovery.EgressProxy') as proxy:
+            result=_collect_project(self.project(),CrawlBudget(),'public_https')
+        proxy.assert_not_called()
+        self.assertEqual(result['diagnostic_code'],'dns_resolution_failed')
+        self.assertNotIn('private-canary',str(result));self.assertEqual(result['pages'],[])
+        with patch('adaptive_qa.egress.resolve_with_deadline',return_value=('127.0.0.1',)), \
+                patch('adaptive_qa.local_discovery.EgressProxy') as proxy:
+            result=_collect_project(self.project(),CrawlBudget(),'public_https')
+        proxy.assert_not_called();self.assertEqual(result['diagnostic_code'],'destination_blocked')

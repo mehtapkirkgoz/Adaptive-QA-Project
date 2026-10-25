@@ -1,0 +1,38 @@
+{
+  "target": "https://books.toscrape.com/",
+  "status": "completed",
+  "diagnostic_code": null,
+  "inspected_pages": 5,
+  "requested": 5,
+  "outcomes": [
+    {
+      "case_id": "DOC-001",
+      "status": "passed",
+      "reason_code": "source_html_passed"
+    },
+    {
+      "case_id": "DOC-002",
+      "status": "passed",
+      "reason_code": "source_html_passed"
+    },
+    {
+      "case_id": "DOC-003",
+      "status": "passed",
+      "reason_code": "source_html_passed"
+    },
+    {
+      "case_id": "DOC-004",
+      "status": "passed",
+      "reason_code": "source_html_passed"
+    },
+    {
+      "case_id": "DOC-005",
+      "status": "passed",
+      "reason_code": "source_html_passed"
+    }
+  ],
+  "scope": "bounded_read_only_public_scraping_sandbox",
+  "forms_submitted": false,
+  "owner_workspace_modified": false,
+  "site_specific_binding": false
+}

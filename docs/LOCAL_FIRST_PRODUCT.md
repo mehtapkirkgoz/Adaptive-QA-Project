@@ -1,5 +1,11 @@
 # Local-First Product Conversion
 
+Current owner finding (2026-10-26): ordinary website checks failed without an
+actionable reason. Follow [WEBSITE_ACCESS.md](WEBSITE_ACCESS.md) for the active
+diagnostic/compatibility fix and its bounded public-demo proof. Preserve the running
+020450a preview until the replacement code passes acceptance; this concrete finding
+supersedes the earlier wait-for-review note without broadening target permissions.
+
 Current checkpoint (2026-10-26): reviewed HTTPS form workflows are accepted at
 020450a / Core 40222978429 and installed in the existing owner preview with all
 twelve prior table digests preserved. Follow [PUBLIC_FORM_PROPOSALS.md](PUBLIC_FORM_PROPOSALS.md)

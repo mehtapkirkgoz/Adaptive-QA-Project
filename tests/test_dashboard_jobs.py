@@ -26,6 +26,16 @@ class DashboardJobsTests(unittest.TestCase):
     def submit(self):
         return self.queue.submit(self.actor, self.project.project_id)
 
+    def test_failure_diagnostics_are_fixed_and_cancellation_discards_them(self):
+        self.submit();work=self.queue.claim_next()
+        for code in ('private-canary',{},True):
+            with self.assertRaises(ValueError):self.queue.finish(work,failed=True,diagnostic_code=code)
+        with self.assertRaises(ValueError):self.queue.finish(work,diagnostic_code='dns_resolution_failed')
+        self.queue.cancel(self.actor,self.project.project_id,work.job_id)
+        self.assertEqual(self.queue.finish(work,failed=True,diagnostic_code='dns_resolution_failed'),'cancelled')
+        self.assertNotIn('diagnostic_code',self.queue.get(self.actor,self.project.project_id,work.job_id))
+        self.assertNotIn(b'private-canary',self.store.database.read_bytes())
+
     def test_submission_is_persistent_nonexecuting_and_configuration_is_frozen(self):
         job = self.submit()
         self.store.save_configuration(self.actor, self.project.project_id, dict(self.settings, allow_data_changes=True))

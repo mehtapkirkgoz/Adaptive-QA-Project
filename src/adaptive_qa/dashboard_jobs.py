@@ -45,6 +45,11 @@ class DashboardDiscoveryQueue:
         result = {'job_id': row['job_id'], 'project_id': row['project_id'], 'status': row['status']}
         if row['status'] == 'completed' and row['report_json'] is not None:
             result['report'] = json.loads(row['report_json'])
+        elif row['status']=='error' and row['report_json'] is not None:
+            from adaptive_qa.discovery_diagnostics import ACCESS_DIAGNOSTICS
+            report=json.loads(row['report_json'])
+            code=report.get('diagnostic_code') if isinstance(report,dict) else None
+            if isinstance(code,str) and code in ACCESS_DIAGNOSTICS:result['diagnostic_code']=code
         return result
 
     def _owned(self, connection, actor, project_id, job_id):
@@ -145,10 +150,16 @@ class DashboardDiscoveryQueue:
                 return True
             return row['status'] == 'cancel_requested'
 
-    def finish(self, work, *, failed=False, report=None):
+    def finish(self, work, *, failed=False, report=None, diagnostic_code=None):
         if type(failed) is not bool:
             raise ValueError('Failure flag must be boolean.')
         encoded = None
+        if diagnostic_code is not None:
+            from adaptive_qa.discovery_diagnostics import ACCESS_DIAGNOSTICS
+            if (not failed or report is not None or not isinstance(diagnostic_code,str)
+                    or diagnostic_code not in ACCESS_DIAGNOSTICS):
+                raise ValueError('A fixed diagnostic requires a failed discovery without a report.')
+            encoded=json.dumps(dict(diagnostic_code=diagnostic_code))
         if report is not None:
             if (not isinstance(report, dict) or report.get('execution_authorized') is not False
                     or report.get('project_id') != work.project_id):
@@ -164,7 +175,7 @@ class DashboardDiscoveryQueue:
                 raise ValueError('Invalid or finalized worker claim.')
             status = 'cancelled' if row['status'] == 'cancel_requested' else ('error' if failed else 'completed')
             connection.execute('UPDATE dashboard_discovery_jobs SET status=?, claim_token=NULL, report_json=? WHERE job_id=?',
-                               (status, encoded if status == 'completed' else None, work.job_id))
+                               (status, encoded if status=='completed' or (status=='error' and diagnostic_code is not None) else None, work.job_id))
             return status
 
     def recover_interrupted(self):
