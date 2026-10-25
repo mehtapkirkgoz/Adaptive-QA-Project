@@ -242,6 +242,9 @@ All five produced the expected statuses, four total owned POSTs, sanitized persi
 results and cleaned private profiles. This runs without HTTP/UI activation or customer
 targets. CI requires it on Windows/Linux and the installed-wheel verifier runs it away
 from the checkout as well. Exact-commit acceptance for this driver increment is pending.
+The queue report explicitly marks its controlled fixture queue admission as enabled;
+public backend and owner-preview activation remain false. This distinguishes the real
+queue demonstration from the earlier direct-browser-only proof.
 
 The same English workspace now includes an optional HTTPS form profile in its existing
 form settings. Automatic URL checks remain read-only. Review shows the one POST endpoint

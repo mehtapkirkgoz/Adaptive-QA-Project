@@ -198,7 +198,8 @@ worker.main()
     report=dict(scenarios=records,installed_wheel=bool(INSTALLED),supervised_child_package_verified=bool(INSTALLED),
         actual_owned_tls_documents=True,actual_owned_tls_posts=True,supervised_browser_worker=True,
         test_connector_only=True,browser_test_certificate_pin='ephemeral_owned_spki_only',
-        production_tls_override_exposed=False,queue_or_ui_admission_enabled=False,
+        production_tls_override_exposed=False,queue_or_ui_admission_enabled=queued,
+        public_backend_activated=False,owner_preview_activated=False,
         public_customer_targets_contacted=False,raw_inputs_in_report=False,screenshots_or_traces_taken=False,
         private_profiles_removed=True,quick=quick,owned_fixture_queue_verified=queued)
     output=Path('artifacts/public-submission');output.mkdir(parents=True,exist_ok=True)

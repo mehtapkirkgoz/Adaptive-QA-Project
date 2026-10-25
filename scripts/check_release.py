@@ -243,6 +243,8 @@ stage('complete')
             queued=json.loads((Path(temporary)/'artifacts/public-submission/browser-queue.json').read_text(encoding='utf-8'))
             if (not queued.get('installed_wheel') or not queued.get('supervised_child_package_verified')
                     or not queued.get('owned_fixture_queue_verified')
+                    or queued.get('queue_or_ui_admission_enabled') is not True
+                    or queued.get('public_backend_activated') is not False
                     or [item['status'] for item in queued.get('scenarios',[])]!=['passed']*3+['error','blocked']
                     or sum(item['owned_tls_posts'] for item in queued['scenarios'])!=4
                     or not queued.get('actual_owned_tls_documents') or not queued.get('private_profiles_removed')
