@@ -47,7 +47,7 @@ async function api<T>(path: string, method = 'GET', body?: unknown): Promise<T> 
 
 function App() {
   const [simpleAvailable, setSimpleAvailable] = useState(false);
-  const [advanced, setAdvanced] = useState(() => new URLSearchParams(location.search).get('view') === 'advanced');
+  const [advanced, setAdvanced] = useState(() => location.hash === '#advanced');
   const [freeEdition, setFreeEdition] = useState(false);
   const [licensedEdition, setLicensedEdition] = useState(false);
   const [signedIn, setSignedIn] = useState(false), [checking, setChecking] = useState(true);

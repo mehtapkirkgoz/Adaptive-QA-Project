@@ -61,7 +61,7 @@ def main():
                     def route(request):
                         if request.request.url.startswith(origin+'/'):request.continue_()
                         else:external.append('denied');request.abort()
-                    page.route('**/*',route);page.goto(origin+'/?view=advanced')
+                    page.route('**/*',route);page.goto(origin+'/#advanced')
                     page.get_by_role('button',name='Reusable editor proof').click()
                     editor=page.get_by_role('region',name='Reusable local form binding')
                     for login in (True,False):

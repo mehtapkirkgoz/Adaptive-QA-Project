@@ -32,7 +32,7 @@ including backup restoration cancelling managed state. Exact-commit remote and
 installed package acceptance are still pending.
 
 The default screen is Turkish and URL-first. The prior workspace is available
-through Gelişmiş ayarlar or /?view=advanced. Advanced contracts are not silently
+through Gelişmiş ayarlar or /#advanced. Advanced contracts are not silently
 discarded by a simple check. Free mode reuses its existing one-project workspace;
 licensed mode reuses an exact saved URL or creates a project within its license.
 Existing unrelated queued jobs are never claimed by managed work. Restart never
@@ -42,3 +42,8 @@ managed state and child queues.
 No AI model is invoked by this deterministic guarded orchestration. The interface
 promises automatic selection/execution, not fabricated AI work, universal coverage,
 a complete API/database audit or a guarantee that the whole site works.
+
+The first installed legacy browser proof exposed the existing server's rejection
+of all root URL queries. Advanced-view links now use the browser-only #advanced
+fragment, preserving that HTTP query guard. The b12fca4 checkpoint is not remote
+or installed accepted; the corrected follow-up must pass those checks.

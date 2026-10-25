@@ -58,7 +58,7 @@ def main(port=8765):
                     page.on('pageerror', lambda error: errors.append(str(error)))
                     page.on('request', lambda request: external.append(request.url)
                             if not request.url.startswith(origin+'/') else None)
-                    page.goto(origin+'/?view=advanced', timeout=10000)
+                    page.goto(origin+'/#advanced', timeout=10000)
                     expect(page.get_by_role('heading', name='Sign in', exact=True)).to_be_visible()
                     page.get_by_label('Email', exact=True).fill('dashboard@example.test')
                     page.get_by_label('Password', exact=True).fill('Wrong dashboard password 123!')
