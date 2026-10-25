@@ -1,5 +1,11 @@
 # Controlled Local Database Integration
 
+Current support includes the explicit table/count editor, guarded confirmation,
+history/cancellation and separate free/licensed one-shot workers. The fixed owned
+SQLite fixture root remains mandatory. Current recovery and packaging acceptance
+is summarized in [LOCAL_PRODUCT_REVIEW.md](LOCAL_PRODUCT_REVIEW.md); historical
+implementation notes below do not override that checkpoint.
+
 The existing 15 database catalog definitions describe explicit sample contracts;
 they are not applicable to every database and remain within the 100-case catalog.
 The reusable operator profile is limited to owned SQLite fixtures. The local

@@ -1,5 +1,9 @@
 # Post-Sprint Local Product Review
 
+Current single-device product status and the actual local review panel are in
+[LOCAL_PRODUCT_REVIEW.md](LOCAL_PRODUCT_REVIEW.md). The notes below preserve
+post-sprint history; earlier pending work is superseded by that checkpoint.
+
 Started: 2026-10-23, explicitly authorized by the owner after closing milestone 11.
 Sprint 10 issue/milestone are closed. Its frozen acceptance remains historical.
 This follow-up does not enable purchases, public backend hosting or customer tests.

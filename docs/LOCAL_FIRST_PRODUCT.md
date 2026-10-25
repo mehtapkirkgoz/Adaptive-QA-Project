@@ -1,5 +1,12 @@
 # Local-First Product Conversion
 
+Current status: the bounded local edition is ready for owner usage review.
+Latest runtime checkpoint 4b77ba5 and Windows publication checkpoint ab08898 both
+passed all twelve CI jobs and artifact verification. See
+[current review and supported boundaries](LOCAL_PRODUCT_REVIEW.md). The sections
+below retain implementation history; earlier pending notes describe their stage
+at the time and do not override this current checkpoint.
+
 Owner authorization: 2026-10-23. Preserve the working engine and existing local
 sessions while delivering a narrow single-device edition first. Sprint 10 remains
 closed; this is product conversion work, not a reopened sprint. The prior rough
@@ -650,3 +657,31 @@ repeat already accepted target checks or expand customer connectors to consume
 usage. After these evidence checks, remain quiet pending owner product review.
 The hourly usage-gated automation remains authorized; overall product acceptance
 is pending and no closed sprint is reopened.
+
+
+## Verified Current Review Checkpoint — 2026-10-25
+
+Windows publication ab08898 / 40132928164 and latest runtime 4b77ba5 /
+40133176124 each passed all twelve Core jobs. Their twenty-four downloaded
+archives matched source identity/size/SHA-256 and ZIP CRC; each contained 210
+validated PNGs and an inactive release with four verified inner files. Latest
+free evidence includes the delayed-old-401 regression; all three browser reports
+confirm the appropriate local/session/recovery behavior without external requests
+or page errors. Evidence files: publication-ci-ab08898.json and
+latest-recovery-ci-4b77ba5.json under docs/evidence/. The documentation follow-up
+466412e also passed Core checks 40133429932; its archives were not reaccepted.
+
+The owner-facing review guide now consolidates current scope and acceptance.
+A new empty account-free preview serves current built assets on 127.0.0.1:8766
+using the ignored artifacts/local-review-2026-10-25 workspace. Bootstrap, zero
+projects, current asset bytes and no auth.sqlite were checked. No worker, target
+request or test was started. Preserve this running preview and any owner changes;
+do not create another workspace just to continue. The original 8765 listener was
+unreachable during inspection and was not restarted or changed.
+
+The bounded local edition has no remaining known implementation item in this
+plan. Follow-up may inspect current CI for new failures and fix concrete owner
+review findings. Stay quiet on unchanged state; do not consume usage by rerunning
+accepted checks or expanding connectors/commercial deployment without a scoped
+owner decision. Overall acceptance remains with the owner; automation stays
+scheduled until acceptance/cancellation.

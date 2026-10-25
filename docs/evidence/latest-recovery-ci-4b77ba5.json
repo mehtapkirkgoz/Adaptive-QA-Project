@@ -1,0 +1,244 @@
+{
+  "implementation_commit": "4b77ba5f4dac3d190b9234851fbdd7f81ebe27dd",
+  "run_id": 40133176124,
+  "acceptance": "all_twelve_jobs_and_artifacts_verified",
+  "jobs": [
+    {
+      "name": "Controlled API checks",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Packaged local runtime (ubuntu-24.04)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "UI catalog and isolation",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Controlled database checks (windows-2025)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Controlled database checks (ubuntu-24.04)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Local browser check",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "scaffold",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Inactive release packaging",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Browser integration checks",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Packaged local runtime (windows-2025)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Process lifecycle (ubuntu-24.04)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Process lifecycle (windows-2025)",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ],
+  "artifacts": [
+    {
+      "id": 12576235856,
+      "name": "local-runtime-ubuntu-24.04",
+      "bytes": 3444,
+      "digest": "sha256:efcb904d4b851ab70258e423167aad607b4c002c40cb96d3c8af9a3d3b819257",
+      "zip_crc_verified": true,
+      "pngs_verified": 0
+    },
+    {
+      "id": 12576170938,
+      "name": "local-database-evidence-windows-2025",
+      "bytes": 2109,
+      "digest": "sha256:842283ab952506c9ff65d60d66fbe68063047e3670c74a2ae09d1f3645fbcef6",
+      "zip_crc_verified": true,
+      "pngs_verified": 0
+    },
+    {
+      "id": 12575876384,
+      "name": "local-browser-evidence",
+      "bytes": 1665794,
+      "digest": "sha256:7dca380684933dcb8b3de28ef53a0740538e658f155be43ff6fe9ee1a7525ae3",
+      "zip_crc_verified": true,
+      "pngs_verified": 10
+    },
+    {
+      "id": 12575871316,
+      "name": "inactive-rollback-plan-4b77ba5f4dac3d190b9234851fbdd7f81ebe27dd",
+      "bytes": 367,
+      "digest": "sha256:49231091cb6b2dae59428cb8ac49df516217155641bbbf45a008f688db5e9248",
+      "zip_crc_verified": true,
+      "pngs_verified": 0
+    },
+    {
+      "id": 12575861353,
+      "name": "inactive-release-4b77ba5f4dac3d190b9234851fbdd7f81ebe27dd",
+      "bytes": 323793,
+      "digest": "sha256:c3d135bc4b1ae0023ce4115a7a9713ac12b1a21ca9f60c45672866b1e491a1f1",
+      "zip_crc_verified": true,
+      "pngs_verified": 0
+    },
+    {
+      "id": 12575599789,
+      "name": "ui-catalog-evidence",
+      "bytes": 5482659,
+      "digest": "sha256:6b76fc68b2fcd2746e850344419068ee20c7cf5568b251b081f08b45344c0d21",
+      "zip_crc_verified": true,
+      "pngs_verified": 147
+    },
+    {
+      "id": 12575514034,
+      "name": "local-database-evidence-ubuntu-24.04",
+      "bytes": 2133,
+      "digest": "sha256:ada988502a91f2a1d9e3f1de6553952e1c34bef5106363626a1dea1ddf7cca5b",
+      "zip_crc_verified": true,
+      "pngs_verified": 0
+    },
+    {
+      "id": 12575504573,
+      "name": "local-runtime-windows-2025",
+      "bytes": 3470,
+      "digest": "sha256:8c8c1df9e1b5063a0477713fdfe2c786b96dd889a8078f2368633fcf9a16be54",
+      "zip_crc_verified": true,
+      "pngs_verified": 0
+    },
+    {
+      "id": 12575464204,
+      "name": "process-lifecycle-windows-2025",
+      "bytes": 213,
+      "digest": "sha256:dbf5fe967e74f274a467c279e8328eff3c0b7749fa84b050d701e96cf3e5130f",
+      "zip_crc_verified": true,
+      "pngs_verified": 0
+    },
+    {
+      "id": 12575349201,
+      "name": "local-api-evidence",
+      "bytes": 17058,
+      "digest": "sha256:e93dbf2bcafb143f1890532715c2e3ddfee46dd3c8597f2f4387397ed4098ec2",
+      "zip_crc_verified": true,
+      "pngs_verified": 0
+    },
+    {
+      "id": 12575194223,
+      "name": "process-lifecycle-ubuntu-24.04",
+      "bytes": 210,
+      "digest": "sha256:04fbbbeb6f9a6198aba3512326669b5fd134b39f3bf63fba91f7ca3dd91fd6a5",
+      "zip_crc_verified": true,
+      "pngs_verified": 0
+    },
+    {
+      "id": 12575049756,
+      "name": "browser-integration-evidence",
+      "bytes": 2019543,
+      "digest": "sha256:df31f2bf5b704c4d09e68037b826ad155153cd0e6ab6fc2a311d0c3ff40ca04c",
+      "zip_crc_verified": true,
+      "pngs_verified": 53
+    }
+  ],
+  "browser_proofs": {
+    "local-free/ui.json": {
+      "account_required": false,
+      "worker_entrypoint": "dashboard free-worker-cycle",
+      "one_project_cap": true,
+      "real_local_login_check_passed": true,
+      "ui_preserved_saved_api_binding": true,
+      "api_editor_save_reload_remove": true,
+      "api_jobs_explicitly_confirmed": 2,
+      "api_job_cancelled_before_execution": true,
+      "api_ui_cli_result": "passed",
+      "api_requests": 1,
+      "api_unsaved_confirmation_cleared": true,
+      "ui_preserved_saved_database_binding": true,
+      "database_editor_save_reload_remove": true,
+      "database_jobs_explicitly_confirmed": 2,
+      "database_job_cancelled_before_execution": true,
+      "database_ui_cli_result": "passed",
+      "database_fixture_unchanged": true,
+      "database_unsaved_confirmation_cleared": true,
+      "empty_numeric_inputs_blocked": true,
+      "redirect_api_expectation_blocked": true,
+      "free_session_reopen_without_login_or_mutation_retry": true,
+      "nested_panel_session_loss_recovered_without_requeue": true,
+      "api_and_database_history_failure_blocks_admission_until_manual_refresh": true,
+      "late_old_session_failure_does_not_clear_reopened_workspace": true,
+      "auth_database_created": false,
+      "central_requests": 0,
+      "page_errors": []
+    },
+    "local-license/installed-ui.json": {
+      "local_only": true,
+      "worker_entrypoint": "local worker-cycle",
+      "api_worker_entrypoint": "local api-once",
+      "api_ui_confirmed_result": "passed",
+      "api_requests": 1,
+      "api_result_preserved_after_recovery": true,
+      "database_worker_entrypoint": "local database-once",
+      "database_ui_confirmed_result": "passed",
+      "database_fixture_unchanged": true,
+      "database_result_preserved_after_recovery": true,
+      "database_fixture_not_in_backup": true,
+      "nested_panel_session_loss_requires_password": true,
+      "upgrade_preserved": true,
+      "valid_import": true,
+      "invalid_import_preserved": true,
+      "authenticated_reload": true,
+      "recovery_requires_fresh_login": true,
+      "recovered_results_and_license": true,
+      "installed_wheel": true,
+      "licensed_cli_discovery_and_login_passed": true,
+      "page_errors": [],
+      "external_requests": 0
+    },
+    "local-license/ui.json": {
+      "local_only": true,
+      "worker_entrypoint": "local worker-cycle",
+      "api_worker_entrypoint": "local api-once",
+      "api_ui_confirmed_result": "passed",
+      "api_requests": 1,
+      "api_result_preserved_after_recovery": true,
+      "database_worker_entrypoint": "local database-once",
+      "database_ui_confirmed_result": "passed",
+      "database_fixture_unchanged": true,
+      "database_result_preserved_after_recovery": true,
+      "database_fixture_not_in_backup": true,
+      "nested_panel_session_loss_requires_password": true,
+      "upgrade_preserved": true,
+      "valid_import": true,
+      "invalid_import_preserved": true,
+      "authenticated_reload": true,
+      "recovery_requires_fresh_login": true,
+      "recovered_results_and_license": true,
+      "installed_wheel": false,
+      "licensed_cli_discovery_and_login_passed": true,
+      "page_errors": [],
+      "external_requests": 0
+    }
+  }
+}

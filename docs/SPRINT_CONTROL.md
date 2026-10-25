@@ -19,7 +19,10 @@ under LOCAL_API_EXECUTION.md. Controlled local DB operator execution is verified
 single-device edition is ready for owner review; overall acceptance is pending.
 Do not infer authorization for customer connectors or hosting from this checkpoint.
 Recovery checkpoint 0f02b8e passed all twelve jobs/artifacts in run 40132807270;
-latest Windows publication/delayed-response follow-ups await exact-commit evidence.
+Windows publication ab08898 (40132928164) and delayed-response recovery
+4b77ba5 (40133176124) now also have all twelve jobs/artifacts verified.
+See LOCAL_PRODUCT_REVIEW.md for the current owner review checkpoint.
+Preserve the separately running free review workspace on port 8766.
 Local regression at 4b77ba5: 838 tests, 837 passed and one Windows permission skip.
 Follow the latest continuation section in LOCAL_FIRST_PRODUCT.md.
 The f62882c packaging-diagnostics run 40105680369 passed all twelve jobs;

@@ -27,6 +27,10 @@ in [OPERATIONS.md](docs/OPERATIONS.md); storage readiness does not imply service
 
 ## Interface Demo
 
+For the actual account-free local application and its supported execution scope,
+use the [current product review](docs/LOCAL_PRODUCT_REVIEW.md) and
+[local quick start](docs/LOCAL_QUICKSTART.md).
+
 The owner selected GitHub Pages for a public, non-executing interface demo;
 real automation continues locally. The demo includes sample projects, the
 100-case catalog and explicitly illustrative reports. No credentials or API

@@ -1,5 +1,13 @@
 # Explicit Local API Review
 
+Current support includes a saved-binding editor, guarded review/confirmation,
+owner-scoped queue/history/cancellation and separate free/licensed one-shot CLI
+workers. Only the owned numeric loopback fixture profile is executable. The
+latest recovery checkpoint is 4b77ba5 / Core checks 40133176124, with all twelve
+jobs/artifacts verified. See [current product review](LOCAL_PRODUCT_REVIEW.md).
+The implementation sections below record earlier stages; their initial internal
+limitations do not mean the later local operator routes are missing.
+
 The existing API catalog contains controlled example contracts. Website discovery
 does not establish API endpoints or make those contracts applicable to another API.
 The catalog remains 34 API definitions, within the unchanged 100-case total.
