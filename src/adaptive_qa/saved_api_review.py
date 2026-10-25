@@ -24,9 +24,12 @@ def _review_api_on_connection(connection, actor, project_id):
     settings = validate_settings(owned,json.loads(row['settings_json']))
     if 'local_api_binding' not in settings: raise ValueError('Saved API binding is required.')
     project = ProjectConfig(project_id,owned.name,settings['base_url'],tuple(settings['allowed_hosts']),settings['allow_data_changes'])
-    review = review_local_api(project,saved_api_case(settings['local_api_binding'],project))
+    review = review_local_api(project,saved_api_case(settings['local_api_binding'],project),
+                              profile=settings['local_api_binding'].get('profile','controlled_local'))
     snapshot = json.dumps(dict(owner_id=actor.user_id,settings=settings,contract=review.fingerprint),sort_keys=True,separators=(',',':'))
-    public = dict(project_id=project_id,scope='owned_loopback_only',execution_authorized=False,
+    public = dict(project_id=project_id,
+        scope='public_https_read_only' if review.profile=='public_https' else 'owned_loopback_only',
+        execution_profile=review.profile,execution_authorized=False,
         contract_fingerprint=hashlib.sha256(snapshot.encode()).hexdigest(),
         request_method='GET',binding=settings['local_api_binding'],
         limitations=['Review does not execute, enqueue or reserve capacity.',

@@ -3,11 +3,12 @@ import type {LocalApiBinding} from './LocalApiEditor';
 import {useLocalJobHistory} from './useLocalJobHistory';
 type Job = {job_id: string; status: string; result: {status: string} | null};
 type Review = {execution_authorized: false; contract_fingerprint: string};
-type Props = {projectId: string; binding: LocalApiBinding; unsaved: boolean; licensed: boolean;
+type Props = {projectId: string; target: string; binding: LocalApiBinding; unsaved: boolean; licensed: boolean;
   request: <T>(path: string, method?: string, body?: unknown) => Promise<T>};
 const active = (job: Job) => ['queued', 'running', 'cancel_requested'].includes(job.status);
 
-export function LocalApiPanel({projectId, binding, unsaved, licensed, request}: Props) {
+export function LocalApiPanel({projectId, target, binding, unsaved, licensed, request}: Props) {
+  const publicHttps = binding.profile === 'public_https';
   const [review, setReview] = useState<Review | null>(null), [confirmed, setConfirmed] = useState(false);
   const [busy, setBusy] = useState(false), [error, setError] = useState('');
   const base = `/api/projects/${projectId}/local-api`;
@@ -33,13 +34,13 @@ export function LocalApiPanel({projectId, binding, unsaved, licensed, request}: 
   }
   return <section className="plan-review" aria-label="Explicit API execution">
     <h3>Explicit API execution</h3>
-    <p>Saved GET <code>{binding.path}</code> · HTTP {binding.expected_status} · <code>{binding.json_field} = {String(binding.expected_boolean)}</code></p>
-    <p className="hint">Owned loopback API only. Review does not contact the endpoint. A separate local worker executes one confirmed request; no authentication or request values are used.</p>
+    <p>Saved GET <code style={{overflowWrap:'anywhere'}}>{publicHttps ? target.replace(/\/$/,'') + binding.path : binding.path}</code> · HTTP {binding.expected_status} · <code>{binding.json_field} = {String(binding.expected_boolean)}</code></p>
+    <p className="hint">{publicHttps ? 'Public HTTPS on port 443 with validated public IPs and verified TLS. Redirects are not followed.' : 'Owned loopback API only.'} Review does not contact the endpoint. A separate local worker executes one confirmed request; no authentication or request values are used.</p>
     {unsaved && <p role="status">Save configuration changes before reviewing API execution.</p>}
     <button disabled={busy || unsaved} onClick={() => void inspect()}>Review saved API binding</button>
     {review && <div aria-label="API review confirmation">
       <p>Review complete. No request was sent to the API.</p>
-      <label className="check"><input type="checkbox" checked={confirmed} onChange={event => setConfirmed(event.target.checked)}/><span>I authorize one GET request to my owned local API.</span></label>
+      <label className="check"><input type="checkbox" checked={confirmed} onChange={event => setConfirmed(event.target.checked)}/><span>{publicHttps ? 'I authorize one GET request to my configured public HTTPS API.' : 'I authorize one GET request to my owned local API.'}</span></label>
       <button disabled={busy || unsaved || !confirmed || polling || !historyReady} onClick={() => void enqueue()}>Queue one API request</button>
     </div>}
     <details><summary>Run an API worker locally</summary><p>Use your installed environment and the same workspace as this dashboard. Replace example paths.</p><pre style={{whiteSpace: 'pre-wrap', overflowWrap: 'anywhere'}}><code>{licensed

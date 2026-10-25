@@ -10,8 +10,8 @@ existing guards. This is product follow-up, not a reopened sprint.
   public-IP pinning, certificate/hostname validation and no implicit reconnect.
 - [x] Prove offline review and private child transport preserve the selected
   profile; deny private/mixed DNS answers and unsupported request authority.
-- [ ] Connect owner-scoped saved settings, confirmation, queue and worker profiles.
-- [ ] Expose the profile in the local UI with accurate endpoint/scope guidance.
+- [x] Connect owner-scoped saved settings, confirmation, queue and worker profiles.
+- [x] Expose the profile in the local UI with accurate endpoint/scope guidance.
 - [ ] Prove saved UI/worker execution and failure boundaries on controlled TLS
   fixtures; retain existing free/licensed queue/cancellation/recovery checks.
 - [ ] Complete exact-commit CI/artifact acceptance and current usage documentation.
@@ -29,3 +29,16 @@ profile's syntax/authorization path but routes its already validated destination
 to an owned socket in the test only. This is not an Internet/customer deployment
 proof or a production private-network bypass. Production exposes no such connector
 override. Saved public execution and the operator UI remain pending.
+
+
+Saved HTTPS metadata now requires explicit `profile: public_https`; legacy local
+bindings keep their original shape and default. Offline save/review, scoped HTTP
+admission/cancellation, stale confirmation/claim rejection and offline restoration
+passed four new checks. The API-focused suite completed 62 tests, and six settings
+checks passed. The prior full free browser/CLI API/DB flow also passed unchanged.
+The editor shows the selected profile and full saved endpoint before confirmation.
+Backend capability metadata prevents newer UI assets from offering HTTPS bindings
+against an older running server. Existing review sessions are not restarted.
+Queue history uses the neutral explicit_saved_api scope rather than falsely
+labelling public jobs loopback-only. Real public-profile UI/worker TLS proof is next;
+no customer or public test target has been contacted.

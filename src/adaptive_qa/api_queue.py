@@ -43,7 +43,7 @@ class LocalApiQueue:
     @staticmethod
     def _public(row):
         return dict(job_id=row['job_id'],project_id=row['project_id'],status=row['status'],
-            scope='owned_loopback_only',result=json.loads(row['result_json']) if row['result_json'] else None)
+            scope='explicit_saved_api',result=json.loads(row['result_json']) if row['result_json'] else None)
 
     def _current(self,c,row):
         public,review=_review_api_on_connection(c,ProjectActor(row['owner_id']),row['project_id'])

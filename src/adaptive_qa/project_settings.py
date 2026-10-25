@@ -61,11 +61,13 @@ def validate_settings(project, data):
 def public_settings(project, data):
     available = {slot: reference_name(project.owner_id, project.project_id, slot) for slot in SECRET_SLOTS}
     if data is None:
-        return {'configured': False, 'available_secret_references': available, 'discovery_support': discovery_support(None)}
+        return {'configured': False, 'available_secret_references': available, 'discovery_support': discovery_support(None),
+                'api_binding_profiles': ['controlled_local','public_https']}
     return {**({'local_form_binding':data['local_form_binding']} if data.get('local_form_binding') is not None else {}),
             **({'local_api_binding':data['local_api_binding']} if data.get('local_api_binding') is not None else {}),
             **({'local_database_binding':data['local_database_binding']} if data.get('local_database_binding') is not None else {}),
             'configured': True, 'base_url': data['base_url'],
+            'api_binding_profiles': ['controlled_local','public_https'],
             'form_mappings': data.get('form_mappings', []),
             'discovery_support': discovery_support(data),
             'allowed_hosts': data['allowed_hosts'], 'allow_data_changes': data['allow_data_changes'],

@@ -25,7 +25,7 @@ type Project = {project_id: string; name: string};
 type Plan = {execution_authorized: false; inspected_pages: number; discovery_status: string; discovery_job_id?: string;
   counts: {catalog: number; selected: number; skipped: number; blocked: number};
   cases: {case_id: string; name: string; test_type: string; decision: string; reason: string; target_binding?: string | null; document_path?: string | null; document_url?: string | null; changes_data?: boolean}[]};
-type Settings = {local_database_binding?: LocalDatabaseBinding; local_api_binding?: LocalApiBinding; local_form_binding?: LocalFormSettings; form_mappings?: FormMapping[]; discovery_support?: {supported: boolean; profile: string | null; execution_scope: string}; configured: boolean; base_url?: string; allowed_hosts?: string[];
+type Settings = {api_binding_profiles?: string[]; local_database_binding?: LocalDatabaseBinding; local_api_binding?: LocalApiBinding; local_form_binding?: LocalFormSettings; form_mappings?: FormMapping[]; discovery_support?: {supported: boolean; profile: string | null; execution_scope: string}; configured: boolean; base_url?: string; allowed_hosts?: string[];
   allow_data_changes?: boolean; available_secret_references: Record<string, string>;
   secret_references?: Record<string, {environment_variable: string; value: string}>};
 class ApiError extends Error { constructor(public status: number, message: string) {super(message);} }
@@ -169,7 +169,7 @@ function App() {
                 <label className="check"><input type="checkbox" checked={changes} onChange={e => setChanges(e.target.checked)}/><span>Allow tests that change data</span></label>
                 <FormMappingsEditor key={selected.project_id + JSON.stringify(settings)} value={formMappings} onChange={setFormMappings}/>
                 {(freeEdition || licensedEdition) && <LocalFormBindingEditor target={target} value={localBinding} onChange={setLocalBinding}/>}
-                {(freeEdition || licensedEdition) && <LocalApiEditor target={target} value={apiBinding} onChange={setApiBinding}/>}
+                {(freeEdition || licensedEdition) && <LocalApiEditor target={target} publicHttpsEnabled={settings.api_binding_profiles?.includes('public_https') ?? false} value={apiBinding} onChange={setApiBinding}/>}
                 {(freeEdition || licensedEdition) && <LocalDatabaseEditor target={target} value={databaseBinding} onChange={setDatabaseBinding}/>}
                 <h3>Secret references</h3><p className="hint">Choose the references this project needs. Secret values are never entered or displayed here.</p>
                 {Object.keys(settings.available_secret_references).map(slot => <label className="check" key={slot}><input type="checkbox" checked={slots.includes(slot)} onChange={e => setSlots(e.target.checked ? [...slots, slot] : slots.filter(s => s !== slot))}/><span>{slot.replaceAll('_', ' ')}{slots.includes(slot) && <small className="masked">[REDACTED]</small>}</span></label>)}
@@ -183,7 +183,7 @@ function App() {
                 databaseReference={settings.secret_references?.database_path?.environment_variable} request={workspaceRequest}/>}
               {(freeEdition || licensedEdition) && settings.local_api_binding && <LocalApiPanel
                 key={'api:' + selected.project_id + JSON.stringify(settings)} projectId={selected.project_id}
-                binding={settings.local_api_binding} unsaved={unsaved} licensed={licensedEdition} request={workspaceRequest}/>}
+                target={settings.base_url ?? ''} binding={settings.local_api_binding} unsaved={unsaved} licensed={licensedEdition} request={workspaceRequest}/>}
               {(freeEdition || licensedEdition) && <InteractivePanel key={'interactive:' + selected.project_id + JSON.stringify(settings)}
                 projectId={selected.project_id} target={settings.base_url ?? ''} dataChanges={settings.allow_data_changes ?? false}
                 references={Object.keys(settings.secret_references ?? {})}

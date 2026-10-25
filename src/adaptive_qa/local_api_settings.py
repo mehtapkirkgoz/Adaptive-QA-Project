@@ -7,7 +7,8 @@ from adaptive_qa.models import TestCase, TestType
 
 def saved_api_case(data, project):
     fields = {'path', 'expected_status', 'json_field', 'expected_boolean'}
-    if not isinstance(data, dict) or set(data) != fields:
+    if (not isinstance(data, dict) or set(data) not in (fields, fields | {'profile'})
+            or ('profile' in data and data['profile'] != 'public_https')):
         raise ValueError('Exact read-only local API binding fields are required.')
     if (not isinstance(data['path'], str) or len(data['path']) > 256
             or type(data['expected_status']) is not int
@@ -20,7 +21,7 @@ def saved_api_case(data, project):
         ('api',), ('Read the explicitly configured endpoint',), 'Match the saved status and boolean assertion'),
         ApiRequest(data['path']), data['expected_status'],
         (JsonCheck((data['json_field'],), JsonOperator.EQUALS, data['expected_boolean']),))
-    review_local_api(project, case)  # Validate the owned origin; never execute.
+    review_local_api(project, case, profile=data.get('profile', 'controlled_local'))
     return case
 
 

@@ -1,16 +1,25 @@
-export type LocalApiBinding = {path: string; expected_status: number; json_field: string; expected_boolean: boolean};
-type Props = {target: string; value: LocalApiBinding | null; onChange: (value: LocalApiBinding | null) => void};
+export type LocalApiBinding = {path: string; expected_status: number; json_field: string; expected_boolean: boolean; profile?: 'public_https'};
+type Props = {target: string; publicHttpsEnabled: boolean; value: LocalApiBinding | null; onChange: (value: LocalApiBinding | null) => void};
 
-export function LocalApiEditor({target, value, onChange}: Props) {
-  const supported = /^http:\/\/127\.0\.0\.1:8000\/?$/.test(target);
+export function LocalApiEditor({target, publicHttpsEnabled, value, onChange}: Props) {
+  const local = /^http:\/\/127\.0\.0\.1:8000\/?$/.test(target);
+  let https = false;
+  try {const url = new URL(target); https = url.protocol === 'https:' && (!url.port || url.port === '443')
+    && url.pathname === '/' && !url.search && !url.hash && !url.username && !url.password;} catch { /* Incomplete target. */ }
+  const supported = local || (https && publicHttpsEnabled);
   const change = (update: Partial<LocalApiBinding>) => {if (value) onChange({...value, ...update});};
   return <section className="plan-review" aria-label="Explicit local API binding">
     <h3>Explicit local API binding</h3>
-    <p className="hint">Configure one GET endpoint on your owned local API. Saving does not inspect the endpoint or start a test. No authentication or request values are sent by this profile.</p>
-    {!supported && <p className="hint">This profile requires the exact target http://127.0.0.1:8000/ and its allowed hostname. Public APIs are not enabled.</p>}
+    <p className="hint">Configure one explicit GET endpoint and response contract. Saving does not contact the endpoint. No authentication, query values or request bodies are sent.</p>
+    {!supported && <p className="hint">Use a public HTTPS origin on port 443 without a path/query, or the owned local fixture http://127.0.0.1:8000/.</p>}
+    {https && !publicHttpsEnabled && <p className="hint">This running server does not support public HTTPS API bindings. Use the updated local runtime.</p>}
     <label className="check"><input type="checkbox" checked={!!value} disabled={!supported && !value}
-      onChange={event => onChange(event.target.checked ? {path: '/api/health', expected_status: 200, json_field: 'ready', expected_boolean: true} : null)}/><span>Configure explicit API response</span></label>
+      onChange={event => onChange(event.target.checked ? {path: '/api/health', expected_status: 200, json_field: 'ready', expected_boolean: true, ...(https ? {profile:'public_https' as const} : {})} : null)}/><span>Configure explicit API response</span></label>
     {value && <>
+      <label>API destination profile<select aria-label="API destination profile" value={value.profile ?? 'controlled_local'} onChange={event => {
+        if (event.target.value === 'public_https') onChange({...value,profile:'public_https'});
+        else {const {profile: _profile, ...binding} = value; onChange(binding);}
+      }}><option value="controlled_local" disabled={!local}>Owned local fixture</option><option value="public_https" disabled={!https || !publicHttpsEnabled}>Public HTTPS · read-only</option></select></label>
       <label>GET endpoint path<input aria-label="GET endpoint path" value={value.path} maxLength={256} required onChange={event => change({path: event.target.value})}/></label>
       <label>Expected API HTTP status<input aria-label="Expected API HTTP status" type="number" min={200} max={499} step={1} required value={Number.isNaN(value.expected_status) ? '' : value.expected_status} onChange={event => {
         const status = event.target.valueAsNumber;
@@ -19,7 +28,7 @@ export function LocalApiEditor({target, value, onChange}: Props) {
       }}/></label>
       <label>API JSON boolean field<input aria-label="API JSON boolean field" value={value.json_field} pattern="[A-Za-z][A-Za-z0-9_]{0,39}" maxLength={40} required onChange={event => change({json_field: event.target.value})}/></label>
       <label>Expected API boolean<select aria-label="Expected API boolean" value={String(value.expected_boolean)} onChange={event => change({expected_boolean: event.target.value === 'true'})}><option value="true">true</option><option value="false">false</option></select></label>
-      <p className="hint">Use a 2xx or 4xx status and one top-level boolean field. Redirect expectations, queries and secret values are not supported. Disable this binding before changing to another target.</p>
+      <p className="hint">Use a 2xx or 4xx status and one top-level boolean field. Public HTTPS requires an explicitly allowed public host and a valid TLS certificate; private IPs and redirect following are blocked. Review and confirm again after changes.</p>
     </>}
   </section>;
 }
