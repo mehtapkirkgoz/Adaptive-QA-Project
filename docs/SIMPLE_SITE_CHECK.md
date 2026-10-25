@@ -7,9 +7,9 @@ Keep the existing engine, policy, paid/free limits and advanced controls.
 - [x] Add owner-scoped, bounded orchestration over existing discovery/run workers.
 - [x] Make the local default screen URL-first; retain advanced settings separately.
 - [x] Show live progress, cancellation, named outcomes and untested limitations.
-- [ ] Verify controlled end-to-end flows, invalid/private targets, cancellation,
+- [x] Verify controlled end-to-end flows, invalid/private targets, cancellation,
   ownership, restart/no replay, existing queues and source/installed compatibility.
-- [ ] Record exact-commit CI evidence and update the owner preview safely.
+- [x] Record exact-commit CI evidence and update the owner preview safely.
 
 Automatic selection uses verified discovery and existing executable read-only UI
 bindings. It must never claim all 100 cases, API/database access, login, data
@@ -53,3 +53,33 @@ Python child. Release checks explicitly pin child PYTHONPATH to the temporary
 installed wheel, so an editable source checkout cannot satisfy that proof.
 The first e69a87d local installed pass predates this stronger child-resolution
 assertion; final installed acceptance must use the strengthened verifier.
+
+## Strengthened Installed Checkpoint
+
+At a5f446b, the installed wheel and its supervised children both resolved from the
+isolated installed directory. The actual one-button flow passed seven checks,
+reported two genuine contrasting-document failures separately, cancelled an
+explicit later check, and preserved reload/no-replay and advanced navigation.
+All four release digests matched. Full regression: 856 tests, 855 passed and one
+Windows permission skip, no failures. Safe proof:
+[evidence/site-check-installed-a5f446b.json](evidence/site-check-installed-a5f446b.json).
+Core 40182233682 artifact acceptance remains pending; the owner preview already
+serves the current URL-first assets and preserves the existing database/queued job.
+
+## Final Controlled Acceptance
+
+Implementation a5f446b / Core 40182233682 passed all twelve jobs. All twelve
+artifact archives matched exact source identity, size and SHA-256 metadata and
+passed ZIP CRC checks. They contained 218 structurally validated PNGs; the inactive
+release retained its matching source identity and all four verified inner files.
+Free, licensed and installed-licensed simple-flow reports each prove one-click
+managed workers, seven genuine passing checks, separately shown genuine failures,
+cancellation, refresh without replay, advanced navigation and mobile layout.
+Installed child resolution is explicitly verified. Existing free, HTTPS API,
+licensing, recovery, database and process-boundary checks also passed.
+See [exact-commit evidence](evidence/site-check-ci-a5f446b.json).
+
+The owner's actual 8766 workspace serves the URL-first screen; existing data and
+queued advanced work were preserved. No target work was started during that
+transition. The scoped UI change is ready for owner review. No customer deployment,
+public backend, AI-model execution or universal test coverage is claimed.

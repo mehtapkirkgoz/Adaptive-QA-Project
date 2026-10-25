@@ -2,7 +2,10 @@
 
 Current owner request (2026-10-25): simplify the actual local product to one URL,
 one Test button, managed background discovery/execution and clear pass/fail results.
-Follow [SIMPLE_SITE_CHECK.md](SIMPLE_SITE_CHECK.md) for this active work. Preserve
+Controlled acceptance is complete at a5f446b / Core 40182233682: twelve jobs
+and archives verified, with installed supervised children and 218 validated PNGs.
+Follow [SIMPLE_SITE_CHECK.md](SIMPLE_SITE_CHECK.md) for usage and evidence.
+Await concrete owner review findings; do not expand scope or rerun accepted work. Preserve
 existing engine, advanced controls and local data; earlier completion checkpoints
 below describe the preceding scope.
 

@@ -1,8 +1,8 @@
 # Local Product Review
 
-Current simple-flow implementation: `e69a87d0b108a81bbf1e42f99e202fe017501dc3`.
-The owner explicitly requested URL-only, one-button usage. Source free/licensed
-browser proofs passed; exact-commit CI/package acceptance is tracked in
+Current simple-flow implementation: `a5f446be57614f6a6ce3434e7f6d515123eaba69`.
+The owner explicitly requested URL-only, one-button usage. Free/licensed/installed-child browser proofs and all twelve exact-commit CI jobs
+and archives passed (218 validated PNGs). Acceptance is recorded in
 [SIMPLE_SITE_CHECK.md](SIMPLE_SITE_CHECK.md). The earlier verified checkpoints
 below remain historical. Overall owner product acceptance remains pending.
 
@@ -10,6 +10,7 @@ below remain historical. Overall owner product acceptance remains pending.
 
 | Scope | Implementation | Core checks | Verification |
 |---|---|---|---|
+| URL-first managed site checks | a5f446b | 40182233682 | 12 successful jobs, 12 verified archives, 218 validated PNGs, installed supervised children |
 | Explicit public HTTPS API and save admission guard | 8dd1af5 | 40154721472 | 12 successful jobs, 12 verified archives, 212 validated PNGs, four inner release file digests |
 | Latest session/history recovery, including delayed old responses | 4b77ba5 | 40133176124 | 12 successful jobs, 12 verified archives, 210 validated PNGs, four inner release file digests |
 | Bounded Windows inactive publication | ab08898 | 40132928164 | 12 successful jobs, 12 verified archives, 210 validated PNGs, four inner release file digests |
