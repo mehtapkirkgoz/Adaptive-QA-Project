@@ -1,5 +1,10 @@
 # Automatic Native Functional Checks
 
+Current follow-up: the separately reviewed HTTPS form workflow is accepted at
+020450a / Core 40222978429 and installed in the preserved owner workspace.
+Follow [PUBLIC_FORM_PROPOSALS.md](PUBLIC_FORM_PROPOSALS.md) for current evidence
+and limits; earlier pending statements below preserve their checkpoint history.
+
 Owner authorization: 2026-10-25, continue remaining work after reviewing the
 limited HTML-only automatic results. This extends the one English workspace;
 it does not reopen Sprint 10 or activate an external backend.
@@ -89,9 +94,10 @@ the page; a page without an email control does not gain synthetic passing tests.
   Pin exact same-origin document/endpoint, no redirects and one future submission.
 - [x] Prove proposal validation never resolves credentials or performs network I/O,
   and existing executable local admission rejects the proposal type.
-- [ ] Implement any future HTTPS worker only with controlled TLS fixtures, explicit
+- [x] Implement the narrow HTTPS worker with controlled TLS fixtures, explicit
   one-operation consent, safe input/evidence handling and full destination guards.
-  Public/customer submission remains disabled until that separate acceptance exists.
+  Exact-commit acceptance is recorded at 020450a. It requires separate explicit
+  confirmation; automatic URL checks remain read-only and no customer tests were run.
 
 Native checks do not establish successful sign-in/search/business workflows. The
 next foundation must not be presented as an executing feature before it is wired

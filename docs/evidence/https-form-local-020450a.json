@@ -1,0 +1,11 @@
+{
+  "implementation_commit": "020450a028f43a655a7088cc9f8d2baa0b65a556",
+  "preview_http_status": 200,
+  "installed_verified_bundle": true,
+  "dedicated_versioned_ui": true,
+  "https_review_route_validated_without_execution": true,
+  "all_prior_table_digests_preserved": true,
+  "tables": 12,
+  "target_work_started": false,
+  "customer_tests_performed": false
+}

@@ -1,4 +1,21 @@
-# Non-Executing Public HTTPS Form Proposals
+# Reviewed HTTPS Form Workflows
+
+Current checkpoint (2026-10-26): 020450a / Core 40222978429 is accepted with
+twelve verified archives, 222 validated PNGs, Windows/Linux and installed browser/
+queue proofs, and source UI confirmation/cancellation evidence. See
+[exact-commit CI evidence](evidence/https-form-ui-ci-020450a.json). The owner preview
+now runs that verified installed package and a dedicated versioned dashboard on
+127.0.0.1:8766. All twelve prior table digests were preserved; no target job was
+started. See [local checkpoint](evidence/https-form-local-020450a.json).
+
+The optional form workflow is technically ready for owner review. URL-only automatic
+checks remain read-only; general form discovery, arbitrary endpoint contracts and
+customer deployment are not claimed. The verification-only ca08c32 follow-up adds
+installed form UI acceptance; its exact-commit CI is pending. Do not repeat accepted
+target checks or expand scope while waiting for that result or concrete owner findings.
+
+The sections below preserve the implementation history. Earlier non-executing or
+pending statements refer to their individual checkpoints, not the current delivery.
 
 Follow-up to the owner's request to continue functional coverage. This foundation
 reuses the existing local engine's typed login/search contracts and reference-only

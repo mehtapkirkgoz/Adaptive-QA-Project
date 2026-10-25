@@ -1,6 +1,14 @@
 # Local Product Review
 
-Current unified-workspace implementation: `b0d84b102faf10d0a2c9e18e08d4abc5496a3399`.
+Current preserved-preview implementation: `020450a028f43a655a7088cc9f8d2baa0b65a556`.
+The optional reviewed HTTPS form workflow is accepted with twelve CI archives and
+222 validated PNGs. [Current scope and evidence](PUBLIC_FORM_PROPOSALS.md) describes
+its strict single-submission contract and the verification-only follow-up. The same
+owner database remains in use with all twelve prior table digests preserved. Its
+interface now comes from a dedicated verified package directory, so candidate builds
+cannot replace it. Refresh the existing preview to load this accepted version.
+
+Original unified-workspace implementation: `b0d84b102faf10d0a2c9e18e08d4abc5496a3399`.
 The owner requested one English workspace instead of separate simple/advanced
 views. Current delivery, diagnostics and completed exact-commit acceptance are in
 [UNIFIED_WORKSPACE.md](UNIFIED_WORKSPACE.md). The earlier verified checkpoints

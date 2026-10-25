@@ -1,5 +1,12 @@
 # Sprint Control
 
+Current checkpoint (2026-10-26): reviewed HTTPS form workflows are accepted at
+020450a / Core 40222978429 and installed in the existing owner preview with all
+twelve prior table digests preserved. Follow [PUBLIC_FORM_PROPOSALS.md](PUBLIC_FORM_PROPOSALS.md)
+for scope, evidence and the remaining verification-only CI follow-up. This narrow
+local edition is ready for owner review; do not expand scope or repeat accepted
+target checks while awaiting a concrete finding. Older checkpoint notes are historical.
+
 Native email functional increment accepted at c48eaff / Core 40198595428:
 all twelve jobs and archives verified, including installed supervised children.
 Follow NATIVE_FUNCTIONAL_CHECKS.md for the next unfinished functional foundation;
