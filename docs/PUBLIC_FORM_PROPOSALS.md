@@ -42,9 +42,9 @@ owner data are unchanged. Exact-commit CI remains pending for this new foundatio
 
 ## Next Required Implementation
 
-- [ ] Separate reviewed execution authority from a non-executing proposal; do not
+- [x] Separate reviewed execution authority from a non-executing proposal; do not
   broaden the existing local worker's accepted types.
-- [ ] Prove a one-shot HTTPS transport on owned TLS fixtures only: numeric IP pinning,
+- [x] Prove a one-shot HTTPS transport on owned TLS fixtures only: numeric IP pinning,
   verified SNI/certificates, no redirects/reconnect/retry/proxy/cookie inheritance,
   bounded bodies and response assertions, sanitized outcomes and uncertain delivery.
 - [ ] Add supervised child deadlines, cancellation, configuration/owner checks,
@@ -53,3 +53,30 @@ owner data are unchanged. Exact-commit CI remains pending for this new foundatio
   checks must never silently acquire form-submission authority.
 
 No public/customer form has been contacted or enabled by this foundation.
+
+## Internal Controlled TLS Transport
+
+ReviewedPublicForm is a separate exact-fingerprint confirmation wrapper. It is not
+proof of a person's identity or endpoint ownership; future authenticated local
+admission must provide that authority and prevent job/review replay. Public proposals
+remain non-executing and existing local workers/gates still reject both types.
+The internal PublicSubmissionTransport has no queue or UI route and must not be
+called from an event-loop/web handler without a supervised child.
+
+Nine new owned TLS tests and 22 proposal/local submission tests passed. The gate
+consumes even a malformed attempt and admits at most one concurrent attempt per
+transport instance. All DNS answers must be public; only the first validated numeric
+peer is attempted. TLS verifies its authorized hostname with system trust, without a
+production connector or verification override. Requests do not inherit environment
+proxies, cookies or authorization headers. Responses must meet exact bounded boolean
+JSON assertions; redirects, credential echoes, duplicate fields, oversized/encoded
+responses and wrong types are errors. Lost POST responses retain uncertain delivery
+and are never retried. Inputs and raw exception text stay out of outcomes/reports.
+
+The TLS harness redirects an already validated public test identity to an owned
+loopback socket using test-only monkeypatches and a temporary CA. It does not prove
+Internet/customer deployment or enable a production private-network bypass.
+CI now runs this proof on Windows/Linux and uploads a safe report with lifecycle
+evidence. Hard total deadlines, cancellation, scoped reference resolution, owner/
+configuration admission and browser completion/evidence checks remain unfinished;
+socket timeouts alone do not bound slow streams. No UI/customer activation is added.
