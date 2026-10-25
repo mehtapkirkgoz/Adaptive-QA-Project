@@ -238,6 +238,19 @@ stage('complete')
                     or browser.get('screenshots_or_traces_taken')):
                 raise ValueError('Installed guarded browser evidence is incomplete.')
             (public_output/'installed-browser-process.json').write_text(json.dumps(browser,indent=2)+'\n',encoding='utf-8')
+            subprocess.run([sys.executable,str(ROOT/'scripts/check_public_browser.py'),'--queue'],cwd=temporary,
+                env=browser_environment,check=True,timeout=120)
+            queued=json.loads((Path(temporary)/'artifacts/public-submission/browser-queue.json').read_text(encoding='utf-8'))
+            if (not queued.get('installed_wheel') or not queued.get('supervised_child_package_verified')
+                    or not queued.get('owned_fixture_queue_verified')
+                    or [item['status'] for item in queued.get('scenarios',[])]!=['passed']*3+['error','blocked']
+                    or sum(item['owned_tls_posts'] for item in queued['scenarios'])!=4
+                    or not queued.get('actual_owned_tls_documents') or not queued.get('private_profiles_removed')
+                    or queued.get('quick') or queued.get('production_tls_override_exposed')
+                    or queued.get('public_customer_targets_contacted') or queued.get('raw_inputs_in_report')
+                    or queued.get('screenshots_or_traces_taken')):
+                raise ValueError('Installed saved HTTPS queue evidence is incomplete.')
+            (public_output/'installed-browser-queue.json').write_text(json.dumps(queued,indent=2)+'\n',encoding='utf-8')
 
 
     print(json.dumps({'source_commit': revision, 'files_verified': len(manifest['files']),

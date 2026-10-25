@@ -236,7 +236,14 @@ The complete 912-test regression passed with one existing Windows permission ski
 The owner preview remains on the previously accepted native-check runtime; these new
 workflows have not been activated there.
 
-Next: exact-commit queue/HTTP acceptance, integrated owned-TLS queue proof and
+The owned TLS browser driver now also verifies five saved-review/queue scenarios:
+positive search/login, expected-negative search, duplicate POST and missing input.
+All five produced the expected statuses, four total owned POSTs, sanitized persisted
+results and cleaned private profiles. This runs without HTTP/UI activation or customer
+targets. CI requires it on Windows/Linux and the installed-wheel verifier runs it away
+from the checkout as well. Exact-commit acceptance for this driver increment is pending.
+
+Next: exact-commit queue/HTTP acceptance and
 the local inline operator UI. Do not add automatic public form submission to the URL-only flow.
 Keep shared/multiuser public workflows disabled until separately specified. Existing
 local interactive bindings, closed Sprint 10 tracking and the public demo remain intact.

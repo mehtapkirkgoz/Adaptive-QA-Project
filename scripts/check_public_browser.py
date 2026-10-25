@@ -37,13 +37,23 @@ from adaptive_qa.public_submission import ReviewedPublicForm
 from adaptive_qa.secrets import SecretReference
 
 
-def main(quick=False):
+def main(quick=False,queued=False):
     holder=unittest.TestCase()
     _,_,server=tls_fixture.PublicSubmissionTests.tls_harness(holder)
     cert=x509.load_pem_x509_certificate(Path(server['ca_path']).read_bytes())
     der=cert.public_key().public_bytes(serialization.Encoding.DER,serialization.PublicFormat.SubjectPublicKeyInfo)
     pin=base64.b64encode(hashlib.sha256(der).digest()).decode()
     owner,pid='c'*32,'a'*32
+    if queued:
+        from tempfile import TemporaryDirectory
+        from adaptive_qa.project_store import ProjectStore,ProjectActor
+        from adaptive_qa.interactive_queue import OwnedInteractiveQueue,process_owned_interactive_once
+        from adaptive_qa.public_form_review import review_saved_public_form
+        from adaptive_qa.public_form_proposal import encode_public_proposal
+        workspace=TemporaryDirectory(prefix='adaptive-owned-queue-proof-');holder.addCleanup(workspace.cleanup)
+        projects=ProjectStore(Path(workspace.name)/'projects.sqlite');actor=ProjectActor(owner)
+        pid=projects.create(actor,'Owned TLS queue proof').project_id
+        queue=OwnedInteractiveQueue(projects)
     cases=(
         ('search-positive','normal',FormOperation.SEARCH,TestStatus.PASSED,1,1),
         ('login-positive','normal',FormOperation.LOGIN,TestStatus.PASSED,2,1),
@@ -63,6 +73,7 @@ def main(quick=False):
         ('missing-input','missing',FormOperation.SEARCH,TestStatus.BLOCKED,1,0),
         ('slow-tls','slow',FormOperation.SEARCH,TestStatus.ERROR,None,1),
     )
+    if queued:cases=tuple(cases[index] for index in (0,1,2,11,15))
     if quick:cases=cases[:1]
     records=[]
     original_popen=subprocess.Popen
@@ -81,6 +92,15 @@ def main(quick=False):
                 LocalBooleanResponse(200,key,True),LocalBooleanResponse(404,key,False))
             review=ReviewedPublicForm(proposal,proposal.fingerprint())
             project=ProjectConfig(pid,'Owned supervised browser proof',proposal.document_url,('qa.example.test',),True)
+            if queued:
+                settings=dict(base_url=proposal.document_url,allowed_hosts=['qa.example.test'],allow_data_changes=True,
+                    secret_references={slot:reference_name(owner,pid,slot) for slot in slots},
+                    local_form_binding=dict(profile='public_https',operation=operation.value,
+                        **json.loads(json.dumps(encode_public_proposal(proposal)))))
+                projects.save_configuration(actor,pid,settings)
+                saved=review_saved_public_form(projects,actor,pid,completion=form.completion,timeout_seconds=form.timeout_seconds)
+                job=queue.submit_public(actor,saved,confirmed_fingerprint=saved.submission.fingerprint())
+                assert job['scope']=='reviewed_public_https' and len(server['contacts'])==sum(r['owned_tls_posts'] for r in records)
             raw=document(operation,mode)
             assets={}
             if mode=='asset':
@@ -143,8 +163,20 @@ worker.main()
                 if mode=='missing':os.environ.pop(refs[0].environment_variable)
                 with patch('adaptive_qa.public_submission_process.subprocess.Popen',side_effect=spawn), \
                         patch.object(browser_module,'_read_result',side_effect=reader):
-                    result=run_isolated_public_browser(review,project,owner_id=owner,current_fingerprint='b'*64,
-                        timeout_seconds=6 if mode=='slow' else 30)
+                    if queued:
+                        captured=[]
+                        def dispatch(*args,**kwargs):
+                            outcome=run_isolated_public_browser(*args,**kwargs);captured.append(outcome);return outcome
+                        with patch.object(browser_module,'run_isolated_public_browser',side_effect=dispatch):
+                            finished=process_owned_interactive_once(queue)
+                        assert finished['status']=='completed' and len(captured)==1
+                        result=captured[0]
+                        persisted=queue.get(actor,pid,job['job_id'])['result']
+                        assert persisted==dict(status=result.status.value,attempted_submissions=result.attempted_submissions)
+                        assert 'OWNED_PUBLIC_BROWSER_CANARY' not in projects.database.read_bytes().decode('utf-8',errors='ignore')
+                    else:
+                        result=run_isolated_public_browser(review,project,owner_id=owner,current_fingerprint='b'*64,
+                            timeout_seconds=6 if mode=='slow' else 30)
             assert result.status==expected,(name,result)
             posts=len(server['contacts'])-before_posts
             documents=len(server.get('documents',[]))-before_documents
@@ -168,12 +200,12 @@ worker.main()
         test_connector_only=True,browser_test_certificate_pin='ephemeral_owned_spki_only',
         production_tls_override_exposed=False,queue_or_ui_admission_enabled=False,
         public_customer_targets_contacted=False,raw_inputs_in_report=False,screenshots_or_traces_taken=False,
-        private_profiles_removed=True,quick=quick)
+        private_profiles_removed=True,quick=quick,owned_fixture_queue_verified=queued)
     output=Path('artifacts/public-submission');output.mkdir(parents=True,exist_ok=True)
-    (output/('browser-process-quick.json' if quick else 'browser-process.json')).write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
+    (output/('browser-queue.json' if queued else 'browser-process-quick.json' if quick else 'browser-process.json')).write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
     print(json.dumps(dict(scenarios=len(records),statuses=[r['status'] for r in records],owned_posts=sum(r['owned_tls_posts'] for r in records))))
 
 
 if __name__=='__main__':
-    parser=argparse.ArgumentParser();parser.add_argument('--quick',action='store_true')
-    main(parser.parse_args().quick)
+    parser=argparse.ArgumentParser();parser.add_argument('--quick',action='store_true');parser.add_argument('--queue',action='store_true')
+    args=parser.parse_args();main(args.quick,args.queue)
