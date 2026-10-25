@@ -49,3 +49,21 @@ passed all twelve CI jobs; that does not substitute for this increment's CI.
 
 The licensed one-button source UI also recorded all nine expected passing checks;
 installed execution remains an explicit CI acceptance requirement.
+
+## Eligibility / Legacy UI Proof Follow-up
+
+The first implementation CI (7baa160 / Core 40198081102) found an outdated
+legacy dashboard assertion expecting seven eligible cases after two native cases
+were added. It is not accepted as green. Public personal/shared fixture snapshots
+now explicitly include email evidence and expect nine supported candidates;
+non-root owned variants also expect nine. Generic non-executing planning now
+requires a unique observed email field before selecting either native case, not
+merely a form of any kind. Runtime editability and uniqueness checks remain
+independent and fail closed. The one-button automatic path already required this
+evidence. These changes do not grant additional network or submission authority.
+
+The corrected legacy personal dashboard proof and real organization UI proof
+passed, including preserved custom mappings, role/revocation isolation, actual
+shared execution/evidence and zero external UI requests/page errors. Thirty-nine
+focused planning/admission/orchestration tests passed, including absent, hidden,
+ambiguous and different-page email evidence. Replacement exact-commit CI is pending.

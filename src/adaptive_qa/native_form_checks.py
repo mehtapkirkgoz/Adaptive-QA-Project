@@ -28,3 +28,9 @@ NATIVE_FORM_CHECKS = {
     'FORM-001': partial(check_email, valid=False),
     'FORM-002': partial(check_email, valid=True),
 }
+
+
+def has_unique_email(snapshot):
+    """Value-free discovery eligibility; runtime still rechecks the actual field."""
+    return sum(field.input_type.casefold() == 'email' and field.visible
+               for form in snapshot.forms if form.visible for field in form.fields) == 1

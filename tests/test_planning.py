@@ -32,6 +32,20 @@ class PlanningTests(unittest.TestCase):
     def entry(self, crawl, case=None, project=None):
         return build_test_plan(crawl, (case or self.case,), project or self.project).cases[0]
 
+    def test_native_email_plan_requires_unique_visible_field_and_uses_its_page(self):
+        cases=tuple(case for case in TEST_CASES if case.case_id in ('FORM-001','FORM-002'))
+        no_email=self.page(forms=(FormSnapshot(fields=(FieldSnapshot('text'),)),))
+        valid=self.page('/contact',forms=(FormSnapshot(fields=(FieldSnapshot('email'),)),))
+        plan=build_test_plan(self.crawl(no_email,valid),cases,self.project)
+        self.assertFalse(plan.execution_authorized)
+        self.assertTrue(all(item.decision==PlanDecision.SELECTED and item.target_url==valid.url for item in plan.cases))
+        for fields in ((FieldSnapshot('text'),),
+                       (FieldSnapshot('email'),FieldSnapshot('email')),
+                       (FieldSnapshot('email',visible=False),FieldSnapshot('text'))):
+            page=self.page(forms=(FormSnapshot(fields=fields),))
+            plan=build_test_plan(self.crawl(page),cases,self.project)
+            self.assertTrue(all(item.decision!=PlanDecision.SELECTED and item.target_url is None for item in plan.cases))
+
     def test_positive_evidence_wins_over_other_page_absence_and_limits(self):
         result = self.summary(self.crawl(self.page(), self.page('/login', forms=(self.login,)),
                                          limitations=('page_limit',)))['login']

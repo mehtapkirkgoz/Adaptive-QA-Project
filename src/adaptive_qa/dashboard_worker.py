@@ -14,6 +14,7 @@ from adaptive_qa.local_discovery import discover_local_sample, discover_configur
 from adaptive_qa.planning import build_test_plan
 from adaptive_qa.worker_lock import worker_lock
 from adaptive_qa.document_target import controlled_start_path
+from adaptive_qa.native_form_checks import has_unique_email
 from adaptive_qa.discovery_target import configured_discovery, validate_discovery_url
 
 
@@ -51,10 +52,8 @@ def _report(work, payload):
     report['discovery_profile'] = profile
     # Only select native probes automatically when the saved page has one observed
     # email field. Runtime independently rechecks its actual unique editable control.
-    report['native_email_candidate'] = any(page.url == config.base_url and
-        sum(field.input_type.casefold() == 'email' and field.visible
-            for form in page.forms if form.visible for field in form.fields) == 1
-        for page in snapshots)
+    report['native_email_candidate'] = any(page.url == config.base_url and has_unique_email(page)
+                                           for page in snapshots)
     return report
 
 

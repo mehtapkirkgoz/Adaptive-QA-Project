@@ -110,14 +110,14 @@ def main():
                     panel.get_by_role('button', name='Queue HTTPS discovery', exact=True).click()
                     expect(panel.get_by_text('queued', exact=True)).to_be_visible()
                     forms = (FormSnapshot(fields=(FieldSnapshot('text', 'Account code'), FieldSnapshot('password', 'Access key')), buttons=('Continue',)),
-                             FormSnapshot(role='search', fields=(FieldSnapshot('search', 'Search products'),), buttons=('Search',)))
+                             FormSnapshot(role='search', fields=(FieldSnapshot('search', 'Search products'),), buttons=('Search',)), FormSnapshot(fields=(FieldSnapshot('email','Email'),)))
                     payload = {'pages': [asdict(PageSnapshot('https://example.test/', forms, (), True))], 'limitations': []}
                     queue = OrganizationDiscoveryQueue(OrganizationProjects(organizations))
                     with patch('adaptive_qa.dashboard_worker.discover_configured_target', return_value=payload):
                         assert process_discovery_once(queue)['status'] == 'completed'
                     panel.get_by_role('button', name='Review discovery plan', exact=True).click()
                     public_runs = panel.get_by_label('Organization test runs', exact=True)
-                    expect(public_runs.get_by_role('group', name='Eligible tests').get_by_role('checkbox')).to_have_count(7)
+                    expect(public_runs.get_by_role('group', name='Eligible tests').get_by_role('checkbox')).to_have_count(9)
                     expect(public_runs.get_by_label('Shared select LOGIN-001', exact=True)).to_have_count(1)
                     public_runs.get_by_label('Shared select LOGIN-001', exact=True).check()
                     public_runs.get_by_role('button', name='Start shared tests', exact=True).click()
