@@ -34,14 +34,19 @@ Open `http://127.0.0.1:8766/`. Use the numeric address, not `localhost`.
 No account or API key is required. The default screen asks only for a target URL:
 
 1. Enter an authorized HTTPS URL, normally on port 443.
-2. Press **Test et**. Host scope and a safe read-only configuration are derived
+2. Press **Test website**. Host scope and a safe read-only configuration are derived
    from that URL. The application manages discovery and supervised test workers.
-3. Watch progress and read **Geçen testler**, **Başarısız testler** and
-   **Tamamlanamayan testler**. A finished check is not a claim that every test passed.
+3. Watch progress and read **Passed checks**, **Failed checks** and
+   **Not evaluated**. A finished check is not a claim that every test passed.
 
 No project creation, allowed-host entry, case selection or terminal worker command
-is needed for this simple flow. **Durdur** cancels it. Reloading opens saved
-results without repeating target work. The first automatic pass discovers at most
+is needed for this simple flow. **Stop check** cancels it. Reloading opens saved
+results without repeating target work. The DOC checks inspect initial HTML structure without page scripts, styles,
+images or embedded documents. They do not judge visual rendering or JavaScript
+behavior. Rendered form checks retain their own strict resource coverage.
+Technical errors are shown as **Not evaluated**, not failed website assertions.
+If no check produces a reliable result, the screen explicitly says so.
+The first automatic pass discovers at most
 five pages and runs up to ten eligible independent read-only document/form checks.
 It does not sign in, fill/submit forms, call configured APIs or access databases.
 Unattempted catalog cases remain untested, not passed. Results stay local.
@@ -49,13 +54,14 @@ See [one-button scope and acceptance](SIMPLE_SITE_CHECK.md).
 
 Free mode reuses its one active project; it does not offer a lifetime single-domain
 or tamper-proof offline limit. Existing advanced contracts are never silently
-removed. Use **Gelişmiş ayarlar** if a project has those contracts. Licensed mode
+removed. Use **Test options** if a project has those contracts. Licensed mode
 uses the existing authenticated local administrator and project/license limits.
 
 ## Advanced Controls
 
-The previous project/configuration interface remains available through
-**Gelişmiş ayarlar** or `http://127.0.0.1:8766/#advanced`. In that interface, saving
+Optional project/configuration controls expand inline under **Test options** in
+the same English workspace. The compatibility `#advanced` fragment only opens
+those same groups; it is not another page or mode. Saving
 settings or reviewing a plan still never starts tests. These explicit advanced
 queues retain the separate one-shot worker commands below; they are not drained
 by the simple flow. Never assume every catalog definition applies to a target.

@@ -20,9 +20,9 @@ same coherent area, explain zero outcomes honestly, and fix the underlying error
 - [x] Add fixed safe diagnostic codes, never raw exceptions/URLs/headers/bodies.
   Show execution errors distinctly from failed assertions. Zero results must not
   appear as a successful completed check. Preserve historical results unchanged.
-- [ ] Verify English UI, one-area navigation, zero/error/partial/pass/fail states,
+- [x] Verify English UI, one-area navigation, zero/error/partial/pass/fail states,
   cancellation/reload, controlled public-like transport and existing advanced flows.
-- [ ] Run appropriate regression and exact-commit CI/artifact checks, then upgrade
+- [x] Run appropriate regression and exact-commit CI/artifact checks, then upgrade
   the owner's preview only when no owner check is active; back up and preserve data.
 
 ## Initial Increment (Historical)
@@ -81,3 +81,37 @@ with that same script fails, and the off-host canary receives zero requests.
 Bound navigation redirects still error. Direct owned-sample DOC execution now
 uses the same source-HTML inspector as managed/configured runs, keeping contract
 fingerprints and all entry points consistent. No broader egress was enabled.
+
+## Installed and Owner Preview Checkpoint
+
+The b0d84b1 inactive package passed installed UI, supervised child resolution,
+API/database/license recovery and dedicated installed HTML-boundary proofs.
+It produced five HTML passes and two genuine HTML assertion failures with no
+mutation, blocked redirected navigation and retained rendered-form coverage.
+All four release file sizes/digests matched. Unified English source/installed UI
+proofs cover blank/error/partial outcomes, explicit cancellation, reload without
+replay, inline settings and mobile fit. Safe local proof:
+[evidence/unified-local-b0d84b1.json](evidence/unified-local-b0d84b1.json).
+The owner preview was backed up and updated only with no active checks; all prior
+row digests matched afterward. Its previous two error runs were not rewritten.
+Core 40193691217 exact-commit artifact acceptance remains pending.
+
+## Final Controlled Acceptance
+
+b0d84b1 / Core 40193691217 passed all twelve jobs. Each of twelve downloaded
+archives matched exact source commit, API size/SHA-256 metadata and ZIP CRC.
+There were 220 structurally validated PNGs; the inactive release's source identity
+and four inner file digests matched. All free/licensed/installed unified UI reports
+verify English one-area operation, empty/error/partial states, real pass/fail
+separation, cancellation, reload/no replay, inline options and mobile fit. Source
+and installed HTML proofs verify five passes, two assertion failures, blocked
+redirects, zero mutations and retained rendered-form failure boundaries. The
+configured-document proof adds eighteen cases and zero canary/write contacts.
+Existing API, database, licensing/recovery, organization and process checks passed.
+Exact evidence: [evidence/unified-ci-b0d84b1.json](evidence/unified-ci-b0d84b1.json).
+
+The owner preview already serves this English unified flow and the source-HTML
+fix. Its earlier records remain unchanged; a new explicit Test website request is
+required to create new outcomes. This scoped request is technically ready for
+owner review. No complete-site quality guarantee, universal case coverage, AI
+model execution, customer deployment or public backend activation is claimed.

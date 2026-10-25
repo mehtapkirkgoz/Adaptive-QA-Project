@@ -1,5 +1,11 @@
 # Sprint Control
 
+Unified English workspace and HTML diagnostics are technically accepted at
+b0d84b1 / Core 40193691217: twelve jobs/archives verified and 220 PNGs validated.
+The owner preview was updated with all previous row digests preserved. Follow
+UNIFIED_WORKSPACE.md for scope/evidence. Await concrete owner review findings;
+do not expand scope or repeat accepted work merely to use remaining quota.
+
 Latest owner request (2026-10-25): replace the separate simple/advanced views
 with ONE understandable English workspace. Investigate the two real demo checks
 showing zero passes/failures. Follow UNIFIED_WORKSPACE.md as the active work;

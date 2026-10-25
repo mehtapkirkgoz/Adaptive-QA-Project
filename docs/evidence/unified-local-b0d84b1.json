@@ -1,0 +1,90 @@
+{
+  "implementation_commit": "b0d84b102faf10d0a2c9e18e08d4abc5496a3399",
+  "stage": "local_installed_acceptance_remote_pending",
+  "files": [
+    {
+      "name": "adaptive_qa-0.1.0.dev0-py3-none-any.whl",
+      "bytes": 241620,
+      "sha256": "c9c0ca9b898ad6f3054ab9cc3ad9efba2bbbaceea95104a3f8b76501fee23fd6"
+    },
+    {
+      "name": "dashboard.zip",
+      "bytes": 96289,
+      "sha256": "9595ba45e61a326c8579abb7511a8345094c0318068a8ff9a7be134a8f0c0058"
+    },
+    {
+      "name": "frontend-package-lock.json",
+      "bytes": 40765,
+      "sha256": "713aa5ce57e0c4193c39e47cd4003112f57c0553d8a2f7ddb4e8b5e857a6ccec"
+    },
+    {
+      "name": "requirements.lock.txt",
+      "bytes": 432,
+      "sha256": "8fc2eac9de2e0ef556b946ce2da5df5ef26b08a5c7924faf272612a92bb37ff4"
+    }
+  ],
+  "ui": {
+    "licensed": true,
+    "installed_wheel": true,
+    "supervised_child_package_verified": true,
+    "one_click_admissions": 1,
+    "explicit_check_requests": 3,
+    "failed_checks_shown_separately": true,
+    "cancellation_verified": true,
+    "managed_workers": true,
+    "manual_worker_commands": 0,
+    "recorded_results": 7,
+    "inspected_pages": 1,
+    "all_recorded_passed": true,
+    "reload_did_not_replay": true,
+    "advanced_controls_preserved": true,
+    "unified_english_workspace": true,
+    "empty_and_execution_error_states_verified": true,
+    "partial_outcome_state_verified": true,
+    "mobile_overflow": false,
+    "ui_external_requests": 0,
+    "page_errors": [],
+    "target_scope": "owned_controlled_loopback_fixture",
+    "customer_deployment_verified": false
+  },
+  "html_inspection": {
+    "installed_wheel": true,
+    "source_html_passes": 5,
+    "source_html_assertion_failures": 2,
+    "redirect_blocked": true,
+    "rendered_form_coverage_still_fails_closed": true,
+    "scripts_assets_and_frames_excluded": true,
+    "mutation_requests": 0,
+    "private_destination_not_contacted": true,
+    "scope": "owned_controlled_fixture"
+  },
+  "authorized_demo_validation": [
+    {
+      "host": "demoqa.com",
+      "case_id": "DOC-001",
+      "status": "passed",
+      "message": "The source HTML structure check passed; scripts and assets were not evaluated.",
+      "requests_scope": "single_HTML_document_assets_excluded"
+    },
+    {
+      "host": "the-internet.herokuapp.com",
+      "case_id": "DOC-001",
+      "status": "passed",
+      "message": "The source HTML structure check passed; scripts and assets were not evaluated.",
+      "requests_scope": "single_HTML_document_assets_excluded"
+    }
+  ],
+  "owner_transition": {
+    "backup_created": true,
+    "existing_row_digests_preserved": true,
+    "previous_results_not_rewritten": true,
+    "new_target_work_started": false
+  },
+  "previous_failed_checkpoint": {
+    "commit": "f5510f2be35f676fca9fa30fd6a7831164a3c145",
+    "run_id": 40193262094,
+    "job_id": 121168610128,
+    "reason": "outdated_rendered_asset_expectation_in_source_HTML_proof",
+    "accepted": false
+  }
+}

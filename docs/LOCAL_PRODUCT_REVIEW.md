@@ -1,9 +1,9 @@
 # Local Product Review
 
-Current simple-flow implementation: `a5f446be57614f6a6ce3434e7f6d515123eaba69`.
-The owner explicitly requested URL-only, one-button usage. Free/licensed/installed-child browser proofs and all twelve exact-commit CI jobs
-and archives passed (218 validated PNGs). Acceptance is recorded in
-[SIMPLE_SITE_CHECK.md](SIMPLE_SITE_CHECK.md). The earlier verified checkpoints
+Current unified-workspace implementation: `b0d84b102faf10d0a2c9e18e08d4abc5496a3399`.
+The owner requested one English workspace instead of separate simple/advanced
+views. Current delivery, diagnostics and completed exact-commit acceptance are in
+[UNIFIED_WORKSPACE.md](UNIFIED_WORKSPACE.md). The earlier verified checkpoints
 below remain historical. Overall owner product acceptance remains pending.
 
 ## Verified Checkpoints
@@ -37,17 +37,21 @@ active, and existing project/settings/queued-job counts were preserved. No targe
 request or test was started during the UI verification. Existing queued advanced
 work was not processed. This is a loopback preview, not a public backend/service.
 
-The default screen is URL-first. Refresh the page to load it. Do not launch a
+The screen is now one English URL-first workspace. Optional settings expand
+inline rather than opening another view. Before the update, every existing
+database row was hashed; all row digests matched afterward. The two older demo
+runs remain unchanged and are explicitly shown as technical errors, not successful
+checks with zero passes/failures. Refresh the page to load the current interface. Do not launch a
 second server on the same port or replace the workspace. Startup on another
 device is documented in [LOCAL_QUICKSTART.md](LOCAL_QUICKSTART.md).
 
 ## Owner Usage Review
 
-1. Enter the authorized site URL and press **Test et**.
+1. Enter the authorized site URL and press **Test website**.
 2. Watch site inspection and automatic execution. No worker command is required.
 3. Inspect the separate pass/fail/incomplete groups and optional test details or
-   screenshots. **Durdur** cancels a running check. Refresh never repeats execution.
-4. Open **Gelişmiş ayarlar** only for explicit API/database contracts or manual
+   screenshots. **Stop check** cancels a running check. Refresh never repeats execution.
+4. Open **Test options** only for explicit API/database contracts or manual
    case selection. Those advanced queues retain their independent commands.
 
 The simple flow derives exact host scope and selects only applicable independent
@@ -57,6 +61,10 @@ demo remains illustrative and non-executing.
 
 ## Supported Boundaries
 
+- Independent DOC checks inspect initial HTML structure, with scripts, assets and
+  embedded documents excluded. They do not establish rendered/interactive quality.
+  Main-document URL, public-IP pinning, certificate and response requirements
+  remain enforced. Rendered form checks still require their own network coverage.
 - General public HTTPS discovery and document/form inspection are read-only;
   they do not sign in, fill fields or submit searches.
 - Explicit public HTTPS API execution supports unauthenticated GET/HEAD status
