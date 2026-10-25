@@ -3,7 +3,7 @@ import type {LocalFormSettings} from './LocalFormBindingEditor';
 import {LocalWorkerHelp} from './LocalWorkerHelp';
 
 type Job = {job_id: string; status: string; result: {status: string; attempted_submissions: number | null} | null};
-type Review = {execution_authorized: false; contract_fingerprint: string};
+type Review = {execution_authorized: false; contract_fingerprint: string; endpoint_url?: string};
 type Props = {projectId: string; target: string; dataChanges: boolean; references: string[]; workerReferences?: string[]; licensed?: boolean; binding?: LocalFormSettings; hasUnsavedChanges?: boolean;
   request: <T>(path: string, method?: string, body?: unknown) => Promise<T>};
 const active = (job: Job) => ['queued', 'running', 'cancel_requested'].includes(job.status);
@@ -16,6 +16,8 @@ export function InteractivePanel({projectId, target, dataChanges, references, wo
   const logical = login ? (expectedNegative ? 'login.rejected' : 'login.accepted') : (expectedNegative ? 'search.empty' : 'search.results');
   const required = login ? ['login_username', 'login_password'] : ['search_query'];
   const supported = !!fixture || !!binding;
+  const https = binding?.profile === 'public_https';
+  const workflowPath = binding ? (https ? 'https/' : 'local/') : '';
   const ready = supported && !hasUnsavedChanges && dataChanges && required.every(slot => references.includes(slot));
   const [marker, setMarker] = useState(negative ? 'negative' : 'result'), [seconds, setSeconds] = useState(15);
   const [review, setReview] = useState<Review | null>(null), [confirmed, setConfirmed] = useState(false);
@@ -42,7 +44,7 @@ export function InteractivePanel({projectId, target, dataChanges, references, wo
   function invalidate() {setReview(null); setConfirmed(false); setError('');}
   async function inspect() {
     setBusy(true); invalidate();
-    try {setReview(await request<Review>(`${base}/${binding ? 'local/review' : 'review'}`, 'POST', body));}
+    try {setReview(await request<Review>(`${base}/${workflowPath}review`, 'POST', body));}
     catch {setError('Review failed. Check saved settings, input references and the explicit completion marker.');}
     finally {setBusy(false);}
   }
@@ -52,7 +54,7 @@ export function InteractivePanel({projectId, target, dataChanges, references, wo
     const digest = review.contract_fingerprint;
     setReview(null); setConfirmed(false);
     try {
-      const job = await request<Job>(`${base}/${binding ? 'local/jobs' : 'jobs'}`, 'POST', {...body, confirmed_contract_fingerprint: digest});
+      const job = await request<Job>(`${base}/${workflowPath}jobs`, 'POST', {...body, confirmed_contract_fingerprint: digest});
       setJobs(previous => [job, ...previous].slice(0, 20));
     } catch {
       setError('Queue confirmation failed or was interrupted. Check history before reviewing another submission; the request may already be queued.');
@@ -61,7 +63,7 @@ export function InteractivePanel({projectId, target, dataChanges, references, wo
   }
   return <section className="plan-review interactive-panel" aria-label="Controlled interactive forms">
     <h3>Controlled interactive forms</h3>
-    <p className="hint">This workflow supports the saved owned local fixture only. It permits one form submission and keeps inputs and results on this computer.</p>
+    <p className="hint">{https ? `Submit the saved form at ${binding.document_url} once, only with your permission. Both the expected server response and a new visible result marker must match. Inputs go only to this target; results stay on this computer.` : 'This workflow supports the saved owned local fixture only. It permits one form submission and keeps inputs and results on this computer.'}</p>
     {binding && <label>Expected form outcome<select aria-label="Expected form outcome" value={outcome} onChange={event => {setOutcome(event.target.value as 'accepted' | 'rejected'); invalidate();}}><option value="accepted">Positive response</option><option value="rejected">Negative response</option></select></label>}
     {hasUnsavedChanges && <p role="status">Save configuration changes before reviewing an interactive submission.</p>}
     <p>Expected outcome: <strong>{logical.replaceAll('.', ' ')}</strong></p>
@@ -71,7 +73,8 @@ export function InteractivePanel({projectId, target, dataChanges, references, wo
     <button disabled={!ready || busy || !marker.trim() || seconds < 5 || seconds > 30} onClick={() => void inspect()}>Review interactive submission</button>
     {review && <div aria-label="Interactive review confirmation">
       <p className="hint">Review complete. No form was submitted. The completion marker must be absent before the click and visible after the expected server outcome.</p>
-      <label className="check"><input type="checkbox" checked={confirmed} onChange={event => setConfirmed(event.target.checked)}/><span>I authorize this one submission on my owned local fixture.</span></label>
+      {https && binding && <p>One POST to <code>{review.endpoint_url}</code>. Expected response: HTTP {binding[outcome].status_code}, <code>{binding[outcome].field_name} = {String(binding[outcome].expected_value)}</code>. No automatic retry.</p>}
+      <label className="check"><input type="checkbox" checked={confirmed} onChange={event => setConfirmed(event.target.checked)}/><span>{https ? 'I have permission to test this site and authorize this one form submission.' : 'I authorize this one submission on my owned local fixture.'}</span></label>
       <button disabled={!ready || !confirmed || busy || polling} onClick={() => void enqueue()}>Queue one interactive submission</button>
     </div>}
     <p className="hint">A separate local worker processes queued jobs. Unknown completion is never retried automatically. Screenshots are disabled for this workflow.</p>

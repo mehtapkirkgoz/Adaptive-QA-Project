@@ -130,12 +130,51 @@ def main():
                     page.get_by_role('button',name='Save configuration',exact=True).click()
                     expect(page.get_by_text('Configuration saved. No tests were started.',exact=True)).to_be_visible()
                     assert 'local_form_binding' not in projects.configuration(LOCAL_ACTOR,project.project_id)
+                    # HTTPS editor/review/admission only: no target is contacted here.
+                    before=dict(contacts)
+                    page.set_viewport_size(dict(width=1440,height=1100))
+                    page.get_by_label('Target URL',exact=True).fill('https://qa.example.test/search')
+                    page.get_by_label('Allowed hosts',exact=True).fill('qa.example.test')
+                    https_editor=page.get_by_role('region',name='Optional HTTPS form workflow')
+                    https_editor.get_by_role('checkbox',name='Configure a permitted HTTPS form').check()
+                    https_editor.get_by_label('Form operation',exact=True).select_option('search')
+                    https_editor.get_by_label('POST endpoint URL',exact=True).fill('https://qa.example.test/search/execute')
+                    https_editor.get_by_label('Query field name',exact=True).fill('query')
+                    page.get_by_role('button',name='Save configuration',exact=True).click()
+                    expect(page.get_by_text('Configuration saved. No tests were started.',exact=True)).to_be_visible()
+                    assert projects.configuration(LOCAL_ACTOR,project.project_id)['local_form_binding']['profile']=='public_https'
+                    panel=page.get_by_role('region',name='Controlled interactive forms')
+                    panel.get_by_label('Completion test ID',exact=True).fill('accepted')
+                    panel.get_by_role('button',name='Review interactive submission',exact=True).click()
+                    confirmation=panel.get_by_label('Interactive review confirmation');expect(confirmation).to_be_visible()
+                    expect(confirmation.get_by_text('One POST to',exact=False)).to_be_visible()
+                    https_editor.get_by_label('accepted JSON boolean field',exact=True).fill('found')
+                    expect(confirmation).to_have_count(0)
+                    expect(panel.get_by_role('button',name='Review interactive submission',exact=True)).to_be_disabled()
+                    page.get_by_role('button',name='Save configuration',exact=True).click()
+                    expect(page.get_by_text('Configuration saved. No tests were started.',exact=True)).to_be_visible()
+                    panel.get_by_role('button',name='Review interactive submission',exact=True).click()
+                    expect(panel.get_by_label('Interactive review confirmation')).to_be_visible()
+                    panel.get_by_role('checkbox',name='I have permission to test this site and authorize this one form submission.').check()
+                    panel.get_by_role('button',name='Queue one interactive submission',exact=True).click()
+                    expect(panel.get_by_role('button',name='Cancel interactive job',exact=True)).to_be_visible()
+                    assert queue.list(LOCAL_ACTOR,project.project_id)[0]['scope']=='reviewed_public_https'
+                    panel.get_by_role('button',name='Cancel interactive job',exact=True).click()
+                    expect(panel.get_by_role('button',name='Cancel interactive job',exact=True)).to_have_count(0)
+                    assert queue.list(LOCAL_ACTOR,project.project_id)[0]['status']=='cancelled'
+                    assert contacts==before and not external and not errors
+                    page.set_viewport_size(dict(width=390,height=900));https_editor.scroll_into_view_if_needed()
+                    https_editor.screenshot(path=str(output/'https-form-editor-mobile.png'))
+                    panel.screenshot(path=str(output/'https-form-review-mobile.png'))
+                    assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
                 finally:browser.close()
         finally:service.should_exit=True;thread.join(timeout=10);assert not thread.is_alive()
     report=dict(owned_local_only=True,worker_entrypoint='dashboard free-worker-cycle',
         ui_saved_reviewed_confirmed_executed=proofs,contacts=contacts,
         edit_clears_confirmation=True,unsaved_review_blocked=True,removal_verified=True,
-        ui_external_requests=0,page_errors=0,mobile_overflow=False,credential_values_entered_in_ui=False)
+        ui_external_requests=0,page_errors=0,mobile_overflow=False,credential_values_entered_in_ui=False,
+        https_saved_reviewed_confirmed_cancelled=True,https_ui_target_contacts=0,
+        https_edit_clears_confirmation=True)
     (output/'reusable-editor.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8');print(json.dumps(report))
 
 
