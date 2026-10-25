@@ -30,16 +30,35 @@ In one terminal, start the loopback dashboard:
 .\.venv\Scripts\python.exe -m adaptive_qa dashboard free-serve --database artifacts/local-free/projects.sqlite --port 8766
 ```
 
-Open `http://127.0.0.1:8766/`. Use the numeric address, not `localhost`. No account
-or API key is required. Create one project, open its configuration, enter a target
-URL and list explicitly allowed host names, then save. Saving does not start a
-test. The free edition allows one active project; changing its saved target is
-permitted. It is not a lifetime single-domain or tamper-proof offline limit.
+Open `http://127.0.0.1:8766/`. Use the numeric address, not `localhost`.
+No account or API key is required. The default screen asks only for a target URL:
 
-For an authorized public HTTPS target, use port 443 and inspect the **Execution
-support** message after saving. These checks are read-only: they do not sign in,
-fill forms or submit searches. A saved unsupported target does not become runnable.
-Do not assume that all 100 catalog definitions apply to the target.
+1. Enter an authorized HTTPS URL, normally on port 443.
+2. Press **Test et**. Host scope and a safe read-only configuration are derived
+   from that URL. The application manages discovery and supervised test workers.
+3. Watch progress and read **Geçen testler**, **Başarısız testler** and
+   **Tamamlanamayan testler**. A finished check is not a claim that every test passed.
+
+No project creation, allowed-host entry, case selection or terminal worker command
+is needed for this simple flow. **Durdur** cancels it. Reloading opens saved
+results without repeating target work. The first automatic pass discovers at most
+five pages and runs up to ten eligible independent read-only document/form checks.
+It does not sign in, fill/submit forms, call configured APIs or access databases.
+Unattempted catalog cases remain untested, not passed. Results stay local.
+See [one-button scope and acceptance](SIMPLE_SITE_CHECK.md).
+
+Free mode reuses its one active project; it does not offer a lifetime single-domain
+or tamper-proof offline limit. Existing advanced contracts are never silently
+removed. Use **Gelişmiş ayarlar** if a project has those contracts. Licensed mode
+uses the existing authenticated local administrator and project/license limits.
+
+## Advanced Controls
+
+The previous project/configuration interface remains available through
+**Gelişmiş ayarlar** or `http://127.0.0.1:8766/#advanced`. In that interface, saving
+settings or reviewing a plan still never starts tests. These explicit advanced
+queues retain the separate one-shot worker commands below; they are not drained
+by the simple flow. Never assume every catalog definition applies to a target.
 
 ## Discover, Select and Run
 
@@ -65,9 +84,12 @@ fresh discovery and review rather than reusing an old plan.
 ## Explicit API and Database Jobs
 
 API and database jobs use separate saved contracts, review and confirmation
-panels. The current reusable profiles are restricted to owned controlled fixtures
-at `http://127.0.0.1:8000/`; entering another API URL or a production database path
-does not authorize execution. See [API support](LOCAL_API_EXECUTION.md) and
+panels. Explicit public HTTPS API bindings support unauthenticated GET status
+contracts and optional JSON boolean assertions, with a valid certificate and
+public-IP guards. No query/body, writes, authentication or redirect following is
+enabled. See [HTTPS API support](HTTPS_API.md). The legacy local API and database
+profiles retain their controlled fixture boundaries; a production database path
+does not authorize execution. See [local API](LOCAL_API_EXECUTION.md) and
 [database support](LOCAL_DATABASE_EXECUTION.md).
 
 After separately reviewing and explicitly queuing one supported job, run its

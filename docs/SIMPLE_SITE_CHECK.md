@@ -47,3 +47,9 @@ The first installed legacy browser proof exposed the existing server's rejection
 of all root URL queries. Advanced-view links now use the browser-only #advanced
 fragment, preserving that HTTP query guard. The b12fca4 checkpoint is not remote
 or installed accepted; the corrected follow-up must pass those checks.
+
+The installed proof also verifies module resolution in a fresh supervised-style
+Python child. Release checks explicitly pin child PYTHONPATH to the temporary
+installed wheel, so an editable source checkout cannot satisfy that proof.
+The first e69a87d local installed pass predates this stronger child-resolution
+assertion; final installed acceptance must use the strengthened verifier.

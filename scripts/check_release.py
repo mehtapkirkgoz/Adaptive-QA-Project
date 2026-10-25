@@ -139,6 +139,8 @@ stage('complete')
             browser_environment = dict(environment)
             browser_environment['ADAPTIVE_QA_VERIFY_SITE'] = str(site)
             browser_environment['ADAPTIVE_QA_VERIFY_UI'] = str(ui)
+            # Supervised -m children must load this wheel too, not an editable checkout.
+            browser_environment['PYTHONPATH'] = str(site)
             subprocess.run([sys.executable,str(ROOT/'scripts/check_licensed_ui.py')],cwd=temporary,
                 env=browser_environment,check=True,timeout=180)
             report = json.loads((Path(temporary)/'artifacts/local-license/ui.json').read_text(encoding='utf-8'))

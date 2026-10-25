@@ -8,6 +8,7 @@ import json
 import os
 from pathlib import Path
 import sys
+import subprocess
 from tempfile import TemporaryDirectory
 from threading import Thread
 import time
@@ -18,6 +19,8 @@ if INSTALLED_SITE:
 import adaptive_qa
 if INSTALLED_SITE:
     assert Path(adaptive_qa.__file__).resolve().is_relative_to(Path(INSTALLED_SITE).resolve())
+    child_path = subprocess.check_output([sys.executable, '-c', 'import adaptive_qa; print(adaptive_qa.__file__)'], text=True).strip()
+    assert Path(child_path).resolve().is_relative_to(Path(INSTALLED_SITE).resolve()), 'Supervised children must use the installed wheel'
 from check_dashboard_runs import QuietHandler
 from playwright.sync_api import sync_playwright, expect
 import uvicorn
@@ -118,7 +121,7 @@ def main(licensed=False):
                     expect(page.get_by_role('heading',name='Kontrol durduruldu',exact=True)).to_be_visible()
                     assert len(admissions)==3
                     assert not external and not errors,(external,errors)
-                    report=dict(licensed=licensed,installed_wheel=bool(INSTALLED_SITE),one_click_admissions=1,
+                    report=dict(licensed=licensed,installed_wheel=bool(INSTALLED_SITE),supervised_child_package_verified=bool(INSTALLED_SITE),one_click_admissions=1,
                         explicit_check_requests=3,failed_checks_shown_separately=True,cancellation_verified=True,managed_workers=True,manual_worker_commands=0,recorded_results=len(check['results']),
                         inspected_pages=check['inspected_pages'],all_recorded_passed=True,reload_did_not_replay=True,
                         advanced_controls_preserved=True,mobile_overflow=False,ui_external_requests=0,page_errors=[],

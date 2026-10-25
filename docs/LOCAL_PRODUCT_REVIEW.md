@@ -1,10 +1,10 @@
 # Local Product Review
 
-Current runtime implementation: `8dd1af5eeb0f96730a1419a4071aeec5edec60e6`.
-The preserved preview on port 8766 still uses the earlier running Python process;
-refreshing browser assets does not upgrade that process.
-The single-device edition and its bounded operator flows are technically verified.
-Overall owner product acceptance remains pending.
+Current simple-flow implementation: `e69a87d0b108a81bbf1e42f99e202fe017501dc3`.
+The owner explicitly requested URL-only, one-button usage. Source free/licensed
+browser proofs passed; exact-commit CI/package acceptance is tracked in
+[SIMPLE_SITE_CHECK.md](SIMPLE_SITE_CHECK.md). The earlier verified checkpoints
+below remain historical. Overall owner product acceptance remains pending.
 
 ## Verified Checkpoints
 
@@ -28,45 +28,31 @@ See [latest recovery evidence](evidence/latest-recovery-ci-4b77ba5.json),
 
 ## Open the Actual Free Panel
 
-A separate local review workspace was started at `http://127.0.0.1:8766/`.
-It uses `artifacts/local-review-2026-10-25/projects.sqlite`, outside source control.
-It starts empty, requires no account and serves the current built dashboard.
-No project, target request or test was created by opening it. An existing owner
-workspace was not replaced or restarted. This is a loopback development preview,
-not a public backend or an automatically installed service.
+The actual local review workspace is `http://127.0.0.1:8766/`, using
+`artifacts/local-review-2026-10-25/projects.sqlite`, outside source control.
+Following the owner's explicit update request, its server was restarted with the
+new managed-check runtime. The database was backed up first, no workers were
+active, and existing project/settings/queued-job counts were preserved. No target
+request or test was started during the UI verification. Existing queued advanced
+work was not processed. This is a loopback preview, not a public backend/service.
 
-The HTTPS API binding is available only in the updated runtime. The preserved
-8766 process does not advertise it, so the UI disables that profile. Complete any
-active work before stopping that process and starting the updated runtime against
-the same database; do not replace or reset the workspace.
-
-If that preview is still running, use it directly rather than launching a second
-server on the same port. Its process metadata/logs are in the ignored review
-directory. For startup on another device or after stopping it, follow the
-[quick start](LOCAL_QUICKSTART.md).
+The default screen is URL-first. Refresh the page to load it. Do not launch a
+second server on the same port or replace the workspace. Startup on another
+device is documented in [LOCAL_QUICKSTART.md](LOCAL_QUICKSTART.md).
 
 ## Owner Usage Review
 
-1. Open the panel, create one project and select its configuration. Free mode
-   should refuse a second active project without requiring registration.
-2. Enter your intended target URL and exact allowed host names, then save.
-   Inspect **Execution support**. Saving does not inspect the target or start work.
-3. For a supported target, explicitly queue discovery. A separate one-shot worker
-   processes this review workspace:
+1. Enter the authorized site URL and press **Test et**.
+2. Watch site inspection and automatic execution. No worker command is required.
+3. Inspect the separate pass/fail/incomplete groups and optional test details or
+   screenshots. **Durdur** cancels a running check. Refresh never repeats execution.
+4. Open **Gelişmiş ayarlar** only for explicit API/database contracts or manual
+   case selection. Those advanced queues retain their independent commands.
 
-   ```powershell
-   .\.venv\Scripts\python.exe -m adaptive_qa dashboard free-worker-cycle --database artifacts/local-review-2026-10-25/projects.sqlite
-   ```
-
-4. Review the discovered plan, select applicable checks and explicitly start them.
-   Run the worker again, then inspect the recorded results. Catalog definitions
-   are not a promise that every scenario applies to your site.
-
-The worker uses the same workspace database as the panel and exits after its
-bounded queue attempts. API/database jobs require their own explicit contracts
-and separate worker commands. See the quick start before using those panels.
-The GitHub Pages demo remains a separate illustrative interface with execution
-disabled.
+The simple flow derives exact host scope and selects only applicable independent
+read-only inspectors from real discovery. It does not submit forms or authenticate.
+Catalog definitions are not a promise of universal execution. The public Pages
+demo remains illustrative and non-executing.
 
 ## Supported Boundaries
 
