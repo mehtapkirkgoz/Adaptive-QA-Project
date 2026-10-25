@@ -200,6 +200,19 @@ stage('complete')
                 raise ValueError('Installed source HTML boundary evidence is incomplete.')
             html_output=ROOT/'artifacts/html-inspection';html_output.mkdir(parents=True,exist_ok=True)
             (html_output/'installed.json').write_text(json.dumps(html,indent=2)+'\n',encoding='utf-8')
+            subprocess.run([sys.executable,str(ROOT/'scripts/check_public_submission.py')],cwd=temporary,
+                env=browser_environment,check=True,timeout=120)
+            public=json.loads((Path(temporary)/'artifacts/processes/public-submission.json').read_text(encoding='utf-8'))
+            if (not public.get('installed_wheel') or not public.get('supervised_child_package_verified')
+                    or public.get('tests_run',0)<20 or not public.get('all_passed')
+                    or not public.get('hard_child_deadlines_and_cancellation')
+                    or not public.get('values_resolved_only_in_child')
+                    or public.get('queue_or_ui_admission_enabled')
+                    or public.get('public_customer_targets_contacted')
+                    or public.get('browser_completion_or_catalog_pass_claimed')):
+                raise ValueError('Installed internal HTTPS submission evidence is incomplete.')
+            public_output=ROOT/'artifacts/public-submission';public_output.mkdir(parents=True,exist_ok=True)
+            (public_output/'installed.json').write_text(json.dumps(public,indent=2)+'\n',encoding='utf-8')
 
 
     print(json.dumps({'source_commit': revision, 'files_verified': len(manifest['files']),

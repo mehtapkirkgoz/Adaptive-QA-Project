@@ -47,8 +47,12 @@ owner data are unchanged. Exact-commit CI remains pending for this new foundatio
 - [x] Prove a one-shot HTTPS transport on owned TLS fixtures only: numeric IP pinning,
   verified SNI/certificates, no redirects/reconnect/retry/proxy/cookie inheritance,
   bounded bodies and response assertions, sanitized outcomes and uncertain delivery.
-- [ ] Add supervised child deadlines, cancellation, configuration/owner checks,
-  secret handling and evidence masking before any queue/UI admission.
+- [x] Add an internal supervised response-contract child with hard deadlines,
+  cancellation, exact owner/project reference slots and private bounded IPC.
+- [ ] Add actual browser control/action preconditions, completion assertions and
+  evidence masking. The current response-contract child does not prove these.
+- [ ] Add authenticated owner/queue/configuration admission before connecting UI
+  controls; trusted caller-supplied owner/fingerprint metadata is not authentication.
 - [ ] Require an explicit per-operation local review/confirmation. URL-only read-only
   checks must never silently acquire form-submission authority.
 
@@ -80,3 +84,36 @@ CI now runs this proof on Windows/Linux and uploads a safe report with lifecycle
 evidence. Hard total deadlines, cancellation, scoped reference resolution, owner/
 configuration admission and browser completion/evidence checks remain unfinished;
 socket timeouts alone do not bound slow streams. No UI/customer activation is added.
+
+## Supervised Response-Contract Child
+
+The internal run_isolated_public_submission runner validates the confirmed proposal,
+exact project/configuration snapshot and canonical owner/project input slots before
+spawning. Metadata is bounded reference-only JSON in a private temporary directory;
+argv contains paths only. The child revalidates metadata, checks all DNS answers and
+pins the selected peer before resolving environment inputs. The transport reuses
+that pinned target rather than resolving again. Actual values stay inside the child.
+TLS key logging is disabled, including inherited SSLKEYLOGFILE. No screenshot or raw
+HTTP response is produced. Results contain fixed codes and a conservative submission
+count, never raw exceptions or inputs.
+
+The parent has a finite total deadline and kills its owned process tree on timeout,
+cancellation or a failed cancellation source. Accepted/rejected outcomes mean only
+that the fixed HTTP boolean response contract matched; they are not TestResult or
+catalog/browser passes. Lost response, killed child or invalid child output retains
+uncertain delivery and never causes replay. Existing local/browser workers remain
+unchanged and reject public proposal/review types. No queue/UI admission is connected.
+
+Local validation: 888 regression tests completed with one Windows permission skip.
+The focused owned transport/process proof now has twenty checks: real TLS child
+submission, blocked private DNS before reference resolution, missing inputs, slow
+stream termination, cancellation/failed callback cleanup, malformed result rejection,
+owner/reference isolation and earlier TLS/one-shot failure boundaries. Final TLS key
+logging and result-schema guards are included in the focused proof. The installed
+release verifier now also requires this proof outside the checkout, with parent and
+supervised child package paths pinned to the installed wheel. Exact-commit CI/artifact
+acceptance is pending for this new child increment.
+
+Next work is browser control/action validation and completion/evidence, then separate
+authenticated queue/admission confirmation. Do not map a response-contract acceptance
+to a successful website workflow or silently submit forms from the automatic URL flow.

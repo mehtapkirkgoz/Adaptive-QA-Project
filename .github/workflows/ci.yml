@@ -394,6 +394,7 @@ jobs:
             artifacts/site-check/*.json
             artifacts/site-check/*.png
             artifacts/html-inspection/*.json
+            artifacts/public-submission/*.json
             artifacts/interactive-probe/*.json
           retention-days: 7
           if-no-files-found: warn

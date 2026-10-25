@@ -6,6 +6,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 import socket
 import ssl
+import time
 from tempfile import TemporaryDirectory
 from threading import Thread
 import unittest
@@ -121,11 +122,16 @@ class PublicSubmissionTests(unittest.TestCase):
                 self.send_header('Content-Type','application/json')
                 for key,value in state['headers'].items(): self.send_header(key,value)
                 self.end_headers()
-                try:self.wfile.write(state['body'])
+                try:
+                    if state.get('slow'):
+                        for _ in range(200):
+                            self.wfile.write(b' ');self.wfile.flush();time.sleep(.05)
+                    else:self.wfile.write(state['body'])
                 except OSError:pass
         server = ThreadingHTTPServer(('127.0.0.1',0),Handler)
         context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER); context.load_cert_chain(cert_path,key_path)
         server.socket = context.wrap_socket(server.socket,server_side=True)
+        state.update(ca_path=str(cert_path), port=server.server_port)
         thread = Thread(target=server.serve_forever,daemon=True); thread.start()
         def close():server.shutdown();server.server_close();thread.join(timeout=5)
         self.addCleanup(close)
@@ -139,6 +145,8 @@ class PublicSubmissionTests(unittest.TestCase):
 
     def test_real_tls_posts_once_with_exact_assertions_and_no_ambient_headers(self):
         trusted,connect,state=self.tls_harness()
+        keylog = Path(state['ca_path']).parent/'must-not-log-keys.txt'
+        trusted.keylog_filename = str(keylog)
         with patch('adaptive_qa.egress.resolve_with_deadline',return_value=('93.184.216.34','93.184.216.35')), \
                 patch.object(DestinationGuard,'connect',connect), \
                 patch('adaptive_qa.public_submission.ssl.create_default_context',return_value=trusted), \
@@ -156,6 +164,8 @@ class PublicSubmissionTests(unittest.TestCase):
             self.assertEqual(contact['body'],self.request['body'])
             self.assertIsNone(contact['cookie']);self.assertIsNone(contact['authorization'])
         self.assertNotIn('OWNED_INPUT_CANARY',repr(result))
+        self.assertIsNone(trusted.keylog_filename)
+        self.assertFalse(any(line and not line.startswith('#') for line in keylog.read_text().splitlines()))
 
     def test_redirect_echo_duplicate_and_oversized_responses_are_never_accepted(self):
         trusted,connect,state=self.tls_harness()

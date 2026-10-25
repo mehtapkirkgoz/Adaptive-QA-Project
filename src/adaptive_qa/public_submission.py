@@ -92,14 +92,25 @@ class PublicSubmissionTransport:
         self._gate = PublicSubmissionGate(review, project, current_fingerprint=current_fingerprint)
         self._guard = DestinationGuard(project, local_sample=False, max_requests=1)
         self._timeout = review.proposal.form.timeout_seconds
+        self._prepare_lock, self._prepared, self._target = Lock(), False, None
+
+    def prepare_destination(self):
+        """Internal child preflight before resolving references; cache the checked peer."""
+        with self._prepare_lock:
+            if not self._prepared:
+                self._prepared = True
+                try:
+                    self._target = self._guard.authorize(self._gate.proposal.endpoint_url)
+                except (ValueError, OSError):
+                    pass
+            return self._target is not None
 
     def submit(self, *, url, method, content_type, body):
         if not self._gate.admit(url=url, method=method, content_type=content_type, body=body):
             return OwnedSubmissionResult('blocked', 0)
-        try:
-            target = self._guard.authorize(url)
-        except (ValueError, OSError):
+        if not self.prepare_destination():
             return OwnedSubmissionResult('blocked', 0)
+        target = self._target
         connection, delivery_started = None, False
         deadline = monotonic()+self._timeout
         try:
@@ -112,7 +123,9 @@ class PublicSubmissionTransport:
             if remaining <= 0:
                 raise TimeoutError()
             connection.sock.settimeout(remaining)
-            connection.sock = ssl.create_default_context().wrap_socket(connection.sock, server_hostname=target.hostname)
+            context = ssl.create_default_context()
+            context.keylog_filename = None  # Never inherit TLS key logging for form inputs.
+            connection.sock = context.wrap_socket(connection.sock, server_hostname=target.hostname)
             remaining = deadline-monotonic()
             if remaining <= 0:
                 raise TimeoutError()
