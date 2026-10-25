@@ -57,7 +57,7 @@ def main():
                     page = browser.new_page(viewport={'width': 1440, 'height': 1000})
                     page.on('pageerror', lambda error: errors.append(str(error)))
                     page.on('request', lambda request: external.append(request.url) if not request.url.startswith(origin+'/') else None)
-                    page.goto(origin+'/')
+                    page.goto(origin+'/?view=advanced')
                     expect(page.get_by_text('FREE · LOCAL', exact=True)).to_be_visible()
                     expect(page.get_by_role('heading', name='Sign in', exact=True)).to_have_count(0)
                     expect(page.get_by_role('button', name='Organizations', exact=True)).to_have_count(0)

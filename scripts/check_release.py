@@ -171,6 +171,17 @@ stage('complete')
                 raise ValueError('Installed HTTPS operator evidence is incomplete.')
             https_output=ROOT/'artifacts/https-api';https_output.mkdir(parents=True,exist_ok=True)
             (https_output/'installed-licensed.json').write_text(json.dumps(https_report,indent=2)+'\n',encoding='utf-8')
+            subprocess.run([sys.executable,str(ROOT/'scripts/check_site_check_ui.py'),'--licensed'],cwd=temporary,
+                env=browser_environment,check=True,timeout=180)
+            simple=json.loads((Path(temporary)/'artifacts/site-check/installed-licensed.json').read_text(encoding='utf-8'))
+            if (not simple.get('installed_wheel') or not simple.get('managed_workers')
+                    or simple.get('one_click_admissions') != 1 or simple.get('manual_worker_commands') != 0
+                    or not simple.get('all_recorded_passed') or not simple.get('reload_did_not_replay')
+                    or simple.get('ui_external_requests') or simple.get('page_errors')):
+                raise ValueError('Installed one-button site check evidence is incomplete.')
+            simple_output=ROOT/'artifacts/site-check';simple_output.mkdir(parents=True,exist_ok=True)
+            (simple_output/'installed-licensed.json').write_text(json.dumps(simple,indent=2)+'\n',encoding='utf-8')
+
     print(json.dumps({'source_commit': revision, 'files_verified': len(manifest['files']),
                       'installed_catalog': {'ui': 51, 'api': 34, 'database': 15},
                       'activation_enabled': False}, indent=2))

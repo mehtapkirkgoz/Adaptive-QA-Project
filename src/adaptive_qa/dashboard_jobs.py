@@ -112,11 +112,15 @@ class DashboardDiscoveryQueue:
             connection.execute('UPDATE dashboard_discovery_jobs SET status=? WHERE job_id=?', (status, job_id))
             return {'job_id': job_id, 'project_id': project_id, 'status': status}
 
-    def claim_next(self):
+    def claim_next(self, *, job_id=None):
         """Trusted worker-only operation; claims are never returned through owner reads."""
         with self.projects._connection() as connection:
             connection.execute('BEGIN IMMEDIATE')
-            row = connection.execute("SELECT * FROM dashboard_discovery_jobs WHERE status='queued' ORDER BY sequence LIMIT 1").fetchone()
+            if job_id is not None:
+                _id(job_id)
+            row = connection.execute("SELECT * FROM dashboard_discovery_jobs WHERE status='queued'"
+                + (" AND job_id=?" if job_id is not None else "") + " ORDER BY sequence LIMIT 1",
+                (job_id,) if job_id is not None else ()).fetchone()
             if row is None:
                 return None
             if hasattr(self.projects, 'admit_execution'):

@@ -1,5 +1,11 @@
 # Local-First Product Conversion
 
+Current owner request (2026-10-25): simplify the actual local product to one URL,
+one Test button, managed background discovery/execution and clear pass/fail results.
+Follow [SIMPLE_SITE_CHECK.md](SIMPLE_SITE_CHECK.md) for this active work. Preserve
+existing engine, advanced controls and local data; earlier completion checkpoints
+below describe the preceding scope.
+
 Current work: the owner explicitly selected general HTTPS API support on
 2026-10-25. Follow [HTTPS_API.md](HTTPS_API.md) for completed controlled acceptance, usage and evidence.
 HTTPS follow-up 8dd1af5 / Core 40154721472 passed all twelve jobs and archives;

@@ -3,6 +3,7 @@ from adaptive_qa.form_configuration import runtime_configuration
 
 import asyncio
 from collections import deque
+from contextlib import asynccontextmanager
 import json
 from pathlib import Path
 from threading import Lock
@@ -58,7 +59,13 @@ def create_app(store: AuthStore, *, port=8765, projects=None, ui_directory=None)
         raise ValueError('A local unprivileged port is required.')
     authority = f'127.0.0.1:{port}'
     origin = f'http://{authority}'
-    app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
+    site_checks = None
+    @asynccontextmanager
+    async def lifespan(app):
+        yield
+        if site_checks is not None:
+            await run_in_threadpool(site_checks.shutdown)
+    app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None, lifespan=lifespan)
     projects = projects if projects is not None else ProjectStore(store.database.with_name('projects.sqlite'))
     discovery = DashboardDiscoveryQueue(projects)
     runs = DashboardRunQueue(projects)
@@ -196,6 +203,34 @@ def create_app(store: AuthStore, *, port=8765, projects=None, ui_directory=None)
 
     if not (getattr(store, 'local_free', False) or getattr(store, 'local_licensed', False)):
         register_organization_routes(app, organizations, organization_projects, actor, _object, store)
+
+    if getattr(store, 'local_free', False) or getattr(store, 'local_licensed', False):
+        from adaptive_qa.site_check import SiteChecks, SiteCheckBusy
+        site_checks = SiteChecks(projects, free=getattr(store, 'local_free', False))
+
+        @app.exception_handler(SiteCheckBusy)
+        async def site_check_busy(request, error):
+            return JSONResponse({'detail': 'A site check is already active.'}, status_code=409)
+
+        @app.get('/api/site-checks')
+        def site_check_history(request: Request):
+            return {'checks': site_checks.list(actor(request))}
+
+        @app.post('/api/site-checks', status_code=202)
+        async def start_site_check(request: Request):
+            owner = await run_in_threadpool(actor, request, mutation=True)
+            data = _object(await request.body(), ('url',), optional=('project_id',))
+            return await run_in_threadpool(site_checks.submit, owner, data['url'], project_id=data.get('project_id'))
+
+        @app.get('/api/site-checks/{check_id}')
+        def read_site_check(check_id: str, request: Request):
+            return site_checks.get(actor(request), check_id)
+
+        @app.post('/api/site-checks/{check_id}/cancel')
+        async def cancel_site_check(check_id: str, request: Request):
+            owner = await run_in_threadpool(actor, request, mutation=True)
+            _object(await request.body(), ())
+            return await run_in_threadpool(site_checks.cancel, owner, check_id)
 
     @app.get('/api/projects')
     def list_projects(request: Request):
@@ -434,7 +469,7 @@ def create_app(store: AuthStore, *, port=8765, projects=None, ui_directory=None)
                 return JSONResponse({'detail': 'Request rejected.'}, status_code=403)
             grant = store.bootstrap(request.cookies.get(SESSION_COOKIE))
             response = JSONResponse({'user_id': grant.actor.user_id, 'edition': 'free',
-                                     'account_required': False, 'max_projects': 1, 'test_data_location': 'local'})
+                                     'simple_site_checks': True, 'account_required': False, 'max_projects': 1, 'test_data_location': 'local'})
             for name, value, hidden in ((SESSION_COOKIE, grant.token.value, True),
                                         (CSRF_COOKIE, grant.csrf_token.value, False)):
                 response.set_cookie(name, value, max_age=store.session_seconds,
@@ -444,7 +479,7 @@ def create_app(store: AuthStore, *, port=8765, projects=None, ui_directory=None)
             actor = store.actor_for_session(request.cookies.get(SESSION_COOKIE))
         except AuthenticationError:
             return JSONResponse({'detail': 'Authentication failed.'}, status_code=401)
-        return JSONResponse({'user_id': actor.user_id, **({'edition': 'professional'} if getattr(store, 'local_licensed', False) else {})})
+        return JSONResponse({'user_id': actor.user_id, **({'edition': 'professional', 'simple_site_checks': True} if getattr(store, 'local_licensed', False) else {})})
 
     @app.post('/api/auth/logout')
     def logout(request: Request):

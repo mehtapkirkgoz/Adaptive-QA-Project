@@ -1,3 +1,4 @@
+import {SiteCheck} from './SiteCheck';
 import {LocalDatabaseEditor} from './LocalDatabaseEditor';
 import {LocalDatabasePanel} from './LocalDatabasePanel';
 import type {LocalDatabaseBinding} from './LocalDatabaseEditor';
@@ -45,6 +46,8 @@ async function api<T>(path: string, method = 'GET', body?: unknown): Promise<T> 
 }
 
 function App() {
+  const [simpleAvailable, setSimpleAvailable] = useState(false);
+  const [advanced, setAdvanced] = useState(() => new URLSearchParams(location.search).get('view') === 'advanced');
   const [freeEdition, setFreeEdition] = useState(false);
   const [licensedEdition, setLicensedEdition] = useState(false);
   const [signedIn, setSignedIn] = useState(false), [checking, setChecking] = useState(true);
@@ -68,7 +71,7 @@ function App() {
   }
   function reopenFreeWorkspace() {
     void perform(async () => {
-      const session = await api<{edition?: string}>('/api/auth/me');
+      const session = await api<{edition?: string; simple_site_checks?: boolean}>('/api/auth/me');
       if (session.edition !== 'free') throw new Error('Workspace edition changed. Reload this page to continue.');
       await load(); setSignedIn(true);
       setNotice('Local workspace reopened. No previous request was retried. Select your project to review saved settings.');
@@ -88,8 +91,8 @@ function App() {
     setProjects(data.projects); setOffset(page);
   }
   useEffect(() => {let alive = true;
-    (async () => {try {const session = await api<{edition?: string}>('/api/auth/me');
-      if (alive) {setFreeEdition(session.edition === 'free'); setLicensedEdition(session.edition === 'professional');}
+    (async () => {try {const session = await api<{edition?: string; simple_site_checks?: boolean}>('/api/auth/me');
+      if (alive) {setSimpleAvailable(session.simple_site_checks === true); setFreeEdition(session.edition === 'free'); setLicensedEdition(session.edition === 'professional');}
       const data = await api<{projects: Project[]}>('/api/projects');
       if (alive) {setProjects(data.projects); setSignedIn(true);}
     } catch (e) {if (alive && !(e instanceof ApiError && e.status === 401)) fail(e);}
@@ -110,7 +113,7 @@ function App() {
     const email = String(data.get('email')), password = String(data.get('password'));
     form.reset();
     void perform(async () => {await api('/api/auth/login', 'POST', {email, password});
-      const session = await api<{edition?: string}>('/api/auth/me'); setLicensedEdition(session.edition === 'professional');
+      const session = await api<{edition?: string; simple_site_checks?: boolean}>('/api/auth/me'); setLicensedEdition(session.edition === 'professional'); setSimpleAvailable(session.simple_site_checks === true);
       setSignedIn(true); await load();});
   }
   function create(event: FormEvent<HTMLFormElement>) {
@@ -135,12 +138,13 @@ function App() {
     || JSON.stringify(formMappings) !== JSON.stringify(settings.form_mappings ?? []) || JSON.stringify(localBinding) !== JSON.stringify(settings.local_form_binding ?? null)
     || JSON.stringify(apiBinding) !== JSON.stringify(settings.local_api_binding ?? null)
     || JSON.stringify(databaseBinding) !== JSON.stringify(settings.local_database_binding ?? null));
+  if (signedIn && simpleAvailable && !advanced) return <SiteCheck request={workspaceRequest} onAdvanced={() => {setAdvanced(true); void load();}}/>;
   return <div className="shell">
     <aside><a className="brand" href="/" aria-label="Adaptive QA home"><span className="mark">AQ</span> Adaptive QA</a>
       <p className="eyebrow">WORKSPACE</p><div className="nav-item">Projects <span aria-hidden="true">●</span></div>
       <div className="sidebar-note"><span className="dot"/> Local workspace<p>Configure with confidence.<br/>Keep every project in scope.</p></div>
     </aside>
-    <div className="workspace"><header><span>Workspace <span className="slash">/</span> Projects</span><div className="header-actions"><span className="badge">{freeEdition ? 'FREE · LOCAL' : 'LOCAL'}</span>
+    <div className="workspace"><header><span>Workspace <span className="slash">/</span> Projects</span><div className="header-actions">{simpleAvailable && <button onClick={() => setAdvanced(false)}>Kolay site kontrolü</button>}<span className="badge">{freeEdition ? 'FREE · LOCAL' : 'LOCAL'}</span>
       {signedIn && !freeEdition && <button className="quiet" disabled={busy} onClick={() => void perform(async () => {await api('/api/auth/logout', 'POST', {}); clear();})}>Sign out</button>}</div></header>
       <main><div className="page-title"><div><p className="eyebrow">ADAPTIVE TESTING</p><h1>{signedIn ? 'Project workspace' : 'Welcome to your workspace'}</h1>
         <p className="subtitle">{signedIn ? 'Manage your projects and define what is in scope.' : freeEdition ? 'Reopen your account-free local workspace.' : 'Sign in to manage your QA projects.'}</p></div><span className="step">LOCAL WORKSPACE</span></div>

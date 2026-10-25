@@ -43,7 +43,7 @@ def main():
                         if request.request.url.startswith(origin+'/'):request.continue_()
                         else:external.append('denied');request.abort()
                     page.route('**/*',route)
-                    page.goto(origin+'/',timeout=10000)
+                    page.goto(origin+'/?view=advanced',timeout=10000)
                     page.get_by_role('button',name='Owned interactive controls').click()
                     panel=page.get_by_role('region',name='Controlled interactive forms')
                     expect(panel).to_be_visible()

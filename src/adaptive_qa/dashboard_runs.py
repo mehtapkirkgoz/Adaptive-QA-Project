@@ -201,10 +201,14 @@ class DashboardRunQueue:
             connection.execute('UPDATE dashboard_test_runs SET status=? WHERE run_id=?', (status, run_id))
             return self._public(self._owned(connection, actor, project_id, run_id))
 
-    def claim_next(self):
+    def claim_next(self, *, run_id=None):
         with self.projects._connection() as connection:
             connection.execute('BEGIN IMMEDIATE')
-            row = connection.execute("SELECT * FROM dashboard_test_runs WHERE status='queued' ORDER BY sequence LIMIT 1").fetchone()
+            if run_id is not None:
+                _id(run_id)
+            row = connection.execute("SELECT * FROM dashboard_test_runs WHERE status='queued'"
+                + (" AND run_id=?" if run_id is not None else "") + " ORDER BY sequence LIMIT 1",
+                (run_id,) if run_id is not None else ()).fetchone()
             if row is None:
                 return None
             if hasattr(self.projects, 'admit_execution'):

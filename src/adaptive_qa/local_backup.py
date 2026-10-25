@@ -159,6 +159,8 @@ def restore_local_backup(bundle,destination,*,maintenance_confirmed=False):
                         for table in ('dashboard_discovery_jobs','dashboard_test_runs','dashboard_interactive_jobs','dashboard_api_jobs','dashboard_database_jobs','dashboard_organization_discovery','dashboard_organization_runs'):
                             if table in tables:
                                 connection.execute(f"UPDATE {table} SET status='cancelled',claim_token=NULL WHERE status IN ('queued','running','cancel_requested')")
+                        if 'dashboard_site_checks' in tables:
+                            connection.execute("UPDATE dashboard_site_checks SET status='cancelled' WHERE status IN ('discovering','testing','cancelling')")
                         if 'dashboard_organization_admissions' in tables:
                             connection.execute("UPDATE dashboard_organization_admissions SET status='cancelled',claim_token=NULL WHERE status IN ('pending','active')")
                         if 'dashboard_agents' in tables: connection.execute('UPDATE dashboard_agents SET revoked=1')

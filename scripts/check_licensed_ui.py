@@ -76,7 +76,7 @@ def main():
                     page = browser.new_page(viewport={'width':1440,'height':1000})
                     page.on('pageerror',lambda error:errors.append(str(error)))
                     page.on('request',lambda request:external.append(request.url) if not request.url.startswith(origin+'/') else None)
-                    page.goto(origin+'/')
+                    page.goto(origin+'/?view=advanced')
                     page.get_by_label('Email',exact=True).fill('owner@example.test')
                     page.get_by_label('Password',exact=True).fill('local browser password')
                     page.get_by_role('button',name='Sign in',exact=True).click()
