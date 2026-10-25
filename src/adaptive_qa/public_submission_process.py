@@ -1,14 +1,16 @@
 """Internal supervised HTTPS response-contract proof; no browser or queue admission."""
 import argparse
+from contextlib import contextmanager
 from dataclasses import asdict, dataclass
 import json
 import math
 import os
+import re
 from pathlib import Path
 import subprocess
 import sys
-from tempfile import TemporaryDirectory
-from time import perf_counter
+from tempfile import TemporaryDirectory, gettempdir
+from time import perf_counter, sleep
 from urllib.parse import urlencode
 
 from adaptive_qa.browser_process import _terminate_process_tree
@@ -31,6 +33,28 @@ REASONS = {
               'child_start_failed', 'child_failed', 'invalid_child_result'},
     'cancelled': {'cancelled'},
 }
+
+
+@contextmanager
+def _private_directory():
+    parent = Path(gettempdir()).resolve(strict=True)
+    directory = TemporaryDirectory(prefix='adaptive-public-submit-', dir=parent)
+    root = Path(directory.name).resolve(strict=True)
+    if root.parent != parent or not root.name.startswith('adaptive-public-submit-'):
+        raise ValueError('Unexpected private transport directory.')
+    try:
+        yield root
+    finally:
+        for attempt in range(12):
+            if root.exists() and root.resolve() != root:
+                raise ValueError('Private transport directory changed identity.')
+            try:
+                directory.cleanup()
+                break
+            except OSError as error:
+                if getattr(error, 'winerror', None) not in (5, 32) or attempt == 11:
+                    raise
+                sleep(.05*(attempt+1))
 
 
 @dataclass(frozen=True)
@@ -135,6 +159,16 @@ def _read_result(path):
 def run_isolated_public_submission(review, project, *, owner_id, current_fingerprint,
                                     timeout_seconds=45, should_cancel=None):
     raw = _encode(review, project, owner_id, current_fingerprint)
+    return _run_private_child(raw, module='adaptive_qa.public_submission_process', reader=_read_result,
+                              timeout_seconds=timeout_seconds, should_cancel=should_cancel,
+                              reference_variables=tuple(ref.environment_variable for ref in review.proposal.form.inputs))
+
+
+def _run_private_child(raw, *, module, reader, timeout_seconds=45, should_cancel=None, reference_variables=()):
+    if (module not in ('adaptive_qa.public_submission_process', 'adaptive_qa.public_browser_process')
+            or not callable(reader) or not isinstance(raw, str) or len(raw.encode('utf-8')) > 16384
+            or type(reference_variables) is not tuple or any(not isinstance(name, str) for name in reference_variables)):
+        raise ValueError('A fixed internal child and bounded private metadata are required.')
     if (isinstance(timeout_seconds, bool) or not isinstance(timeout_seconds, (int, float))
             or not math.isfinite(timeout_seconds) or not 0 < timeout_seconds <= 45
             or (should_cancel is not None and not callable(should_cancel))):
@@ -150,16 +184,20 @@ def run_isolated_public_submission(review, project, *, owner_id, current_fingerp
     initial = stopped()
     if initial:
         return SubmissionProcessResult(initial.outcome, initial.reason_code, 0)
-    with TemporaryDirectory(prefix='adaptive-public-submit-') as temporary:
+    with _private_directory() as temporary:
         root = Path(temporary).resolve(strict=True)
         source, output = root/'input.json', root/'result.json'
         source.write_text(raw, encoding='utf-8')
         options = {'start_new_session': True} if os.name != 'nt' else {
             'creationflags': subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.CREATE_NO_WINDOW}
         environment = dict(os.environ)
-        environment.pop('SSLKEYLOGFILE', None)
+        for name in tuple(environment):
+            if (name in ('SSLKEYLOGFILE', 'PWDEBUG', 'DEBUG')
+                    or (re.fullmatch(r'ADAPTIVE_QA_[0-9A-F]{32}_[0-9A-F]{32}_[A-Z_]+', name)
+                        and name not in reference_variables)):
+                environment.pop(name)
         try:
-            process = subprocess.Popen([sys.executable, '-m', 'adaptive_qa.public_submission_process',
+            process = subprocess.Popen([sys.executable, '-m', module,
                 '--input', str(source), '--output', str(output)], stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL, env=environment, **options)
         except OSError:
@@ -180,7 +218,7 @@ def run_isolated_public_submission(review, project, *, owner_id, current_fingerp
             if process.returncode != 0:
                 return SubmissionProcessResult('error', 'child_failed', None)
             try:
-                return _read_result(output)
+                return reader(output)
             except (OSError, ValueError, TypeError, KeyError, RecursionError):
                 return SubmissionProcessResult('error', 'invalid_child_result', None)
         finally:

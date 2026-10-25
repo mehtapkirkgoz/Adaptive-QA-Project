@@ -111,6 +111,19 @@ class PublicSubmissionTests(unittest.TestCase):
         state = dict(contacts=[], status=200, body=b'{"found":true}', headers={}, drop=False)
         class Handler(BaseHTTPRequestHandler):
             def log_message(self,*args): pass
+            def do_GET(self):
+                state.setdefault('documents',[]).append(self.path)
+                if self.path in state.get('assets',{}):
+                    content_type,body=state['assets'][self.path]
+                    self.send_response(200);self.send_header('Content-Type',content_type)
+                elif self.path=='/search' and 'document' in state:
+                    body=state['document']
+                    self.send_response(state.get('document_status',200));self.send_header('Content-Type','text/html; charset=utf-8')
+                    for key,value in state.get('document_headers',{}).items():self.send_header(key,value)
+                else:self.send_error(404);return
+                self.send_header('Content-Length',str(len(body)));self.end_headers()
+                try:self.wfile.write(body)
+                except OSError:pass
             def do_POST(self):
                 body = self.rfile.read(int(self.headers['Content-Length']))
                 state['contacts'].append(dict(path=self.path, body=body, host=self.headers.get('Host'),

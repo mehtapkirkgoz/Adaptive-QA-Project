@@ -59,9 +59,10 @@ sequence of implementation checkpoints; earlier pending statements are historica
   cancellation, exact owner/project reference slots and private bounded IPC.
 - [x] Prototype reviewed form control/action preconditions and require both the
   verified HTTP response and pinned UI transition on controlled fixtures.
-- [ ] Add a supervised public browser worker with guarded real document loading,
-  per-input traffic restrictions, hard cancellation and masked evidence. The
-  in-memory document prototype does not establish that runtime boundary.
+- [x] Add an internal supervised public browser worker with guarded real document
+  loading, per-input traffic restrictions and hard cancellation. Credential-bearing
+  workflows deliberately produce no screenshots/traces; the parent owns and removes
+  their private browser profile, including after a hard timeout.
 - [ ] Add authenticated owner/queue/configuration admission before connecting UI
   controls; trusted caller-supplied owner/fingerprint metadata is not authentication.
 - [ ] Require an explicit per-operation local review/confirmation. URL-only read-only
@@ -155,3 +156,51 @@ with accurately limited scope reports. Exact-commit acceptance for this prototyp
 remains pending; aaea425 acceptance above covers only the preceding response child.
 Continue with the real guarded browser worker, masked evidence and authenticated
 queue/admission review. The URL-only automatic flow stays read-only.
+
+## Supervised Guarded Browser Increment
+
+The new internal public_browser_process entry point requires the separately confirmed
+proposal, matching project snapshot and exact owner/project reference slots. It uses
+the shared bounded private child transport and caller cancellation hook. A fresh
+persistent browser profile is created only inside the parent-owned temporary directory;
+it is never a user's normal browser profile. Closing, cancellation and timeout remove
+that directory. Windows sharing/access locks receive at most twelve bounded cleanup
+attempts; persistent failures are surfaced, never silently ignored. One early pre-fix
+synthetic development profile remains in local TEMP because a manual cleanup command
+was blocked by tool policy. New proof runs verified removal of every new profile;
+no owner workspace or real customer input was involved in that failed test.
+
+Real document loading uses the existing numeric-IP egress proxy with HTTPS verification,
+QUIC/HTTP2/non-proxied WebRTC UDP restrictions, a single exact main document and at most
+one hundred read requests. Redirect navigation, extra frames and popups are rejected.
+Service workers/downloads are disabled. After destination preflight and before reading
+inputs, unrelated traffic is frozen. Only the one exact endpoint, method and serialized
+reviewed body may be forwarded through the verified one-shot HTTPS transport. A second
+POST is blocked without overwriting the first delivery's count. The browser receives
+only the matched flat boolean JSON response. Both that response and the pinned DOM
+transition are required for a pass. No screenshot, trace or raw page/response body is
+returned. Debug/TLS key logging and unrelated canonical project reference variables
+are removed from child environment inheritance.
+
+Seventeen supervised real browser scenarios passed on owned TLS documents/endpoints:
+positive login/search and negative search, same-origin script loading, pre-existing
+markers, wrong actions, marker-only/missing/contradictory transitions, canary/altered
+body/duplicate POST, private DNS, untrusted browser TLS, document redirect, missing
+input and a slow TLS response. Eight owned POSTs occurred in total; no case submitted
+more than once. The slow response was killed with uncertain delivery. All seventeen
+private profile directories were removed. Full regression: 895 tests with one existing
+Windows permission skip; 34 focused proposal/transport/child tests also passed.
+
+The positive browser harness uses an ephemeral owned certificate SPKI pin through a
+TEST-ONLY launch-options monkeypatch, alongside the test-only numeric connector.
+Production exposes neither override and explicitly retains ignore_https_errors=False;
+the untrusted-browser-certificate scenario runs without that test pin and sends no POST.
+These are controlled fixture proofs, not Internet/customer deployment acceptance.
+CI now runs the browser proof on Windows/Linux and requires it again from the installed
+wheel outside the checkout. Exact-commit artifact acceptance for this increment is pending.
+
+Next: authenticated personal-project review/admission, stale configuration checks,
+claim/cancellation/recovery and explicit single-operation confirmation, then the local
+inline operator UI. Do not add automatic public form submission to the URL-only flow.
+Keep shared/multiuser public workflows disabled until separately specified. Existing
+local interactive bindings, closed Sprint 10 tracking and the public demo remain intact.

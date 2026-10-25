@@ -224,6 +224,20 @@ stage('complete')
                     or probe.get('screenshots_or_traces_taken')):
                 raise ValueError('Installed controlled HTTP/UI transition evidence is incomplete.')
             (public_output/'installed-browser-probe.json').write_text(json.dumps(probe,indent=2)+'\n',encoding='utf-8')
+            subprocess.run([sys.executable,str(ROOT/'scripts/check_public_browser.py')],cwd=temporary,
+                env=browser_environment,check=True,timeout=120)
+            browser=json.loads((Path(temporary)/'artifacts/public-submission/browser-process.json').read_text(encoding='utf-8'))
+            expected=['passed']*4+['blocked']*2+['failed']*3+['error']*6+['blocked','error']
+            if (not browser.get('installed_wheel') or not browser.get('supervised_child_package_verified')
+                    or [item['status'] for item in browser.get('scenarios',[])]!=expected
+                    or sum(item['owned_tls_posts'] for item in browser['scenarios'])!=8
+                    or not browser.get('actual_owned_tls_documents') or not browser.get('supervised_browser_worker')
+                    or not browser.get('private_profiles_removed') or browser.get('quick')
+                    or browser.get('production_tls_override_exposed') or browser.get('queue_or_ui_admission_enabled')
+                    or browser.get('public_customer_targets_contacted') or browser.get('raw_inputs_in_report')
+                    or browser.get('screenshots_or_traces_taken')):
+                raise ValueError('Installed guarded browser evidence is incomplete.')
+            (public_output/'installed-browser-process.json').write_text(json.dumps(browser,indent=2)+'\n',encoding='utf-8')
 
 
     print(json.dumps({'source_commit': revision, 'files_verified': len(manifest['files']),

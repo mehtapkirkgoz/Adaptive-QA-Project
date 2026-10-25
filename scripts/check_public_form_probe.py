@@ -67,6 +67,11 @@ def document(operation, mode):
         raw = raw.replace('</script>', "form.querySelector('input').addEventListener('input',()=>fetch('https://other.example.test/canary').catch(()=>{}));</script>")
     if mode == 'changed-body':
         raw = raw.replace('body:new URLSearchParams(new FormData(form))', "body:'query=changed'")
+    if mode == 'duplicate-post':
+        raw = raw.replace('const value=await response.json();',
+            f"await fetch(form.action,{{method:'POST',headers:{{'Content-Type':'{CONTENT_TYPE}'}},body:new URLSearchParams(new FormData(form))}});const value=await response.json();")
+    if mode == 'contradictory-response':
+        raw = raw.replace(f'if(value.{key}===true) accepted.hidden=false;', f'if(value.{key}===false) accepted.hidden=false;')
     return raw
 
 
@@ -123,7 +128,7 @@ def main():
                         if request.method=='GET' and request.url==proposal.document_url and guard['documents']==0:
                             guard['documents']+=1
                             route.fulfill(status=200,content_type='text/html',body=document(operation,mode))
-                        elif (guard['armed'] and request.method=='POST' and request.url==proposal.endpoint_url
+                        elif (guard['armed'] and guard['response'] is None and request.method=='POST' and request.url==proposal.endpoint_url
                               and request.post_data_buffer==guard['expected']):
                             response=transport.submit(url=request.url,method=request.method,
                                 content_type=request.headers.get('content-type',''),body=request.post_data_buffer)

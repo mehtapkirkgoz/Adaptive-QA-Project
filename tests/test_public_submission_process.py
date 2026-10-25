@@ -23,6 +23,7 @@ from adaptive_qa.project_settings import reference_name
 from adaptive_qa.public_form_proposal import PublicFormProposal
 from adaptive_qa.public_submission import ReviewedPublicForm
 from adaptive_qa.public_submission_process import _decode, _encode, _read_result, run_isolated_public_submission
+from adaptive_qa.public_submission_process import _private_directory
 from adaptive_qa.secrets import SecretReference
 
 
@@ -48,6 +49,34 @@ class PublicSubmissionProcessTests(unittest.TestCase):
             raw=_encode(self.review,self.project,self.owner_id,'b'*64)
             self.assertNotIn('PRIVATE_VALUE_CANARY',raw)
             self.assertEqual(_decode(raw),(self.review,self.project,self.owner_id,'b'*64))
+
+    def test_transient_windows_cleanup_lock_is_retried_but_persistent_failure_is_reported(self):
+        from tempfile import TemporaryDirectory as OriginalDirectory
+        created=[]
+        def directory(*args,**kwargs):
+            owned=OriginalDirectory(*args,**kwargs);created.append(owned)
+            cleanup=owned.cleanup
+            locked=PermissionError('Owned test directory temporarily locked');locked.winerror=32
+            calls=[]
+            def attempt():
+                calls.append(True)
+                if len(calls)<3:raise locked
+                cleanup()
+            owned.cleanup=attempt
+            return owned
+        with patch('adaptive_qa.public_submission_process.TemporaryDirectory',side_effect=directory), \
+                patch('adaptive_qa.public_submission_process.sleep') as sleep:
+            with _private_directory() as root:self.assertTrue(root.exists())
+            self.assertFalse(root.exists());self.assertEqual(sleep.call_count,2)
+        owned=OriginalDirectory(prefix='adaptive-public-submit-')
+        self.addCleanup(owned.cleanup)
+        locked=PermissionError('Persistent owned test lock');locked.winerror=32
+        with patch('adaptive_qa.public_submission_process.TemporaryDirectory',return_value=owned), \
+                patch.object(owned,'cleanup',side_effect=locked) as cleanup, \
+                patch('adaptive_qa.public_submission_process.sleep'):
+            with self.assertRaises(PermissionError):
+                with _private_directory():pass
+            self.assertEqual(cleanup.call_count,12)
 
     def test_wrong_owner_refs_policy_deadline_and_callback_never_spawn(self):
         with patch('adaptive_qa.public_submission_process.subprocess.Popen') as spawn:
@@ -78,6 +107,8 @@ class PublicSubmissionProcessTests(unittest.TestCase):
                 return original(command,**options)
             self.assertIn('adaptive_qa.public_submission_process',command)
             self.assertNotIn('SSLKEYLOGFILE',options['env'])
+            self.assertNotIn(reference_name('d'*32,'e'*32,'login_password'),options['env'])
+            self.assertEqual(options['env'][self.reference],'PRIVATE_VALUE_CANARY')
             self.assertNotIn(self.reference,' '.join(command))
             source=Path(command[command.index('--input')+1])
             self.assertNotIn('PRIVATE_VALUE_CANARY',source.read_text(encoding='utf-8'))
@@ -89,7 +120,8 @@ class PublicSubmissionProcessTests(unittest.TestCase):
             return mode=='cancel' and monotonic()-started>.1
         try:
             with patch('adaptive_qa.public_submission_process.subprocess.Popen',side_effect=spawn), \
-                    patch.dict(os.environ,{self.reference:'PRIVATE_VALUE_CANARY'}):
+                    patch.dict(os.environ,{self.reference:'PRIVATE_VALUE_CANARY',
+                        reference_name('d'*32,'e'*32,'login_password'):'OTHER_PROJECT_VALUE_CANARY'}):
                 result=self.run_child(timeout_seconds=.35,should_cancel=cancel)
             self.assertEqual(result.reason_code,{'deadline':'deadline_exceeded','cancel':'cancelled',
                 'broken':'cancellation_source_failed'}[mode])

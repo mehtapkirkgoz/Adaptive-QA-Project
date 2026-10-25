@@ -107,3 +107,9 @@ verified archives. The current internal HTTP/UI prototype is locally verified bu
 still requires exact-commit CI acceptance and a supervised guarded browser worker.
 Follow PUBLIC_FORM_PROPOSALS.md; do not repeat accepted native/response proofs merely
 to fill quota or expose public form controls before the remaining boundaries exist.
+
+The supervised guarded browser increment is now locally verified (17 real browser
+scenarios and 895 regression tests). Its CI/artifact acceptance is pending. Continue
+with authenticated single-device project admission/confirmation after that checkpoint;
+public form submission is still absent from the application routes and UI. The normal
+URL-only workflow remains read-only. See PUBLIC_FORM_PROPOSALS.md for current limits.
