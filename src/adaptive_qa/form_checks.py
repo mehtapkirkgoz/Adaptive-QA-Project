@@ -72,3 +72,7 @@ def check_search_form(page, *, project_id=None, mappings=None):
 
 
 FORM_CHECKS = {'LOGIN-001': check_login_form, 'SEARCH-001': check_search_form}
+
+# Existing catalog IDs gain a reusable, non-submitting browser validity contract.
+from adaptive_qa.native_form_checks import NATIVE_FORM_CHECKS
+FORM_CHECKS.update(NATIVE_FORM_CHECKS)

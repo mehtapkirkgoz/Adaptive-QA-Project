@@ -180,6 +180,7 @@ stage('complete')
                     or simple.get('one_click_admissions') != 1 or simple.get('manual_worker_commands') != 0
                     or not simple.get('all_recorded_passed') or not simple.get('reload_did_not_replay')
                     or not simple.get('unified_english_workspace')
+                    or not simple.get('native_email_checks_automatically_executed')
                     or not simple.get('empty_and_execution_error_states_verified')
                     or not simple.get('partial_outcome_state_verified')
                     or simple.get('ui_external_requests') or simple.get('page_errors')):
@@ -191,6 +192,9 @@ stage('complete')
             html=json.loads((Path(temporary)/'artifacts/html-inspection/report.json').read_text(encoding='utf-8'))
             if (not html.get('installed_wheel') or html.get('source_html_passes')!=5
                     or html.get('source_html_assertion_failures')!=2 or not html.get('redirect_blocked')
+                    or html.get('native_email_outcomes')!=['passed','passed','failed','blocked','blocked','blocked','error']
+                    or not html.get('native_email_no_input_events_or_submissions')
+                    or not html.get('legacy_native_email_contract_consistent')
                     or not html.get('rendered_form_coverage_still_fails_closed')
                     or not html.get('scripts_assets_and_frames_excluded') or html.get('mutation_requests')!=0):
                 raise ValueError('Installed source HTML boundary evidence is incomplete.')

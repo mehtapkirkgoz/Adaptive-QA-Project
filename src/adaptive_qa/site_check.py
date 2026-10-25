@@ -14,6 +14,7 @@ from adaptive_qa.document_target import validate_runtime_binding
 from adaptive_qa.smoke_checks import SMOKE_CHECKS
 from adaptive_qa.document_checks import DOCUMENT_CHECKS
 from adaptive_qa.form_checks import FORM_CHECKS
+from adaptive_qa.native_form_checks import NATIVE_FORM_CHECKS
 from adaptive_qa.project_store import ProjectNotFound, OwnedProject, _id
 from adaptive_qa.project_settings import validate_settings
 from adaptive_qa.worker_lock import worker_lock
@@ -198,6 +199,8 @@ class SiteChecks:
                         or case['changes_data'] or case['case_id'] not in SMOKE_CHECKS
                         or case['case_id'] not in {*DOCUMENT_CHECKS, *FORM_CHECKS}):
                     continue
+                if case['case_id'] in NATIVE_FORM_CHECKS and not report.get('native_email_candidate'):
+                    continue
                 try:
                     validate_runtime_binding(settings, case['case_id'], case)
                 except ValueError:
@@ -207,7 +210,7 @@ class SiteChecks:
             summary = dict(inspected_pages=report['inspected_pages'], requested=len(selected),
                 not_run=len(report['cases'])-len(selected),
                 names={c['case_id']: c['name'] for c in report['cases'] if c['case_id'] in selected},
-                execution_scope='source_html_structure_and_read_only_forms',
+                execution_scope='source_html_native_validity_and_read_only_forms',
                 limitations=['source_html_only', 'read_only', 'five_page_discovery', 'ten_check_limit', 'no_login_api_database', 'no_ai_claim'])
             self._update(check_id, summary_json=json.dumps(summary))
             # Cancellation and child-run publication share a transition lock.

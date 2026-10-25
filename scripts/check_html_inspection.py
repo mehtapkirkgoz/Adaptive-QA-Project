@@ -27,13 +27,17 @@ def main():
             if self.path == '/redirect':
                 self.send_response(302);self.send_header('Location','http://127.0.0.1:1/private');self.end_headers();return
             broken = self.path == '/broken.html'
+            email = '' if self.path == '/no-email' else ('<input type="email" disabled>' if self.path == '/disabled-email' else
+                '<input type="email"><input type="email">' if self.path == '/ambiguous-email' else
+                '<input type="email" pattern=".+@company[.]test">' if self.path == '/restricted-email' else
+                '<input type="email" value="original@example.test" oninput="fetch(\'/mutation\',{method:\'POST\'})">')
             raw = (('<html>' if broken else '<html lang="en">')+'''<head><title>Owned HTML</title>
                 <link rel="stylesheet" href="https://asset.example.invalid/style.css">
                 <script>document.title='Changed by script';document.documentElement.removeAttribute('lang');fetch('/mutation',{method:'POST'});</script>
                 <script src="/script.js"></script></head><body><p id="ok">Owned HTML</p>
                 <img src="https://asset.example.invalid/image.png"><iframe src="/embedded"></iframe>
                 <form><label>Username<input name="username"></label><label>Password<input type="password"></label><button>Sign in</button></form>
-                <a href="#ok">Valid anchor</a>'''+('<p id="ok">Duplicate</p>' if broken else '')+'</body></html>').encode()
+                <a href="#ok">Valid anchor</a>'''+email+('<p id="ok">Duplicate</p>' if broken else '')+'</body></html>').encode()
             self.send_response(200);self.send_header('Content-Type','text/html');self.send_header('Content-Length',str(len(raw)));self.end_headers();self.wfile.write(raw)
     fixture=ThreadingHTTPServer(('127.0.0.1',8000),Fixture);thread=Thread(target=fixture.serve_forever,daemon=True);thread.start()
     outcomes=[]
@@ -52,10 +56,26 @@ def main():
             # Assert denied navigation still fails, rather than granting broader host/port authority.
             result=run_isolated_document_test('DOC-001',project('/redirect'),profile='controlled_local',evidence_directory=root)
             assert result.status==TestStatus.ERROR,(result.status,result.message)
+            native=[]
+            for case,path,expected in (
+                ('FORM-001','/valid.html',TestStatus.PASSED),
+                ('FORM-002','/valid.html',TestStatus.PASSED),
+                ('FORM-002','/restricted-email',TestStatus.FAILED),
+                ('FORM-001','/no-email',TestStatus.BLOCKED),
+                ('FORM-001','/ambiguous-email',TestStatus.BLOCKED),
+                ('FORM-001','/disabled-email',TestStatus.BLOCKED),
+                ('FORM-001','/redirect',TestStatus.ERROR)):
+                result=run_isolated_form_test(case,project(path),profile='controlled_local',evidence_directory=root)
+                assert result.status==expected,(case,path,result.status,result.message)
+                native.append(result.status.value)
+            from adaptive_qa.local_browser import run_sample_test
+            for case in ('FORM-001','FORM-002'):
+                result=run_sample_test(case,evidence_directory=root)
+                assert result.status==TestStatus.PASSED,(case,result.status,result.message)
             form=run_isolated_form_test('LOGIN-001',project('/valid.html'),profile='controlled_local',evidence_directory=root)
             assert form.status==TestStatus.ERROR,(form.status,form.message)
             assert not writes and '/mutation' not in requests and '/script.js' not in requests[:7] and '/embedded' not in requests[:7]
-            report=dict(installed_wheel=bool(INSTALLED_SITE),source_html_passes=5,source_html_assertion_failures=2,redirect_blocked=True,
+            report=dict(legacy_native_email_contract_consistent=True,native_email_outcomes=native,native_email_no_input_events_or_submissions=True,installed_wheel=bool(INSTALLED_SITE),source_html_passes=5,source_html_assertion_failures=2,redirect_blocked=True,
                 rendered_form_coverage_still_fails_closed=True,scripts_assets_and_frames_excluded=True,
                 mutation_requests=0,private_destination_not_contacted=True,scope='owned_controlled_fixture')
             output=Path('artifacts/html-inspection');output.mkdir(parents=True,exist_ok=True)

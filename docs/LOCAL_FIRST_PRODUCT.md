@@ -1,5 +1,11 @@
 # Local-First Product Conversion
 
+Current owner follow-up (2026-10-25): continue remaining functional coverage
+work after reviewing the automatic HTML-only limits. Follow
+[NATIVE_FUNCTIONAL_CHECKS.md](NATIVE_FUNCTIONAL_CHECKS.md). Preserve the unified
+English workspace and existing local execution/data boundaries. Earlier waiting
+notes below describe completed scopes and do not block this explicit follow-up.
+
 Unified English workspace and HTML diagnostics are technically accepted at
 b0d84b1 / Core 40193691217: twelve jobs/archives verified and 220 PNGs validated.
 The owner preview was updated with all previous row digests preserved. Follow

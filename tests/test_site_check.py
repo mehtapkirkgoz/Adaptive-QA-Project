@@ -11,7 +11,7 @@ from adaptive_qa.local_free import LocalFreeProjects, LOCAL_ACTOR, create_free_a
 from adaptive_qa.project_store import ProjectActor, ProjectNotFound
 from adaptive_qa.site_check import SiteChecks, SiteCheckBusy
 from adaptive_qa.dashboard_jobs import DashboardDiscoveryQueue
-from adaptive_qa.discovery import PageSnapshot
+from adaptive_qa.discovery import PageSnapshot, FormSnapshot, FieldSnapshot
 from adaptive_qa.models import TestResult, TestStatus
 
 
@@ -42,10 +42,38 @@ class SiteCheckTests(unittest.TestCase):
         self.assertGreater(len(outcome['results']), 0)
         self.assertLessEqual(outcome['requested'], 10)
         self.assertTrue(all(r['status']=='passed' for r in outcome['results']))
+        self.assertFalse({'FORM-001','FORM-002'} & {r['case_id'] for r in outcome['results']})
         self.assertEqual(DashboardDiscoveryQueue(self.projects).get(LOCAL_ACTOR,p.project_id,unrelated['job_id'])['status'],'queued')
         self.assertEqual(len(self.projects.list(LOCAL_ACTOR)),1)
         with self.assertRaises(ProjectNotFound):
             self.service.get(ProjectActor('a'*32), check['check_id'])
+
+    def test_native_email_probes_selected_only_for_observed_saved_page(self):
+        def discovery(*args, **kwargs):
+            page=PageSnapshot(self.url, forms=(FormSnapshot(fields=(FieldSnapshot('email'),)),), collection_complete=True)
+            return {'pages':[asdict(page)],'limitations':[]}
+        def result(case,*args,**kwargs):
+            return TestResult(case,TestStatus.PASSED,.01,'Expected contract satisfied.')
+        with patch('adaptive_qa.dashboard_worker.discover_configured_target',side_effect=discovery), \
+                patch('adaptive_qa.dashboard_run_worker.run_isolated_document_test',side_effect=result), \
+                patch('adaptive_qa.dashboard_run_worker.run_isolated_form_test',side_effect=result) as native:
+            check=self.service.submit(LOCAL_ACTOR,self.url);self.service.thread.join(5)
+        outcome=self.service.get(LOCAL_ACTOR,check['check_id'])
+        self.assertEqual(outcome['status'],'completed',outcome)
+        self.assertEqual({r['case_id'] for r in outcome['results']} & {'FORM-001','FORM-002'},{'FORM-001','FORM-002'})
+        self.assertEqual(native.call_count,2)
+
+    def test_ambiguous_email_discovery_does_not_auto_admit_native_probes(self):
+        def discovery(*args, **kwargs):
+            page=PageSnapshot(self.url, forms=(FormSnapshot(fields=(FieldSnapshot('email'),FieldSnapshot('email'))),), collection_complete=True)
+            return {'pages':[asdict(page)],'limitations':[]}
+        with patch('adaptive_qa.dashboard_worker.discover_configured_target',side_effect=discovery), \
+                patch('adaptive_qa.dashboard_run_worker.run_isolated_document_test',
+                      side_effect=lambda case,*a,**k:TestResult(case,TestStatus.PASSED,.01,'Expected contract satisfied.')), \
+                patch('adaptive_qa.dashboard_run_worker.run_isolated_form_test') as native:
+            check=self.service.submit(LOCAL_ACTOR,self.url);self.service.thread.join(5)
+        self.assertEqual(self.service.get(LOCAL_ACTOR,check['check_id'])['status'],'completed')
+        native.assert_not_called()
 
     def test_cancel_during_discovery_prevents_test_admission_and_duplicate_threads(self):
         entered, release = Event(), Event()

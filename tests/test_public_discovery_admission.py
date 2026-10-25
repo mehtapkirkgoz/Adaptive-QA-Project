@@ -126,15 +126,15 @@ class PublicDiscoveryAdmissionTests(unittest.TestCase):
             job = queue.submit(*args)
             forms = (FormSnapshot(fields=(FieldSnapshot('text', 'Username'), FieldSnapshot('password', 'Password')),
                                   buttons=('Sign in',)),
-                     FormSnapshot(role='search', fields=(FieldSnapshot('search', 'Search products'),), buttons=('Search',)))
+                     FormSnapshot(role='search', fields=(FieldSnapshot('search', 'Search products'),), buttons=('Search',)), FormSnapshot(fields=(FieldSnapshot('email','Email'),)))
             payload = {'pages': [asdict(PageSnapshot(self.settings['base_url'], forms, (), True))], 'limitations': []}
             with patch('adaptive_qa.dashboard_worker.discover_configured_target', return_value=payload):
                 process_discovery_once(queue)
             report = queue.get(*args, job['job_id'])['report']
             forms_bound = [case for case in report['cases'] if case['target_binding'] == 'public_form']
-            self.assertEqual({case['case_id'] for case in forms_bound}, {'LOGIN-001', 'SEARCH-001'})
+            self.assertEqual({case['case_id'] for case in forms_bound}, {'LOGIN-001', 'SEARCH-001', 'FORM-001', 'FORM-002'})
             with patch('socket.getaddrinfo', side_effect=AssertionError('Admission must not connect')):
-                run = runs.submit(*args, job['job_id'], ('LOGIN-001', 'SEARCH-001'))
+                run = runs.submit(*args, job['job_id'], ('LOGIN-001', 'SEARCH-001', 'FORM-001', 'FORM-002'))
             def form_result(case_id, project, **kwargs):
                 self.assertEqual(project.base_url, self.settings['base_url'])
                 return TestResult(case_id, TestStatus.PASSED, 0.1, 'Controlled form result.')
@@ -142,8 +142,8 @@ class PublicDiscoveryAdmissionTests(unittest.TestCase):
                     patch('adaptive_qa.dashboard_run_worker.run_isolated_document_test') as document, \
                     patch('adaptive_qa.dashboard_run_worker.run_isolated_sample_test') as sample:
                 self.assertEqual(process_run_once(runs)['status'], 'completed')
-                self.assertEqual(child.call_count, 2)
+                self.assertEqual(child.call_count, 4)
                 document.assert_not_called(); sample.assert_not_called()
-            self.assertEqual(len(runs.get(*args, run['run_id'])['results']), 2)
+            self.assertEqual(len(runs.get(*args, run['run_id'])['results']), 4)
             with self.assertRaises(ValueError):
                 runs.submit(*args, job['job_id'], ('LOGIN-002',))

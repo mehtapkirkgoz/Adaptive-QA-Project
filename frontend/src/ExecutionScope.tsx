@@ -28,10 +28,10 @@ export function ExecutionScope({settings}: {settings: Settings}) {
     {!settings.configured ? <p>Save target settings to check available execution.</p>
       : settings.discovery_support?.profile === 'public_https'
       ? <p>Read-only HTTPS discovery is available for this saved host scope. It does not sign in or submit forms.
-        The five independent document checks and read-only login/search form checks can run after matching discovery and explicit selection.
+        The five independent document checks, native email validity probes and read-only login/search form checks can run after matching discovery and explicit selection.
         Form checks do not fill fields, sign in or submit a search. API and database execution require separate contracts.</p> : supportsLocalDiscovery(settings)
       ? <p>This saved target supports controlled local discovery. Non-root paths support the five
-        independent document checks and discovered read-only login/search form checks; other UI checks still require a compatible root binding.</p>
+        independent document checks, native email validity probes and discovered read-only login/search form checks; other UI checks still require a compatible root binding.</p>
       : <p>Execution is unavailable for this saved target. Supported discovery profiles are public HTTPS on port 443
         with explicit allowed hosts, or canonical controlled documents at http://127.0.0.1:8000/.
         Other targets can be saved and reviewed but cannot be discovered by this worker.</p>}

@@ -279,6 +279,9 @@ class DashboardRunQueue:
             safe_reasons = {
                 'The source HTML structure check passed; scripts and assets were not evaluated.': 'source_html_passed',
                 'The source HTML structure assertion failed.': 'source_html_assertion_failed',
+                'The native email validity check passed on an isolated control; no form was submitted.': 'native_email_passed',
+                'The native email validity assertion failed.': 'native_email_failed',
+                'No unique editable email control participating in native validation was available.': 'native_email_unavailable',
                 'The bound HTML document could not be loaded.': 'html_document_not_loaded',
                 'Destination policy or rendered coverage was incomplete.': 'destination_or_coverage_blocked',
                 'Document execution was incomplete.': 'document_execution_incomplete',

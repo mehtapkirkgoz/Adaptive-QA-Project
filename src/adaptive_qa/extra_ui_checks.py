@@ -78,7 +78,9 @@ EXPECTED = {
 EXTRA_CASES = tuple(TestCase(case_id, name, TestType.UI,
     ('login', 'search') if case_id == 'LOGIN-009' else
     ('navigation', 'login') if case_id == 'NAV-005' else (feature,),
-    ('Open a fresh controlled fixture', name, 'Check the explicit browser outcome'),
+    (('Inspect the authorized initial HTML', 'Probe a detached email field with scripts disabled and no submission', name)
+     if case_id in ('FORM-001','FORM-002') else
+     ('Open a fresh controlled fixture', name, 'Check the explicit browser outcome')),
     EXPECTED[case_id])
     for case_id, name, feature, behavior in SPECS)
 

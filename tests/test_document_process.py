@@ -90,7 +90,7 @@ class FormProcessTests(DocumentProcessTests):
 
     def test_wrong_case_or_foreign_mapping_is_rejected_before_dispatch(self):
         with patch('adaptive_qa.document_process.subprocess.Popen') as spawn:
-            for case in ('DOC-001', 'LOGIN-002', 'FORM-001'):
+            for case in ('DOC-001', 'LOGIN-002', 'FORM-003'):
                 with self.assertRaises(ValueError):
                     run_isolated_form_test(case, self.project, evidence_directory=self.root)
             with self.assertRaises(ValueError):

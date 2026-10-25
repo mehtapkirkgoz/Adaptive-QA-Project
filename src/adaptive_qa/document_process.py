@@ -19,6 +19,7 @@ from adaptive_qa.document_checks import DOCUMENT_CHECKS
 from adaptive_qa.egress import DestinationGuard, EgressProxy, chromium_proxy_options
 from adaptive_qa.models import TestResult, TestStatus
 from adaptive_qa.form_checks import FORM_CHECKS, FORM_DEFAULTS
+from adaptive_qa.native_form_checks import NATIVE_FORM_CHECKS, NativeFormUnavailable
 from adaptive_qa.form_configuration import decode_form_mappings as _decode_mappings
 from adaptive_qa.ui_bindings import ElementBindingError
 from adaptive_qa.element_models import MatchStatus, ProjectElementMappings
@@ -45,6 +46,7 @@ def _execute(case_id, project, profile, evidence_root, *, family='document', map
     started = perf_counter()
     evidence = evidence_root / (uuid4().hex + '.png')
     denied = 0
+    source_only = family == 'document' or case_id in NATIVE_FORM_CHECKS
     reason = 'Document loading, coverage or execution was incomplete.'
     guard = DestinationGuard(project, local_sample=profile == 'controlled_local', max_requests=100)
     def route_request(route):
@@ -52,7 +54,7 @@ def _execute(case_id, project, profile, evidence_root, *, family='document', map
         try:
             if route.request.method not in ('GET', 'HEAD'):
                 raise ValueError('Read-only methods are required.')
-            if family == 'document' and (route.request.resource_type != 'document' or route.request.frame != page.main_frame):
+            if source_only and (route.request.resource_type != 'document' or route.request.frame != page.main_frame):
                 # Source-HTML assertions intentionally exclude assets and embedded documents.
                 # No request, DNS lookup, script or form action is needed for these checks.
                 route.abort('blockedbyclient')
@@ -67,7 +69,7 @@ def _execute(case_id, project, profile, evidence_root, *, family='document', map
         with EgressProxy(guard) as proxy, sync_playwright() as playwright:
             browser = playwright.chromium.launch(timeout=10000, **chromium_proxy_options(proxy.url))
             try:
-                context = browser.new_context(service_workers='block', accept_downloads=False, java_script_enabled=family != 'document')
+                context = browser.new_context(service_workers='block', accept_downloads=False, java_script_enabled=not source_only)
                 try:
                     context.set_default_timeout(3000)
                     context.set_default_navigation_timeout(10000)
@@ -98,6 +100,8 @@ def _execute(case_id, project, profile, evidence_root, *, family='document', map
                     context.close()
             finally:
                 browser.close()
+    except NativeFormUnavailable:
+        status = TestStatus.BLOCKED
     except ElementBindingError as error:
         status = TestStatus.BLOCKED if error.result.status in (MatchStatus.MISSING, MatchStatus.AMBIGUOUS) else TestStatus.ERROR
     except AssertionError:
@@ -113,6 +117,10 @@ def _execute(case_id, project, profile, evidence_root, *, family='document', map
     if family == 'form':
         messages[TestStatus.PASSED] = 'The read-only form check passed; no form was submitted.'
         messages[TestStatus.FAILED] = 'The read-only form assertion failed.'
+    if case_id in NATIVE_FORM_CHECKS:
+        messages[TestStatus.PASSED] = 'The native email validity check passed on an isolated control; no form was submitted.'
+        messages[TestStatus.FAILED] = 'The native email validity assertion failed.'
+        messages[TestStatus.BLOCKED] = 'No unique editable email control participating in native validation was available.'
     return TestResult(case_id, status, perf_counter()-started, messages[status],
                       evidence_paths=(evidence.as_posix(),) if evidence.is_file() else ())
 

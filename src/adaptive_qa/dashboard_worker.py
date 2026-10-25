@@ -49,6 +49,12 @@ def _report(work, payload):
                             inspected_pages=len(snapshots), configuration_source='job_snapshot')
     report['configuration_fingerprint'] = configuration_fingerprint(work.configuration)
     report['discovery_profile'] = profile
+    # Only select native probes automatically when the saved page has one observed
+    # email field. Runtime independently rechecks its actual unique editable control.
+    report['native_email_candidate'] = any(page.url == config.base_url and
+        sum(field.input_type.casefold() == 'email' and field.visible
+            for form in page.forms if form.visible for field in form.fields) == 1
+        for page in snapshots)
     return report
 
 
