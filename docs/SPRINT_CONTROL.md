@@ -4,6 +4,12 @@ Updated: 2026-10-25
 
 ## Current Authorization
 
+Latest owner instruction (2026-10-25): implement general HTTPS API support.
+Follow HTTPS_API.md for this new product scope. Preserve the accepted local-first
+baseline and review workspace on port 8766. Validate on owned TLS fixtures only;
+no customer requests, paid services or public backend activation are authorized.
+The owner-review waiting notes below describe the previous completed scope.
+
 Latest owner direction: convert to the narrow local-first product described in
 LOCAL_FIRST_PRODUCT.md while preserving existing implementation and sessions.
 Prioritize account-free one-project local use, then signed paid licensing and

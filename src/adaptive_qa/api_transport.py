@@ -2,6 +2,7 @@
 
 from dataclasses import dataclass, field
 import http.client
+import ssl
 from time import monotonic, perf_counter
 from urllib.parse import urlencode
 
@@ -31,8 +32,12 @@ def perform_request(configuration: ApiConfiguration, request: ApiRequest) -> Api
     if not isinstance(configuration, ApiConfiguration) or not isinstance(request, ApiRequest):
         raise ValueError('API configuration and request contracts are required.')
     project = configuration.project
-    if project.base_url.rstrip('/') != 'http://127.0.0.1:8000':
+    public = configuration.execution_profile == 'public_https'
+    if not public and project.base_url.rstrip('/') != 'http://127.0.0.1:8000':
         raise ApiPolicyError('Only the registered local API origin is executable.')
+    if public and (request.method not in (HttpMethod.GET, HttpMethod.HEAD)
+                   or request.use_authentication or request.body_json is not None or request.query):
+        raise ApiPolicyError('Public HTTPS APIs permit only unauthenticated reads without input values.')
     if request.method not in (HttpMethod.GET, HttpMethod.HEAD) and not project.allow_data_changes:
         raise ApiPolicyError('Project policy disables data-changing API operations.')
     headers = {'Accept': 'application/json', 'Connection': 'close'}
@@ -53,12 +58,22 @@ def perform_request(configuration: ApiConfiguration, request: ApiRequest) -> Api
     if len(path) > 8192:
         raise ApiPolicyError('Encoded API request target exceeds the limit.')
     url = project.base_url.rstrip('/') + path
-    guard = DestinationGuard(project, local_sample=True, max_requests=1)
+    guard = DestinationGuard(project, local_sample=not public, max_requests=1)
     target = guard.authorize(url)
     deadline = monotonic() + configuration.timeout_seconds
     connection = http.client.HTTPConnection(target.hostname, target.port, timeout=configuration.timeout_seconds)
+    connection.auto_open = 0  # No implicit hostname connection or reconnect.
     try:
         connection.sock = guard.connect(target, timeout_seconds=min(5, configuration.timeout_seconds))
+        if public:
+            remaining = deadline - monotonic()
+            if remaining <= 0:
+                raise TimeoutError('API operation deadline exceeded.')
+            connection.sock.settimeout(remaining)
+            context = ssl.create_default_context()
+            # SNI and certificate verification use the authorized hostname;
+            # the existing guard connects only to already validated numeric IPs.
+            connection.sock = context.wrap_socket(connection.sock, server_hostname=target.hostname)
         remaining = deadline - monotonic()
         if remaining <= 0:
             raise TimeoutError('API operation deadline exceeded.')

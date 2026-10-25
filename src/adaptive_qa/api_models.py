@@ -77,10 +77,18 @@ class ApiConfiguration:
     bearer_token: SecretReference | None = None
     timeout_seconds: float = 5
     max_response_bytes: int = 65536
+    execution_profile: str = 'controlled_local'
 
     def __post_init__(self):
         if not isinstance(self.project, ProjectConfig):
             raise ValueError('project must be a ProjectConfig.')
+        if self.execution_profile not in ('controlled_local', 'public_https'):
+            raise ValueError('Unknown API execution profile.')
+        if self.execution_profile == 'public_https':
+            from adaptive_qa.discovery_target import validate_discovery_project
+            validate_discovery_project(self.project, 'public_https')
+            if self.bearer_token is not None:
+                raise ValueError('Public HTTPS API authentication is not enabled.')
         parsed = urlsplit(self.project.base_url)
         if parsed.path not in ('', '/') or parsed.query or parsed.fragment:
             raise ValueError('API base_url must be an origin without path, query, or fragment.')
