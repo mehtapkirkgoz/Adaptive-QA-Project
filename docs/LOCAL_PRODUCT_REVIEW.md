@@ -61,6 +61,10 @@ device is documented in [LOCAL_QUICKSTART.md](LOCAL_QUICKSTART.md).
    screenshots. **Stop check** cancels a running check. Refresh never repeats execution.
 4. Open **Test options** only for explicit API/database contracts or manual
    case selection. Those advanced queues retain their independent commands.
+5. The optional HTTPS form workflow requires a known same-origin POST contract,
+   expected boolean response, input references and a result marker. Review shows
+   the exact endpoint before one separately authorized submission. Saving/reviewing
+   never contacts the target; this is not automatic form discovery.
 
 The simple flow derives exact host scope and selects only applicable independent
 read-only inspectors from real discovery. It does not submit forms or authenticate.
@@ -80,9 +84,12 @@ demo remains illustrative and non-executing.
   GET with an explicit origin, path and per-request confirmation. No query/body,
   authentication, writes or redirect following is enabled. It was verified on
   owned TLS fixtures, not customer networks. See [HTTPS_API.md](HTTPS_API.md).
-- Interactive submissions and database execution remain demonstrated on owned
-  controlled local fixtures. The database profile provides a confined SQLite
-  count rather than arbitrary SQL or remote connectors.
+- Reviewed HTTPS login/search submissions are implemented for a narrow same-origin
+  contract: one POST, exact boolean JSON plus a new visible result marker, public-IP
+  guards and verified TLS. Cookies, redirects and arbitrary business workflows are
+  not supported. Browser/queue behavior was verified on owned TLS fixtures; no
+  customer-site submission was performed. The database profile provides a confined
+  SQLite count rather than arbitrary SQL or remote connectors.
 - Signed paid licensing and password-authenticated local administration are
   implemented and verified with disposable keys/accounts. Actual publisher trust,
   customer license issuance, sales/payment operations and customer deployment
@@ -94,3 +101,10 @@ The remaining local milestone is the owner's usage review and any concrete issue
 it reveals. Broader authenticated site/API/database support and commercial rollout
 are separate product scope; this record does not declare them complete or reopen
 closed sprint tracking. Keep existing review sessions intact during follow-up.
+
+In particular, entering a URL does not invoke an AI model that understands and
+executes every business function. Automatic checks select applicable supported
+inspectors, not all 100 catalog cases. Full automatic sign-in/cart/payment journeys,
+arbitrary authenticated API/database execution and commercial license operations
+remain outside this accepted narrow edition. Do not describe the product as complete
+for those broader requirements or assign a precise completion percentage to them.
