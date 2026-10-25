@@ -1,5 +1,10 @@
 # Sprint Control
 
+Latest owner request (2026-10-25): replace the separate simple/advanced views
+with ONE understandable English workspace. Investigate the two real demo checks
+showing zero passes/failures. Follow UNIFIED_WORKSPACE.md as the active work;
+older owner-review waiting notes below are superseded by this explicit request.
+
 Current owner request (2026-10-25): simplify the actual local product to one URL,
 one Test button, managed background discovery/execution and clear pass/fail results.
 Controlled acceptance is complete at a5f446b / Core 40182233682: twelve jobs

@@ -71,6 +71,22 @@ class SiteCheckTests(unittest.TestCase):
             worker.assert_not_called()
         self.assertEqual(self.projects.list(LOCAL_ACTOR),())
 
+    def test_all_execution_errors_are_not_presented_as_completed_success(self):
+        with patch('adaptive_qa.dashboard_worker.discover_configured_target',side_effect=self.discovery), \
+                patch('adaptive_qa.dashboard_run_worker.run_isolated_document_test',
+                      side_effect=lambda case,*a,**k:TestResult(case,TestStatus.ERROR,.01,'private diagnostic')):
+            check=self.service.submit(LOCAL_ACTOR,self.url);self.service.thread.join(5)
+        public=self.service.get(LOCAL_ACTOR,check['check_id'])
+        self.assertEqual(public['status'],'execution_error')
+        self.assertEqual(public['outcome_counts']['passed'],0)
+        self.assertEqual(public['outcome_counts']['failed'],0)
+        self.assertEqual(public['outcome_counts']['error'],5)
+        self.assertEqual(public['diagnostic_code'],'no_reliable_test_outcomes')
+        # Display classification must never alter the owner's original records.
+        persisted=self.service.runs.get(LOCAL_ACTOR,public['project_id'],public['run_id'])
+        self.assertEqual(persisted['status'],'completed')
+        self.assertNotIn('private diagnostic',str(public))
+
     def test_restore_cancels_managed_state_without_replaying_children(self):
         from adaptive_qa.local_backup import create_local_backup, restore_local_backup
         with patch('adaptive_qa.dashboard_worker.discover_configured_target', side_effect=RuntimeError()):

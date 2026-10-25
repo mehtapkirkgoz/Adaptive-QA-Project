@@ -11,7 +11,7 @@ const names: Record<string, string> = {'DOC-001': 'Sayfanın başlığı var mı
 const active = (check: Check | null) => !!check && ['discovering', 'testing', 'cancelling'].includes(check.status);
 const stages: Record<string, string> = {discovering: 'Site inceleniyor…', testing: 'Uygun testler çalıştırılıyor…',
   cancelling: 'İşlem durduruluyor…', completed: 'Kontrol tamamlandı', cancelled: 'Kontrol durduruldu',
-  error: 'Kontrol tamamlanamadı', interrupted: 'Uygulama kapandığı için kontrol yarıda kaldı', no_tests: 'Bu adres için çalıştırılabilir test bulunamadı'};
+  execution_error: 'Testler teknik hata nedeniyle tamamlanamadı', error: 'Kontrol tamamlanamadı', interrupted: 'Uygulama kapandığı için kontrol yarıda kaldı', no_tests: 'Bu adres için çalıştırılabilir test bulunamadı'};
 
 export function SiteCheck({request, onAdvanced}: Props) {
   const [url, setUrl] = useState(''), [check, setCheck] = useState<Check | null>(null);
@@ -83,7 +83,7 @@ export function SiteCheck({request, onAdvanced}: Props) {
         : check.status === 'testing' ? `${results.length} / ${check.requested ?? 0} test sonucu hazır. Kontroller arka planda sürüyor.` : 'Güvenli şekilde durduruluyor…'}</p>}
       <div className="site-check-totals"><div><strong>{passed.length}</strong><span>Geçti</span></div><div><strong>{failed.length}</strong><span>Başarısız</span></div>
         <div><strong>{other.length}</strong><span>Tamamlanamadı</span></div><div><strong>{check.inspected_pages ?? '—'}</strong><span>İncelenen sayfa</span></div></div>
-      {!active(check) && ['error', 'interrupted'].includes(check.status) && <p className="message error">Siteye erişim, güvenlik sınırı veya çalışma ortamı nedeniyle işlem tamamlanamadı. Bu sonuç sitenin hatalı olduğunu göstermez. Kaydedilmiş sonuçlar aşağıda; yeniden denemek için Test et düğmesini kullan.</p>}
+      {!active(check) && ['error', 'interrupted', 'execution_error'].includes(check.status) && <p className="message error">Siteye erişim, güvenlik sınırı veya çalışma ortamı nedeniyle işlem tamamlanamadı. Bu sonuç sitenin hatalı olduğunu göstermez. Kaydedilmiş sonuçlar aşağıda; yeniden denemek için Test et düğmesini kullan.</p>}
       {groups.map(group => !!group.items.length && <section className={`site-check-group ${group.kind}`} key={group.kind}><h3>{group.title} · {group.items.length}</h3>
         {group.items.map(result => <article key={result.case_id}><strong>{names[result.case_id] ?? check.names?.[result.case_id] ?? result.case_id}</strong>
           <p>{result.status === 'passed' ? 'Bu kontrolün beklenen koşulları sağlandı.' : result.status === 'failed'

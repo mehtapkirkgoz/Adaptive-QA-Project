@@ -71,6 +71,12 @@ class SiteChecks:
             run = self.runs.get(actor, row['project_id'], row['run_id'])
             out['results'] = run['results']
             out['run_id'] = run['run_id']
+            if status == 'completed' and run['results'] and all(r['status'] in ('error', 'blocked', 'cancelled') for r in run['results']):
+                out['status'] = 'execution_error'
+                out['diagnostic_code'] = 'no_reliable_test_outcomes'
+            out['outcome_counts'] = {key: sum(r['status'] == key for r in run['results'])
+                                     for key in ('passed','failed','error','blocked','cancelled','skipped')}
+
         return out
 
     def list(self, actor):
