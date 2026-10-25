@@ -12,7 +12,7 @@ existing guards. This is product follow-up, not a reopened sprint.
   profile; deny private/mixed DNS answers and unsupported request authority.
 - [x] Connect owner-scoped saved settings, confirmation, queue and worker profiles.
 - [x] Expose the profile in the local UI with accurate endpoint/scope guidance.
-- [ ] Prove saved UI/worker execution and failure boundaries on controlled TLS
+- [x] Prove saved UI/worker execution and failure boundaries on controlled TLS
   fixtures; retain existing free/licensed queue/cancellation/recovery checks.
 - [ ] Complete exact-commit CI/artifact acceptance and current usage documentation.
 
@@ -42,3 +42,52 @@ against an older running server. Existing review sessions are not restarted.
 Queue history uses the neutral explicit_saved_api scope rather than falsely
 labelling public jobs loopback-only. Real public-profile UI/worker TLS proof is next;
 no customer or public test target has been contacted.
+
+
+## Configure and Execute
+
+In the updated free/licensed local dashboard, save an HTTPS origin as the project
+Target URL, without a path/query, and list its exact allowed host. Enable the
+explicit API response binding and select Public HTTPS. Enter the endpoint path
+separately. The default response contract checks HTTP status only; optionally
+select HTTP status and JSON boolean for one top-level boolean assertion.
+Expected statuses are 2xx or 4xx. A status-only pass does not validate the body or
+claim the whole site works. The dashboard exposes GET; the typed transport also
+retains HEAD support for explicit internal status-only contracts.
+
+Save, review the full saved endpoint, then explicitly confirm one request. Run a
+separate one-shot worker against the same workspace:
+
+```powershell
+python -m adaptive_qa dashboard free-api-once --database C:/QA/workspace/projects.sqlite
+python -m adaptive_qa local api-once --workspace C:/QA/workspace --trusted-keys C:/QA/publisher-public-keys.json
+```
+
+Choose the command for your edition; the three-queue worker cycle does not process
+API jobs. New server processes advertise API binding profiles. An older running
+server does not gain this Python feature from refreshing its UI assets; the new UI
+fails closed when that capability is absent. Preserve active sessions/work and
+start the updated runtime after completing them. No existing preview is restarted
+by this change. The public Pages demo stays non-executing.
+
+## End-to-End TLS Evidence
+
+The new script exercises the actual free/licensed CLI and supervised API child,
+using a separate test entry point to route a validated public-looking destination
+to an owned TLS socket. Temporary CA trust is supplied only inside that test child;
+production has no fixture address/CA override in its project configuration.
+The routing tool is excluded from the wheel and checked during release verification.
+
+Both source UI editions passed six explicitly confirmed jobs: JSON-positive and
+404-negative contracts, redirect failure without follow, untrusted certificate
+failure before HTTP, cancellation without execution, and non-JSON status-only
+success. Each made exactly four owned HTTP requests, with no Authorization,
+Cookie or Proxy-Authorization headers. Unsaved edits clear confirmation, old
+backend capability metadata fails closed, and 390px layout was inspected. No
+external UI requests or page errors occurred. Sixty-four API-focused tests pass.
+
+Public jobs retain only status and fixed outcome-reason codes. TLS verification,
+destination policy, HTTP status and JSON contract failures have safe UI labels;
+raw worker exceptions/response bodies/headers are not persisted. Legacy local
+job result shapes stay unchanged. Installed package proof and exact-commit remote
+CI/artifact acceptance remain pending after this implementation increment.

@@ -35,8 +35,8 @@ def check_release(directory):
     if wheel is None:
         raise ValueError('The application wheel is missing.')
     with zipfile.ZipFile(wheel) as package:
-        if any('issue_local_license' in name for name in package.namelist()):
-            raise ValueError('Publisher issuance tools must not be in the customer wheel.')
+        if any('issue_local_license' in name or 'check_https_api' in name for name in package.namelist()):
+            raise ValueError('Publisher issuance and fixture-routing tools must not be in the customer wheel.')
     with zipfile.ZipFile(directory / 'dashboard.zip') as assets:
         if 'index.html' not in assets.namelist() or assets.testzip() is not None:
             raise ValueError('The dashboard archive is incomplete or corrupt.')
@@ -152,6 +152,25 @@ stage('complete')
                 raise ValueError('Installed licensed browser/recovery evidence is incomplete.')
             output = ROOT/'artifacts/local-license'; output.mkdir(parents=True,exist_ok=True)
             (output/'installed-ui.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
+            subprocess.run([sys.executable,str(ROOT/'scripts/check_https_api.py'),'--licensed'],cwd=temporary,
+                env=browser_environment,check=True,timeout=180)
+            https_report=json.loads((Path(temporary)/'artifacts/https-api/licensed.json').read_text(encoding='utf-8'))
+            if (not https_report.get('installed_wheel') or not https_report.get('licensed')
+                    or https_report.get('passed_status_contracts') != 3
+                    or not https_report.get('status_only_non_json_passed')
+                    or not https_report.get('redirect_failed_without_follow')
+                    or not https_report.get('untrusted_tls_failed_before_http')
+                    or not https_report.get('cancelled_without_retry')
+                    or https_report.get('actual_fixture_http_requests') != 4
+                    or https_report.get('explicitly_confirmed_jobs') != 6
+                    or https_report.get('secret_headers_sent') is not False
+                    or not https_report.get('unsaved_confirmation_cleared')
+                    or not https_report.get('older_backend_capability_fail_closed')
+                    or https_report.get('ui_external_requests') or https_report.get('page_errors')
+                    or https_report.get('test_socket_override') != 'owned_fixture_only'):
+                raise ValueError('Installed HTTPS operator evidence is incomplete.')
+            https_output=ROOT/'artifacts/https-api';https_output.mkdir(parents=True,exist_ok=True)
+            (https_output/'installed-licensed.json').write_text(json.dumps(https_report,indent=2)+'\n',encoding='utf-8')
     print(json.dumps({'source_commit': revision, 'files_verified': len(manifest['files']),
                       'installed_catalog': {'ui': 51, 'api': 34, 'database': 15},
                       'activation_enabled': False}, indent=2))

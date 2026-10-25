@@ -17,7 +17,8 @@ from cryptography.x509.oid import NameOID
 
 from adaptive_qa.api_models import ApiConfiguration, ApiRequest, HttpMethod
 from adaptive_qa.api_process import decode_api_input, encode_api_input
-from adaptive_qa.api_transport import ApiPolicyError, perform_request
+from adaptive_qa.api_transport import ApiPolicyError, perform_request, run_api_case
+from adaptive_qa.models import TestStatus
 from adaptive_qa.config import ProjectConfig
 from adaptive_qa.egress import DestinationGuard
 from adaptive_qa.local_api_review import review_local_api, run_reviewed_local_api
@@ -66,6 +67,7 @@ class HttpsApiTests(unittest.TestCase):
             with patch('adaptive_qa.egress.resolve_with_deadline', return_value=addresses), \
                     patch.object(DestinationGuard, 'connect') as connect:
                 with self.assertRaises(ValueError):perform_request(self.config, self.case.request)
+                self.assertEqual(run_api_case(self.case,self.config).status,TestStatus.BLOCKED)
                 connect.assert_not_called()
 
     def tls_harness(self):

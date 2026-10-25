@@ -71,12 +71,31 @@ class SavedHttpsApiTests(unittest.TestCase):
         with patch('adaptive_qa.api_queue.run_reviewed_local_api',return_value=TestResult('LOCAL-API-READ',TestStatus.PASSED,0,'private response')) as execute:
             self.assertEqual(process_local_api_once(queue)['status'],'completed')
         self.assertEqual(execute.call_args.args[0].profile,'public_https')
-        self.assertEqual(queue.get(LOCAL_ACTOR,self.pid,job['job_id'])['result'],{'status':'passed'})
+        self.assertEqual(queue.get(LOCAL_ACTOR,self.pid,job['job_id'])['result'],{'status':'passed','reason':'contract_satisfied'})
         queue.submit(LOCAL_ACTOR,self.pid,digest)
         self.projects.save_configuration(LOCAL_ACTOR,self.pid,dict(self.settings,local_api_binding=dict(self.binding,path='/changed')))
         with patch('adaptive_qa.api_queue.run_reviewed_local_api') as execute:
             self.assertIsNone(process_local_api_once(queue));execute.assert_not_called()
         with self.assertRaises(ValueError):queue.submit(LOCAL_ACTOR,self.pid,digest)
+
+    def test_unknown_worker_errors_never_persist_private_text(self):
+        self.projects.save_configuration(LOCAL_ACTOR,self.pid,self.settings)
+        queue=LocalApiQueue(self.projects)
+        job=queue.submit(LOCAL_ACTOR,self.pid,review_saved_api(self.projects,LOCAL_ACTOR,self.pid)['contract_fingerprint'])
+        with patch('adaptive_qa.api_queue.run_reviewed_local_api',return_value=TestResult('LOCAL-API-READ',TestStatus.ERROR,0,'private response token')):
+            process_local_api_once(queue)
+        self.assertEqual(queue.get(LOCAL_ACTOR,self.pid,job['job_id'])['result'],{'status':'error','reason':'execution_error'})
+
+    def test_status_only_is_an_explicit_body_independent_public_contract(self):
+        binding=dict(profile='public_https',path='/plain',expected_status=200,response_mode='status_only')
+        self.projects.save_configuration(LOCAL_ACTOR,self.pid,dict(self.settings,local_api_binding=binding))
+        queue=LocalApiQueue(self.projects)
+        queue.submit(LOCAL_ACTOR,self.pid,review_saved_api(self.projects,LOCAL_ACTOR,self.pid)['contract_fingerprint'])
+        claim=queue.claim_next()
+        self.assertFalse(claim.review.case.expect_json)
+        self.assertEqual(claim.review.case.checks,())
+        for bad in (dict(binding,response_mode='anything'),dict(binding,json_field='ignored'),dict(binding,profile='controlled_local')):
+            with self.assertRaises(ValueError):self.projects.save_configuration(LOCAL_ACTOR,self.pid,dict(self.settings,local_api_binding=bad))
 
     def test_offline_restore_preserves_profile_and_cancels_queued_work(self):
         from adaptive_qa.dashboard_runs import DashboardRunQueue

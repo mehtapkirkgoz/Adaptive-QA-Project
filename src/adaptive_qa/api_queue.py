@@ -12,6 +12,18 @@ from adaptive_qa.licensing import LicenseError
 from adaptive_qa.worker_lock import worker_lock
 
 
+def _public_reason(result):
+    if result.status == TestStatus.PASSED:return 'contract_satisfied'
+    if result.status == TestStatus.CANCELLED:return 'cancelled'
+    if result.message == 'API destination authorization failed.':return 'destination_blocked'
+    if result.status == TestStatus.BLOCKED:return 'policy_blocked'
+    if result.message == 'API TLS certificate verification failed.':return 'tls_verification_failed'
+    if result.message.startswith('HTTP status mismatch:'):return 'http_status_mismatch'
+    if result.message == 'The JSON response contract was not satisfied.' or result.message.startswith('JSON assertion indexes failed:'):
+        return 'json_contract_failed'
+    return 'execution_error'
+
+
 @dataclass(frozen=True)
 class ApiWork:
     job_id: str
@@ -133,8 +145,11 @@ class LocalApiQueue:
             except (ValueError,TypeError,KeyError,LookupError): status='error'; outcome='error'
             if row['status']=='cancel_requested' or result.status==TestStatus.CANCELLED or (hasattr(self.projects,'execution_allowed') and not self.projects.execution_allowed()):
                 status='cancelled'; outcome='cancelled'
+            public_result=dict(status=outcome)
+            if work.review.profile=='public_https':
+                public_result['reason']='cancelled' if status=='cancelled' else 'configuration_changed' if status=='error' else _public_reason(result)
             c.execute('UPDATE dashboard_api_jobs SET status=?,result_json=?,claim_token=NULL WHERE job_id=?',
-                (status,json.dumps(dict(status=outcome)),work.job_id))
+                (status,json.dumps(public_result),work.job_id))
             return status
 
     def recover_interrupted(self):

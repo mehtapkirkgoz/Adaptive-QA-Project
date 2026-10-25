@@ -1,7 +1,14 @@
 import {useEffect, useState} from 'react';
 import type {LocalApiBinding} from './LocalApiEditor';
 import {useLocalJobHistory} from './useLocalJobHistory';
-type Job = {job_id: string; status: string; result: {status: string} | null};
+type Job = {job_id: string; status: string; result: {status: string; reason?: string} | null};
+const reasons: Record<string,string> = {
+  contract_satisfied:'The saved response contract passed.', tls_verification_failed:'TLS certificate verification failed.',
+  http_status_mismatch:'HTTP status did not match the saved expectation.', json_contract_failed:'The JSON response contract failed.',
+  policy_blocked:'Execution was blocked by the API policy.', cancelled:'Execution was cancelled.',
+  destination_blocked:'Destination authorization failed. Check the saved host and public-IP scope.',
+  configuration_changed:'Saved settings changed before completion.', execution_error:'The bounded API operation could not complete.',
+};
 type Review = {execution_authorized: false; contract_fingerprint: string};
 type Props = {projectId: string; target: string; binding: LocalApiBinding; unsaved: boolean; licensed: boolean;
   request: <T>(path: string, method?: string, body?: unknown) => Promise<T>};
@@ -34,7 +41,7 @@ export function LocalApiPanel({projectId, target, binding, unsaved, licensed, re
   }
   return <section className="plan-review" aria-label="Explicit API execution">
     <h3>Explicit API execution</h3>
-    <p>Saved GET <code style={{overflowWrap:'anywhere'}}>{publicHttps ? target.replace(/\/$/,'') + binding.path : binding.path}</code> · HTTP {binding.expected_status} · <code>{binding.json_field} = {String(binding.expected_boolean)}</code></p>
+    <p>Saved GET <code style={{overflowWrap:'anywhere'}}>{publicHttps ? target.replace(/\/$/,'') + binding.path : binding.path}</code> · HTTP {binding.expected_status} · {binding.response_mode === 'status_only' ? 'Status-only contract' : <code>{binding.json_field} = {String(binding.expected_boolean)}</code>}</p>
     <p className="hint">{publicHttps ? 'Public HTTPS on port 443 with validated public IPs and verified TLS. Redirects are not followed.' : 'Owned loopback API only.'} Review does not contact the endpoint. A separate local worker executes one confirmed request; no authentication or request values are used.</p>
     {unsaved && <p role="status">Save configuration changes before reviewing API execution.</p>}
     <button disabled={busy || unsaved} onClick={() => void inspect()}>Review saved API binding</button>
@@ -51,7 +58,7 @@ export function LocalApiPanel({projectId, target, binding, unsaved, licensed, re
     <button disabled={busy || historyLoading} onClick={refreshHistory}>Refresh API history</button>
     {historyLoading && <p role="status">Loading API history…</p>}
     {historyReady && !jobs.length && <p className="hint">No API jobs yet.</p>}
-    {jobs.map(job => <div className="discovery-job" key={job.job_id}><span><code>{job.job_id.slice(0, 8)}</code><strong>{job.status.replaceAll('_', ' ')}</strong>{job.result && <small>API result: {job.result.status}</small>}</span>
+    {jobs.map(job => <div className="discovery-job" key={job.job_id}><span><code>{job.job_id.slice(0, 8)}</code><strong>{job.status.replaceAll('_', ' ')}</strong>{job.result && <small>API result: {job.result.status}</small>}{job.result?.reason && <small>{reasons[job.result.reason] ?? 'The API operation returned an unavailable outcome reason.'}</small>}</span>
       {active(job) && <button disabled={busy || job.status === 'cancel_requested'} onClick={() => {
         setBusy(true); setError('');
         void request<Job>(base + '/jobs/' + job.job_id + '/cancel', 'POST', {}).then(updated => setJobs(previous => previous.map(item => item.job_id === updated.job_id ? updated : item)))

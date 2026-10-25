@@ -15,6 +15,10 @@ class ApiPolicyError(ValueError):
     pass
 
 
+class ApiDestinationError(ApiPolicyError):
+    pass
+
+
 @dataclass(frozen=True)
 class ApiExchange:
     status: int
@@ -59,7 +63,10 @@ def perform_request(configuration: ApiConfiguration, request: ApiRequest) -> Api
         raise ApiPolicyError('Encoded API request target exceeds the limit.')
     url = project.base_url.rstrip('/') + path
     guard = DestinationGuard(project, local_sample=not public, max_requests=1)
-    target = guard.authorize(url)
+    try:
+        target = guard.authorize(url)
+    except ValueError:
+        raise ApiDestinationError('API destination authorization failed.') from None
     deadline = monotonic() + configuration.timeout_seconds
     connection = http.client.HTTPConnection(target.hostname, target.port, timeout=configuration.timeout_seconds)
     connection.auto_open = 0  # No implicit hostname connection or reconnect.
@@ -161,8 +168,12 @@ def run_api_case(case: ApiCase, configuration: ApiConfiguration | None) -> TestR
             status, message = TestStatus.FAILED, 'JSON assertion indexes failed: ' + ', '.join(map(str, failures)) + '.'
         else:
             status, message = TestStatus.PASSED, 'The configured API response satisfied all explicit checks.'
+    except ApiDestinationError:
+        status, message = TestStatus.BLOCKED, 'API destination authorization failed.'
     except ApiPolicyError:
         status, message = TestStatus.BLOCKED, 'API configuration, authentication, or operation policy blocked execution.'
+    except ssl.SSLCertVerificationError:
+        status, message = TestStatus.ERROR, 'API TLS certificate verification failed.'
     except (OSError, ValueError, http.client.HTTPException):
         status, message = TestStatus.ERROR, 'API transport or bounded response processing failed.'
     return TestResult(case_id, status, perf_counter() - started, message)
