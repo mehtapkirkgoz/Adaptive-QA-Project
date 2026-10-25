@@ -1,5 +1,18 @@
 # Website Access and Inspection Diagnostics
 
+Accepted checkpoint (2026-10-26): 1ebed8e / Core 40240530847 completed all twelve
+jobs. All twelve downloaded archives matched source identity, size, SHA-256 and
+ZIP checks; 222 PNGs validated. Source free/licensed and installed-licensed reports
+confirm the DNS explanation, and owned redirect reports confirm same-origin success
+and foreign-scope rejection without canary contact. Installed form/browser/queue
+evidence remains intact. See [CI evidence](evidence/website-access-ci-1ebed8e.json).
+
+The existing 8766 preview now runs the verified installed 1ebed8e bundle with its
+own versioned dashboard. A fresh backup and row digests were taken before restart;
+all twelve prior tables matched afterward. The served index/assets were checked,
+including the new access explanation. No target work was started or historical
+result rewritten. See [local evidence](evidence/website-access-local-1ebed8e.json).
+
 Owner finding, 2026-10-26: ordinary submitted URLs appeared unusable while QA demo
 sites worked. The automatic flow has no QA-domain allowlist. It derives exact host
 scope from the submitted HTTPS URL and retains public-IP, TLS, request and deadline
@@ -45,6 +58,8 @@ The 914-test regression passed with one existing Windows permission skip. The fi
 diagnostic cancellation test also passed in the focused eleven-test queue suite;
 nineteen destination-guard tests and both real redirect scenarios passed.
 
-Next: complete regression and exact-commit source/installed CI evidence, then upgrade
-the preserved preview. No protected-site bypass, private target exception, automatic
-sign-in, customer write test or external backend activation is authorized by this fix.
+This scoped finding is technically ready for owner review. The recurring follow-up
+stays active and usage-gated for new CI failures or concrete owner findings; remain
+quiet on unchanged state instead of repeating accepted checks or expanding scope.
+No protected-site bypass, private target exception, automatic sign-in, customer write
+test or external backend activation is authorized by this fix.

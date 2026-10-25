@@ -1,6 +1,13 @@
 # Local Product Review
 
-Current preserved-preview implementation: `020450a028f43a655a7088cc9f8d2baa0b65a556`.
+Current preserved-preview implementation: `1ebed8e7a05b5b25e0b3cae82b84a78ccabbc6e7`.
+The accepted [website access fix](WEBSITE_ACCESS.md) now explains DNS, TLS,
+connection, timeout, refused HTTP access and out-of-scope redirects. Its twelve CI
+archives and 222 PNGs were verified; upgrading preserved every prior row in twelve
+tables and started no target work. Historical error causes are not retroactively
+invented. Refresh the existing page to load this accepted version.
+
+Previous preserved-preview implementation: `020450a028f43a655a7088cc9f8d2baa0b65a556`.
 The optional reviewed HTTPS form workflow is accepted with twelve CI archives and
 222 validated PNGs. [Current scope and evidence](PUBLIC_FORM_PROPOSALS.md) describes
 its strict single-submission contract and the verification-only follow-up. The same

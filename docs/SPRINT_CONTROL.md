@@ -1,5 +1,11 @@
 # Sprint Control
 
+Latest accepted delivery (2026-10-26): website access diagnostics at 1ebed8e / Core
+40240530847, twelve archives and 222 PNGs verified. The preserved owner preview on
+8766 now uses that installed bundle; twelve prior table digests are unchanged.
+Follow [WEBSITE_ACCESS.md](WEBSITE_ACCESS.md). Continue usage-gated CI/concrete-finding
+follow-up, staying quiet on unchanged state. Older pending notes below are historical.
+
 Current owner finding (2026-10-26): ordinary website checks failed without an
 actionable reason. Follow [WEBSITE_ACCESS.md](WEBSITE_ACCESS.md) for the active
 diagnostic/compatibility fix and its bounded public-demo proof. Preserve the running
