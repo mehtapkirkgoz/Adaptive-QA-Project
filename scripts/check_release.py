@@ -186,6 +186,17 @@ stage('complete')
                 raise ValueError('Installed one-button site check evidence is incomplete.')
             simple_output=ROOT/'artifacts/site-check';simple_output.mkdir(parents=True,exist_ok=True)
             (simple_output/'installed-licensed.json').write_text(json.dumps(simple,indent=2)+'\n',encoding='utf-8')
+            subprocess.run([sys.executable,str(ROOT/'scripts/check_html_inspection.py')],cwd=temporary,
+                env=browser_environment,check=True,timeout=120)
+            html=json.loads((Path(temporary)/'artifacts/html-inspection/report.json').read_text(encoding='utf-8'))
+            if (not html.get('installed_wheel') or html.get('source_html_passes')!=5
+                    or html.get('source_html_assertion_failures')!=2 or not html.get('redirect_blocked')
+                    or not html.get('rendered_form_coverage_still_fails_closed')
+                    or not html.get('scripts_assets_and_frames_excluded') or html.get('mutation_requests')!=0):
+                raise ValueError('Installed source HTML boundary evidence is incomplete.')
+            html_output=ROOT/'artifacts/html-inspection';html_output.mkdir(parents=True,exist_ok=True)
+            (html_output/'installed.json').write_text(json.dumps(html,indent=2)+'\n',encoding='utf-8')
+
 
     print(json.dumps({'source_commit': revision, 'files_verified': len(manifest['files']),
                       'installed_catalog': {'ui': 51, 'api': 34, 'database': 15},

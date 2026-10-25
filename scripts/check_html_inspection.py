@@ -1,9 +1,16 @@
 """Owned real-child proof: HTML structure checks exclude assets without relaxing egress."""
 import json
+import os
+import sys
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from threading import Thread
+
+INSTALLED_SITE=os.environ.get('ADAPTIVE_QA_VERIFY_SITE')
+if INSTALLED_SITE: sys.path.insert(0,str(Path(INSTALLED_SITE).resolve(strict=True)))
+import adaptive_qa
+if INSTALLED_SITE: assert Path(adaptive_qa.__file__).resolve().is_relative_to(Path(INSTALLED_SITE).resolve())
 
 from adaptive_qa.config import ProjectConfig
 from adaptive_qa.document_process import run_isolated_document_test, run_isolated_form_test
@@ -48,7 +55,7 @@ def main():
             form=run_isolated_form_test('LOGIN-001',project('/valid.html'),profile='controlled_local',evidence_directory=root)
             assert form.status==TestStatus.ERROR,(form.status,form.message)
             assert not writes and '/mutation' not in requests and '/script.js' not in requests[:7] and '/embedded' not in requests[:7]
-            report=dict(source_html_passes=5,source_html_assertion_failures=2,redirect_blocked=True,
+            report=dict(installed_wheel=bool(INSTALLED_SITE),source_html_passes=5,source_html_assertion_failures=2,redirect_blocked=True,
                 rendered_form_coverage_still_fails_closed=True,scripts_assets_and_frames_excluded=True,
                 mutation_requests=0,private_destination_not_contacted=True,scope='owned_controlled_fixture')
             output=Path('artifacts/html-inspection');output.mkdir(parents=True,exist_ok=True)

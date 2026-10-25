@@ -13,6 +13,7 @@ from adaptive_qa.dashboard_evidence import validate_png
 def main():
     good = '<html lang="en"><title>Independent information</title><h1 id="main">Information</h1><a href="#main">Read</a></html>'
     pages = {'/information.html': good, '/shop.html': good.replace('Information', 'Store'),
+             '/blocked-invalid.html': good.replace('<title>Independent information</title>', '<title> </title>')+'<script src="http://127.0.0.1:8001/forbidden.js"></script>',
              '/blocked.html': good+'<script src="http://127.0.0.1:8001/forbidden.js"></script>'}
     defects = {'DOC-001': good.replace('<title>Independent information</title>', '<title> </title>'),
                'DOC-002': good.replace('lang="en"', ''),
@@ -55,13 +56,14 @@ def main():
                 for case in DOCUMENT_CHECKS: run(case,path,'passed')
             for case in defects: run(case,'/negative-'+case+'.html','failed')
             run('DOC-001','/redirect.html','error')
-            run('DOC-001','/blocked.html','error')
+            run('DOC-001','/blocked.html','passed')
+            run('DOC-001','/blocked-invalid.html','failed')
         assert contacts=={'canary':0,'writes':0}
     finally:
         for server in servers: server.shutdown();server.server_close()
         for thread in threads: thread.join(timeout=5)
     output=Path('artifacts/matching');output.mkdir(parents=True,exist_ok=True)
-    report={'outcomes':outcomes,'contacts':contacts,'public_https_tested':False,'dashboard_activation':False}
+    report={'source_html_excludes_scripts':True,'outcomes':outcomes,'contacts':contacts,'public_https_tested':False,'dashboard_activation':False}
     (output/'configured-document.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
     print(json.dumps({'checks':len(outcomes),'contacts':contacts}))
 

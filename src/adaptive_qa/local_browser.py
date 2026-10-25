@@ -158,6 +158,14 @@ def run_sample_test(case_id: str, *, site: str = "root", evidence_directory=None
     evidence_directory.mkdir(parents=True, exist_ok=True)
     evidence_path = evidence_directory / f"{uuid4().hex}.png"
 
+    from adaptive_qa.document_checks import DOCUMENT_CHECKS
+    if case_id in DOCUMENT_CHECKS:
+        from adaptive_qa.document_process import _execute
+        path = document_path if document_path is not None else SITE_PATHS[site]
+        project = ProjectConfig('local-demo', 'Local Sample Application',
+            'http://127.0.0.1:8000'+path, ('127.0.0.1',))
+        return _execute(case_id, project, 'controlled_local', evidence_directory.resolve())
+
     try:
         if document_path is not None:
             _verify_sample_page(evidence_path, case_id=case_id, document_path=document_path)

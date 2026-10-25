@@ -70,3 +70,14 @@ The free legacy API/database/session/late-response browser proof passed in the
 unified inline controls. Real free/licensed one-button proofs also passed during
 implementation. Final compact-layout/state proof, installed wheel verification,
 exact-commit CI/artifacts and safe owner-preview transition remain pending.
+
+## CI Contract Follow-up
+
+The first f5510f2 run (Core 40193262094) failed the older configured-document
+fixture expectation: it required an ERROR solely because an off-host script was
+excluded. This checkpoint is not accepted. The expectation now explicitly tests
+the source-HTML contract: valid HTML with an excluded script passes, invalid HTML
+with that same script fails, and the off-host canary receives zero requests.
+Bound navigation redirects still error. Direct owned-sample DOC execution now
+uses the same source-HTML inspector as managed/configured runs, keeping contract
+fingerprints and all entry points consistent. No broader egress was enabled.
