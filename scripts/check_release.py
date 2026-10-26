@@ -235,6 +235,15 @@ stage('complete')
                     or demo_ui.get('external_demo_contacted')):
                 raise ValueError('Installed managed demo login UI evidence is incomplete.')
             (demo_output/'installed-ui.json').write_text(json.dumps(demo_ui,indent=2)+'\n',encoding='utf-8')
+            subprocess.run([sys.executable,str(ROOT/'scripts/check_browser_reviews_ui.py')],cwd=temporary,
+                env=browser_environment,check=True,timeout=90)
+            reviews=json.loads((Path(temporary)/'artifacts/unified-reports/installed.json').read_text(encoding='utf-8'))
+            if (not reviews.get('installed_wheel') or not all(reviews.get(key) for key in
+                    ('same_workspace','selection_and_filter','escaped_evidence','reload_no_replay','prior_configuration_preserved'))
+                    or any(reviews.get(key) for key in ('external_requests','mutation_requests','page_errors','mobile_overflow'))):
+                raise ValueError('Installed integrated browser-review evidence is incomplete.')
+            reviews_output=ROOT/'artifacts/unified-reports';reviews_output.mkdir(parents=True,exist_ok=True)
+            (reviews_output/'installed.json').write_text(json.dumps(reviews,indent=2)+'\n',encoding='utf-8')
             subprocess.run([sys.executable,str(ROOT/'scripts/check_public_submission.py')],cwd=temporary,
                 env=browser_environment,check=True,timeout=120)
             public=json.loads((Path(temporary)/'artifacts/processes/public-submission.json').read_text(encoding='utf-8'))

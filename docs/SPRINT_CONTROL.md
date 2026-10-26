@@ -1,5 +1,12 @@
 # Sprint Control
 
+Active owner request (2026-10-27): integrate all existing local browser reviews
+into the main workspace; follow [UNIFIED_REPORTS.md](UNIFIED_REPORTS.md). This is
+post-sprint product work, not a new sprint. Sprint 10 remains closed. Keep imported
+observations explicitly separate from engine verdicts and preserve owner data.
+The real The Internet demonstration is already accepted at 3d9db06; earlier
+unfinished demo notes below are historical and do not authorize replay.
+
 Active demo finding (2026-10-26): badd2e4 passed twelve CI jobs/archives and was
 installed with preserved prior rows. Its three real demo scenarios returned
 technical errors and remain recorded. Current work corrects the verified Sinatra

@@ -1,6 +1,7 @@
 import {useEffect, useRef, useState} from 'react';
 import type {ReactNode} from 'react';
 import {DemoLoginPanel} from './DemoLoginPanel';
+import {BrowserReviewPanel} from './BrowserReviewPanel';
 
 type Result = {case_id: string; status: string; message: string; reason_code?: string; duration_seconds: number; evidence_id?: string};
 type Check = {check_id: string; project_id: string; url: string; status: string; inspected_pages?: number;
@@ -86,7 +87,7 @@ export function SiteCheck({request, tools, feedback, onOptionsOpen, onCheckCreat
   const groups = [{title: 'Passed checks', items: passed, kind: 'passed'},
     {title: 'Failed checks', items: failed, kind: 'failed'}, {title: 'Not evaluated', items: other, kind: 'other'}];
   return <div className="site-check-shell"><header className="site-check-header"><a className="brand" href="/"> <span className="mark">AQ</span> Adaptive QA</a>
-    <div className="header-actions"><span className="badge">{edition}</span>{onSignOut && <button onClick={onSignOut}>Sign out</button>}</div></header>
+    <div className="header-actions"><a href="#reports">Reports</a><span className="badge">{edition}</span>{onSignOut && <button onClick={onSignOut}>Sign out</button>}</div></header>
     <main className="site-check-main"><section className="site-check-hero"><p className="eyebrow">YOUR WEBSITE, CLEAR RESULTS</p>
       <h1>Check your website.</h1><p>Enter a website address. We inspect it, choose applicable checks and show what passed, what failed and what could not be evaluated.</p>
       <form onSubmit={event => {event.preventDefault(); void start();}} className="site-check-form">
@@ -127,6 +128,7 @@ export function SiteCheck({request, tools, feedback, onOptionsOpen, onCheckCreat
         {check.not_run !== undefined && ` ${check.not_run} catalog checks were not included in this run.`}
         {unrecorded > 0 && ` ${unrecorded} selected checks produced no result.`} Sign-in, API and database checks require additional configuration.</p></details>}
     </section>}
+    <BrowserReviewPanel request={request}/>
     <DemoLoginPanel projectId={check?.project_id ?? demoProjectId} request={request} hasUnsavedChanges={hasUnsavedOptions} onProjectCreated={onCheckCreated}/>
     <details className="workspace-options" open={location.hash === '#advanced' ? true : undefined} onToggle={event => {if (event.currentTarget.open) onOptionsOpen(check?.project_id);}}>
       <summary><strong>Test options</strong><span>Optional saved sites, API and database settings</span></summary>

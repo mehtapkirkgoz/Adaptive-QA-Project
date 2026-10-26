@@ -1,5 +1,12 @@
 # Local-First Product Conversion
 
+Active owner request (2026-10-27): integrate the previously separate browser-review
+pages into the main local workspace. Follow [UNIFIED_REPORTS.md](UNIFIED_REPORTS.md).
+Seven existing local reports must remain visibly distinct from automatic engine
+verdicts while sharing one workspace and preserving all previous owner rows/settings.
+The earlier The Internet demonstration is complete at 3d9db06; do not repeat its
+external submissions. Older pending notes below are historical checkpoints.
+
 Active demo finding (2026-10-26): badd2e4 passed twelve CI jobs/archives and was
 installed with preserved prior rows. Its three real demo scenarios returned
 technical errors and remain recorded. Current work corrects the verified Sinatra

@@ -208,6 +208,13 @@ def create_app(store: AuthStore, *, port=8765, projects=None, ui_directory=None)
         register_organization_routes(app, organizations, organization_projects, actor, _object, store)
 
     if getattr(store, 'local_free', False) or getattr(store, 'local_licensed', False):
+        from adaptive_qa.browser_reviews import BrowserReviews
+        browser_reviews = BrowserReviews(projects)
+
+        @app.get('/api/browser-reviews')
+        def browser_review_history(request: Request):
+            return {'reviews': browser_reviews.list(actor(request))}
+
         from adaptive_qa.site_check import SiteChecks, SiteCheckBusy
         site_checks = SiteChecks(projects, free=getattr(store, 'local_free', False))
 
