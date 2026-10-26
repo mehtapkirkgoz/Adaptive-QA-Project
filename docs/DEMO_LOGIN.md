@@ -118,3 +118,27 @@ that explanation after reload. Finish this fix's installed/CI acceptance, then
 perform one new controlled three-scenario verification cohort under the owner's
 existing demo authorization. Preserve the first cohort and never automatically
 replay an uncertain request or guess additional passwords.
+
+## Accepted corrected demonstration
+
+Implementation 3d9db06 completed Core run 40372756119 with all twelve jobs
+successful. Twelve archives matched their source commit, byte counts and SHA-256;
+ZIP CRCs, 224 PNGs and the four inactive release files were verified. Full local
+installed release verification passed, including sixteen direct demo mirror
+scenarios and five managed UI scenarios. The 932-test regression passed with one
+existing Windows permission skip. See [CI evidence](evidence/demo-login-ci-3d9db06.json).
+
+The verified versioned runtime was installed on port 8766 with all twelve prior
+table digests preserved. One new bounded public-demo cohort then passed all three
+scenarios: successful login, wrong-password rejection, and logout followed by
+denied access to the protected page. Each scenario made exactly one login POST;
+there was no automatic retry. Normal local review, confirmation and managed queue
+admission produced the results visible in the existing panel. All previous rows,
+including the first cohort's three technical errors, remain unchanged. Exactly
+three new demo jobs were added. See [public demonstration evidence](evidence/public-demo-login-3d9db06.json).
+
+This requested demonstration is complete. Refresh the existing local panel to
+load the installed interface. Do not repeat the public submissions on scheduled
+runs; inspect new CI failures or concrete owner findings only. This proves the
+fixed public demo flow, not arbitrary-site login or customer deployment. Overall
+product acceptance remains with the owner.
