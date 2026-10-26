@@ -54,9 +54,9 @@ def main():
         assert 'excluded_link' in result['limitations']
         plan = result['plan']
         assert not plan['execution_authorized']
-        assert sum(case['decision'] == 'selected' for case in plan['cases']) == len(TEST_CASES) - 1
+        assert sum(case['decision'] == 'selected' for case in plan['cases']) == len(TEST_CASES) - 3
         blocked = [case for case in plan['cases'] if case['decision'] == 'blocked']
-        assert len(blocked) == 1 and blocked[0]['case_id'] == 'LOGIN-009'
+        assert {case['case_id'] for case in blocked} == {'LOGIN-009', 'FORM-008', 'FORM-009'}
         definitions = {case.case_id: case for case in TEST_CASES}
         for case in plan['cases']:
             if case['decision'] == 'selected':

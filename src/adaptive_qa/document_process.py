@@ -19,7 +19,7 @@ from adaptive_qa.document_checks import DOCUMENT_CHECKS
 from adaptive_qa.egress import DestinationGuard, EgressProxy, chromium_proxy_options
 from adaptive_qa.models import TestResult, TestStatus
 from adaptive_qa.form_checks import FORM_CHECKS, FORM_DEFAULTS
-from adaptive_qa.native_form_checks import NATIVE_FORM_CHECKS, NativeFormUnavailable
+from adaptive_qa.native_form_checks import NATIVE_FORM_CHECKS,NATIVE_NUMBER_CHECKS, NativeFormUnavailable
 from adaptive_qa.form_configuration import decode_form_mappings as _decode_mappings
 from adaptive_qa.ui_bindings import ElementBindingError
 from adaptive_qa.element_models import MatchStatus, ProjectElementMappings
@@ -121,6 +121,10 @@ def _execute(case_id, project, profile, evidence_root, *, family='document', map
         messages[TestStatus.PASSED] = 'The native email validity check passed on an isolated control; no form was submitted.'
         messages[TestStatus.FAILED] = 'The native email validity assertion failed.'
         messages[TestStatus.BLOCKED] = 'No unique editable email control participating in native validation was available.'
+    if case_id in NATIVE_NUMBER_CHECKS:
+        messages[TestStatus.PASSED]='The native number bound check passed on an isolated control; no form was submitted.'
+        messages[TestStatus.FAILED]='The native number bound assertion failed.'
+        messages[TestStatus.BLOCKED]='No unique editable number control with the required bounded constraint was available.'
     return TestResult(case_id, status, perf_counter()-started, messages[status],
                       evidence_paths=(evidence.as_posix(),) if evidence.is_file() else ())
 

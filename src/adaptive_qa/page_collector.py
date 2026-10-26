@@ -32,6 +32,13 @@ _COLLECT = r"""() => {
             return url.href;
         } catch { return null; }
     };
+    const numberBound = (el,attribute) => {
+        if (el.tagName!=='INPUT' || el.type!=='number' || el.disabled || el.readOnly) return false;
+        const raw=el.getAttribute(attribute);
+        if (!raw || !/^-?(?:\d+(?:\.\d+)?|\.\d+)(?:[eE][+-]?\d+)?$/.test(raw)) return false;
+        const value=Number(raw);
+        return Number.isFinite(value) && Math.abs(value)<=1e12;
+    };
     const forms = bounded(document.forms, 50).filter(visible).map(form => {
         const controls = bounded(form.elements, 100).filter(visible);
         return {
@@ -42,6 +49,7 @@ _COLLECT = r"""() => {
                     label: text(el.getAttribute('aria-label') ||
                         Array.from(el.labels || []).map(label => label.textContent).join(' ')),
                     autocomplete: text(el.getAttribute('autocomplete')),
+                    native_minimum: numberBound(el,'min'),native_maximum: numberBound(el,'max'),
                 })),
             buttons: controls.filter(el => el.tagName === 'BUTTON' ||
                 (el.tagName === 'INPUT' && ['submit', 'button', 'image'].includes(el.type)))

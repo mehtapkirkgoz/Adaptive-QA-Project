@@ -24,10 +24,12 @@ class FieldSnapshot:
     label: str = ""
     autocomplete: str = ""
     visible: bool = True
+    native_minimum: bool = False
+    native_maximum: bool = False
 
     def __post_init__(self) -> None:
         _text_fields(input_type=self.input_type, label=self.label, autocomplete=self.autocomplete)
-        if not isinstance(self.visible, bool):
+        if any(type(value) is not bool for value in (self.visible,self.native_minimum,self.native_maximum)):
             raise ValueError("visible must be a bool.")
 
 

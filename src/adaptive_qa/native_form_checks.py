@@ -30,7 +30,36 @@ NATIVE_FORM_CHECKS = {
 }
 
 
+def check_number_bound(page, *, minimum, project_id=None, mappings=None):
+    controls=page.locator('input[type="number"]:visible:not(:disabled):not([readonly])')
+    if controls.count()!=1:raise NativeFormUnavailable()
+    outcome=controls.evaluate_all(r'''(elements, minimum) => {
+        const probe=elements[0].cloneNode(false);
+        probe.removeAttribute('value');
+        const raw=probe.getAttribute(minimum?'min':'max');
+        if (!raw || !/^-?(?:\d+(?:\.\d+)?|\.\d+)(?:[eE][+-]?\d+)?$/.test(raw)) return null;
+        const bound=Number(raw);
+        if (!Number.isFinite(bound) || Math.abs(bound)>1e12 || !probe.willValidate) return null;
+        probe.valueAsNumber=bound+(minimum?-1:1);
+        return {matched:minimum?probe.validity.rangeUnderflow:probe.validity.rangeOverflow};
+    }''',minimum)
+    if outcome is None:raise NativeFormUnavailable()
+    assert outcome['matched'],'Native number range validity did not match the declared bound.'
+
+
+NATIVE_NUMBER_CHECKS={'FORM-008':partial(check_number_bound,minimum=True),
+                      'FORM-009':partial(check_number_bound,minimum=False)}
+NATIVE_FORM_CHECKS.update(NATIVE_NUMBER_CHECKS)
+
+
 def has_unique_email(snapshot):
     """Value-free discovery eligibility; runtime still rechecks the actual field."""
     return sum(field.input_type.casefold() == 'email' and field.visible
                for form in snapshot.forms if form.visible for field in form.fields) == 1
+
+
+def has_native_candidate(snapshot,case_id):
+    if case_id not in NATIVE_NUMBER_CHECKS:return case_id in ('FORM-001','FORM-002') and has_unique_email(snapshot)
+    fields=[field for form in snapshot.forms if form.visible for field in form.fields
+            if field.visible and field.input_type.casefold()=='number']
+    return len(fields)==1 and (fields[0].native_minimum if case_id=='FORM-008' else fields[0].native_maximum)

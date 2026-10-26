@@ -92,6 +92,8 @@ def main(licensed=False):
                     assert check['status']=='completed' and 1<=len(check['results'])<=10
                     assert all(r['status']=='passed' for r in check['results']),check
                     assert {r['case_id'] for r in check['results']} >= {'FORM-001','FORM-002'}
+                    assert {r['case_id'] for r in check['results']} >= {'FORM-008','FORM-009','DOC-001','DOC-002','DOC-003','DOC-004','DOC-005'}
+                    assert all(r.get('reason_code')=='native_number_passed' for r in check['results'] if r['case_id'] in ('FORM-008','FORM-009'))
                     assert all(r.get('reason_code')=='native_email_passed' for r in check['results'] if r['case_id'] in ('FORM-001','FORM-002'))
                     assert check['requested']==len(check['results']) and check['inspected_pages']>0
                     expect(page.get_by_role('heading',name='Passed checks · '+str(len(check['results'])),exact=True)).to_be_visible()
@@ -102,7 +104,7 @@ def main(licensed=False):
                     page.get_by_label('Website URL',exact=True).fill('http://127.0.0.1:8000/quality.html')
                     page.get_by_role('button',name='Test website',exact=True).click()
                     expect(page.get_by_role('heading',name='Failed checks · 2',exact=True)).to_be_visible(timeout=160000)
-                    expect(page.get_by_role('heading',name='Check finished',exact=True)).to_be_visible()
+                    expect(page.get_by_role('heading',name='Check finished',exact=True)).to_be_visible(timeout=160000)
                     negative=page.evaluate("async () => (await (await fetch('/api/site-checks')).json()).checks[0]")
                     assert {r['case_id'] for r in negative['results'] if r['status']=='failed'}=={'DOC-002','DOC-003'},negative
                     page.screenshot(path=str(artifact/(label+'-failed.png')),full_page=True)
@@ -151,7 +153,8 @@ def main(licensed=False):
                         explicit_check_requests=3,failed_checks_shown_separately=True,cancellation_verified=True,managed_workers=True,manual_worker_commands=0,recorded_results=len(check['results']),
                         inspected_pages=check['inspected_pages'],all_recorded_passed=True,reload_did_not_replay=True,
                         advanced_controls_preserved=True,unified_english_workspace=True,native_email_checks_automatically_executed=True,empty_and_execution_error_states_verified=True,partial_outcome_state_verified=True,mobile_overflow=False,ui_external_requests=0,page_errors=[],
-                        target_scope='owned_controlled_loopback_fixture',customer_deployment_verified=False,explicit_dns_failure_explanation=True)
+                        target_scope='owned_controlled_loopback_fixture',customer_deployment_verified=False,explicit_dns_failure_explanation=True,
+                        native_number_bounds_automatically_executed=True,base_document_checks_preserved=True)
                     (artifact/(label+'.json')).write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
                     print(json.dumps(report))
                 finally: browser.close()

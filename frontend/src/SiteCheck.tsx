@@ -6,6 +6,9 @@ type Check = {check_id: string; project_id: string; url: string; status: string;
   requested?: number; not_run?: number; names?: Record<string, string>; results?: Result[]; run_id?: string; diagnostic_code?: string};
 type Props = {request: <T>(path: string, method?: string, body?: unknown) => Promise<T>; tools: ReactNode; feedback: ReactNode; onOptionsOpen: (projectId?: string) => void; onCheckCreated: (projectId: string) => void; hasUnsavedOptions: boolean; edition: string; onSignOut?: () => void};
 const reasons: Record<string, string> = {
+  native_number_passed: 'The browser enforced the declared number bound on an isolated field copy. The live field was unchanged and no form was submitted.',
+  native_number_failed: 'The isolated number field did not enforce its declared bound as expected.',
+  native_number_unavailable: 'No unique editable number field with the required declared bound was available; no verdict is possible.',
   native_email_passed: 'Browser email validation matched the expected outcome on an isolated field copy. No page input or submission occurred.',
   native_email_failed: 'Browser email validation did not match the expected outcome. Existing field constraints were preserved.',
   native_email_unavailable: 'No unique editable email field was available for this probe; no pass or fail verdict is possible.',
@@ -119,7 +122,7 @@ export function SiteCheck({request, tools, feedback, onOptionsOpen, onCheckCreat
           <details><summary>Check details</summary><p>{check.names?.[result.case_id]} · {result.case_id} · {result.duration_seconds.toFixed(2)} sec · {result.status}</p><p>{reasons[result.reason_code ?? ''] ?? result.message}</p></details>
           {result.evidence_id && check.run_id && <a target="_blank" rel="noopener noreferrer" href={`/api/projects/${check.project_id}/runs/${check.run_id}/evidence/${result.evidence_id}`}>View screenshot</a>}
         </article>)}</section>)}
-      {!active(check) && <details className="check-scope"><summary>What was covered?</summary><p className="hint">HTML checks inspect the initial page structure with scripts and assets excluded. Native email checks exercise browser validation on an isolated copy of a discovered field without changing the live form. They do not validate visual rendering, JavaScript behavior or server responses. These results cover the checks actually run, not your entire website. Discovery inspects up to five pages and runs up to ten applicable read-only checks.
+      {!active(check) && <details className="check-scope"><summary>What was covered?</summary><p className="hint">HTML checks inspect the initial page structure with scripts and assets excluded. Native email and number checks exercise declared browser constraints on isolated copies of discovered fields without changing the live form. They do not validate visual rendering, JavaScript behavior or server responses. These results cover the checks actually run, not your entire website. Discovery inspects up to five pages and runs up to ten applicable read-only checks.
         {check.not_run !== undefined && ` ${check.not_run} catalog checks were not included in this run.`}
         {unrecorded > 0 && ` ${unrecorded} selected checks produced no result.`} Sign-in, API and database checks require additional configuration.</p></details>}
     </section>}

@@ -7,7 +7,7 @@ from adaptive_qa.config import ProjectConfig
 from adaptive_qa.crawler import CrawlResult
 from adaptive_qa.discovery import FeatureFinding, PageSnapshot, detect_page_features
 from adaptive_qa.models import FeatureStatus, TestCase, TestType
-from adaptive_qa.native_form_checks import NATIVE_FORM_CHECKS, has_unique_email
+from adaptive_qa.native_form_checks import NATIVE_FORM_CHECKS, has_native_candidate
 
 
 FEATURES = ('login', 'search', 'registration', 'product', 'cart', 'forms', 'navigation')
@@ -127,8 +127,8 @@ def build_test_plan(crawl: CrawlResult, cases: tuple[TestCase, ...],
                           if all(name in findings and findings[name].status == FeatureStatus.PRESENT
                                  for name in case.required_features)]
             if case.case_id in NATIVE_FORM_CHECKS:
-                email_urls = {page.url for page in crawl.pages if has_unique_email(page)}
-                candidates = [(url, findings) for url, findings in candidates if url in email_urls]
+                native_urls = {page.url for page in crawl.pages if has_native_candidate(page,case.case_id)}
+                candidates = [(url, findings) for url, findings in candidates if url in native_urls]
             if not candidates:
                 entries.append(PlannedCase(case.case_id, PlanDecision.BLOCKED,
                     'No inspected page satisfies all prerequisites; a multi-page binding is required.'))

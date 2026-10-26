@@ -181,6 +181,8 @@ stage('complete')
                     or not simple.get('all_recorded_passed') or not simple.get('reload_did_not_replay')
                     or not simple.get('unified_english_workspace')
                     or not simple.get('native_email_checks_automatically_executed')
+                    or not simple.get('native_number_bounds_automatically_executed')
+                    or not simple.get('base_document_checks_preserved')
                     or not simple.get('empty_and_execution_error_states_verified')
                     or not simple.get('partial_outcome_state_verified')
                     or simple.get('ui_external_requests') or simple.get('page_errors')):
@@ -200,6 +202,18 @@ stage('complete')
                 raise ValueError('Installed source HTML boundary evidence is incomplete.')
             html_output=ROOT/'artifacts/html-inspection';html_output.mkdir(parents=True,exist_ok=True)
             (html_output/'installed.json').write_text(json.dumps(html,indent=2)+'\n',encoding='utf-8')
+            subprocess.run([sys.executable,str(ROOT/'scripts/check_native_numbers.py')],cwd=temporary,
+                env=browser_environment,check=True,timeout=120)
+            numbers=json.loads((Path(temporary)/'artifacts/native-numbers/report.json').read_text(encoding='utf-8'))
+            if (not numbers.get('installed_wheel') or not numbers.get('supervised_child_package_verified')
+                    or len(numbers.get('scenarios',[]))!=22 or numbers.get('passed')!=6 or numbers.get('blocked')!=16
+                    or not numbers.get('redirect_rejected') or numbers.get('page_events')!=0
+                    or numbers.get('submissions')!=0 or not numbers.get('live_value_preserved')
+                    or not numbers.get('live_value_getter_not_read') or not numbers.get('discovery_booleans_verified')
+                    or numbers.get('customer_targets_contacted')):
+                raise ValueError('Installed native number constraint evidence is incomplete.')
+            number_output=ROOT/'artifacts/native-numbers';number_output.mkdir(parents=True,exist_ok=True)
+            (number_output/'installed.json').write_text(json.dumps(numbers,indent=2)+'\n',encoding='utf-8')
             subprocess.run([sys.executable,str(ROOT/'scripts/check_public_submission.py')],cwd=temporary,
                 env=browser_environment,check=True,timeout=120)
             public=json.loads((Path(temporary)/'artifacts/processes/public-submission.json').read_text(encoding='utf-8'))

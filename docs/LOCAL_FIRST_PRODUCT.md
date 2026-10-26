@@ -1,5 +1,10 @@
 # Local-First Product Conversion
 
+Active owner direction (2026-10-26): continue useful URL-driven functionality after
+the accepted access fix rather than waiting at the old review checkpoint. Follow
+[NATIVE_NUMBER_CHECKS.md](NATIVE_NUMBER_CHECKS.md) for the narrow next increment.
+Do not interpret earlier waiting notes as overriding this latest explicit instruction.
+
 Latest accepted delivery (2026-10-26): website access diagnostics at 1ebed8e / Core
 40240530847, twelve archives and 222 PNGs verified. The preserved owner preview on
 8766 now uses that installed bundle; twelve prior table digests are unchanged.

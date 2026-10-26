@@ -368,6 +368,8 @@ jobs:
           python scripts/check_https_api.py --licensed
       - name: Verify source HTML checks exclude assets without relaxing egress
         run: python scripts/check_html_inspection.py
+      - name: Verify declared number constraints without live field events or submission
+        run: python scripts/check_native_numbers.py
       - name: Verify reviewed HTTP and UI transitions on owned document and TLS fixtures
         run: python scripts/check_public_form_probe.py
       - name: Verify one-button managed local site checks
@@ -402,6 +404,7 @@ jobs:
             artifacts/site-check/*.json
             artifacts/site-check/*.png
             artifacts/html-inspection/*.json
+            artifacts/native-numbers/*.json
             artifacts/public-submission/*.json
             artifacts/interactive-probe/*.json
           retention-days: 7

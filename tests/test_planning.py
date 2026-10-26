@@ -23,6 +23,18 @@ class PlanningTests(unittest.TestCase):
     def page(self, path='/', **kwargs):
         return PageSnapshot('https://example.com' + path, collection_complete=True, **kwargs)
 
+    def test_number_probes_require_unique_observed_constraint_on_the_selected_page(self):
+        cases=tuple(case for case in TEST_CASES if case.case_id in ('FORM-008','FORM-009'))
+        plain=self.page(forms=(FormSnapshot(fields=(FieldSnapshot('number'),)),))
+        minimum=self.page('/units',forms=(FormSnapshot(fields=(FieldSnapshot('number',native_minimum=True),)),))
+        plan=build_test_plan(self.crawl(plain,minimum),cases,self.project)
+        self.assertEqual(plan.cases[0].target_url,minimum.url)
+        self.assertEqual(plan.cases[0].decision,PlanDecision.SELECTED)
+        self.assertEqual(plan.cases[1].decision,PlanDecision.BLOCKED)
+        ambiguous=self.page(forms=(FormSnapshot(fields=(FieldSnapshot('number',native_minimum=True),FieldSnapshot('number',native_minimum=True))),))
+        self.assertTrue(all(item.decision==PlanDecision.BLOCKED for item in build_test_plan(self.crawl(ambiguous),cases,self.project).cases))
+        with self.assertRaises(ValueError):FieldSnapshot('number',native_minimum='true')
+
     def crawl(self, *pages, limitations=()):
         return CrawlResult(tuple(pages), len(pages), limitations)
 
@@ -148,7 +160,8 @@ class PlanningTests(unittest.TestCase):
 
     def test_catalog_selects_form_checks_and_skips_absent_navigation(self):
         plan = build_test_plan(self.crawl(self.page(forms=(self.login, self.search))), TEST_CASES, self.project)
-        self.assertEqual(sum(item.decision == PlanDecision.SELECTED for item in plan.cases), 44)
+        self.assertEqual(sum(item.decision == PlanDecision.SELECTED for item in plan.cases), 42)
+        self.assertEqual({item.case_id for item in plan.cases if item.decision==PlanDecision.BLOCKED},{'FORM-008','FORM-009'})
         self.assertEqual(sum(item.decision == PlanDecision.SKIPPED for item in plan.cases), 7)
         self.assertFalse(plan.execution_authorized)
 

@@ -61,8 +61,8 @@ EXPECTED = {
     'FORM-005': 'Selecting express delivery unchecks standard delivery.',
     'FORM-006': 'Selecting Turkey retains the tr option value.',
     'FORM-007': 'The textarea preserves both entered lines and their newline.',
-    'FORM-008': 'Quantity 0 has rangeUnderflow=true.',
-    'FORM-009': 'Quantity 11 has rangeOverflow=true.',
+    'FORM-008': 'A detached editable number control reports rangeUnderflow for a value below its declared finite minimum.',
+    'FORM-009': 'A detached editable number control reports rangeOverflow for a value above its declared finite maximum.',
     'FORM-010': 'Quantity 1.5 has stepMismatch=true for integer steps.',
     'FORM-011': 'Quantity 5 has valid=true.',
     'FORM-012': 'Disabled input rejects fill and preserves its initial value.',
@@ -78,8 +78,8 @@ EXPECTED = {
 EXTRA_CASES = tuple(TestCase(case_id, name, TestType.UI,
     ('login', 'search') if case_id == 'LOGIN-009' else
     ('navigation', 'login') if case_id == 'NAV-005' else (feature,),
-    (('Inspect the authorized initial HTML', 'Probe a detached email field with scripts disabled and no submission', name)
-     if case_id in ('FORM-001','FORM-002') else
+    (('Inspect the authorized initial HTML', 'Probe a detached native field with scripts disabled and no submission', name)
+     if case_id in ('FORM-001','FORM-002','FORM-008','FORM-009') else
      ('Open a fresh controlled fixture', name, 'Check the explicit browser outcome')),
     EXPECTED[case_id])
     for case_id, name, feature, behavior in SPECS)

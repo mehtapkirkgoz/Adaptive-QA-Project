@@ -14,7 +14,7 @@ from adaptive_qa.document_target import validate_runtime_binding
 from adaptive_qa.smoke_checks import SMOKE_CHECKS
 from adaptive_qa.document_checks import DOCUMENT_CHECKS
 from adaptive_qa.form_checks import FORM_CHECKS
-from adaptive_qa.native_form_checks import NATIVE_FORM_CHECKS
+from adaptive_qa.native_form_checks import NATIVE_FORM_CHECKS,NATIVE_NUMBER_CHECKS
 from adaptive_qa.project_store import ProjectNotFound, OwnedProject, _id
 from adaptive_qa.project_settings import validate_settings
 from adaptive_qa.worker_lock import worker_lock
@@ -202,13 +202,16 @@ class SiteChecks:
                         or case['changes_data'] or case['case_id'] not in SMOKE_CHECKS
                         or case['case_id'] not in {*DOCUMENT_CHECKS, *FORM_CHECKS}):
                     continue
-                if case['case_id'] in NATIVE_FORM_CHECKS and not report.get('native_email_candidate'):
+                if case['case_id'] in NATIVE_NUMBER_CHECKS and case['case_id'] not in report.get('native_number_candidates',[]):
+                    continue
+                if case['case_id'] in NATIVE_FORM_CHECKS and case['case_id'] not in NATIVE_NUMBER_CHECKS and not report.get('native_email_candidate'):
                     continue
                 try:
                     validate_runtime_binding(settings, case['case_id'], case)
                 except ValueError:
                     continue
                 eligible.append(case['case_id'])
+            eligible.sort(key=lambda case:0 if case in DOCUMENT_CHECKS else 1 if case in NATIVE_FORM_CHECKS else 2)
             selected = eligible[:10]
             summary = dict(inspected_pages=report['inspected_pages'], requested=len(selected),
                 not_run=len(report['cases'])-len(selected),

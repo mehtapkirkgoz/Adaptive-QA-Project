@@ -76,6 +76,23 @@ class SiteCheckTests(unittest.TestCase):
         self.assertEqual({r['case_id'] for r in outcome['results']} & {'FORM-001','FORM-002'},{'FORM-001','FORM-002'})
         self.assertEqual(native.call_count,2)
 
+    def test_number_bounds_selected_without_losing_base_document_checks(self):
+        def discovery(*args,**kwargs):
+            fields=(FieldSnapshot('email'),FieldSnapshot('password'),FieldSnapshot('number',native_minimum=True,native_maximum=True))
+            page=PageSnapshot(self.url,forms=(FormSnapshot(fields=fields,buttons=('Sign in',)),
+                FormSnapshot(role='search',fields=(FieldSnapshot('search'),),buttons=('Search',))),collection_complete=True)
+            return {'pages':[asdict(page)],'limitations':[]}
+        result=lambda case,*args,**kwargs:TestResult(case,TestStatus.PASSED,.01,'Expected contract satisfied.')
+        with patch('adaptive_qa.dashboard_worker.discover_configured_target',side_effect=discovery), \
+                patch('adaptive_qa.dashboard_run_worker.run_isolated_document_test',side_effect=result), \
+                patch('adaptive_qa.dashboard_run_worker.run_isolated_form_test',side_effect=result):
+            check=self.service.submit(LOCAL_ACTOR,self.url);self.service.thread.join(5)
+        outcome=self.service.get(LOCAL_ACTOR,check['check_id'])
+        cases={item['case_id'] for item in outcome['results']}
+        self.assertEqual(outcome['status'],'completed',outcome)
+        self.assertEqual(len(cases),10)
+        self.assertTrue({'FORM-008','FORM-009','DOC-001','DOC-002','DOC-003','DOC-004','DOC-005'}<=cases)
+
     def test_ambiguous_email_discovery_does_not_auto_admit_native_probes(self):
         def discovery(*args, **kwargs):
             page=PageSnapshot(self.url, forms=(FormSnapshot(fields=(FieldSnapshot('email'),FieldSnapshot('email'))),), collection_complete=True)
