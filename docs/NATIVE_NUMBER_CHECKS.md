@@ -25,7 +25,14 @@ and both legacy sample number cases also passed. The licensed UI proof exposed a
 test synchronization race after the second failure appeared; waiting for completion
 now uses the same bounded worker allowance as the initial run.
 
-Next: complete installed-wheel and exact-commit CI acceptance, then update the
+The installed b06843b wheel also passed the full release verification, including
+the 22 numeric scenarios and managed UI execution. Core run 40295233708 exposed an
+old legacy dashboard assertion expecting nine eligible sample checks; it now expects
+eleven and explicitly requires both numeric IDs. The complete source dashboard
+browser proof passed after that correction. This superseding test-only commit
+requires its own exact-commit CI acceptance before the preview upgrade.
+
+Next: complete exact-commit CI acceptance, then update the
 preserved preview. Existing results, projects, guard policies,
 deadlines, local licensing and public Pages behavior stay intact. No external target
 or live form interaction is authorized by this increment.

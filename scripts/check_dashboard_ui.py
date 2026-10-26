@@ -256,7 +256,9 @@ def main(port=8765):
                     assert worker.returncode == 0
                     discovery.get_by_role('button', name='Review discovery plan', exact=True).first.click()
                     choices = runs.get_by_role('group', name='Eligible tests', exact=True)
-                    expect(choices.get_by_role('checkbox')).to_have_count(9)
+                    expect(choices.get_by_role('checkbox')).to_have_count(11)
+                    for case in ('FORM-008', 'FORM-009'):
+                        expect(choices.get_by_label('Select '+case, exact=True)).to_have_count(1)
                     expect(choices.get_by_label('Select LOGIN-001', exact=True)).to_have_count(1)
                     choices.get_by_label('Select DOC-001', exact=True).check()
                     choices.get_by_label('Select LOGIN-001', exact=True).check()
