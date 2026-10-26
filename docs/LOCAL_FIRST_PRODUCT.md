@@ -1,5 +1,11 @@
 # Local-First Product Conversion
 
+Active owner request (2026-10-26): connect a real public demo login flow to the
+local panel. Follow [DEMO_LOGIN.md](DEMO_LOGIN.md): exact The Internet demo only,
+controlled TLS proofs before three bounded authorized external scenarios. The
+non-executing contract is implemented; browser worker and panel integration remain.
+Earlier wait-for-review checkpoints do not override this explicit new request.
+
 Latest accepted delivery (2026-10-26): general native numeric bounds at 2f6d50c /
 Core 40295944272, all twelve jobs and archives accepted with 222 PNGs. The Ubuntu
 runtime job passed on a targeted retry after an installation delay. The installed
