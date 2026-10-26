@@ -1,5 +1,13 @@
 # Sprint Control
 
+Latest accepted delivery (2026-10-26): general native numeric bounds at 2f6d50c /
+Core 40295944272, all twelve jobs and archives accepted with 222 PNGs. The Ubuntu
+runtime job passed on a targeted retry after an installation delay. The installed
+preview on 8766 uses the accepted versioned bundle; all twelve prior table digests
+are preserved and no owner checks were replayed. See NATIVE_NUMBER_CHECKS.md and
+docs/evidence/native-numbers-ci-2f6d50c.json (evidence path relative to repository).
+The implementation below supersedes earlier waiting and pending notes.
+
 Active owner direction (2026-10-26): continue useful URL-driven functionality after
 the accepted access fix rather than waiting at the old review checkpoint. Follow
 [NATIVE_NUMBER_CHECKS.md](NATIVE_NUMBER_CHECKS.md) for the narrow next increment.

@@ -1,0 +1,21 @@
+{
+  "implementation_commit": "2f6d50c11796c64dea2990b173d054f870266634",
+  "preview_http_status": 200,
+  "installed_verified_bundle": true,
+  "dedicated_versioned_ui": true,
+  "https_review_route_validated_without_execution": true,
+  "access_diagnostic_interface_served": true,
+  "all_prior_table_digests_preserved": true,
+  "tables": 12,
+  "target_work_started": false,
+  "customer_tests_performed": false,
+  "native_number_source_scenarios": 22,
+  "native_number_installed_scenarios": 22,
+  "native_number_passed": 6,
+  "native_number_blocked": 16,
+  "live_field_unchanged": true,
+  "no_input_events_or_submissions": true,
+  "automatic_budget": 10,
+  "base_document_checks_preserved": 5,
+  "local_installed_release_verification_passed": true
+}

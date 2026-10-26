@@ -32,7 +32,21 @@ eleven and explicitly requires both numeric IDs. The complete source dashboard
 browser proof passed after that correction. This superseding test-only commit
 requires its own exact-commit CI acceptance before the preview upgrade.
 
-Next: complete exact-commit CI acceptance, then update the
-preserved preview. Existing results, projects, guard policies,
+Accepted at 2f6d50c / Core 40295944272: all twelve jobs and twelve archives verified,
+including 222 valid PNGs, source/installed numeric probes, managed free/licensed
+execution and prior guarded workflows. The Ubuntu runtime job was cancelled after
+a prolonged browser installation; a targeted retry passed. It was not counted as
+accepted until that retry completed successfully.
+
+The versioned installed preview on port 8766 now uses this accepted bundle. A fresh
+backup was retained, all twelve prior table row digests are unchanged, no jobs were
+active and no owner checks were replayed. HTTP and served asset checks passed.
+Evidence: [CI](evidence/native-numbers-ci-2f6d50c.json) and
+[local preservation](evidence/native-numbers-local-2f6d50c.json).
+
+This increment is complete. Native bounds are useful only where the site declares
+one suitable number field; missing or ambiguous fields remain unevaluated. This does
+not demonstrate arbitrary customer workflows or server-side business validation.
+Existing results, projects, guard policies,
 deadlines, local licensing and public Pages behavior stay intact. No external target
 or live form interaction is authorized by this increment.
