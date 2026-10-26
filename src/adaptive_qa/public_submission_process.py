@@ -165,7 +165,8 @@ def run_isolated_public_submission(review, project, *, owner_id, current_fingerp
 
 
 def _run_private_child(raw, *, module, reader, timeout_seconds=45, should_cancel=None, reference_variables=()):
-    if (module not in ('adaptive_qa.public_submission_process', 'adaptive_qa.public_browser_process')
+    if (module not in ('adaptive_qa.public_submission_process', 'adaptive_qa.public_browser_process',
+                       'adaptive_qa.demo_login_process')
             or not callable(reader) or not isinstance(raw, str) or len(raw.encode('utf-8')) > 16384
             or type(reference_variables) is not tuple or any(not isinstance(name, str) for name in reference_variables)):
         raise ValueError('A fixed internal child and bounded private metadata are required.')

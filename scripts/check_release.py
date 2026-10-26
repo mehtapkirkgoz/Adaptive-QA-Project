@@ -214,6 +214,17 @@ stage('complete')
                 raise ValueError('Installed native number constraint evidence is incomplete.')
             number_output=ROOT/'artifacts/native-numbers';number_output.mkdir(parents=True,exist_ok=True)
             (number_output/'installed.json').write_text(json.dumps(numbers,indent=2)+'\n',encoding='utf-8')
+            subprocess.run([sys.executable,str(ROOT/'scripts/check_demo_login.py')],cwd=temporary,
+                env=browser_environment,check=True,timeout=120)
+            demo=json.loads((Path(temporary)/'artifacts/demo-login/browser.json').read_text(encoding='utf-8'))
+            if (not demo.get('installed_wheel') or not demo.get('supervised_child_package_verified')
+                    or [item['status'] for item in demo.get('scenarios',[])] !=
+                       ['passed']*3+['error']*2+['failed']+['error']*2+['blocked','error','cancelled','error']
+                    or not demo.get('private_profiles_removed') or demo.get('external_demo_contacted')
+                    or demo.get('production_tls_override_exposed') or demo.get('raw_credentials_or_cookies_saved')):
+                raise ValueError('Installed isolated demo login evidence is incomplete.')
+            demo_output=ROOT/'artifacts/demo-login';demo_output.mkdir(parents=True,exist_ok=True)
+            (demo_output/'installed-browser.json').write_text(json.dumps(demo,indent=2)+'\n',encoding='utf-8')
             subprocess.run([sys.executable,str(ROOT/'scripts/check_public_submission.py')],cwd=temporary,
                 env=browser_environment,check=True,timeout=120)
             public=json.loads((Path(temporary)/'artifacts/processes/public-submission.json').read_text(encoding='utf-8'))

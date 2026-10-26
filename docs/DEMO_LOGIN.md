@@ -21,7 +21,7 @@ claim an HTML login passed from HTTP 200 alone.
   302 transitions and reject foreign origins, query/fragment, unexpected routes,
   status codes and raw untyped scenario values. No credentials or session values
   are persisted in the contract.
-- [ ] Implement a supervised private-browser worker with a hard deadline, public
+- [x] Implement a supervised private-browser worker with a hard deadline, public
   numeric peer pinning and verified TLS. Limit each scenario to one exact login
   POST; allow only its exact main-frame redirects and, in the logout scenario,
   one logout GET. Retain fresh isolated profiles and bounded reads. Block foreign
@@ -38,7 +38,19 @@ claim an HTML login passed from HTTP 200 alone.
   demo scenarios once. Report actual errors honestly; no bypass or repeated guessing.
 - [ ] Verify installed package/UI and upgrade the preview with preserved row digests.
 
-Current state: contract foundation only, not a completed external test or UI feature.
+The worker has twelve owned TLS/browser outcomes: three passes for accepted login,
+rejected login and logout; six transport errors for foreign redirects, unexpected
+status, absent session cookie, ineffective logout, untrusted TLS and deadline; one
+failed DOM assertion; one blocked missing form; one cancelled admission. Seven
+contract/transport unit tests passed. Profiles were removed, each scenario made at
+most one POST, and the hard-deadline scenario reached the owned POST handler.
+The browser's direct proxy is deliberately dead. All documents are fulfilled by
+the pinned verified-TLS transport; validated 302 transitions are followed through
+explicit scoped browser navigation because Chromium can bypass route interception
+when following redirects. The cookie jar exists only in the private child memory.
+No customer input, cookies, raw response text, screenshot or trace is returned.
+
+Current state: supervised worker foundation; queue/panel integration is unfinished.
 No public login submissions have been performed by this increment. The 100-case
 catalog and Pages demo remain unchanged. This is a known-demo integration, not
 automatic login support for arbitrary customer websites.
