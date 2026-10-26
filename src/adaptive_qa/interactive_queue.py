@@ -215,6 +215,11 @@ class OwnedInteractiveQueue:
             # Never persist adapter text, references, bodies, screenshots or uncertain success.
             outcome='cancelled' if status=='cancelled' else 'error' if status=='error' else result.status.value
             payload=dict(status=outcome,attempted_submissions=result.attempted_submissions)
+            from adaptive_qa.demo_login_review import SavedDemoLoginReview
+            if isinstance(work.review,SavedDemoLoginReview) and outcome=='error':
+                from adaptive_qa.demo_login_outcome import diagnostic_from_message
+                code=diagnostic_from_message(result.message)
+                if code is not None:payload['diagnostic_code']=code
             connection.execute('UPDATE dashboard_interactive_jobs SET status=?,result_json=?,claim_token=NULL WHERE job_id=?',
                 (status,json.dumps(payload),work.job_id))
             return status

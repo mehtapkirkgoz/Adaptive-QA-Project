@@ -1,5 +1,11 @@
 # Sprint Control
 
+Active demo finding (2026-10-26): badd2e4 passed twelve CI jobs/archives and was
+installed with preserved prior rows. Its three real demo scenarios returned
+technical errors and remain recorded. Current work corrects the verified Sinatra
+POST-303/GET-302 protocol mismatch and adds bounded error explanations. Follow
+DEMO_LOGIN.md; do not call the old live scenarios passes or rewrite their results.
+
 Active owner request (2026-10-26): connect a real public demo login flow to the
 local panel. Follow [DEMO_LOGIN.md](DEMO_LOGIN.md): exact The Internet demo only,
 controlled TLS proofs before three bounded authorized external scenarios. The

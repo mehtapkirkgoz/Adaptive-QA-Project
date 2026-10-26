@@ -55,6 +55,18 @@ class DemoLoginQueueTests(unittest.TestCase):
             self.assertEqual(result['result'],dict(status='passed',attempted_submissions=1))
             self.assertNotIn('private-cookie-canary',json.dumps(result))
 
+    def test_diagnostics_are_scoped_and_never_persist_raw_adapter_text(self):
+        from adaptive_qa.demo_login_outcome import PREFIX
+        for message,wanted in ((PREFIX+'http_status_302','http_status_302'),
+                               (PREFIX+'raw Cookie=private',None)):
+            review=self.review()
+            job=self.queue.submit_demo(LOCAL_ACTOR,review,confirmed_fingerprint=review.fingerprint())
+            work=self.queue.claim_next(job_id=job['job_id'])
+            self.queue.finish(work,InteractiveProbeResult(TestStatus.ERROR,message,None))
+            result=self.queue.get(LOCAL_ACTOR,self.pid,job['job_id'])['result']
+            self.assertEqual(result.get('diagnostic_code'),wanted)
+            self.assertNotIn('Cookie',json.dumps(result))
+
     def test_changed_settings_invalidate_review_and_queued_dispatch(self):
         review=self.review()
         self.projects.save_configuration(LOCAL_ACTOR,self.pid,dict(self.settings,base_url='https://example.com/new'))

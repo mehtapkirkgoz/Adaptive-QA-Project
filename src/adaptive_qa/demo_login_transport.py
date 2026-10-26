@@ -11,6 +11,7 @@ from adaptive_qa.demo_login_contract import (
     ORIGIN, LOGIN, AUTHENTICATE, SECURE, LOGOUT, DemoLoginPlan, DemoLoginScenario,
 )
 from adaptive_qa.egress import DestinationGuard
+from adaptive_qa.demo_login_outcome import DemoTransportError
 
 
 def demo_body(plan):
@@ -37,7 +38,7 @@ class DemoLoginTransport:
         self._target = None
         self._cookies = CookieJar()
         self._steps = [('GET', LOGIN, 200, None),
-                       ('POST', AUTHENTICATE, 302, plan.expected_document),
+                       ('POST', AUTHENTICATE, 303, plan.expected_document),
                        ('GET', plan.expected_document, 200, None)]
         if plan.scenario == DemoLoginScenario.LOGOUT:
             self._steps += [('GET', LOGOUT, 302, LOGIN), ('GET', LOGIN, 200, None),
@@ -66,7 +67,8 @@ class DemoLoginTransport:
         connection = None
         try:
             if self._target is None:
-                target = self.guard.authorize(LOGIN)
+                try:target = self.guard.authorize(LOGIN)
+                except ValueError as error:raise DemoTransportError('demo_destination_blocked') from error
                 self._target = replace(target, addresses=(target.addresses[0],))
             target = self._target
             connection = http.client.HTTPConnection(target.hostname, target.port, timeout=5)
@@ -89,22 +91,25 @@ class DemoLoginTransport:
                 self.attempted_submissions = 1
             connection.request(method, urlsplit(url).path, body=body, headers=headers)
             response = connection.getresponse()
-            if (response.status != status or response.getheader('Content-Encoding') is not None
-                    or len(response.headers.get_all('Location', [])) > 1):
-                raise ValueError('Unexpected demo HTTP response.')
+            if response.status != status:
+                raise DemoTransportError('http_status_'+str(response.status) if 100<=response.status<=599 else 'demo_unexpected_response')
+            if (response.getheader('Content-Encoding') is not None or len(response.headers.get_all('Location', [])) > 1):
+                raise DemoTransportError('demo_unexpected_response')
             location = response.getheader('Location')
             if destination:
                 if location not in (destination, destination[len(ORIGIN):]):
-                    raise ValueError('Unexpected demo redirect.')
+                    raise DemoTransportError('demo_redirect_blocked')
             elif location is not None or not response.getheader('Content-Type', '').lower().startswith('text/html'):
-                raise ValueError('Expected an HTML document without redirects.')
+                raise DemoTransportError('demo_unexpected_response')
             raw = response.read(65537)
             if len(raw) > 65536:
-                raise ValueError('Oversized demo response.')
+                raise DemoTransportError('demo_response_too_large')
             self._cookies.extract_cookies(response, cookie_request)
             return DemoResponse(status, raw, destination)
-        except Exception:
+        except Exception as error:
             self._index = len(self._steps)
+            if isinstance(error,ssl.SSLError):raise DemoTransportError('demo_tls_failed') from error
+            if isinstance(error,(OSError,http.client.HTTPException)):raise DemoTransportError('demo_network_error') from error
             raise
         finally:
             if connection:

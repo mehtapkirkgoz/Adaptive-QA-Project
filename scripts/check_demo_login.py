@@ -89,9 +89,10 @@ def main(ui=False):
                 valid = body == {'username': ['tomsmith'], 'password': ['SuperSecretPassword!']}
                 state['session'] = valid
                 state['flash'] = 'You logged into a secure area!' if valid else 'Your password is invalid!'
-                if state['mode'] == 'foreign-redirect': self.reply(302, location='https://other.example/secure'); return
+                if state['mode'] == 'foreign-redirect': self.reply(303, location='https://other.example/secure'); return
                 if state['mode'] == 'wrong-status': self.reply(200, body='<h2>Secure Area</h2>'); return
-                self.reply(302, location='/secure' if valid else '/login',
+                if state['mode'] == 'post-302':self.reply(302,location='/secure' if valid else '/login');return
+                self.reply(303, location='/secure' if valid else '/login',
                     cookie='session=owned-session; Path=/; Secure; HttpOnly; SameSite=Lax' if valid and state['mode'] != 'no-cookie' else None)
                 slow_done.set()
         server = ThreadingHTTPServer(('127.0.0.1', 0), Handler)
@@ -115,7 +116,8 @@ def main(ui=False):
                      ('deadline', 'slow', DemoLoginScenario.ACCEPTED, TestStatus.ERROR),
                      ('duplicate', 'duplicate', DemoLoginScenario.ACCEPTED, TestStatus.ERROR),
                      ('private-dns', 'private-dns', DemoLoginScenario.ACCEPTED, TestStatus.ERROR),
-                     ('oversize', 'oversize', DemoLoginScenario.ACCEPTED, TestStatus.ERROR)]
+                     ('oversize', 'oversize', DemoLoginScenario.ACCEPTED, TestStatus.ERROR),
+                     ('post-302', 'post-302', DemoLoginScenario.ACCEPTED, TestStatus.ERROR)]
             if ui:
                 import time
                 import uvicorn
@@ -142,7 +144,8 @@ def main(ui=False):
                 page.goto('http://127.0.0.1:8896/')
                 panel=page.get_by_role('region',name='Public login demo')
                 expect(panel.get_by_role('heading',name='Try a real login test')).to_be_visible()
-                cases=cases[:3]+[('cancel-active','slow',DemoLoginScenario.ACCEPTED,TestStatus.CANCELLED)]
+                cases=cases[:3]+[('cancel-active','slow',DemoLoginScenario.ACCEPTED,TestStatus.CANCELLED),
+                                 ('post-302','post-302',DemoLoginScenario.ACCEPTED,TestStatus.ERROR)]
             for label, mode, scenario, expected in cases:
                 state.update(mode=mode, flash='', session=False)
                 before = state['posts']; roots = []
@@ -200,12 +203,17 @@ worker.main()
                                 assert time.monotonic()<deadline;page.wait_for_timeout(50)
                             panel.get_by_role('button',name='Stop demo test',exact=True).click()
                             expect(panel.get_by_text('Stopped',exact=True)).to_have_count(1,timeout=15000)
+                        elif expected==TestStatus.ERROR:
+                            expect(panel.get_by_text('Not evaluated',exact=True)).to_have_count(1,timeout=45000)
+                            expect(panel.get_by_text('The demo returned HTTP 302, which did not match this scenario. No automatic retry was made.',exact=True)).to_be_visible()
                         else:
                             expect(panel.get_by_text('Passed',exact=True)).to_have_count(len(records)+1,timeout=45000)
                         data=page.evaluate("async (pid)=>(await (await fetch('/api/projects/'+pid+'/interactive/jobs')).json()).jobs",pid)
                         job=next(item for item in data if item['scope']=='authorized_login_demo')
                         from adaptive_qa.interactive_probe import InteractiveProbeResult
-                        result=InteractiveProbeResult(TestStatus(job['result']['status']),'sanitized',job['result']['attempted_submissions'])
+                        from adaptive_qa.demo_login_outcome import PREFIX
+                        result=InteractiveProbeResult(TestStatus(job['result']['status']),
+                            PREFIX+job['result']['diagnostic_code'] if job['result'].get('diagnostic_code') else 'sanitized',job['result']['attempted_submissions'])
                     else:
                         result = run_isolated_demo_login(DemoLoginPlan(scenario), timeout_seconds=2 if mode=='slow' else 30,
                                                         should_cancel=(lambda: True) if label=='cancelled' else None)
@@ -217,16 +225,22 @@ worker.main()
                 if expected == TestStatus.PASSED: assert posts == 1
                 if label in ('missing', 'untrusted', 'cancelled', 'private-dns', 'oversize'): assert posts == 0
                 if label=='duplicate':assert posts==1
+                from adaptive_qa.demo_login_outcome import diagnostic_from_message
+                code=diagnostic_from_message(result.message)
+                if label=='post-302':assert code=='http_status_302'
+                if label=='status':assert code=='http_status_200'
+                if label=='untrusted':assert code=='demo_tls_failed'
                 records.append(dict(scenario=label, status=result.status.value, owned_posts=posts,
-                                    private_profile_removed=True))
+                                    private_profile_removed=True,diagnostic_code=code))
             if ui:
                 assert projects.configuration(LOCAL_ACTOR,pid)==before_settings
-                assert len(admissions)==4 and not external and not errors
+                assert len(admissions)==5 and not external and not errors
                 saved_posts=state['posts'];page.reload()
                 panel=page.get_by_role('region',name='Public login demo')
                 expect(panel.get_by_text('Passed',exact=True)).to_have_count(3)
                 expect(panel.get_by_text('Stopped',exact=True)).to_have_count(1)
-                assert state['posts']==saved_posts and len(admissions)==4
+                expect(panel.get_by_text('The demo returned HTTP 302, which did not match this scenario. No automatic retry was made.',exact=True)).to_be_visible()
+                assert state['posts']==saved_posts and len(admissions)==5
                 output=Path('artifacts/demo-login');output.mkdir(parents=True,exist_ok=True)
                 page.screenshot(path=str(output/'desktop.png'),full_page=True)
                 page.set_viewport_size({'width':390,'height':844})
@@ -243,7 +257,7 @@ worker.main()
                   screenshots_or_traces=False, private_profiles_removed=True, ui_to_managed_worker=ui,
                   saved_target_unchanged=ui,reload_did_not_replay=ui,
                   active_post_cancelled=ui,changed_scenario_invalidates_confirmation=ui,
-                  panel_screenshots=2 if ui else 0)
+                  panel_screenshots=2 if ui else 0,diagnostic_explanation_verified=ui)
     output = Path('artifacts/demo-login'); output.mkdir(parents=True, exist_ok=True)
     (output/('ui.json' if ui else 'browser.json')).write_text(json.dumps(report, indent=2)+'\n')
     print(json.dumps(report))

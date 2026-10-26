@@ -6,7 +6,7 @@ visible in the existing local panel. This supersedes the prior read-only limit
 only for this explicitly selected demonstration and its public test account.
 
 The site publishes its test credentials. Its official source uses POST /authenticate,
-a session cookie and a 302 redirect to /secure or /login; GET /logout clears the
+a session cookie and a 303 redirect to /secure or /login; GET /logout clears the
 session and redirects to /login. Sources:
 - https://the-internet.herokuapp.com/login
 - https://github.com/saucelabs/the-internet/blob/main/server.rb
@@ -18,7 +18,7 @@ claim an HTML login passed from HTTP 200 alone.
 ## Delivery sequence
 
 - [x] Add a non-executing, exact-origin three-scenario contract. Require the known
-  302 transitions and reject foreign origins, query/fragment, unexpected routes,
+  method-specific redirects and reject foreign origins, query/fragment, unexpected routes,
   status codes and raw untyped scenario values. No credentials or session values
   are persisted in the contract.
 - [x] Implement a supervised private-browser worker with a hard deadline, public
@@ -73,7 +73,7 @@ The expanded direct mirror proof passed fifteen scenarios, additionally rejectin
 a duplicate POST attempt before contact, private DNS and an oversized initial
 document. The 929-test regression passed with one existing Windows permission skip;
 the additional paid-license test passed in the focused six-test queue suite.
-No public login submissions have been performed by this increment. The 100-case
+At the source-integration checkpoint no public login submissions had been performed. The 100-case
 catalog and Pages demo remain unchanged. This is a known-demo integration, not
 automatic login support for arbitrary customer websites.
 
@@ -86,3 +86,35 @@ twenty-five minutes so installation delays and the added source/installed proofs
 can finish. Target, socket, child-process and cancellation deadlines stay unchanged.
 The superseding exact commit still requires green CI and archive verification;
 neither cancelled attempt is accepted as a successful run.
+
+
+## Public demonstration and protocol compatibility finding
+
+Runtime badd2e4 / Core 40367443724 completed all twelve jobs and twelve verified
+archives with 224 PNGs. Its installed preview replaced 2f6d50c with all twelve
+prior table digests preserved. Three deliberately bounded public-demo scenarios
+then ran through normal authenticated local admission. All three produced technical
+errors with uncertain submission counts; none is a website pass/fail assertion.
+All earlier rows were preserved and exactly three new demo jobs were added. See
+[evidence](evidence/public-demo-login-badd2e4.json) and
+[accepted baseline CI](evidence/demo-login-ci-badd2e4.json).
+
+The first implementation and mirror incorrectly expected HTTP 302 after a POST.
+The site's current Gemfile.lock pins Sinatra 4.2.1. Its official redirect helper
+uses 303 for non-GET HTTP/1.1 requests and 302 for GET. The historical three errors
+have no captured response status, so do not retroactively label their cause proven.
+This verified source-level protocol mismatch is corrected: exact login POST 303,
+exact logout/protected-page GET 302, with the same fixed origin/routes. No generic
+redirect authority is added. Sources:
+- https://github.com/saucelabs/the-internet/blob/main/Gemfile.lock
+- https://github.com/sinatra/sinatra/blob/v4.2.1/lib/sinatra/base.rb
+
+The corrected review fingerprint binds the protocol revision and statuses. New
+technical outcomes carry only a bounded diagnostic code (including a three-digit
+HTTP status), never raw responses, credentials or cookies. Previous result rows
+remain unchanged. A sixteen-scenario owned TLS proof additionally rejects the
+obsolete POST 302 response, and verifies its diagnostic. The UI proof also checks
+that explanation after reload. Finish this fix's installed/CI acceptance, then
+perform one new controlled three-scenario verification cohort under the owner's
+existing demo authorization. Preserve the first cohort and never automatically
+replay an uncertain request or guess additional passwords.

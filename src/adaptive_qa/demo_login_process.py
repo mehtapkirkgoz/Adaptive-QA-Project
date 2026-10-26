@@ -8,7 +8,8 @@ from adaptive_qa.demo_login_contract import LOGIN, AUTHENTICATE, SECURE, LOGOUT,
 from adaptive_qa.demo_login_transport import DemoLoginTransport, demo_body
 from adaptive_qa.interactive_probe import InteractiveProbeResult
 from adaptive_qa.models import TestStatus
-from adaptive_qa.public_submission_process import _run_private_child, SubmissionProcessResult
+from adaptive_qa.public_submission_process import _run_private_child
+from adaptive_qa.demo_login_outcome import DemoProcessResult as SubmissionProcessResult, DemoTransportError, PREFIX
 
 
 def _execute(plan, profile_directory):
@@ -26,7 +27,7 @@ def _execute(plan, profile_directory):
                 page = context.pages[0]
                 page.set_default_timeout(3000)
                 def reject_popup(extra):
-                    denied.append(True)
+                    denied.append('demo_browser_incomplete')
                     extra.close()
                 context.on('page', reject_popup)
                 def route_request(route):
@@ -48,8 +49,8 @@ def _execute(plan, profile_directory):
                             route.fulfill(status=200, headers=headers, body=b'')
                         else:
                             route.fulfill(status=response.status, headers=headers, body=response.body)
-                    except Exception:
-                        denied.append(True)
+                    except Exception as error:
+                        denied.append(error.code if isinstance(error,DemoTransportError) else 'demo_browser_incomplete')
                         route.abort()
                 context.route('**/*', route_request)
                 context.route_web_socket('**/*', lambda socket: socket.close())
@@ -95,20 +96,30 @@ def _execute(plan, profile_directory):
                     matched = (page.url == LOGIN and page.locator('form#login').is_visible()
                                and page.locator('#flash').inner_text().strip().startswith('You must login to view the secure area!'))
                 if denied or not transport.complete:
-                    return SubmissionProcessResult('error', 'transport_error', transport.attempted_submissions)
+                    return SubmissionProcessResult('error', denied[0] if denied else 'demo_browser_incomplete', transport.attempted_submissions)
                 return SubmissionProcessResult('accepted' if matched else 'rejected',
                     'response_accepted' if matched else 'response_rejected', 1)
             finally:
                 context.close()
     except Exception:
-        return SubmissionProcessResult('error', 'transport_error', None if transport.attempted_submissions else 0)
+        return SubmissionProcessResult('error', denied[0] if denied else 'demo_browser_incomplete', None if transport.attempted_submissions else 0)
     finally:
         transport.close()
 
 
 def _read_result(path):
-    from adaptive_qa.public_submission_process import _read_result as read
-    return read(path)
+    from adaptive_qa.local_form_binding import _unique
+    if path.resolve()!=path or not path.is_file() or path.stat().st_nlink!=1:
+        raise ValueError('Invalid demo child result path.')
+    with path.open('rb') as stream:raw=stream.read(4097)
+    if len(raw)>4096:raise ValueError('Oversized demo result.')
+    data=json.loads(raw,object_pairs_hook=_unique)
+    if not isinstance(data,dict) or set(data)!=set(SubmissionProcessResult.__dataclass_fields__):
+        raise ValueError('Invalid demo result fields.')
+    result=SubmissionProcessResult(**data)
+    if result.outcome=='cancelled' or result.reason_code in ('deadline_exceeded','child_start_failed','child_failed','invalid_child_result','cancellation_source_failed'):
+        raise ValueError('Supervisor-only demo outcome.')
+    return result
 
 
 def run_isolated_demo_login(plan, *, timeout_seconds=45, should_cancel=None):
@@ -119,7 +130,8 @@ def run_isolated_demo_login(plan, *, timeout_seconds=45, should_cancel=None):
         timeout_seconds=timeout_seconds, should_cancel=should_cancel)
     status = {'accepted': TestStatus.PASSED, 'rejected': TestStatus.FAILED,
               'blocked': TestStatus.BLOCKED, 'error': TestStatus.ERROR, 'cancelled': TestStatus.CANCELLED}[result.outcome]
-    return InteractiveProbeResult(status, 'Authorized demo login scenario: '+status.value+'.', result.attempted_submissions)
+    message=PREFIX+result.reason_code if status==TestStatus.ERROR else 'Authorized demo login scenario: '+status.value+'.'
+    return InteractiveProbeResult(status,message,result.attempted_submissions)
 
 
 def main():

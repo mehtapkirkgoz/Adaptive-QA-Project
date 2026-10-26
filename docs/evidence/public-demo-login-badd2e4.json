@@ -1,0 +1,41 @@
+{
+  "implementation_commit": "badd2e4dc7355cdcf83f6440f06437ad9757563d",
+  "target": "https://the-internet.herokuapp.com/login",
+  "explicit_owner_authorization": true,
+  "public_demo_account_only": true,
+  "automatic_retry": false,
+  "scenarios": [
+    {
+      "scenario": "accepted_login",
+      "state": "finished",
+      "job_status": "completed",
+      "result": {
+        "status": "error",
+        "attempted_submissions": null
+      }
+    },
+    {
+      "scenario": "rejected_login",
+      "state": "finished",
+      "job_status": "completed",
+      "result": {
+        "status": "error",
+        "attempted_submissions": null
+      }
+    },
+    {
+      "scenario": "login_then_logout",
+      "state": "finished",
+      "job_status": "completed",
+      "result": {
+        "status": "error",
+        "attempted_submissions": null
+      }
+    }
+  ],
+  "state": "completed",
+  "prior_rows_preserved": true,
+  "new_demo_jobs": 3,
+  "customer_targets_contacted": false,
+  "raw_credentials_or_cookies_saved": false
+}

@@ -22,9 +22,10 @@ class SavedDemoLoginReview:
             raise ValueError('A typed owner-scoped demo review is required.')
 
     def fingerprint(self):
-        payload = dict(version=1, owner_id=self.owner_id, project_id=self.project_id,
+        payload = dict(version=2, owner_id=self.owner_id, project_id=self.project_id,
             configuration_fingerprint=self.configuration_fingerprint, scenario=self.plan.scenario.value,
-            document_url=LOGIN, profile='authorized_login_demo', max_submissions=1, demo_consent=True)
+            document_url=LOGIN, profile='authorized_login_demo', max_submissions=1, demo_consent=True,
+            post_redirect_status=303,get_redirect_status=302)
         return hashlib.sha256(json.dumps(payload, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
 
     def public(self):

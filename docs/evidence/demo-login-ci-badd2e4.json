@@ -1,0 +1,2094 @@
+{
+  "implementation_commit": "badd2e4dc7355cdcf83f6440f06437ad9757563d",
+  "run_id": 40367443724,
+  "artifacts": [
+    {
+      "id": 12671570776,
+      "name": "process-lifecycle-ubuntu-24.04",
+      "digest": "sha256:8ac459959a4b2a1baf9b0897dff44f143b07a7c854fa1f0df1ac1be2550a71a3",
+      "bytes": 678,
+      "zip_crc_verified": true,
+      "png_count": 0,
+      "release_verified": false,
+      "reports": {
+        "public-submission.json": {
+          "tests_run": 21,
+          "all_passed": true,
+          "target_scope": "owned_loopback_tls_harness",
+          "connector_override": "test_only",
+          "queue_or_ui_admission_enabled": false,
+          "public_customer_targets_contacted": false,
+          "raw_inputs_in_report": false,
+          "numeric_peer_pinning_and_verified_tls": true,
+          "one_shot_and_no_submission_retry": true,
+          "lost_response_retains_uncertain_delivery": true,
+          "hard_child_deadlines_and_cancellation": true,
+          "exact_owner_project_references": true,
+          "values_resolved_only_in_child": true,
+          "browser_completion_or_catalog_pass_claimed": false,
+          "installed_wheel": false,
+          "supervised_child_package_verified": false
+        }
+      }
+    },
+    {
+      "id": 12671475894,
+      "name": "inactive-release-badd2e4dc7355cdcf83f6440f06437ad9757563d",
+      "digest": "sha256:e7801dc7a77a17dc7f4ef586cb0b517c9bf06d381f35565f6bd5880ff09711c0",
+      "bytes": 366065,
+      "zip_crc_verified": true,
+      "png_count": 0,
+      "release_verified": true,
+      "reports": {}
+    },
+    {
+      "id": 12671351325,
+      "name": "local-database-evidence-windows-2025",
+      "digest": "sha256:8ba2ffc0cfebf4f61853f68b6c58163f4d27ebd15bb8c49e6313b39487c99c57",
+      "bytes": 2109,
+      "zip_crc_verified": true,
+      "png_count": 0,
+      "release_verified": false,
+      "reports": {}
+    },
+    {
+      "id": 12670703860,
+      "name": "local-browser-evidence",
+      "digest": "sha256:2baff738e0203193967ae3888379489f09a1f6501ada32ad3f9dba272beb4e45",
+      "bytes": 1827401,
+      "zip_crc_verified": true,
+      "png_count": 12,
+      "release_verified": false,
+      "reports": {
+        "dashboard/reusable-editor.json": {
+          "owned_local_only": true,
+          "worker_entrypoint": "dashboard free-worker-cycle",
+          "ui_saved_reviewed_confirmed_executed": [
+            {
+              "operation": "login",
+              "expected": "positive",
+              "result": "passed"
+            },
+            {
+              "operation": "search",
+              "expected": "negative",
+              "result": "passed"
+            }
+          ],
+          "contacts": {
+            "documents": 2,
+            "posts": 2,
+            "bad": 0
+          },
+          "edit_clears_confirmation": true,
+          "unsaved_review_blocked": true,
+          "removal_verified": true,
+          "ui_external_requests": 0,
+          "page_errors": 0,
+          "mobile_overflow": false,
+          "credential_values_entered_in_ui": false,
+          "https_saved_reviewed_confirmed_cancelled": true,
+          "https_ui_target_contacts": 0,
+          "https_edit_clears_confirmation": true,
+          "installed_wheel": false,
+          "supervised_child_package_verified": false
+        }
+      }
+    },
+    {
+      "id": 12670463322,
+      "name": "inactive-rollback-plan-badd2e4dc7355cdcf83f6440f06437ad9757563d",
+      "digest": "sha256:5ba4dcf93a28ff60dd46b5655eed9059f9a9fbbfa47478da870ddedea7bf36e7",
+      "bytes": 367,
+      "zip_crc_verified": true,
+      "png_count": 0,
+      "release_verified": false,
+      "reports": {}
+    },
+    {
+      "id": 12670438501,
+      "name": "process-lifecycle-windows-2025",
+      "digest": "sha256:e62fb0da7957f1858dbc2846c607c1e97a99f77c782217d0739e59ba2a0691d4",
+      "bytes": 685,
+      "zip_crc_verified": true,
+      "png_count": 0,
+      "release_verified": false,
+      "reports": {
+        "public-submission.json": {
+          "tests_run": 21,
+          "all_passed": true,
+          "target_scope": "owned_loopback_tls_harness",
+          "connector_override": "test_only",
+          "queue_or_ui_admission_enabled": false,
+          "public_customer_targets_contacted": false,
+          "raw_inputs_in_report": false,
+          "numeric_peer_pinning_and_verified_tls": true,
+          "one_shot_and_no_submission_retry": true,
+          "lost_response_retains_uncertain_delivery": true,
+          "hard_child_deadlines_and_cancellation": true,
+          "exact_owner_project_references": true,
+          "values_resolved_only_in_child": true,
+          "browser_completion_or_catalog_pass_claimed": false,
+          "installed_wheel": false,
+          "supervised_child_package_verified": false
+        }
+      }
+    },
+    {
+      "id": 12670148961,
+      "name": "browser-integration-evidence",
+      "digest": "sha256:90f9090e3522ab0956de63ef16f9df91b29eb9334986e1136a82eddedaa7acb7",
+      "bytes": 2016993,
+      "zip_crc_verified": true,
+      "png_count": 53,
+      "release_verified": false,
+      "reports": {}
+    },
+    {
+      "id": 12670094037,
+      "name": "local-database-evidence-ubuntu-24.04",
+      "digest": "sha256:3bab4e4978da9da1264f15111760e59510e156453a3a945e212ad463bbb229bf",
+      "bytes": 2095,
+      "zip_crc_verified": true,
+      "png_count": 0,
+      "release_verified": false,
+      "reports": {}
+    },
+    {
+      "id": 12670029316,
+      "name": "local-api-evidence",
+      "digest": "sha256:483acb09a348461207db7aa8c741a08101ea96237a8d171a5b7a38218ebcd763",
+      "bytes": 17051,
+      "zip_crc_verified": true,
+      "png_count": 0,
+      "release_verified": false,
+      "reports": {}
+    },
+    {
+      "id": 12670578455,
+      "name": "local-runtime-ubuntu-24.04",
+      "digest": "sha256:b86f643f7b66d1734e73aabcdf7e6502ef99f17abd81a0f7f19c9fbc5a7bdceb",
+      "bytes": 4869,
+      "zip_crc_verified": true,
+      "png_count": 0,
+      "release_verified": false,
+      "reports": {
+        "public-submission/browser-process.json": {
+          "scenarios": [
+            {
+              "scenario": "search-positive",
+              "status": "passed",
+              "attempted_submissions": 1,
+              "input_references_attempted": 1,
+              "owned_tls_posts": 1,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "login-positive",
+              "status": "passed",
+              "attempted_submissions": 1,
+              "input_references_attempted": 2,
+              "owned_tls_posts": 1,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "search-negative",
+              "status": "passed",
+              "attempted_submissions": 1,
+              "input_references_attempted": 1,
+              "owned_tls_posts": 1,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "same-origin-asset",
+              "status": "passed",
+              "attempted_submissions": 1,
+              "input_references_attempted": 1,
+              "owned_tls_posts": 1,
+              "owned_tls_document_requests": 2,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "preexisting",
+              "status": "blocked",
+              "attempted_submissions": 0,
+              "input_references_attempted": 0,
+              "owned_tls_posts": 0,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "wrong-action",
+              "status": "blocked",
+              "attempted_submissions": 0,
+              "input_references_attempted": 0,
+              "owned_tls_posts": 0,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "marker-only",
+              "status": "failed",
+              "attempted_submissions": 0,
+              "input_references_attempted": 1,
+              "owned_tls_posts": 0,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "missing-marker",
+              "status": "failed",
+              "attempted_submissions": 1,
+              "input_references_attempted": 1,
+              "owned_tls_posts": 1,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "contradictory-response",
+              "status": "failed",
+              "attempted_submissions": 1,
+              "input_references_attempted": 1,
+              "owned_tls_posts": 1,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "canary",
+              "status": "error",
+              "attempted_submissions": 0,
+              "input_references_attempted": 1,
+              "owned_tls_posts": 0,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "changed-body",
+              "status": "error",
+              "attempted_submissions": 0,
+              "input_references_attempted": 1,
+              "owned_tls_posts": 0,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "duplicate-post",
+              "status": "error",
+              "attempted_submissions": 1,
+              "input_references_attempted": 1,
+              "owned_tls_posts": 1,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "private-dns",
+              "status": "error",
+              "attempted_submissions": 0,
+              "input_references_attempted": 0,
+              "owned_tls_posts": 0,
+              "owned_tls_document_requests": 0,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "untrusted-browser-tls",
+              "status": "error",
+              "attempted_submissions": 0,
+              "input_references_attempted": 0,
+              "owned_tls_posts": 0,
+              "owned_tls_document_requests": 0,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "document-redirect",
+              "status": "error",
+              "attempted_submissions": 0,
+              "input_references_attempted": 0,
+              "owned_tls_posts": 0,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "missing-input",
+              "status": "blocked",
+              "attempted_submissions": 0,
+              "input_references_attempted": 1,
+              "owned_tls_posts": 0,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "slow-tls",
+              "status": "error",
+              "attempted_submissions": null,
+              "input_references_attempted": null,
+              "owned_tls_posts": 1,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            }
+          ],
+          "installed_wheel": false,
+          "supervised_child_package_verified": false,
+          "actual_owned_tls_documents": true,
+          "actual_owned_tls_posts": true,
+          "supervised_browser_worker": true,
+          "test_connector_only": true,
+          "browser_test_certificate_pin": "ephemeral_owned_spki_only",
+          "production_tls_override_exposed": false,
+          "queue_or_ui_admission_enabled": false,
+          "public_backend_activated": false,
+          "owner_preview_activated": false,
+          "public_customer_targets_contacted": false,
+          "raw_inputs_in_report": false,
+          "screenshots_or_traces_taken": false,
+          "private_profiles_removed": true,
+          "quick": false,
+          "owned_fixture_queue_verified": false
+        },
+        "public-submission/browser-queue.json": {
+          "scenarios": [
+            {
+              "scenario": "search-positive",
+              "status": "passed",
+              "attempted_submissions": 1,
+              "input_references_attempted": 1,
+              "owned_tls_posts": 1,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "login-positive",
+              "status": "passed",
+              "attempted_submissions": 1,
+              "input_references_attempted": 2,
+              "owned_tls_posts": 1,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "search-negative",
+              "status": "passed",
+              "attempted_submissions": 1,
+              "input_references_attempted": 1,
+              "owned_tls_posts": 1,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "duplicate-post",
+              "status": "error",
+              "attempted_submissions": 1,
+              "input_references_attempted": 1,
+              "owned_tls_posts": 1,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "missing-input",
+              "status": "blocked",
+              "attempted_submissions": 0,
+              "input_references_attempted": 1,
+              "owned_tls_posts": 0,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            }
+          ],
+          "installed_wheel": false,
+          "supervised_child_package_verified": false,
+          "actual_owned_tls_documents": true,
+          "actual_owned_tls_posts": true,
+          "supervised_browser_worker": true,
+          "test_connector_only": true,
+          "browser_test_certificate_pin": "ephemeral_owned_spki_only",
+          "production_tls_override_exposed": false,
+          "queue_or_ui_admission_enabled": true,
+          "public_backend_activated": false,
+          "owner_preview_activated": false,
+          "public_customer_targets_contacted": false,
+          "raw_inputs_in_report": false,
+          "screenshots_or_traces_taken": false,
+          "private_profiles_removed": true,
+          "quick": false,
+          "owned_fixture_queue_verified": true
+        }
+      }
+    },
+    {
+      "id": 12670233762,
+      "name": "local-runtime-windows-2025",
+      "digest": "sha256:91fc889f2bd0f99d65875f658a52714b77e967cacfee7196c3181f0333b7ccc0",
+      "bytes": 4908,
+      "zip_crc_verified": true,
+      "png_count": 0,
+      "release_verified": false,
+      "reports": {
+        "public-submission/browser-process.json": {
+          "scenarios": [
+            {
+              "scenario": "search-positive",
+              "status": "passed",
+              "attempted_submissions": 1,
+              "input_references_attempted": 1,
+              "owned_tls_posts": 1,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "login-positive",
+              "status": "passed",
+              "attempted_submissions": 1,
+              "input_references_attempted": 2,
+              "owned_tls_posts": 1,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "search-negative",
+              "status": "passed",
+              "attempted_submissions": 1,
+              "input_references_attempted": 1,
+              "owned_tls_posts": 1,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "same-origin-asset",
+              "status": "passed",
+              "attempted_submissions": 1,
+              "input_references_attempted": 1,
+              "owned_tls_posts": 1,
+              "owned_tls_document_requests": 2,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "preexisting",
+              "status": "blocked",
+              "attempted_submissions": 0,
+              "input_references_attempted": 0,
+              "owned_tls_posts": 0,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "wrong-action",
+              "status": "blocked",
+              "attempted_submissions": 0,
+              "input_references_attempted": 0,
+              "owned_tls_posts": 0,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "marker-only",
+              "status": "failed",
+              "attempted_submissions": 0,
+              "input_references_attempted": 1,
+              "owned_tls_posts": 0,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "missing-marker",
+              "status": "failed",
+              "attempted_submissions": 1,
+              "input_references_attempted": 1,
+              "owned_tls_posts": 1,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "contradictory-response",
+              "status": "failed",
+              "attempted_submissions": 1,
+              "input_references_attempted": 1,
+              "owned_tls_posts": 1,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "canary",
+              "status": "error",
+              "attempted_submissions": 0,
+              "input_references_attempted": 1,
+              "owned_tls_posts": 0,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "changed-body",
+              "status": "error",
+              "attempted_submissions": 0,
+              "input_references_attempted": 1,
+              "owned_tls_posts": 0,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "duplicate-post",
+              "status": "error",
+              "attempted_submissions": 1,
+              "input_references_attempted": 1,
+              "owned_tls_posts": 1,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "private-dns",
+              "status": "error",
+              "attempted_submissions": 0,
+              "input_references_attempted": 0,
+              "owned_tls_posts": 0,
+              "owned_tls_document_requests": 0,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "untrusted-browser-tls",
+              "status": "error",
+              "attempted_submissions": 0,
+              "input_references_attempted": 0,
+              "owned_tls_posts": 0,
+              "owned_tls_document_requests": 0,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "document-redirect",
+              "status": "error",
+              "attempted_submissions": 0,
+              "input_references_attempted": 0,
+              "owned_tls_posts": 0,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "missing-input",
+              "status": "blocked",
+              "attempted_submissions": 0,
+              "input_references_attempted": 1,
+              "owned_tls_posts": 0,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "slow-tls",
+              "status": "error",
+              "attempted_submissions": null,
+              "input_references_attempted": null,
+              "owned_tls_posts": 1,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            }
+          ],
+          "installed_wheel": false,
+          "supervised_child_package_verified": false,
+          "actual_owned_tls_documents": true,
+          "actual_owned_tls_posts": true,
+          "supervised_browser_worker": true,
+          "test_connector_only": true,
+          "browser_test_certificate_pin": "ephemeral_owned_spki_only",
+          "production_tls_override_exposed": false,
+          "queue_or_ui_admission_enabled": false,
+          "public_backend_activated": false,
+          "owner_preview_activated": false,
+          "public_customer_targets_contacted": false,
+          "raw_inputs_in_report": false,
+          "screenshots_or_traces_taken": false,
+          "private_profiles_removed": true,
+          "quick": false,
+          "owned_fixture_queue_verified": false
+        },
+        "public-submission/browser-queue.json": {
+          "scenarios": [
+            {
+              "scenario": "search-positive",
+              "status": "passed",
+              "attempted_submissions": 1,
+              "input_references_attempted": 1,
+              "owned_tls_posts": 1,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "login-positive",
+              "status": "passed",
+              "attempted_submissions": 1,
+              "input_references_attempted": 2,
+              "owned_tls_posts": 1,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "search-negative",
+              "status": "passed",
+              "attempted_submissions": 1,
+              "input_references_attempted": 1,
+              "owned_tls_posts": 1,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "duplicate-post",
+              "status": "error",
+              "attempted_submissions": 1,
+              "input_references_attempted": 1,
+              "owned_tls_posts": 1,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "missing-input",
+              "status": "blocked",
+              "attempted_submissions": 0,
+              "input_references_attempted": 1,
+              "owned_tls_posts": 0,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            }
+          ],
+          "installed_wheel": false,
+          "supervised_child_package_verified": false,
+          "actual_owned_tls_documents": true,
+          "actual_owned_tls_posts": true,
+          "supervised_browser_worker": true,
+          "test_connector_only": true,
+          "browser_test_certificate_pin": "ephemeral_owned_spki_only",
+          "production_tls_override_exposed": false,
+          "queue_or_ui_admission_enabled": true,
+          "public_backend_activated": false,
+          "owner_preview_activated": false,
+          "public_customer_targets_contacted": false,
+          "raw_inputs_in_report": false,
+          "screenshots_or_traces_taken": false,
+          "private_profiles_removed": true,
+          "quick": false,
+          "owned_fixture_queue_verified": true
+        }
+      }
+    },
+    {
+      "id": 12671324135,
+      "name": "ui-catalog-evidence",
+      "digest": "sha256:37eaad1751a6aaa26b5a6118fd474736e52bc38f2c0fe85658e82c2d5eaa109c",
+      "bytes": 7066929,
+      "zip_crc_verified": true,
+      "png_count": 159,
+      "release_verified": false,
+      "reports": {
+        "matching/configured-document.json": {
+          "source_html_excludes_scripts": true,
+          "outcomes": [
+            {
+              "case_id": "DOC-001",
+              "status": "passed",
+              "fixture": "/information.html"
+            },
+            {
+              "case_id": "DOC-002",
+              "status": "passed",
+              "fixture": "/information.html"
+            },
+            {
+              "case_id": "DOC-003",
+              "status": "passed",
+              "fixture": "/information.html"
+            },
+            {
+              "case_id": "DOC-004",
+              "status": "passed",
+              "fixture": "/information.html"
+            },
+            {
+              "case_id": "DOC-005",
+              "status": "passed",
+              "fixture": "/information.html"
+            },
+            {
+              "case_id": "DOC-001",
+              "status": "passed",
+              "fixture": "/shop.html"
+            },
+            {
+              "case_id": "DOC-002",
+              "status": "passed",
+              "fixture": "/shop.html"
+            },
+            {
+              "case_id": "DOC-003",
+              "status": "passed",
+              "fixture": "/shop.html"
+            },
+            {
+              "case_id": "DOC-004",
+              "status": "passed",
+              "fixture": "/shop.html"
+            },
+            {
+              "case_id": "DOC-005",
+              "status": "passed",
+              "fixture": "/shop.html"
+            },
+            {
+              "case_id": "DOC-001",
+              "status": "failed",
+              "fixture": "/negative-DOC-001.html"
+            },
+            {
+              "case_id": "DOC-002",
+              "status": "failed",
+              "fixture": "/negative-DOC-002.html"
+            },
+            {
+              "case_id": "DOC-003",
+              "status": "failed",
+              "fixture": "/negative-DOC-003.html"
+            },
+            {
+              "case_id": "DOC-004",
+              "status": "failed",
+              "fixture": "/negative-DOC-004.html"
+            },
+            {
+              "case_id": "DOC-005",
+              "status": "failed",
+              "fixture": "/negative-DOC-005.html"
+            },
+            {
+              "case_id": "DOC-001",
+              "status": "error",
+              "fixture": "/redirect.html"
+            },
+            {
+              "case_id": "DOC-001",
+              "status": "passed",
+              "fixture": "/blocked.html"
+            },
+            {
+              "case_id": "DOC-001",
+              "status": "failed",
+              "fixture": "/blocked-invalid.html"
+            }
+          ],
+          "contacts": {
+            "canary": 0,
+            "writes": 0
+          },
+          "public_https_tested": false,
+          "dashboard_activation": false
+        },
+        "local-free/ui.json": {
+          "account_required": false,
+          "worker_entrypoint": "dashboard free-worker-cycle",
+          "one_project_cap": true,
+          "real_local_login_check_passed": true,
+          "ui_preserved_saved_api_binding": true,
+          "api_editor_save_reload_remove": true,
+          "api_jobs_explicitly_confirmed": 2,
+          "api_job_cancelled_before_execution": true,
+          "api_ui_cli_result": "passed",
+          "api_requests": 1,
+          "api_unsaved_confirmation_cleared": true,
+          "ui_preserved_saved_database_binding": true,
+          "database_editor_save_reload_remove": true,
+          "database_jobs_explicitly_confirmed": 2,
+          "database_job_cancelled_before_execution": true,
+          "database_ui_cli_result": "passed",
+          "database_fixture_unchanged": true,
+          "database_unsaved_confirmation_cleared": true,
+          "empty_numeric_inputs_blocked": true,
+          "redirect_api_expectation_blocked": true,
+          "free_session_reopen_without_login_or_mutation_retry": true,
+          "nested_panel_session_loss_recovered_without_requeue": true,
+          "api_and_database_history_failure_blocks_admission_until_manual_refresh": true,
+          "late_old_session_failure_does_not_clear_reopened_workspace": true,
+          "discovery_admission_blocked_during_unsaved_and_pending_save": true,
+          "auth_database_created": false,
+          "central_requests": 0,
+          "page_errors": []
+        },
+        "https-api/free.json": {
+          "licensed": false,
+          "installed_wheel": false,
+          "explicitly_confirmed_jobs": 6,
+          "passed_status_contracts": 3,
+          "status_only_non_json_passed": true,
+          "redirect_failed_without_follow": true,
+          "untrusted_tls_failed_before_http": true,
+          "cancelled_without_retry": true,
+          "unsaved_confirmation_cleared": true,
+          "older_backend_capability_fail_closed": true,
+          "actual_fixture_http_requests": 4,
+          "ui_external_requests": 0,
+          "page_errors": [],
+          "secret_headers_sent": false,
+          "test_socket_override": "owned_fixture_only",
+          "customer_network_verified": false
+        },
+        "https-api/installed-licensed.json": {
+          "licensed": true,
+          "installed_wheel": true,
+          "explicitly_confirmed_jobs": 6,
+          "passed_status_contracts": 3,
+          "status_only_non_json_passed": true,
+          "redirect_failed_without_follow": true,
+          "untrusted_tls_failed_before_http": true,
+          "cancelled_without_retry": true,
+          "unsaved_confirmation_cleared": true,
+          "older_backend_capability_fail_closed": true,
+          "actual_fixture_http_requests": 4,
+          "ui_external_requests": 0,
+          "page_errors": [],
+          "secret_headers_sent": false,
+          "test_socket_override": "owned_fixture_only",
+          "customer_network_verified": false
+        },
+        "https-api/licensed.json": {
+          "licensed": true,
+          "installed_wheel": false,
+          "explicitly_confirmed_jobs": 6,
+          "passed_status_contracts": 3,
+          "status_only_non_json_passed": true,
+          "redirect_failed_without_follow": true,
+          "untrusted_tls_failed_before_http": true,
+          "cancelled_without_retry": true,
+          "unsaved_confirmation_cleared": true,
+          "older_backend_capability_fail_closed": true,
+          "actual_fixture_http_requests": 4,
+          "ui_external_requests": 0,
+          "page_errors": [],
+          "secret_headers_sent": false,
+          "test_socket_override": "owned_fixture_only",
+          "customer_network_verified": false
+        },
+        "site-check/free.json": {
+          "licensed": false,
+          "installed_wheel": false,
+          "supervised_child_package_verified": false,
+          "one_click_admissions": 1,
+          "explicit_check_requests": 3,
+          "failed_checks_shown_separately": true,
+          "cancellation_verified": true,
+          "managed_workers": true,
+          "manual_worker_commands": 0,
+          "recorded_results": 10,
+          "inspected_pages": 1,
+          "all_recorded_passed": true,
+          "reload_did_not_replay": true,
+          "advanced_controls_preserved": true,
+          "unified_english_workspace": true,
+          "native_email_checks_automatically_executed": true,
+          "empty_and_execution_error_states_verified": true,
+          "partial_outcome_state_verified": true,
+          "mobile_overflow": false,
+          "ui_external_requests": 0,
+          "page_errors": [],
+          "target_scope": "owned_controlled_loopback_fixture",
+          "customer_deployment_verified": false,
+          "explicit_dns_failure_explanation": true,
+          "native_number_bounds_automatically_executed": true,
+          "base_document_checks_preserved": true
+        },
+        "site-check/installed-licensed.json": {
+          "licensed": true,
+          "installed_wheel": true,
+          "supervised_child_package_verified": true,
+          "one_click_admissions": 1,
+          "explicit_check_requests": 3,
+          "failed_checks_shown_separately": true,
+          "cancellation_verified": true,
+          "managed_workers": true,
+          "manual_worker_commands": 0,
+          "recorded_results": 10,
+          "inspected_pages": 1,
+          "all_recorded_passed": true,
+          "reload_did_not_replay": true,
+          "advanced_controls_preserved": true,
+          "unified_english_workspace": true,
+          "native_email_checks_automatically_executed": true,
+          "empty_and_execution_error_states_verified": true,
+          "partial_outcome_state_verified": true,
+          "mobile_overflow": false,
+          "ui_external_requests": 0,
+          "page_errors": [],
+          "target_scope": "owned_controlled_loopback_fixture",
+          "customer_deployment_verified": false,
+          "explicit_dns_failure_explanation": true,
+          "native_number_bounds_automatically_executed": true,
+          "base_document_checks_preserved": true
+        },
+        "site-check/licensed.json": {
+          "licensed": true,
+          "installed_wheel": false,
+          "supervised_child_package_verified": false,
+          "one_click_admissions": 1,
+          "explicit_check_requests": 3,
+          "failed_checks_shown_separately": true,
+          "cancellation_verified": true,
+          "managed_workers": true,
+          "manual_worker_commands": 0,
+          "recorded_results": 10,
+          "inspected_pages": 1,
+          "all_recorded_passed": true,
+          "reload_did_not_replay": true,
+          "advanced_controls_preserved": true,
+          "unified_english_workspace": true,
+          "native_email_checks_automatically_executed": true,
+          "empty_and_execution_error_states_verified": true,
+          "partial_outcome_state_verified": true,
+          "mobile_overflow": false,
+          "ui_external_requests": 0,
+          "page_errors": [],
+          "target_scope": "owned_controlled_loopback_fixture",
+          "customer_deployment_verified": false,
+          "explicit_dns_failure_explanation": true,
+          "native_number_bounds_automatically_executed": true,
+          "base_document_checks_preserved": true
+        },
+        "html-inspection/installed.json": {
+          "legacy_native_email_contract_consistent": true,
+          "native_email_outcomes": [
+            "passed",
+            "passed",
+            "failed",
+            "blocked",
+            "blocked",
+            "blocked",
+            "error"
+          ],
+          "native_email_no_input_events_or_submissions": true,
+          "installed_wheel": true,
+          "source_html_passes": 5,
+          "source_html_assertion_failures": 2,
+          "redirect_blocked": true,
+          "rendered_form_coverage_still_fails_closed": true,
+          "scripts_assets_and_frames_excluded": true,
+          "mutation_requests": 0,
+          "private_destination_not_contacted": true,
+          "scope": "owned_controlled_fixture"
+        },
+        "html-inspection/report.json": {
+          "legacy_native_email_contract_consistent": true,
+          "native_email_outcomes": [
+            "passed",
+            "passed",
+            "failed",
+            "blocked",
+            "blocked",
+            "blocked",
+            "error"
+          ],
+          "native_email_no_input_events_or_submissions": true,
+          "installed_wheel": false,
+          "source_html_passes": 5,
+          "source_html_assertion_failures": 2,
+          "redirect_blocked": true,
+          "rendered_form_coverage_still_fails_closed": true,
+          "scripts_assets_and_frames_excluded": true,
+          "mutation_requests": 0,
+          "private_destination_not_contacted": true,
+          "scope": "owned_controlled_fixture"
+        },
+        "native-numbers/installed.json": {
+          "scenarios": [
+            {
+              "path": "/stock",
+              "case_id": "FORM-008",
+              "status": "passed"
+            },
+            {
+              "path": "/stock",
+              "case_id": "FORM-009",
+              "status": "passed"
+            },
+            {
+              "path": "/balance",
+              "case_id": "FORM-008",
+              "status": "passed"
+            },
+            {
+              "path": "/balance",
+              "case_id": "FORM-009",
+              "status": "passed"
+            },
+            {
+              "path": "/min",
+              "case_id": "FORM-008",
+              "status": "passed"
+            },
+            {
+              "path": "/min",
+              "case_id": "FORM-009",
+              "status": "blocked"
+            },
+            {
+              "path": "/max",
+              "case_id": "FORM-008",
+              "status": "blocked"
+            },
+            {
+              "path": "/max",
+              "case_id": "FORM-009",
+              "status": "passed"
+            },
+            {
+              "path": "/ambiguous",
+              "case_id": "FORM-008",
+              "status": "blocked"
+            },
+            {
+              "path": "/ambiguous",
+              "case_id": "FORM-009",
+              "status": "blocked"
+            },
+            {
+              "path": "/disabled",
+              "case_id": "FORM-008",
+              "status": "blocked"
+            },
+            {
+              "path": "/disabled",
+              "case_id": "FORM-009",
+              "status": "blocked"
+            },
+            {
+              "path": "/readonly",
+              "case_id": "FORM-008",
+              "status": "blocked"
+            },
+            {
+              "path": "/readonly",
+              "case_id": "FORM-009",
+              "status": "blocked"
+            },
+            {
+              "path": "/hidden",
+              "case_id": "FORM-008",
+              "status": "blocked"
+            },
+            {
+              "path": "/hidden",
+              "case_id": "FORM-009",
+              "status": "blocked"
+            },
+            {
+              "path": "/invalid",
+              "case_id": "FORM-008",
+              "status": "blocked"
+            },
+            {
+              "path": "/invalid",
+              "case_id": "FORM-009",
+              "status": "blocked"
+            },
+            {
+              "path": "/unbounded",
+              "case_id": "FORM-008",
+              "status": "blocked"
+            },
+            {
+              "path": "/unbounded",
+              "case_id": "FORM-009",
+              "status": "blocked"
+            },
+            {
+              "path": "/none",
+              "case_id": "FORM-008",
+              "status": "blocked"
+            },
+            {
+              "path": "/none",
+              "case_id": "FORM-009",
+              "status": "blocked"
+            }
+          ],
+          "passed": 6,
+          "blocked": 16,
+          "redirect_rejected": true,
+          "page_events": 0,
+          "submissions": 0,
+          "live_value_preserved": true,
+          "live_value_getter_not_read": true,
+          "constraints_from_site": true,
+          "unique_field_required": true,
+          "discovery_booleans_verified": true,
+          "installed_wheel": true,
+          "supervised_child_package_verified": true,
+          "owned_fixtures_only": true,
+          "customer_targets_contacted": false
+        },
+        "native-numbers/report.json": {
+          "scenarios": [
+            {
+              "path": "/stock",
+              "case_id": "FORM-008",
+              "status": "passed"
+            },
+            {
+              "path": "/stock",
+              "case_id": "FORM-009",
+              "status": "passed"
+            },
+            {
+              "path": "/balance",
+              "case_id": "FORM-008",
+              "status": "passed"
+            },
+            {
+              "path": "/balance",
+              "case_id": "FORM-009",
+              "status": "passed"
+            },
+            {
+              "path": "/min",
+              "case_id": "FORM-008",
+              "status": "passed"
+            },
+            {
+              "path": "/min",
+              "case_id": "FORM-009",
+              "status": "blocked"
+            },
+            {
+              "path": "/max",
+              "case_id": "FORM-008",
+              "status": "blocked"
+            },
+            {
+              "path": "/max",
+              "case_id": "FORM-009",
+              "status": "passed"
+            },
+            {
+              "path": "/ambiguous",
+              "case_id": "FORM-008",
+              "status": "blocked"
+            },
+            {
+              "path": "/ambiguous",
+              "case_id": "FORM-009",
+              "status": "blocked"
+            },
+            {
+              "path": "/disabled",
+              "case_id": "FORM-008",
+              "status": "blocked"
+            },
+            {
+              "path": "/disabled",
+              "case_id": "FORM-009",
+              "status": "blocked"
+            },
+            {
+              "path": "/readonly",
+              "case_id": "FORM-008",
+              "status": "blocked"
+            },
+            {
+              "path": "/readonly",
+              "case_id": "FORM-009",
+              "status": "blocked"
+            },
+            {
+              "path": "/hidden",
+              "case_id": "FORM-008",
+              "status": "blocked"
+            },
+            {
+              "path": "/hidden",
+              "case_id": "FORM-009",
+              "status": "blocked"
+            },
+            {
+              "path": "/invalid",
+              "case_id": "FORM-008",
+              "status": "blocked"
+            },
+            {
+              "path": "/invalid",
+              "case_id": "FORM-009",
+              "status": "blocked"
+            },
+            {
+              "path": "/unbounded",
+              "case_id": "FORM-008",
+              "status": "blocked"
+            },
+            {
+              "path": "/unbounded",
+              "case_id": "FORM-009",
+              "status": "blocked"
+            },
+            {
+              "path": "/none",
+              "case_id": "FORM-008",
+              "status": "blocked"
+            },
+            {
+              "path": "/none",
+              "case_id": "FORM-009",
+              "status": "blocked"
+            }
+          ],
+          "passed": 6,
+          "blocked": 16,
+          "redirect_rejected": true,
+          "page_events": 0,
+          "submissions": 0,
+          "live_value_preserved": true,
+          "live_value_getter_not_read": true,
+          "constraints_from_site": true,
+          "unique_field_required": true,
+          "discovery_booleans_verified": true,
+          "installed_wheel": false,
+          "supervised_child_package_verified": false,
+          "owned_fixtures_only": true,
+          "customer_targets_contacted": false
+        },
+        "demo-login/browser.json": {
+          "scenarios": [
+            {
+              "scenario": "accepted",
+              "status": "passed",
+              "owned_posts": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "rejected",
+              "status": "passed",
+              "owned_posts": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "logout",
+              "status": "passed",
+              "owned_posts": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "foreign",
+              "status": "error",
+              "owned_posts": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "status",
+              "status": "error",
+              "owned_posts": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "marker",
+              "status": "failed",
+              "owned_posts": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "cookie",
+              "status": "error",
+              "owned_posts": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "logout-not-cleared",
+              "status": "error",
+              "owned_posts": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "missing",
+              "status": "blocked",
+              "owned_posts": 0,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "untrusted",
+              "status": "error",
+              "owned_posts": 0,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "cancelled",
+              "status": "cancelled",
+              "owned_posts": 0,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "deadline",
+              "status": "error",
+              "owned_posts": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "duplicate",
+              "status": "error",
+              "owned_posts": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "private-dns",
+              "status": "error",
+              "owned_posts": 0,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "oversize",
+              "status": "error",
+              "owned_posts": 0,
+              "private_profile_removed": true
+            }
+          ],
+          "installed_wheel": false,
+          "supervised_child_package_verified": false,
+          "owned_tls_only": true,
+          "external_demo_contacted": false,
+          "customer_targets_contacted": false,
+          "production_tls_override_exposed": false,
+          "raw_credentials_or_cookies_saved": false,
+          "screenshots_or_traces": false,
+          "private_profiles_removed": true,
+          "ui_to_managed_worker": false,
+          "saved_target_unchanged": false,
+          "reload_did_not_replay": false,
+          "active_post_cancelled": false,
+          "changed_scenario_invalidates_confirmation": false,
+          "panel_screenshots": 0
+        },
+        "demo-login/installed-browser.json": {
+          "scenarios": [
+            {
+              "scenario": "accepted",
+              "status": "passed",
+              "owned_posts": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "rejected",
+              "status": "passed",
+              "owned_posts": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "logout",
+              "status": "passed",
+              "owned_posts": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "foreign",
+              "status": "error",
+              "owned_posts": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "status",
+              "status": "error",
+              "owned_posts": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "marker",
+              "status": "failed",
+              "owned_posts": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "cookie",
+              "status": "error",
+              "owned_posts": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "logout-not-cleared",
+              "status": "error",
+              "owned_posts": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "missing",
+              "status": "blocked",
+              "owned_posts": 0,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "untrusted",
+              "status": "error",
+              "owned_posts": 0,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "cancelled",
+              "status": "cancelled",
+              "owned_posts": 0,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "deadline",
+              "status": "error",
+              "owned_posts": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "duplicate",
+              "status": "error",
+              "owned_posts": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "private-dns",
+              "status": "error",
+              "owned_posts": 0,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "oversize",
+              "status": "error",
+              "owned_posts": 0,
+              "private_profile_removed": true
+            }
+          ],
+          "installed_wheel": true,
+          "supervised_child_package_verified": true,
+          "owned_tls_only": true,
+          "external_demo_contacted": false,
+          "customer_targets_contacted": false,
+          "production_tls_override_exposed": false,
+          "raw_credentials_or_cookies_saved": false,
+          "screenshots_or_traces": false,
+          "private_profiles_removed": true,
+          "ui_to_managed_worker": false,
+          "saved_target_unchanged": false,
+          "reload_did_not_replay": false,
+          "active_post_cancelled": false,
+          "changed_scenario_invalidates_confirmation": false,
+          "panel_screenshots": 0
+        },
+        "demo-login/installed-ui.json": {
+          "scenarios": [
+            {
+              "scenario": "accepted",
+              "status": "passed",
+              "owned_posts": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "rejected",
+              "status": "passed",
+              "owned_posts": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "logout",
+              "status": "passed",
+              "owned_posts": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "cancel-active",
+              "status": "cancelled",
+              "owned_posts": 1,
+              "private_profile_removed": true
+            }
+          ],
+          "installed_wheel": true,
+          "supervised_child_package_verified": true,
+          "owned_tls_only": true,
+          "external_demo_contacted": false,
+          "customer_targets_contacted": false,
+          "production_tls_override_exposed": false,
+          "raw_credentials_or_cookies_saved": false,
+          "screenshots_or_traces": false,
+          "private_profiles_removed": true,
+          "ui_to_managed_worker": true,
+          "saved_target_unchanged": true,
+          "reload_did_not_replay": true,
+          "active_post_cancelled": true,
+          "changed_scenario_invalidates_confirmation": true,
+          "panel_screenshots": 2
+        },
+        "demo-login/ui.json": {
+          "scenarios": [
+            {
+              "scenario": "accepted",
+              "status": "passed",
+              "owned_posts": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "rejected",
+              "status": "passed",
+              "owned_posts": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "logout",
+              "status": "passed",
+              "owned_posts": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "cancel-active",
+              "status": "cancelled",
+              "owned_posts": 1,
+              "private_profile_removed": true
+            }
+          ],
+          "installed_wheel": false,
+          "supervised_child_package_verified": false,
+          "owned_tls_only": true,
+          "external_demo_contacted": false,
+          "customer_targets_contacted": false,
+          "production_tls_override_exposed": false,
+          "raw_credentials_or_cookies_saved": false,
+          "screenshots_or_traces": false,
+          "private_profiles_removed": true,
+          "ui_to_managed_worker": true,
+          "saved_target_unchanged": true,
+          "reload_did_not_replay": true,
+          "active_post_cancelled": true,
+          "changed_scenario_invalidates_confirmation": true,
+          "panel_screenshots": 2
+        },
+        "public-submission/browser-probe.json": {
+          "installed_wheel": false,
+          "scenarios": [
+            {
+              "scenario": "search-positive",
+              "status": "passed",
+              "input_references_read": 1,
+              "owned_tls_posts": 1
+            },
+            {
+              "scenario": "login-positive-turkish",
+              "status": "passed",
+              "input_references_read": 2,
+              "owned_tls_posts": 1
+            },
+            {
+              "scenario": "search-negative",
+              "status": "passed",
+              "input_references_read": 1,
+              "owned_tls_posts": 1
+            },
+            {
+              "scenario": "preexisting",
+              "status": "blocked",
+              "input_references_read": 0,
+              "owned_tls_posts": 0
+            },
+            {
+              "scenario": "wrong-action",
+              "status": "blocked",
+              "input_references_read": 0,
+              "owned_tls_posts": 0
+            },
+            {
+              "scenario": "wrong-fields",
+              "status": "blocked",
+              "input_references_read": 0,
+              "owned_tls_posts": 0
+            },
+            {
+              "scenario": "unmasked",
+              "status": "blocked",
+              "input_references_read": 0,
+              "owned_tls_posts": 0
+            },
+            {
+              "scenario": "ambiguous",
+              "status": "blocked",
+              "input_references_read": 0,
+              "owned_tls_posts": 0
+            },
+            {
+              "scenario": "input-marker",
+              "status": "blocked",
+              "input_references_read": 1,
+              "owned_tls_posts": 0
+            },
+            {
+              "scenario": "mutated-action",
+              "status": "blocked",
+              "input_references_read": 1,
+              "owned_tls_posts": 0
+            },
+            {
+              "scenario": "canary",
+              "status": "error",
+              "input_references_read": 1,
+              "owned_tls_posts": 0
+            },
+            {
+              "scenario": "changed-body",
+              "status": "error",
+              "input_references_read": 1,
+              "owned_tls_posts": 0
+            },
+            {
+              "scenario": "marker-only",
+              "status": "failed",
+              "input_references_read": 1,
+              "owned_tls_posts": 0
+            },
+            {
+              "scenario": "missing-marker",
+              "status": "failed",
+              "input_references_read": 1,
+              "owned_tls_posts": 1
+            }
+          ],
+          "documents_fulfilled_in_memory": true,
+          "actual_posts_used_owned_tls": true,
+          "public_customer_targets_contacted": false,
+          "queue_or_ui_admission_enabled": false,
+          "supervised_browser_worker": false,
+          "screenshots_or_traces_taken": false,
+          "raw_inputs_in_report": false
+        },
+        "public-submission/installed-browser-probe.json": {
+          "installed_wheel": true,
+          "scenarios": [
+            {
+              "scenario": "search-positive",
+              "status": "passed",
+              "input_references_read": 1,
+              "owned_tls_posts": 1
+            },
+            {
+              "scenario": "login-positive-turkish",
+              "status": "passed",
+              "input_references_read": 2,
+              "owned_tls_posts": 1
+            },
+            {
+              "scenario": "search-negative",
+              "status": "passed",
+              "input_references_read": 1,
+              "owned_tls_posts": 1
+            },
+            {
+              "scenario": "preexisting",
+              "status": "blocked",
+              "input_references_read": 0,
+              "owned_tls_posts": 0
+            },
+            {
+              "scenario": "wrong-action",
+              "status": "blocked",
+              "input_references_read": 0,
+              "owned_tls_posts": 0
+            },
+            {
+              "scenario": "wrong-fields",
+              "status": "blocked",
+              "input_references_read": 0,
+              "owned_tls_posts": 0
+            },
+            {
+              "scenario": "unmasked",
+              "status": "blocked",
+              "input_references_read": 0,
+              "owned_tls_posts": 0
+            },
+            {
+              "scenario": "ambiguous",
+              "status": "blocked",
+              "input_references_read": 0,
+              "owned_tls_posts": 0
+            },
+            {
+              "scenario": "input-marker",
+              "status": "blocked",
+              "input_references_read": 1,
+              "owned_tls_posts": 0
+            },
+            {
+              "scenario": "mutated-action",
+              "status": "blocked",
+              "input_references_read": 1,
+              "owned_tls_posts": 0
+            },
+            {
+              "scenario": "canary",
+              "status": "error",
+              "input_references_read": 1,
+              "owned_tls_posts": 0
+            },
+            {
+              "scenario": "changed-body",
+              "status": "error",
+              "input_references_read": 1,
+              "owned_tls_posts": 0
+            },
+            {
+              "scenario": "marker-only",
+              "status": "failed",
+              "input_references_read": 1,
+              "owned_tls_posts": 0
+            },
+            {
+              "scenario": "missing-marker",
+              "status": "failed",
+              "input_references_read": 1,
+              "owned_tls_posts": 1
+            }
+          ],
+          "documents_fulfilled_in_memory": true,
+          "actual_posts_used_owned_tls": true,
+          "public_customer_targets_contacted": false,
+          "queue_or_ui_admission_enabled": false,
+          "supervised_browser_worker": false,
+          "screenshots_or_traces_taken": false,
+          "raw_inputs_in_report": false
+        },
+        "public-submission/installed-browser-process.json": {
+          "scenarios": [
+            {
+              "scenario": "search-positive",
+              "status": "passed",
+              "attempted_submissions": 1,
+              "input_references_attempted": 1,
+              "owned_tls_posts": 1,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "login-positive",
+              "status": "passed",
+              "attempted_submissions": 1,
+              "input_references_attempted": 2,
+              "owned_tls_posts": 1,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "search-negative",
+              "status": "passed",
+              "attempted_submissions": 1,
+              "input_references_attempted": 1,
+              "owned_tls_posts": 1,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "same-origin-asset",
+              "status": "passed",
+              "attempted_submissions": 1,
+              "input_references_attempted": 1,
+              "owned_tls_posts": 1,
+              "owned_tls_document_requests": 2,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "preexisting",
+              "status": "blocked",
+              "attempted_submissions": 0,
+              "input_references_attempted": 0,
+              "owned_tls_posts": 0,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "wrong-action",
+              "status": "blocked",
+              "attempted_submissions": 0,
+              "input_references_attempted": 0,
+              "owned_tls_posts": 0,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "marker-only",
+              "status": "failed",
+              "attempted_submissions": 0,
+              "input_references_attempted": 1,
+              "owned_tls_posts": 0,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "missing-marker",
+              "status": "failed",
+              "attempted_submissions": 1,
+              "input_references_attempted": 1,
+              "owned_tls_posts": 1,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "contradictory-response",
+              "status": "failed",
+              "attempted_submissions": 1,
+              "input_references_attempted": 1,
+              "owned_tls_posts": 1,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "canary",
+              "status": "error",
+              "attempted_submissions": 0,
+              "input_references_attempted": 1,
+              "owned_tls_posts": 0,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "changed-body",
+              "status": "error",
+              "attempted_submissions": 0,
+              "input_references_attempted": 1,
+              "owned_tls_posts": 0,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "duplicate-post",
+              "status": "error",
+              "attempted_submissions": 1,
+              "input_references_attempted": 1,
+              "owned_tls_posts": 1,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "private-dns",
+              "status": "error",
+              "attempted_submissions": 0,
+              "input_references_attempted": 0,
+              "owned_tls_posts": 0,
+              "owned_tls_document_requests": 0,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "untrusted-browser-tls",
+              "status": "error",
+              "attempted_submissions": 0,
+              "input_references_attempted": 0,
+              "owned_tls_posts": 0,
+              "owned_tls_document_requests": 0,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "document-redirect",
+              "status": "error",
+              "attempted_submissions": 0,
+              "input_references_attempted": 0,
+              "owned_tls_posts": 0,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "missing-input",
+              "status": "blocked",
+              "attempted_submissions": 0,
+              "input_references_attempted": 1,
+              "owned_tls_posts": 0,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "slow-tls",
+              "status": "error",
+              "attempted_submissions": null,
+              "input_references_attempted": null,
+              "owned_tls_posts": 1,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            }
+          ],
+          "installed_wheel": true,
+          "supervised_child_package_verified": true,
+          "actual_owned_tls_documents": true,
+          "actual_owned_tls_posts": true,
+          "supervised_browser_worker": true,
+          "test_connector_only": true,
+          "browser_test_certificate_pin": "ephemeral_owned_spki_only",
+          "production_tls_override_exposed": false,
+          "queue_or_ui_admission_enabled": false,
+          "public_backend_activated": false,
+          "owner_preview_activated": false,
+          "public_customer_targets_contacted": false,
+          "raw_inputs_in_report": false,
+          "screenshots_or_traces_taken": false,
+          "private_profiles_removed": true,
+          "quick": false,
+          "owned_fixture_queue_verified": false
+        },
+        "public-submission/installed-browser-queue.json": {
+          "scenarios": [
+            {
+              "scenario": "search-positive",
+              "status": "passed",
+              "attempted_submissions": 1,
+              "input_references_attempted": 1,
+              "owned_tls_posts": 1,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "login-positive",
+              "status": "passed",
+              "attempted_submissions": 1,
+              "input_references_attempted": 2,
+              "owned_tls_posts": 1,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "search-negative",
+              "status": "passed",
+              "attempted_submissions": 1,
+              "input_references_attempted": 1,
+              "owned_tls_posts": 1,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "duplicate-post",
+              "status": "error",
+              "attempted_submissions": 1,
+              "input_references_attempted": 1,
+              "owned_tls_posts": 1,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            },
+            {
+              "scenario": "missing-input",
+              "status": "blocked",
+              "attempted_submissions": 0,
+              "input_references_attempted": 1,
+              "owned_tls_posts": 0,
+              "owned_tls_document_requests": 1,
+              "private_profile_removed": true
+            }
+          ],
+          "installed_wheel": true,
+          "supervised_child_package_verified": true,
+          "actual_owned_tls_documents": true,
+          "actual_owned_tls_posts": true,
+          "supervised_browser_worker": true,
+          "test_connector_only": true,
+          "browser_test_certificate_pin": "ephemeral_owned_spki_only",
+          "production_tls_override_exposed": false,
+          "queue_or_ui_admission_enabled": true,
+          "public_backend_activated": false,
+          "owner_preview_activated": false,
+          "public_customer_targets_contacted": false,
+          "raw_inputs_in_report": false,
+          "screenshots_or_traces_taken": false,
+          "private_profiles_removed": true,
+          "quick": false,
+          "owned_fixture_queue_verified": true
+        },
+        "public-submission/installed-form-ui.json": {
+          "owned_local_only": true,
+          "worker_entrypoint": "dashboard free-worker-cycle",
+          "ui_saved_reviewed_confirmed_executed": [
+            {
+              "operation": "login",
+              "expected": "positive",
+              "result": "passed"
+            },
+            {
+              "operation": "search",
+              "expected": "negative",
+              "result": "passed"
+            }
+          ],
+          "contacts": {
+            "documents": 2,
+            "posts": 2,
+            "bad": 0
+          },
+          "edit_clears_confirmation": true,
+          "unsaved_review_blocked": true,
+          "removal_verified": true,
+          "ui_external_requests": 0,
+          "page_errors": 0,
+          "mobile_overflow": false,
+          "credential_values_entered_in_ui": false,
+          "https_saved_reviewed_confirmed_cancelled": true,
+          "https_ui_target_contacts": 0,
+          "https_edit_clears_confirmation": true,
+          "installed_wheel": true,
+          "supervised_child_package_verified": true
+        },
+        "public-submission/installed.json": {
+          "tests_run": 21,
+          "all_passed": true,
+          "target_scope": "owned_loopback_tls_harness",
+          "connector_override": "test_only",
+          "queue_or_ui_admission_enabled": false,
+          "public_customer_targets_contacted": false,
+          "raw_inputs_in_report": false,
+          "numeric_peer_pinning_and_verified_tls": true,
+          "one_shot_and_no_submission_retry": true,
+          "lost_response_retains_uncertain_delivery": true,
+          "hard_child_deadlines_and_cancellation": true,
+          "exact_owner_project_references": true,
+          "values_resolved_only_in_child": true,
+          "browser_completion_or_catalog_pass_claimed": false,
+          "installed_wheel": true,
+          "supervised_child_package_verified": true
+        },
+        "matching/configured-discovery.json": {
+          "controlled_local_only": true,
+          "configured_start_paths_verified": 3,
+          "separate_child_processes": true,
+          "non_executing_plans": true,
+          "denied_resources_preserve_unknown": true,
+          "canary_contacts": 0,
+          "public_profile_network_tested": false,
+          "dashboard_external_activation": false,
+          "same_origin_redirect_inspected": true,
+          "foreign_redirect_explained_without_contact": true,
+          "reports": [
+            {
+              "fixture": "/account.html",
+              "features": {
+                "login": "present",
+                "search": "absent",
+                "registration": "absent",
+                "product": "absent",
+                "cart": "absent",
+                "forms": "present",
+                "navigation": "absent"
+              },
+              "limitations": []
+            },
+            {
+              "fixture": "/search.html",
+              "features": {
+                "login": "absent",
+                "search": "present",
+                "registration": "absent",
+                "product": "absent",
+                "cart": "absent",
+                "forms": "present",
+                "navigation": "absent"
+              },
+              "limitations": []
+            },
+            {
+              "fixture": "/limited.html",
+              "features": {
+                "login": "unknown",
+                "search": "unknown",
+                "registration": "unknown",
+                "product": "unknown",
+                "cart": "unknown",
+                "forms": "unknown",
+                "navigation": "unknown"
+              },
+              "limitations": [
+                "network_policy_denial"
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "png_count": 224,
+  "customer_deployment_verified": false
+}

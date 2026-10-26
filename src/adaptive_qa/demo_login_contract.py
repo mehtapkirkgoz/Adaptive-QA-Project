@@ -44,7 +44,8 @@ class DemoLoginPlan:
 
     def redirect_destination(self, source, status, location):
         """Validate exact known transitions; never grant generic redirect authority."""
-        if type(status) is not int or status != 302:
+        wanted_status=303 if source==AUTHENTICATE else 302
+        if type(status) is not int or status != wanted_status:
             raise ValueError('The expected demo redirect was not observed.')
         if source == AUTHENTICATE:
             expected = self.expected_document

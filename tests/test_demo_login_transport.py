@@ -3,6 +3,7 @@ from unittest.mock import patch
 
 from adaptive_qa.demo_login_contract import LOGIN, AUTHENTICATE, DemoLoginPlan, DemoLoginScenario
 from adaptive_qa.demo_login_transport import DemoLoginTransport, demo_body
+from adaptive_qa.demo_login_outcome import DemoTransportError
 
 
 class DemoLoginTransportTests(unittest.TestCase):
@@ -20,8 +21,9 @@ class DemoLoginTransportTests(unittest.TestCase):
     def test_failed_connection_is_not_retried(self):
         transport = DemoLoginTransport(DemoLoginPlan(DemoLoginScenario.ACCEPTED))
         with patch.object(transport.guard, 'authorize', side_effect=OSError()) as authorize:
-            with self.assertRaises(OSError):
+            with self.assertRaises(DemoTransportError) as error:
                 transport.request('GET', LOGIN)
+            self.assertEqual(error.exception.code,'demo_network_error')
             with self.assertRaises(ValueError):
                 transport.request('GET', LOGIN)
             self.assertEqual(authorize.call_count, 1)

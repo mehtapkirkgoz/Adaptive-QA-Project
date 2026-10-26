@@ -1,11 +1,19 @@
 import {useEffect, useState} from 'react';
-type Job={job_id:string;scope:string;scenario?:string;status:string;result:{status:string}|null};
+type Job={job_id:string;scope:string;scenario?:string;status:string;result:{status:string;diagnostic_code?:string}|null};
 type Review={contract_fingerprint:string;document_url:string};
 type Props={projectId?:string;request:<T>(path:string,method?:string,body?:unknown)=>Promise<T>;
   hasUnsavedChanges:boolean;onProjectCreated:(id:string)=>void};
 const names:Record<string,string>={accepted_login:'Correct username and password',
   rejected_login:'Wrong password is rejected',login_then_logout:'Login, logout and protected-page access'};
 const running=(job:Job)=>['queued','running','cancel_requested'].includes(job.status);
+function diagnosis(code?:string){
+  if(code && /^http_status_[1-5][0-9]{2}$/.test(code))return `The demo returned HTTP ${code.slice(12)}, which did not match this scenario. No automatic retry was made.`;
+  const reasons:Record<string,string>={demo_tls_failed:'The HTTPS certificate could not be verified.',
+    demo_destination_blocked:'The demo destination could not be validated as public.',
+    demo_network_error:'The demo could not be reached reliably.',demo_redirect_blocked:'The demo redirected outside its expected route.',
+    demo_response_too_large:'The demo response exceeded its size limit.',deadline_exceeded:'The demo exceeded its time limit.'};
+  return reasons[code??'']??'The isolated session could not be verified. This is a technical outcome, not a failed website assertion.';
+}
 export function DemoLoginPanel({projectId,request,hasUnsavedChanges,onProjectCreated}:Props){
   const [scenario,setScenario]=useState('accepted_login'),[consent,setConsent]=useState(false);
   const [review,setReview]=useState<Review|null>(null),[jobs,setJobs]=useState<Job[]>([]);
@@ -52,7 +60,7 @@ export function DemoLoginPanel({projectId,request,hasUnsavedChanges,onProjectCre
       <strong>{names[job.scenario??'']??'Demo login'}</strong><p>{running(job)?(job.status==='cancel_requested'?'Stopping…':'Demo test in progress…'):
         job.result?.status==='passed'?'Passed':job.result?.status==='failed'?'Failed':job.status==='cancelled'||job.result?.status==='cancelled'?'Stopped':'Not evaluated'}</p>
       {job.result?.status==='passed'&&<p>The expected response, destination and visible page state were verified.</p>}
-      {job.result?.status==='error'&&<p>The isolated session could not be verified. This is a technical outcome, not a failed website assertion.</p>}
+      {job.result?.status==='error'&&<p>{diagnosis(job.result.diagnostic_code)}</p>}
       {running(job)&&<button disabled={busy||job.status==='cancel_requested'} onClick={()=>void cancel(job)}>Stop demo test</button>}
     </article>)}</div>}
   </section>;

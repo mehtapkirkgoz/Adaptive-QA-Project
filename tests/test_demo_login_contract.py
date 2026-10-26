@@ -12,8 +12,8 @@ class DemoLoginContractTests(unittest.TestCase):
             self.assertFalse(plan.execution_authorized)
             self.assertEqual(plan.max_submissions, 1)
             expected = LOGIN if scenario == DemoLoginScenario.REJECTED else SECURE
-            self.assertEqual(plan.redirect_destination(AUTHENTICATE, 302, expected), expected)
-            self.assertEqual(plan.redirect_destination(AUTHENTICATE, 302, expected.split('.com')[1]), expected)
+            self.assertEqual(plan.redirect_destination(AUTHENTICATE, 303, expected), expected)
+            self.assertEqual(plan.redirect_destination(AUTHENTICATE, 303, expected.split('.com')[1]), expected)
         self.assertIn('invalid', DemoLoginPlan(DemoLoginScenario.REJECTED).expected_message)
 
     def test_only_explicit_logout_scenario_has_logout_transition(self):
@@ -29,8 +29,8 @@ class DemoLoginContractTests(unittest.TestCase):
                          '/secure#fragment', '/secure/', '/login', '/%73ecure',
                          'https://the-internet.herokuapp.com:443/secure', None):
             with self.assertRaises(ValueError):
-                plan.redirect_destination(AUTHENTICATE, 302, location)
-        for status in (200, 301, 303, 307, 308, '302', True):
+                plan.redirect_destination(AUTHENTICATE, 303, location)
+        for status in (200, 301, 302, 307, 308, '302', True):
             with self.assertRaises(ValueError):
                 plan.redirect_destination(AUTHENTICATE, status, '/secure')
         with self.assertRaises(ValueError):
