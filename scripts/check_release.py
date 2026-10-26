@@ -219,12 +219,22 @@ stage('complete')
             demo=json.loads((Path(temporary)/'artifacts/demo-login/browser.json').read_text(encoding='utf-8'))
             if (not demo.get('installed_wheel') or not demo.get('supervised_child_package_verified')
                     or [item['status'] for item in demo.get('scenarios',[])] !=
-                       ['passed']*3+['error']*2+['failed']+['error']*2+['blocked','error','cancelled','error']
+                       ['passed']*3+['error']*2+['failed']+['error']*2+['blocked','error','cancelled','error']+['error']*3
                     or not demo.get('private_profiles_removed') or demo.get('external_demo_contacted')
                     or demo.get('production_tls_override_exposed') or demo.get('raw_credentials_or_cookies_saved')):
                 raise ValueError('Installed isolated demo login evidence is incomplete.')
             demo_output=ROOT/'artifacts/demo-login';demo_output.mkdir(parents=True,exist_ok=True)
             (demo_output/'installed-browser.json').write_text(json.dumps(demo,indent=2)+'\n',encoding='utf-8')
+            subprocess.run([sys.executable,str(ROOT/'scripts/check_demo_login.py'),'--ui'],cwd=temporary,
+                env=browser_environment,check=True,timeout=120)
+            demo_ui=json.loads((Path(temporary)/'artifacts/demo-login/ui.json').read_text(encoding='utf-8'))
+            if (not demo_ui.get('installed_wheel') or not demo_ui.get('supervised_child_package_verified')
+                    or [item['status'] for item in demo_ui.get('scenarios',[])] != ['passed']*3+['cancelled']
+                    or not all(demo_ui.get(key) for key in ('ui_to_managed_worker','saved_target_unchanged',
+                        'reload_did_not_replay','active_post_cancelled','changed_scenario_invalidates_confirmation'))
+                    or demo_ui.get('external_demo_contacted')):
+                raise ValueError('Installed managed demo login UI evidence is incomplete.')
+            (demo_output/'installed-ui.json').write_text(json.dumps(demo_ui,indent=2)+'\n',encoding='utf-8')
             subprocess.run([sys.executable,str(ROOT/'scripts/check_public_submission.py')],cwd=temporary,
                 env=browser_environment,check=True,timeout=120)
             public=json.loads((Path(temporary)/'artifacts/processes/public-submission.json').read_text(encoding='utf-8'))

@@ -1,10 +1,11 @@
 import {useEffect, useRef, useState} from 'react';
 import type {ReactNode} from 'react';
+import {DemoLoginPanel} from './DemoLoginPanel';
 
 type Result = {case_id: string; status: string; message: string; reason_code?: string; duration_seconds: number; evidence_id?: string};
 type Check = {check_id: string; project_id: string; url: string; status: string; inspected_pages?: number;
   requested?: number; not_run?: number; names?: Record<string, string>; results?: Result[]; run_id?: string; diagnostic_code?: string};
-type Props = {request: <T>(path: string, method?: string, body?: unknown) => Promise<T>; tools: ReactNode; feedback: ReactNode; onOptionsOpen: (projectId?: string) => void; onCheckCreated: (projectId: string) => void; hasUnsavedOptions: boolean; edition: string; onSignOut?: () => void};
+type Props = {demoProjectId?: string; request: <T>(path: string, method?: string, body?: unknown) => Promise<T>; tools: ReactNode; feedback: ReactNode; onOptionsOpen: (projectId?: string) => void; onCheckCreated: (projectId: string) => void; hasUnsavedOptions: boolean; edition: string; onSignOut?: () => void};
 const reasons: Record<string, string> = {
   native_number_passed: 'The browser enforced the declared number bound on an isolated field copy. The live field was unchanged and no form was submitted.',
   native_number_failed: 'The isolated number field did not enforce its declared bound as expected.',
@@ -40,7 +41,7 @@ const accessReasons: Record<string,string> = {
   inspection_process_error: 'The isolated inspection process could not return usable page evidence. This is a technical error, not a failed website test.',
   inspection_unavailable: 'No usable page could be inspected. Check the final HTTPS address, website availability and access requirements.'};
 
-export function SiteCheck({request, tools, feedback, onOptionsOpen, onCheckCreated, hasUnsavedOptions, edition, onSignOut}: Props) {
+export function SiteCheck({request, tools, feedback, onOptionsOpen, onCheckCreated, hasUnsavedOptions, edition, onSignOut, demoProjectId}: Props) {
   const [url, setUrl] = useState(''), [check, setCheck] = useState<Check | null>(null);
   const [history, setHistory] = useState<Check[]>([]), [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false), [error, setError] = useState('');
@@ -126,6 +127,7 @@ export function SiteCheck({request, tools, feedback, onOptionsOpen, onCheckCreat
         {check.not_run !== undefined && ` ${check.not_run} catalog checks were not included in this run.`}
         {unrecorded > 0 && ` ${unrecorded} selected checks produced no result.`} Sign-in, API and database checks require additional configuration.</p></details>}
     </section>}
+    <DemoLoginPanel projectId={check?.project_id ?? demoProjectId} request={request} hasUnsavedChanges={hasUnsavedOptions} onProjectCreated={onCheckCreated}/>
     <details className="workspace-options" open={location.hash === '#advanced' ? true : undefined} onToggle={event => {if (event.currentTarget.open) onOptionsOpen(check?.project_id);}}>
       <summary><strong>Test options</strong><span>Optional saved sites, API and database settings</span></summary>
       <p className="hint">A URL is enough for the automatic read-only check. Use these options only when you need a specific project or an explicit API/database contract. Saving settings does not start a test.</p>

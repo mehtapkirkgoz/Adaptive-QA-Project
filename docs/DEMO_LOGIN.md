@@ -31,7 +31,7 @@ claim an HTML login passed from HTTP 200 alone.
   plus wrong status/route, false/missing DOM markers, rejected cookies, cancellation,
   deadlines and duplicate submission. Check both final URL and visible DOM outcome;
   logout must actually remove authenticated access in that ephemeral session.
-- [ ] Connect explicit local panel admission through existing ownership, policy,
+- [x] Connect explicit local panel admission through existing ownership, policy,
   quota, confirmation, cancellation and sanitized results. Preserve the owner project
   and old results; do not silently replace the saved target or reuse owner cookies.
 - [ ] After controlled proofs and exact-commit CI pass, run the three bounded public
@@ -50,7 +50,29 @@ explicit scoped browser navigation because Chromium can bypass route interceptio
 when following redirects. The cookie jar exists only in the private child memory.
 No customer input, cookies, raw response text, screenshot or trace is returned.
 
-Current state: supervised worker foundation; queue/panel integration is unfinished.
+The local panel now has one inline demo section, with three scenarios, explicit
+demo-account consent, a non-executing review and a separate run confirmation. It
+uses the existing owned queue, shared quotas, licensed admission, claim tokens,
+cancellation and sanitized history. One managed thread claims only the newly
+confirmed job; it never drains existing owner work or replays work on reload.
+The consent is specific to the fixed public demo and does not grant any write
+permission to the saved target. Its configuration and result rows remain intact;
+the demo history is attached to the owned project without replacing its target.
+Configuration changes invalidate a prior confirmation.
+
+Source UI-to-worker proof passed three real owned TLS login scenarios and cancellation
+after a fourth POST had reached the fixture. Reload did not repeat a submission,
+changing scenarios invalidated confirmation, and the saved read-only target remained
+unchanged. Desktop/mobile screenshots were inspected; no overflow or external UI
+request occurred. Six queue/HTTP tests include invalid CSRF/Origin, foreign ownership,
+stale settings, shared capacity and paid-license expiry behavior.
+
+Current state: source queue/panel integration implemented; full CI and installed
+acceptance precede the three external demo scenarios and owner preview upgrade.
+The expanded direct mirror proof passed fifteen scenarios, additionally rejecting
+a duplicate POST attempt before contact, private DNS and an oversized initial
+document. The 929-test regression passed with one existing Windows permission skip;
+the additional paid-license test passed in the focused six-test queue suite.
 No public login submissions have been performed by this increment. The 100-case
 catalog and Pages demo remain unchanged. This is a known-demo integration, not
 automatic login support for arbitrary customer websites.

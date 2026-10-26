@@ -60,11 +60,14 @@ def create_app(store: AuthStore, *, port=8765, projects=None, ui_directory=None)
     authority = f'127.0.0.1:{port}'
     origin = f'http://{authority}'
     site_checks = None
+    demo_logins = None
     @asynccontextmanager
     async def lifespan(app):
         yield
         if site_checks is not None:
             await run_in_threadpool(site_checks.shutdown)
+        if demo_logins is not None:
+            await run_in_threadpool(demo_logins.shutdown)
     app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None, lifespan=lifespan)
     projects = projects if projects is not None else ProjectStore(store.database.with_name('projects.sqlite'))
     discovery = DashboardDiscoveryQueue(projects)
@@ -281,6 +284,28 @@ def create_app(store: AuthStore, *, port=8765, projects=None, ui_directory=None)
     if getattr(store, 'local_free', False) or getattr(store, 'local_licensed', False):
         from adaptive_qa.interactive_queue import OwnedInteractiveQueue
         interactive = OwnedInteractiveQueue(projects)
+        from adaptive_qa.demo_login_service import DemoLoginService
+        demo_logins = DemoLoginService(projects)
+        @app.post('/api/projects/{project_id}/interactive/demo-login/review')
+        async def review_authorized_demo_login(project_id: str, request: Request):
+            from adaptive_qa.demo_login_contract import DemoLoginScenario
+            from adaptive_qa.demo_login_review import review_demo_login
+            owner = await run_in_threadpool(actor, request, mutation=True)
+            data = _object(await request.body(), ('scenario', 'authorized_demo'))
+            review = await run_in_threadpool(review_demo_login, projects, owner, project_id,
+                scenario=DemoLoginScenario(data['scenario']), authorized_demo=data['authorized_demo'])
+            return review.public()
+
+        @app.post('/api/projects/{project_id}/interactive/demo-login/jobs', status_code=202)
+        async def submit_authorized_demo_login(project_id: str, request: Request):
+            from adaptive_qa.demo_login_contract import DemoLoginScenario
+            from adaptive_qa.demo_login_review import review_demo_login
+            owner = await run_in_threadpool(actor, request, mutation=True)
+            data = _object(await request.body(), ('scenario', 'authorized_demo', 'confirmed_contract_fingerprint'))
+            review = await run_in_threadpool(review_demo_login, projects, owner, project_id,
+                scenario=DemoLoginScenario(data['scenario']), authorized_demo=data['authorized_demo'])
+            return await run_in_threadpool(demo_logins.submit, owner, review,
+                confirmed_fingerprint=data['confirmed_contract_fingerprint'])
         from adaptive_qa.api_queue import LocalApiQueue
         local_api = LocalApiQueue(projects)
         from adaptive_qa.database_queue import LocalDatabaseQueue

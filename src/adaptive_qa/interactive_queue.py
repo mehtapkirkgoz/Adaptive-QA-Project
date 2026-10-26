@@ -22,6 +22,10 @@ class InteractiveWork:
 
 
 def _snapshot(review):
+    from adaptive_qa.demo_login_review import SavedDemoLoginReview
+    if isinstance(review,SavedDemoLoginReview):
+        return dict(profile='authorized_login_demo',scenario=review.plan.scenario.value,
+            configuration_fingerprint=review.configuration_fingerprint,contract_fingerprint=review.fingerprint())
     form=review.submission.form
     from adaptive_qa.public_form_review import SavedPublicFormReview
     if isinstance(review,SavedPublicFormReview):
@@ -53,11 +57,24 @@ class OwnedInteractiveQueue:
 
     @staticmethod
     def _public(row):
+        data=json.loads(row['review_json'])
+        if data.get('profile')=='authorized_login_demo':
+            return dict(job_id=row['job_id'],project_id=row['project_id'],status=row['status'],
+                scope='authorized_login_demo',scenario=data['scenario'],result=json.loads(row['result_json']) if row['result_json'] else None)
         return dict(job_id=row['job_id'],project_id=row['project_id'],status=row['status'],
                     scope='reviewed_public_https' if json.loads(row['review_json']).get('profile')=='public_https' else 'owned_loopback_only' if json.loads(row['review_json']).get('fixture_id') is None else 'owned_fixture_only',result=json.loads(row['result_json']) if row['result_json'] else None)
 
     def _current(self,connection,row):
         data=json.loads(row['review_json'])
+        if isinstance(data,dict) and data.get('profile')=='authorized_login_demo':
+            if set(data)!={'profile','scenario','configuration_fingerprint','contract_fingerprint'}:
+                raise ValueError('Invalid queued demo snapshot.')
+            from adaptive_qa.demo_login_review import _review_on_connection as demo_review
+            from adaptive_qa.demo_login_contract import DemoLoginScenario
+            review=demo_review(connection,ProjectActor(row['owner_id']),row['project_id'],
+                scenario=DemoLoginScenario(data['scenario']),authorized_demo=True)
+            if _snapshot(review)!=data:raise ValueError('Queued demo review changed.')
+            return review
         if isinstance(data,dict) and data.get('profile')=='public_https':
             if set(data)!={'profile','completion','timeout_seconds','contract_fingerprint','configuration_fingerprint'}:
                 raise ValueError('Invalid queued HTTPS snapshot.')
@@ -95,10 +112,11 @@ class OwnedInteractiveQueue:
         if actor.user_id!=review.owner_id:raise ProjectNotFound('Project not found.')
         with self.projects._connection() as connection:
             connection.execute('BEGIN IMMEDIATE')
-            form=review.submission.form
+            from adaptive_qa.demo_login_review import SavedDemoLoginReview
+            project_id=review.project_id if isinstance(review,SavedDemoLoginReview) else review.submission.form.project_id
             snapshot=_snapshot(review)
             current=self._current(connection,dict(review_json=json.dumps(snapshot),owner_id=actor.user_id,
-                project_id=form.project_id))
+                project_id=project_id))
             if current!=review:raise ValueError('Review current settings before admission.')
             if hasattr(self.projects,'admit_execution'):self.projects.admit_execution(connection)
             active="status IN ('queued','running','cancel_requested')"
@@ -112,8 +130,18 @@ class OwnedInteractiveQueue:
             job_id=uuid4().hex
             connection.execute('INSERT INTO dashboard_interactive_jobs '
                 '(job_id,owner_id,project_id,review_json,status) VALUES (?,?,?,?,?)',
-                (job_id,actor.user_id,form.project_id,json.dumps(_snapshot(review)), 'queued'))
-            return self._public(self._owned(connection,actor,form.project_id,job_id))
+                (job_id,actor.user_id,project_id,json.dumps(_snapshot(review)), 'queued'))
+            return self._public(self._owned(connection,actor,project_id,job_id))
+
+    def submit_demo(self,actor,review,*,confirmed_fingerprint):
+        self.projects._actor(actor)
+        from adaptive_qa.demo_login_review import SavedDemoLoginReview
+        if not isinstance(review,SavedDemoLoginReview):raise ValueError('An explicit saved demo review is required.')
+        if (not isinstance(confirmed_fingerprint,str) or len(confirmed_fingerprint)!=64
+                or any(c not in '0123456789abcdef' for c in confirmed_fingerprint)
+                or not secrets.compare_digest(confirmed_fingerprint,review.fingerprint())):
+            raise ValueError('Confirm this exact demo scenario.')
+        return self._admit_review(actor,review)
 
     def get(self,actor,project_id,job_id):
         with self.projects._connection() as connection:return self._public(self._owned(connection,actor,project_id,job_id))
@@ -135,10 +163,13 @@ class OwnedInteractiveQueue:
             connection.execute('UPDATE dashboard_interactive_jobs SET status=? WHERE job_id=?',(status,job_id))
             return self._public(self._owned(connection,actor,project_id,job_id))
 
-    def claim_next(self):
+    def claim_next(self, *, job_id=None):
+        if job_id is not None:_id(job_id)
         with self.projects._connection() as connection:
             connection.execute('BEGIN IMMEDIATE')
-            row=connection.execute("SELECT * FROM dashboard_interactive_jobs WHERE status='queued' ORDER BY sequence LIMIT 1").fetchone()
+            row=connection.execute("SELECT * FROM dashboard_interactive_jobs WHERE status='queued'"+
+                (' AND job_id=?' if job_id is not None else '')+' ORDER BY sequence LIMIT 1',
+                (job_id,) if job_id is not None else ()).fetchone()
             if row is None:return None
             if hasattr(self.projects,'admit_execution'):
                 try:self.projects.admit_execution(connection,starting=True)
@@ -205,6 +236,13 @@ def process_owned_interactive_once(queue):
         if work is None:return None
         review=work.review
         try:
+            from adaptive_qa.demo_login_review import SavedDemoLoginReview
+            if isinstance(review,SavedDemoLoginReview):
+                from adaptive_qa.demo_login_process import run_isolated_demo_login
+                result=run_isolated_demo_login(review.plan,timeout_seconds=45,
+                    should_cancel=lambda:queue.cancellation_requested(work))
+                status=queue.finish(work,result)
+                return dict(job_id=work.job_id,project_id=work.project_id,status=status)
             from adaptive_qa.local_form_binding import LocalFormBinding
             from adaptive_qa.public_form_proposal import PublicFormProposal
             from adaptive_qa.interactive_process import run_isolated_local_form
