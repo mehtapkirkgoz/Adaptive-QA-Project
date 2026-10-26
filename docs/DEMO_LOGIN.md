@@ -76,3 +76,13 @@ the additional paid-license test passed in the focused six-test queue suite.
 No public login submissions have been performed by this increment. The 100-case
 catalog and Pages demo remain unchanged. This is a known-demo integration, not
 automatic login support for arbitrary customer websites.
+
+CI follow-up: Core 40323061099 at 94d2266 passed eleven jobs, but the UI catalog
+job was cancelled at its fifteen-minute overall allowance twice (jobs
+121572642907 and 121579718974), without an assertion failure. The full installed
+release verification passed locally, including the fifteen demo browser scenarios
+and four managed UI scenarios. Increase only the CI UI-catalog job allowance to
+twenty-five minutes so installation delays and the added source/installed proofs
+can finish. Target, socket, child-process and cancellation deadlines stay unchanged.
+The superseding exact commit still requires green CI and archive verification;
+neither cancelled attempt is accepted as a successful run.
