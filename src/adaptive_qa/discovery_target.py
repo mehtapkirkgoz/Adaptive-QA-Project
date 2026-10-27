@@ -5,6 +5,7 @@ from urllib.parse import urlsplit
 
 from adaptive_qa.config import ProjectConfig, extract_hostname
 from adaptive_qa.document_target import controlled_start_path
+from adaptive_qa.document_url import canonical_root_url
 from adaptive_qa.policy import DestinationPolicy, validate_public_ip
 
 
@@ -48,7 +49,7 @@ def configured_discovery(settings, *, project_id='configured-discovery'):
             or not isinstance(settings.get('allowed_hosts'), (list, tuple))):
         raise ValueError('Saved discovery settings are required.')
     try:
-        project = ProjectConfig(project_id, 'Configured discovery', settings['base_url'],
+        project = ProjectConfig(project_id, 'Configured discovery', canonical_root_url(settings['base_url']),
                                 tuple(settings['allowed_hosts']), settings['allow_data_changes'])
     except (KeyError, TypeError):
         raise ValueError('Invalid discovery settings.') from None

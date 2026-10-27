@@ -2,6 +2,7 @@
 
 from adaptive_qa.document_checks import DOCUMENT_CHECKS
 from adaptive_qa.form_checks import FORM_CHECKS
+from adaptive_qa.document_url import canonical_root_url
 
 LOCAL_ORIGIN = 'http://127.0.0.1:8000'
 
@@ -50,7 +51,7 @@ def serialize_target_binding(case_id, target_url):
             else:
                 if profile == 'public_https':
                     return {'target_binding': 'public_document' if case_id in DOCUMENT_CHECKS else 'public_form',
-                            'document_url': target_url}
+                            'document_url': canonical_root_url(target_url)}
     return {'target_binding': None}
 
 
@@ -62,10 +63,10 @@ def validate_runtime_binding(settings, case_id, decision):
     profile, project = configured_discovery(settings)
     if profile == 'public_https':
         if (case_id in DOCUMENT_CHECKS and decision.get('target_binding') == 'public_document'
-                and decision.get('document_url') == project.base_url):
+                and canonical_root_url(decision.get('document_url')) == project.base_url):
             return
         if (case_id in FORM_CHECKS and decision.get('target_binding') == 'public_form'
-                and decision.get('document_url') == project.base_url):
+                and canonical_root_url(decision.get('document_url')) == project.base_url):
             return
         raise ValueError('Only an independently checked document bound to the saved HTTPS URL is supported.')
     path = controlled_start_path(settings)

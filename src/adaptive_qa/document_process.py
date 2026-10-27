@@ -1,7 +1,7 @@
 """Supervised read-only document/form checks with separate admission contracts."""
 
 import argparse
-from dataclasses import asdict
+from dataclasses import asdict, replace
 import json
 import math
 import os
@@ -16,6 +16,7 @@ from adaptive_qa.browser_process import _read_result, _terminate_process_tree
 from adaptive_qa.config import ProjectConfig
 from adaptive_qa.discovery_target import validate_discovery_project, validate_discovery_url
 from adaptive_qa.document_checks import DOCUMENT_CHECKS
+from adaptive_qa.document_url import canonical_root_url
 from adaptive_qa.egress import DestinationGuard, EgressProxy, chromium_proxy_options
 from adaptive_qa.models import TestResult, TestStatus
 from adaptive_qa.form_checks import FORM_CHECKS, FORM_DEFAULTS
@@ -147,6 +148,7 @@ def _run_isolated_check(case_id, project, *, profile, timeout_seconds,
                         should_cancel, evidence_directory, family='document', mappings=None):
     """Trusted orchestration only; validates without DNS before starting a child."""
     _validate(case_id, project, profile, family=family, mappings=mappings)
+    project = replace(project, base_url=canonical_root_url(project.base_url))
     label = 'Form' if family == 'form' else 'Document'
     if (isinstance(timeout_seconds, bool) or not isinstance(timeout_seconds, (int, float))
             or not math.isfinite(timeout_seconds) or not 0 < timeout_seconds <= 120):

@@ -45,6 +45,9 @@ def main():
         with TemporaryDirectory(prefix='adaptive-html-proof-') as temporary:
             root=Path(temporary)
             def project(path): return ProjectConfig('html-proof','HTML proof','http://127.0.0.1:8000'+path,('127.0.0.1',))
+            # Browser root serialization must not turn an admitted bare root into an error.
+            bare=run_isolated_document_test('DOC-001',project(''),profile='controlled_local',evidence_directory=root)
+            assert bare.status==TestStatus.PASSED,(bare.status,bare.message)
             for case in ('DOC-001','DOC-002','DOC-003','DOC-004','DOC-005'):
                 result=run_isolated_document_test(case,project('/valid.html'),profile='controlled_local',evidence_directory=root)
                 assert result.status==TestStatus.PASSED,(case,result.status,result.message)
@@ -77,7 +80,7 @@ def main():
             assert not writes and '/mutation' not in requests and '/script.js' not in requests[:7] and '/embedded' not in requests[:7]
             report=dict(legacy_native_email_contract_consistent=True,native_email_outcomes=native,native_email_no_input_events_or_submissions=True,installed_wheel=bool(INSTALLED_SITE),source_html_passes=5,source_html_assertion_failures=2,redirect_blocked=True,
                 rendered_form_coverage_still_fails_closed=True,scripts_assets_and_frames_excluded=True,
-                mutation_requests=0,private_destination_not_contacted=True,scope='owned_controlled_fixture')
+                mutation_requests=0,private_destination_not_contacted=True,scope='owned_controlled_fixture',empty_root_url_passed=True)
             output=Path('artifacts/html-inspection');output.mkdir(parents=True,exist_ok=True)
             (output/'report.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
             print(json.dumps(report))

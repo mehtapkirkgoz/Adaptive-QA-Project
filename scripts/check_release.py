@@ -197,6 +197,7 @@ stage('complete')
                     or html.get('native_email_outcomes')!=['passed','passed','failed','blocked','blocked','blocked','error']
                     or not html.get('native_email_no_input_events_or_submissions')
                     or not html.get('legacy_native_email_contract_consistent')
+                    or not html.get('empty_root_url_passed')
                     or not html.get('rendered_form_coverage_still_fails_closed')
                     or not html.get('scripts_assets_and_frames_excluded') or html.get('mutation_requests')!=0):
                 raise ValueError('Installed source HTML boundary evidence is incomplete.')

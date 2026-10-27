@@ -1,0 +1,145 @@
+{
+  "implementation_commit": "50cac149fe7ee2f195d8cf1a543c90c8fe4c0ed0",
+  "run_id": 40415364472,
+  "jobs_successful": 12,
+  "png_count": 226,
+  "artifacts": [
+    {
+      "id": 12695981097,
+      "name": "browser-integration-evidence",
+      "digest": "sha256:2c55eefbf0f8c38b8d68bba18988552659a29ed01649f718605f9e31a4934b87",
+      "bytes": 2019992,
+      "zip_crc_verified": true,
+      "png_count": 53,
+      "release_verified": false
+    },
+    {
+      "id": 12695845512,
+      "name": "inactive-release-50cac149fe7ee2f195d8cf1a543c90c8fe4c0ed0",
+      "digest": "sha256:a6a7281615c2264eaed76395d1b36909715232c906628c88bafa3489a3804338",
+      "bytes": 370571,
+      "zip_crc_verified": true,
+      "png_count": 0,
+      "release_verified": true
+    },
+    {
+      "id": 12695776073,
+      "name": "inactive-rollback-plan-50cac149fe7ee2f195d8cf1a543c90c8fe4c0ed0",
+      "digest": "sha256:dc089d0f714252f46c456046d7f71d4a2ed019609cb4bf8d0ff0297db2989c4c",
+      "bytes": 366,
+      "zip_crc_verified": true,
+      "png_count": 0,
+      "release_verified": false
+    },
+    {
+      "id": 12695441546,
+      "name": "local-database-evidence-windows-2025",
+      "digest": "sha256:20ea21305ffc91e119ac5c0dbe5953c6de84c6a3e450a711c3ae403ee9b60582",
+      "bytes": 2112,
+      "zip_crc_verified": true,
+      "png_count": 0,
+      "release_verified": false
+    },
+    {
+      "id": 12695357073,
+      "name": "local-runtime-ubuntu-24.04",
+      "digest": "sha256:02e04cf6535b5d9e6690c2861931b8c7a502d22db0d4b9512254a12490512548",
+      "bytes": 4868,
+      "zip_crc_verified": true,
+      "png_count": 0,
+      "release_verified": false
+    },
+    {
+      "id": 12695037229,
+      "name": "local-database-evidence-ubuntu-24.04",
+      "digest": "sha256:8ec4653d409ab235a5b1185edd7480058c158dee441debdaf0f94325712ac9fe",
+      "bytes": 2131,
+      "zip_crc_verified": true,
+      "png_count": 0,
+      "release_verified": false
+    },
+    {
+      "id": 12694962302,
+      "name": "local-api-evidence",
+      "digest": "sha256:5abb6d8452e287dc02499a446e2f77af2580d259c3ea639fad1cb4264936f48d",
+      "bytes": 17037,
+      "zip_crc_verified": true,
+      "png_count": 0,
+      "release_verified": false
+    },
+    {
+      "id": 12694467357,
+      "name": "process-lifecycle-windows-2025",
+      "digest": "sha256:356fe5432b78e3b993858cff668ce080bed6ad22d9d61ff9a8596faa237d855e",
+      "bytes": 685,
+      "zip_crc_verified": true,
+      "png_count": 0,
+      "release_verified": false
+    },
+    {
+      "id": 12694347351,
+      "name": "process-lifecycle-ubuntu-24.04",
+      "digest": "sha256:7e5dbbddc284e4c16bec1ec508b3d8245a21b948f22cf90d8bbe711c577a96f8",
+      "bytes": 678,
+      "zip_crc_verified": true,
+      "png_count": 0,
+      "release_verified": false
+    },
+    {
+      "id": 12694698890,
+      "name": "ui-catalog-evidence",
+      "digest": "sha256:5ec6259339b08e9e009838cb7648d3a3ff4ff987f6579a29278b8774e1e998fb",
+      "bytes": 7430058,
+      "zip_crc_verified": true,
+      "png_count": 161,
+      "release_verified": false
+    },
+    {
+      "id": 12694583460,
+      "name": "local-browser-evidence",
+      "digest": "sha256:31cb20d7bfd7ec540102d101944be2891d54ddffa4e91fef4108dedc1489b6fd",
+      "bytes": 1825842,
+      "zip_crc_verified": true,
+      "png_count": 12,
+      "release_verified": false
+    },
+    {
+      "id": 12694463009,
+      "name": "local-runtime-windows-2025",
+      "digest": "sha256:03f8aa65c49c7f51cce4bd6fbc02e222c4ebccf2e85f33525b5b269446b3c104",
+      "bytes": 4906,
+      "zip_crc_verified": true,
+      "png_count": 0,
+      "release_verified": false
+    }
+  ],
+  "proofs": {
+    "unified-reports/installed.json": {
+      "installed_wheel": true,
+      "same_workspace": true,
+      "imported_browser_provenance_visible": true,
+      "selection_and_filter": true,
+      "escaped_evidence": true,
+      "reload_no_replay": true,
+      "prior_configuration_preserved": true,
+      "external_requests": 0,
+      "mutation_requests": 0,
+      "page_errors": 0,
+      "mobile_overflow": false
+    },
+    "unified-reports/source.json": {
+      "installed_wheel": false,
+      "same_workspace": true,
+      "imported_browser_provenance_visible": true,
+      "selection_and_filter": true,
+      "escaped_evidence": true,
+      "reload_no_replay": true,
+      "prior_configuration_preserved": true,
+      "external_requests": 0,
+      "mutation_requests": 0,
+      "page_errors": 0,
+      "mobile_overflow": false
+    }
+  },
+  "customer_data_included": false
+}

@@ -26,6 +26,17 @@ class SiteCheckTests(unittest.TestCase):
     def discovery(self, *args, **kwargs):
         return {'pages': [asdict(PageSnapshot(self.url, collection_complete=True))], 'limitations': []}
 
+    def test_bare_https_root_admits_discovered_slash_document_checks(self):
+        result=lambda case,*a,**k:TestResult(case,TestStatus.PASSED,.01,'Expected condition satisfied.')
+        with patch('adaptive_qa.dashboard_worker.discover_configured_target',side_effect=self.discovery), \
+                patch('adaptive_qa.dashboard_run_worker.run_isolated_document_test',side_effect=result) as run:
+            check=self.service.submit(LOCAL_ACTOR,self.url.rstrip('/'));self.service.thread.join(5)
+        outcome=self.service.get(LOCAL_ACTOR,check['check_id'])
+        self.assertEqual(outcome['status'],'completed',outcome)
+        self.assertEqual({r['case_id'] for r in outcome['results']},
+                         {'DOC-001','DOC-002','DOC-003','DOC-004','DOC-005'})
+        self.assertTrue(all(call.args[1].base_url==self.url for call in run.call_args_list))
+
     def test_one_click_executes_only_eligible_checks_and_preserves_unrelated_queue(self):
         p = self.projects.create(LOCAL_ACTOR, 'Existing project')
         self.projects.save_configuration(LOCAL_ACTOR, p.project_id, dict(base_url=self.url,

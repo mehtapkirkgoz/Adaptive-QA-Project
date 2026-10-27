@@ -8,6 +8,33 @@ from adaptive_qa.browser_process import run_isolated_sample_test
 
 
 class DocumentTargetTests(unittest.TestCase):
+    def test_empty_public_root_path_matches_browser_root_without_widening_scope(self):
+        from adaptive_qa.discovery_target import configured_discovery
+        for saved in ('https://qa.example.test','https://qa.example.test/'):
+            settings=dict(base_url=saved,allowed_hosts=['qa.example.test'],allow_data_changes=False)
+            profile,project=configured_discovery(settings)
+            self.assertEqual(project.base_url,'https://qa.example.test/')
+            self.assertEqual(settings['base_url'],saved,'Saved owner settings stay unchanged')
+            for case in ('DOC-001','LOGIN-001'):
+                binding=serialize_target_binding(case,saved)
+                self.assertEqual(binding['document_url'],'https://qa.example.test/')
+                decision=dict(binding,decision='selected',test_type='ui')
+                validate_runtime_binding(settings,case,decision)
+                for other in ('https://other.example.test/','https://qa.example.test/other',
+                              'https://qa.example.test//','https://qa.example.test/%2f',
+                              'https://qa.example.test/?x=1','https://qa.example.test/#x',
+                              'https://qa.example.test:8443/'):
+                    with self.subTest(other=other),self.assertRaises(ValueError):
+                        validate_runtime_binding(settings,case,dict(decision,document_url=other))
+
+    def test_root_canonicalization_does_not_rewrite_nonroot_or_ambiguous_urls(self):
+        from adaptive_qa.document_url import canonical_root_url
+        for url in ('https://example.test/path','https://example.test/path/',
+                    'https://example.test?','https://example.test#','https://example.test/%2f',
+                    'https://example.test//','https://example.test/a/../b'):
+            self.assertEqual(canonical_root_url(url),url)
+        self.assertIsNone(canonical_root_url(None))
+
     def test_discovered_document_binding_requires_exact_saved_path_and_case_family(self):
         settings = {'base_url': 'http://127.0.0.1:8000/information.html', 'allowed_hosts': ['127.0.0.1'], 'allow_data_changes': False}
         binding = serialize_target_binding('DOC-001', settings['base_url'])
