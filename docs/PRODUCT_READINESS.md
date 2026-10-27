@@ -37,5 +37,20 @@ Those limits must remain visible in the product and handoff.
    or server is not required to use the current local edition. No purchase or
    activation is made implicitly.
 
-Current acceptance and installation steps are still in progress. Do not call this
-checklist completed until the exact runtime, UI and preserved data are verified.
+## Verified local delivery — 2026-10-27
+
+All four agent completion steps above are complete for the stated bounded edition.
+Runtime 5a464290a8a94f19e2760f1776e2b321b05cd1a3 passed the 938-test regression,
+full installed verification and twelve CI jobs/archive acceptance (226 PNGs), with
+the documented verification retries. The preview preserves thirteen prior tables
+and seven reviews; a new authorized automatic URL run recorded five passes while
+preserving all prior rows. Report selection/filtering and new automatic results
+were verified in the actual main workspace. The working release remains inactive
+for external deployment; no public backend or paid service was activated.
+
+There is no known unfinished implementation item in this bounded delivery.
+Future arbitrary-site authentication, exhaustive visual/security/performance or
+customer-hosted deployment are separate engineering scopes, not owner-only setup
+tasks and not claims of this acceptance. See OWNER_HANDOFF.md for the ordered
+owner decisions. Overall product acceptance remains with the owner; scheduled
+follow-up continues for concrete findings and CI failures.

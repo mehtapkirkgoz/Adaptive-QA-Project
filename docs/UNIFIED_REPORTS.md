@@ -29,4 +29,12 @@ Validation: focused ownership/authentication/idempotence/input tests and a real
 browser proof exercise report selection, filtering, escaped HTML evidence,
 reload non-replay, preserved configuration, mobile overflow and zero external or
 mutation requests. The browser proof also runs against the installed release.
-Exact-commit CI and preserved preview acceptance remain required before completion.
+Accepted implementation: 50cac149fe7ee2f195d8cf1a543c90c8fe4c0ed0 / Core
+40415364472, twelve successful jobs and twelve verified archives with 226 PNGs.
+The 935-test regression and full installed release verification passed. Seven
+existing local reviews were imported after backup and offline rehearsal, preserving
+all twelve prior table digests. The main workspace and authenticated history showed
+all seven reports; existing report bookmarks remained available, with no new target
+requests. See evidence/unified-reports-ci-50cac14.json and
+evidence/unified-reports-preview-50cac14.json. Later root-URL compatibility work is
+tracked separately in ROOT_URL_COMPATIBILITY.md.

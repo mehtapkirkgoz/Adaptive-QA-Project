@@ -1,0 +1,11 @@
+{
+  "runtime_commit": "5a464290a8a94f19e2760f1776e2b321b05cd1a3",
+  "new_authorized_read_only_check": true,
+  "passed": 5,
+  "failed": 0,
+  "not_evaluated": 0,
+  "prior_rows_preserved": true,
+  "automatic_retry": false,
+  "credentials_submitted": false,
+  "target_details_committed": false
+}

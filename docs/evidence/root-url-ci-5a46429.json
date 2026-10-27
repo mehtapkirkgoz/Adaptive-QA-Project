@@ -1,0 +1,238 @@
+{
+  "implementation_commit": "5a464290a8a94f19e2760f1776e2b321b05cd1a3",
+  "run_id": 40448712702,
+  "jobs_successful": 12,
+  "jobs": [
+    {
+      "id": 122009994858,
+      "name": "Controlled API checks",
+      "conclusion": "success"
+    },
+    {
+      "id": 122009954972,
+      "name": "scaffold",
+      "conclusion": "success"
+    },
+    {
+      "id": 122009996927,
+      "name": "Controlled database checks (windows-2025)",
+      "conclusion": "success"
+    },
+    {
+      "id": 122009978925,
+      "name": "Inactive release packaging",
+      "conclusion": "success"
+    },
+    {
+      "id": 122010002740,
+      "name": "Browser integration checks",
+      "conclusion": "success"
+    },
+    {
+      "id": 122009995503,
+      "name": "Local browser check",
+      "conclusion": "success"
+    },
+    {
+      "id": 122010000765,
+      "name": "Controlled database checks (ubuntu-24.04)",
+      "conclusion": "success"
+    },
+    {
+      "id": 122009991690,
+      "name": "Process lifecycle (ubuntu-24.04)",
+      "conclusion": "success"
+    },
+    {
+      "id": 122009952831,
+      "name": "Packaged local runtime (windows-2025)",
+      "conclusion": "success"
+    },
+    {
+      "id": 122009992657,
+      "name": "Process lifecycle (windows-2025)",
+      "conclusion": "success"
+    },
+    {
+      "id": 122009954671,
+      "name": "Packaged local runtime (ubuntu-24.04)",
+      "conclusion": "success"
+    },
+    {
+      "id": 122009953947,
+      "name": "UI catalog and isolation",
+      "conclusion": "success"
+    }
+  ],
+  "png_count": 226,
+  "artifacts": [
+    {
+      "id": 12710000011,
+      "name": "process-lifecycle-windows-2025",
+      "digest": "sha256:41bfb290df68db3c782e88d2a82659adb261d1aad28f0db95107c8097baa0950",
+      "bytes": 685,
+      "zip_crc_verified": true,
+      "png_count": 0,
+      "release_verified": false
+    },
+    {
+      "id": 12709646494,
+      "name": "inactive-rollback-plan-5a464290a8a94f19e2760f1776e2b321b05cd1a3",
+      "digest": "sha256:685aa7ab0363ea8896982e21f5b5599bf276f145b1ec136ebcc31bb79709aa85",
+      "bytes": 369,
+      "zip_crc_verified": true,
+      "png_count": 0,
+      "release_verified": false
+    },
+    {
+      "id": 12709561807,
+      "name": "inactive-release-5a464290a8a94f19e2760f1776e2b321b05cd1a3",
+      "digest": "sha256:6c843d4e12a7a253b7b15f0145b6ecaf37a86e1023832e48abe23503936e9afe",
+      "bytes": 371030,
+      "zip_crc_verified": true,
+      "png_count": 0,
+      "release_verified": true
+    },
+    {
+      "id": 12709441959,
+      "name": "local-database-evidence-ubuntu-24.04",
+      "digest": "sha256:85410594f6d201244ad459f9902cfc8975a5df10d16679fca14ee56746412f22",
+      "bytes": 2100,
+      "zip_crc_verified": true,
+      "png_count": 0,
+      "release_verified": false
+    },
+    {
+      "id": 12709432572,
+      "name": "local-browser-evidence",
+      "digest": "sha256:e9bd935b340963b2549614de9f8fc465d5e46426c0bd0f0419aafe8101ff1048",
+      "bytes": 1818031,
+      "zip_crc_verified": true,
+      "png_count": 12,
+      "release_verified": false
+    },
+    {
+      "id": 12709322510,
+      "name": "local-database-evidence-windows-2025",
+      "digest": "sha256:f05dd9fc2f711eab099b32a2a0ea6c5cd1ec775497836197094e6871b881f387",
+      "bytes": 2103,
+      "zip_crc_verified": true,
+      "png_count": 0,
+      "release_verified": false
+    },
+    {
+      "id": 12709272985,
+      "name": "local-runtime-ubuntu-24.04",
+      "digest": "sha256:be310d7a58b9e0ff8c13a1ed055e58d21052ce2074709074d5677ede3118b6e0",
+      "bytes": 4870,
+      "zip_crc_verified": true,
+      "png_count": 0,
+      "release_verified": false
+    },
+    {
+      "id": 12709233025,
+      "name": "browser-integration-evidence",
+      "digest": "sha256:b2f14b4ff0a03b1f86e2b5c74ef3707a171b7b8470d291e696d373787beca6f9",
+      "bytes": 2019941,
+      "zip_crc_verified": true,
+      "png_count": 53,
+      "release_verified": false
+    },
+    {
+      "id": 12708914878,
+      "name": "process-lifecycle-ubuntu-24.04",
+      "digest": "sha256:ab755b9412791ad32dafce7c616026af97569cbdb2b91b7d9ed67fcdcb0d8210",
+      "bytes": 678,
+      "zip_crc_verified": true,
+      "png_count": 0,
+      "release_verified": false
+    },
+    {
+      "id": 12708839439,
+      "name": "local-api-evidence",
+      "digest": "sha256:05bb4c9e8af6494e32099c85fc3057a82350aaf3f2a119586767a03a669e1f77",
+      "bytes": 17075,
+      "zip_crc_verified": true,
+      "png_count": 0,
+      "release_verified": false
+    },
+    {
+      "id": 12710211400,
+      "name": "ui-catalog-evidence",
+      "digest": "sha256:9b45643c004d238bc7797c8bb46ef1fa4535054e9a5ac22ad261f9e025356aab",
+      "bytes": 7436631,
+      "zip_crc_verified": true,
+      "png_count": 161,
+      "release_verified": false
+    },
+    {
+      "id": 12710531169,
+      "name": "local-runtime-windows-2025",
+      "digest": "sha256:f4ee94e1cd3f2aaa82cbb41e76178ff048f521fe439da2f55b0e2ac71b93753f",
+      "bytes": 4908,
+      "zip_crc_verified": true,
+      "png_count": 0,
+      "release_verified": false
+    }
+  ],
+  "empty_root_proofs": {
+    "html-inspection/report.json": {
+      "legacy_native_email_contract_consistent": true,
+      "native_email_outcomes": [
+        "passed",
+        "passed",
+        "failed",
+        "blocked",
+        "blocked",
+        "blocked",
+        "error"
+      ],
+      "native_email_no_input_events_or_submissions": true,
+      "installed_wheel": false,
+      "source_html_passes": 5,
+      "source_html_assertion_failures": 2,
+      "redirect_blocked": true,
+      "rendered_form_coverage_still_fails_closed": true,
+      "scripts_assets_and_frames_excluded": true,
+      "mutation_requests": 0,
+      "private_destination_not_contacted": true,
+      "scope": "owned_controlled_fixture",
+      "empty_root_url_passed": true
+    },
+    "html-inspection/installed.json": {
+      "legacy_native_email_contract_consistent": true,
+      "native_email_outcomes": [
+        "passed",
+        "passed",
+        "failed",
+        "blocked",
+        "blocked",
+        "blocked",
+        "error"
+      ],
+      "native_email_no_input_events_or_submissions": true,
+      "installed_wheel": true,
+      "source_html_passes": 5,
+      "source_html_assertion_failures": 2,
+      "redirect_blocked": true,
+      "rendered_form_coverage_still_fails_closed": true,
+      "scripts_assets_and_frames_excluded": true,
+      "mutation_requests": 0,
+      "private_destination_not_contacted": true,
+      "scope": "owned_controlled_fixture",
+      "empty_root_url_passed": true
+    }
+  },
+  "full_installed_release_verified": true,
+  "regression_tests": 938,
+  "existing_windows_permission_skip": 1,
+  "verification_followup": {
+    "initial_windows_job": 122006080302,
+    "retried_windows_job": 122009952831,
+    "retry_result": "success",
+    "initial_local_numeric_fixture_coverage_error": true,
+    "targeted_numeric_repeat_passed": true,
+    "full_installed_repeat_passed": true
+  },
+  "customer_data_included": false
+}
