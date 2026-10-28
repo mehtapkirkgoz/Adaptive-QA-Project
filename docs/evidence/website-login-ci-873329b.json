@@ -1,0 +1,187 @@
+{
+  "implementation_commit": "873329b3e5dba3dce5ca79e60ad067f08a1de9f9",
+  "run_id": 40694401848,
+  "jobs_successful": 12,
+  "jobs": [
+    {
+      "id": 122844720764,
+      "name": "Inactive release packaging",
+      "conclusion": "success"
+    },
+    {
+      "id": 122844727038,
+      "name": "Controlled API checks",
+      "conclusion": "success"
+    },
+    {
+      "id": 122844723142,
+      "name": "Process lifecycle (windows-2025)",
+      "conclusion": "success"
+    },
+    {
+      "id": 122844743527,
+      "name": "Local browser check",
+      "conclusion": "success"
+    },
+    {
+      "id": 122844737243,
+      "name": "Browser integration checks",
+      "conclusion": "success"
+    },
+    {
+      "id": 122844668901,
+      "name": "scaffold",
+      "conclusion": "success"
+    },
+    {
+      "id": 122844670338,
+      "name": "Packaged local runtime (ubuntu-24.04)",
+      "conclusion": "success"
+    },
+    {
+      "id": 122844731046,
+      "name": "UI catalog and isolation",
+      "conclusion": "success"
+    },
+    {
+      "id": 122844726448,
+      "name": "Controlled database checks (windows-2025)",
+      "conclusion": "success"
+    },
+    {
+      "id": 122844719381,
+      "name": "Process lifecycle (ubuntu-24.04)",
+      "conclusion": "success"
+    },
+    {
+      "id": 122844669320,
+      "name": "Controlled database checks (ubuntu-24.04)",
+      "conclusion": "success"
+    },
+    {
+      "id": 122844666993,
+      "name": "Packaged local runtime (windows-2025)",
+      "conclusion": "success"
+    }
+  ],
+  "archives": 12,
+  "png_count": 229,
+  "windows_first_failed_job": 122837211714,
+  "windows_successful_retry_job": 122844666993,
+  "artifacts": [
+    {
+      "id": 12819510257,
+      "name": "browser-integration-evidence",
+      "digest": "sha256:75614f71e546e96a28494a25a165d6f4b74a57d8ccb0731057a20fb6d78b4fb4",
+      "bytes": 2017973,
+      "zip_crc_verified": true,
+      "png_count": 53,
+      "release_verified": false
+    },
+    {
+      "id": 12819270570,
+      "name": "local-api-evidence",
+      "digest": "sha256:b607f9be617f80c222d1c65d6fae13bc78ab423433c87770eb1005b528ab7db4",
+      "bytes": 17060,
+      "zip_crc_verified": true,
+      "png_count": 0,
+      "release_verified": false
+    },
+    {
+      "id": 12819182981,
+      "name": "ui-catalog-evidence",
+      "digest": "sha256:d7147f7f1174ef4d4e1b07d0d4b138312001239f27d97c98779f62fbf37a8167",
+      "bytes": 7681055,
+      "zip_crc_verified": true,
+      "png_count": 164,
+      "release_verified": false
+    },
+    {
+      "id": 12819141069,
+      "name": "process-lifecycle-windows-2025",
+      "digest": "sha256:567d166e8dbe41d58ffccada9528fa37643258283b4e4d88cc5c2c298d4a579b",
+      "bytes": 685,
+      "zip_crc_verified": true,
+      "png_count": 0,
+      "release_verified": false
+    },
+    {
+      "id": 12818726873,
+      "name": "local-database-evidence-windows-2025",
+      "digest": "sha256:558deebe2373ecd754b170e4501ce9091d0f2763fbc868f63e712333e2bae13a",
+      "bytes": 2105,
+      "zip_crc_verified": true,
+      "png_count": 0,
+      "release_verified": false
+    },
+    {
+      "id": 12818686661,
+      "name": "inactive-rollback-plan-873329b3e5dba3dce5ca79e60ad067f08a1de9f9",
+      "digest": "sha256:bf8a2b5bf4e1ec1333535acde50aeb19266a4007a7be583933437b355bc1cb12",
+      "bytes": 366,
+      "zip_crc_verified": true,
+      "png_count": 0,
+      "release_verified": false
+    },
+    {
+      "id": 12818492231,
+      "name": "inactive-release-873329b3e5dba3dce5ca79e60ad067f08a1de9f9",
+      "digest": "sha256:80e85c04b9feb12509b692e5cb14630c125b353658bc5fbb11aafaacb1091150",
+      "bytes": 381782,
+      "zip_crc_verified": true,
+      "png_count": 0,
+      "release_verified": true
+    },
+    {
+      "id": 12818323093,
+      "name": "local-browser-evidence",
+      "digest": "sha256:bd661a7e2a5af22a67b1a9f2022aa6fbb5f227771d8f78be39a7c62e591f14b7",
+      "bytes": 1819237,
+      "zip_crc_verified": true,
+      "png_count": 12,
+      "release_verified": false
+    },
+    {
+      "id": 12818093317,
+      "name": "process-lifecycle-ubuntu-24.04",
+      "digest": "sha256:5412d1347a0db96eb41646b3d580347e33de8fa1ef510f88ae250244eb307938",
+      "bytes": 678,
+      "zip_crc_verified": true,
+      "png_count": 0,
+      "release_verified": false
+    },
+    {
+      "id": 12817739953,
+      "name": "local-runtime-ubuntu-24.04",
+      "digest": "sha256:36a68617cc6b6deeb5392139fd218a216588e60e9bae5be926a75ebb22a3c7ec",
+      "bytes": 4868,
+      "zip_crc_verified": true,
+      "png_count": 0,
+      "release_verified": false
+    },
+    {
+      "id": 12817579944,
+      "name": "local-database-evidence-ubuntu-24.04",
+      "digest": "sha256:a55f412a60b265fa8edfe14a7f627b67e449d7c7a5637333dc4ead2d62c3a360",
+      "bytes": 2105,
+      "zip_crc_verified": true,
+      "png_count": 0,
+      "release_verified": false
+    },
+    {
+      "id": 12819862584,
+      "name": "local-runtime-windows-2025",
+      "digest": "sha256:54cbea2d7f9bcb705a8bf5be3047a42c71805a0d4cdc4ec381f956e78f512cd4",
+      "bytes": 4906,
+      "zip_crc_verified": true,
+      "png_count": 0,
+      "release_verified": false
+    }
+  ],
+  "regression_tests": 945,
+  "regression_skipped": 1,
+  "owned_worker_scenarios": 16,
+  "source_and_installed_ui_passed": true,
+  "full_installed_release_passed_on_retry": true,
+  "public_target_logins": 0
+}

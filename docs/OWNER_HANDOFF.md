@@ -5,8 +5,8 @@ seven existing browser reviews, filter statuses and read evidence on the same
 page. Automatic URL checks appear above them. Browser observations are labelled
 separately from engine verdicts. Refreshing or opening reports never repeats tests.
 
-Current installed runtime: 5a464290a8a94f19e2760f1776e2b321b05cd1a3.
-Release bundle: artifacts/releases/5a464290a8a94f19e2760f1776e2b321b05cd1a3.
+Current installed runtime: 873329b3e5dba3dce5ca79e60ad067f08a1de9f9.
+Release bundle: artifacts/releases/873329b3e5dba3dce5ca79e60ad067f08a1de9f9.
 Existing local data: artifacts/local-review-2026-10-25/projects.sqlite.
 The active process/UI locations are recorded in that workspace's preview-process.json.
 Do not replace that database with a fresh demo workspace. Backup/recovery and
@@ -21,8 +21,11 @@ installation instructions are in LOCAL_QUICKSTART.md and the linked operations d
 
 ## Only if extending use or selling licenses
 
-2. For a real authenticated workflow, provide an authorized disposable test account
-   through local secret references and define the expected actions. Do not paste
+2. For supported standard website login, explicitly run a new URL check. If a login
+   is found, use Login tests / Add a test account to enter the detected identifier
+   and disposable password for that run only. See WEBSITE_LOGIN.md for limits.
+   Other authenticated contracts still require local secret references and scoped
+   implementation. Do not paste
    passwords into reports/issues/source control. Unsupported authentication still
    needs scoped engineering; providing credentials alone does not enable arbitrary
    login automation.
@@ -37,5 +40,6 @@ installation instructions are in LOCAL_QUICKSTART.md and the linked operations d
 
 This delivery does not claim every function on every website is automatically
 tested by AI. The automatic URL flow performs bounded read-only HTML/native-field
-checks; login, API and database execution require supported explicit contracts.
+checks; optional standard HTML login uses a separately confirmed one-shot account.
+Other login, API and database execution require supported explicit contracts.
 The 100-case catalog is preserved and is not a universal execution guarantee.

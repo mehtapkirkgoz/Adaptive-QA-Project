@@ -4,7 +4,7 @@ Active owner request (2026-10-28): inspect the supplied website for login before
 requesting its disposable test-account identifier/password, then execute supported
 login cases in the main page. Follow [WEBSITE_LOGIN.md](WEBSITE_LOGIN.md). This is
 new post-delivery engineering; older completion/wait notes do not supersede it.
-The owner's scheduled continuation automation remains paused. Preserve all existing
+The owner reauthorized usage-gated scheduled continuation on 2026-10-28. Preserve all existing
 data and never replay the completed external demo cohorts.
 
 Active owner request (2026-10-27): integrate all existing local browser reviews

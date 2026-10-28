@@ -5,6 +5,18 @@ not claim automatic AI execution of every function on arbitrary websites, an
 unbreakable offline free limit, general customer deployment or public hosting.
 Those limits must remain visible in the product and handoff.
 
+New owner-requested login delivery (2026-10-28) is accepted at 873329b / Core
+40694401848, twelve successful jobs and twelve verified archives / 229 PNGs.
+The main page can inspect login, request the detected identifier and a disposable
+password, and perform one confirmed supported standard HTML login/sign-out flow.
+Credentials remain in memory only. See WEBSITE_LOGIN.md for precise limits,
+source/installed proof and documented verification retries. The versioned preview
+was upgraded with all thirteen prior tables and seven reviews preserved. Earlier
+delivery records below remain historical; arbitrary-site JavaScript/SSO/MFA and
+all-function AI execution are still outside the supported scope. The scheduled
+continuation automation was explicitly requested again by the owner on 2026-10-28
+and resumes usage-gated follow-up for concrete work and new CI findings.
+
 ## Agent completion sequence
 
 1. Accept the integrated report workspace using exact-commit CI and installed

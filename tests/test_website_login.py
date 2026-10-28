@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import unittest
+import time
 from unittest.mock import patch
 
 from adaptive_qa.config import ProjectConfig
@@ -104,9 +105,14 @@ class WebsiteLoginTests(unittest.TestCase):
             base=f'/api/projects/{self.pid}/interactive/website-login'
             self.assertEqual(client.post(base+'/review',json={'check_id':self.check}).status_code,403)
             review=client.post(base+'/review',headers=headers,json={'check_id':self.check}).json()
-            with patch('adaptive_qa.website_login_process.run_login',return_value=result_object(dict(cases=[dict(case_id=c,status='not_run',reason_code='unsupported_form') for c in __import__('adaptive_qa.website_login_process',fromlist=['CASE_NAMES']).CASE_NAMES],attempted_submissions=0))):
+            with patch('adaptive_qa.website_login_process.run_login',return_value=result_object(dict(cases=[dict(case_id=c,status='not_run',reason_code='unsupported_form') for c in __import__('adaptive_qa.website_login_process',fromlist=['CASE_NAMES']).CASE_NAMES],attempted_submissions=0))) as child:
                 response=client.post(base+'/jobs',headers=headers,json=dict(check_id=self.check,identifier='secret-user',password='secret-password',authorized=True,confirmed_contract_fingerprint=review['contract_fingerprint']))
                 self.assertEqual(response.status_code,202,response.text)
+                deadline=time.monotonic()+5
+                while self.queue.get(LOCAL_ACTOR,self.pid,response.json()['job_id'])['status'] in ('queued','running','cancel_requested'):
+                    self.assertLess(time.monotonic(),deadline)
+                    time.sleep(.02)
+                child.assert_called_once()
             self.assertNotIn('secret-',response.text)
         self.assertNotIn(b'secret-user',self.path.read_bytes());self.assertNotIn(b'secret-password',self.path.read_bytes())
 
