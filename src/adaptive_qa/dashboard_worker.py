@@ -51,6 +51,9 @@ def _report(work, payload):
                             inspected_pages=len(snapshots), configuration_source='job_snapshot')
     report['configuration_fingerprint'] = configuration_fingerprint(work.configuration)
     report['discovery_profile'] = profile
+    from adaptive_qa.website_login import login_candidate
+    report['login'] = (login_candidate(snapshots, config, profile) if profile=='public_https'
+        else dict(status='unsupported',candidate=None,scope='inspected_pages_only'))
     # Only select native probes automatically when the saved page has one observed
     # email field. Runtime independently rechecks its actual unique editable control.
     report['native_email_candidate'] = any(page.url == config.base_url and has_unique_email(page)

@@ -214,6 +214,7 @@ class SiteChecks:
             eligible.sort(key=lambda case:0 if case in DOCUMENT_CHECKS else 1 if case in NATIVE_FORM_CHECKS else 2)
             selected = eligible[:10]
             summary = dict(inspected_pages=report['inspected_pages'], requested=len(selected),
+                login=report.get('login', {'status':'not_found','candidate':None,'scope':'inspected_pages_only'}),
                 not_run=len(report['cases'])-len(selected),
                 names={c['case_id']: c['name'] for c in report['cases'] if c['case_id'] in selected},
                 execution_scope='source_html_native_validity_and_read_only_forms',

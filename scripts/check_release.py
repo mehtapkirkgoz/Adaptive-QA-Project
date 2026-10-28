@@ -245,6 +245,18 @@ stage('complete')
                 raise ValueError('Installed integrated browser-review evidence is incomplete.')
             reviews_output=ROOT/'artifacts/unified-reports';reviews_output.mkdir(parents=True,exist_ok=True)
             (reviews_output/'installed.json').write_text(json.dumps(reviews,indent=2)+'\n',encoding='utf-8')
+            for mode in ('worker','ui'):
+                subprocess.run([sys.executable,str(ROOT/'scripts/check_website_login.py')]+(['--ui'] if mode=='ui' else []),
+                    cwd=temporary,env=browser_environment,check=True,timeout=120)
+                login=json.loads((Path(temporary)/f'artifacts/website-login/installed-{mode}.json').read_text(encoding='utf-8'))
+                expected=['passed'] if mode=='ui' else ['passed','failed']+['blocked']*5+['passed']+['blocked']*2+['error']*3+['cancelled']*2+['passed']
+                if (not login.get('installed_wheel') or [item['status'] for item in login.get('scenarios',[])]!=expected
+                        or any(item['posts']>1 for item in login['scenarios'])
+                        or any(login.get(key)!=0 for key in ('external_targets','credential_files','automatic_retries'))
+                        or not login.get('prior_settings_preserved')):
+                    raise ValueError('Installed website login proof is incomplete.')
+                login_output=ROOT/'artifacts/website-login';login_output.mkdir(parents=True,exist_ok=True)
+                (login_output/f'installed-{mode}.json').write_text(json.dumps(login,indent=2)+'\n',encoding='utf-8')
             subprocess.run([sys.executable,str(ROOT/'scripts/check_public_submission.py')],cwd=temporary,
                 env=browser_environment,check=True,timeout=120)
             public=json.loads((Path(temporary)/'artifacts/processes/public-submission.json').read_text(encoding='utf-8'))

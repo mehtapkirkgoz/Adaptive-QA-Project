@@ -2,10 +2,12 @@ import {useEffect, useRef, useState} from 'react';
 import type {ReactNode} from 'react';
 import {DemoLoginPanel} from './DemoLoginPanel';
 import {BrowserReviewPanel} from './BrowserReviewPanel';
+import {WebsiteLoginPanel} from './WebsiteLoginPanel';
 
 type Result = {case_id: string; status: string; message: string; reason_code?: string; duration_seconds: number; evidence_id?: string};
 type Check = {check_id: string; project_id: string; url: string; status: string; inspected_pages?: number;
-  requested?: number; not_run?: number; names?: Record<string, string>; results?: Result[]; run_id?: string; diagnostic_code?: string};
+  requested?: number; not_run?: number; names?: Record<string, string>; results?: Result[]; run_id?: string; diagnostic_code?: string;
+  login?:{status:string;candidate?:{document_url:string;identifier_kind:string}|null}};
 type Props = {demoProjectId?: string; request: <T>(path: string, method?: string, body?: unknown) => Promise<T>; tools: ReactNode; feedback: ReactNode; onOptionsOpen: (projectId?: string) => void; onCheckCreated: (projectId: string) => void; hasUnsavedOptions: boolean; edition: string; onSignOut?: () => void};
 const reasons: Record<string, string> = {
   native_number_passed: 'The browser enforced the declared number bound on an isolated field copy. The live field was unchanged and no form was submitted.',
@@ -128,6 +130,8 @@ export function SiteCheck({request, tools, feedback, onOptionsOpen, onCheckCreat
         {check.not_run !== undefined && ` ${check.not_run} catalog checks were not included in this run.`}
         {unrecorded > 0 && ` ${unrecorded} selected checks produced no result.`} Sign-in, API and database checks require additional configuration.</p></details>}
     </section>}
+    {check&&!active(check)&&<WebsiteLoginPanel key={check.check_id} checkId={check.check_id} projectId={check.project_id}
+      login={check.login} disabled={hasUnsavedOptions||busy} request={request}/>}
     <BrowserReviewPanel request={request}/>
     <DemoLoginPanel projectId={check?.project_id ?? demoProjectId} request={request} hasUnsavedChanges={hasUnsavedOptions} onProjectCreated={onCheckCreated}/>
     <details className="workspace-options" open={location.hash === '#advanced' ? true : undefined} onToggle={event => {if (event.currentTarget.open) onOptionsOpen(check?.project_id);}}>

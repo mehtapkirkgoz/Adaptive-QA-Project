@@ -1,5 +1,11 @@
 # Local-First Product Conversion
 
+Active owner request (2026-10-28): add detected website login with a disposable
+test-account email/username and password, memory-only one-shot execution and inline
+results. Follow [WEBSITE_LOGIN.md](WEBSITE_LOGIN.md). Older readiness statements
+cover the previous delivery; this new scope requires fresh owned-fixture acceptance.
+The scheduled continuation automation stays paused as requested by the owner.
+
 Active owner request (2026-10-27): integrate the previously separate browser-review
 pages into the main local workspace. Follow [UNIFIED_REPORTS.md](UNIFIED_REPORTS.md).
 Seven existing local reports must remain visibly distinct from automatic engine

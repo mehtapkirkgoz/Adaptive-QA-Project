@@ -61,6 +61,7 @@ def create_app(store: AuthStore, *, port=8765, projects=None, ui_directory=None)
     origin = f'http://{authority}'
     site_checks = None
     demo_logins = None
+    website_logins = None
     @asynccontextmanager
     async def lifespan(app):
         yield
@@ -68,6 +69,8 @@ def create_app(store: AuthStore, *, port=8765, projects=None, ui_directory=None)
             await run_in_threadpool(site_checks.shutdown)
         if demo_logins is not None:
             await run_in_threadpool(demo_logins.shutdown)
+        if website_logins is not None:
+            await run_in_threadpool(website_logins.shutdown)
     app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None, lifespan=lifespan)
     projects = projects if projects is not None else ProjectStore(store.database.with_name('projects.sqlite'))
     discovery = DashboardDiscoveryQueue(projects)
@@ -293,6 +296,28 @@ def create_app(store: AuthStore, *, port=8765, projects=None, ui_directory=None)
         interactive = OwnedInteractiveQueue(projects)
         from adaptive_qa.demo_login_service import DemoLoginService
         demo_logins = DemoLoginService(projects)
+        from adaptive_qa.website_login_service import WebsiteLoginService
+        website_logins = WebsiteLoginService(projects)
+
+        @app.post('/api/projects/{project_id}/interactive/website-login/review')
+        async def inspect_website_login(project_id: str, request: Request):
+            from adaptive_qa.website_login import review_website_login
+            owner=await run_in_threadpool(actor,request,mutation=True)
+            data=_object(await request.body(),('check_id',))
+            review=await run_in_threadpool(review_website_login,projects,owner,project_id,data['check_id'])
+            return review.public()
+
+        @app.post('/api/projects/{project_id}/interactive/website-login/jobs', status_code=202)
+        async def submit_website_login(project_id: str, request: Request):
+            from adaptive_qa.website_login import review_website_login
+            owner=await run_in_threadpool(actor,request,mutation=True)
+            data=_object(await request.body(),('check_id','identifier','password','authorized','confirmed_contract_fingerprint'))
+            review=await run_in_threadpool(review_website_login,projects,owner,project_id,data['check_id'])
+            try:
+                return await run_in_threadpool(website_logins.submit,owner,review,identifier=data['identifier'],
+                    password=data['password'],authorized=data['authorized'],confirmed_fingerprint=data['confirmed_contract_fingerprint'])
+            finally:
+                data.clear()
         @app.post('/api/projects/{project_id}/interactive/demo-login/review')
         async def review_authorized_demo_login(project_id: str, request: Request):
             from adaptive_qa.demo_login_contract import DemoLoginScenario

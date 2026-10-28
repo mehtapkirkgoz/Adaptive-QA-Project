@@ -22,6 +22,9 @@ class InteractiveWork:
 
 
 def _snapshot(review):
+    from adaptive_qa.website_login import SavedWebsiteLoginReview
+    if isinstance(review,SavedWebsiteLoginReview):
+        return dict(profile='website_login',check_id=review.check_id,contract_fingerprint=review.fingerprint())
     from adaptive_qa.demo_login_review import SavedDemoLoginReview
     if isinstance(review,SavedDemoLoginReview):
         return dict(profile='authorized_login_demo',scenario=review.plan.scenario.value,
@@ -58,6 +61,9 @@ class OwnedInteractiveQueue:
     @staticmethod
     def _public(row):
         data=json.loads(row['review_json'])
+        if data.get('profile')=='website_login':
+            return dict(job_id=row['job_id'],project_id=row['project_id'],status=row['status'],
+                scope='website_login',check_id=data['check_id'],result=json.loads(row['result_json']) if row['result_json'] else None)
         if data.get('profile')=='authorized_login_demo':
             return dict(job_id=row['job_id'],project_id=row['project_id'],status=row['status'],
                 scope='authorized_login_demo',scenario=data['scenario'],result=json.loads(row['result_json']) if row['result_json'] else None)
@@ -66,6 +72,12 @@ class OwnedInteractiveQueue:
 
     def _current(self,connection,row):
         data=json.loads(row['review_json'])
+        if isinstance(data,dict) and data.get('profile')=='website_login':
+            from adaptive_qa.website_login import _review_on_connection as website_review
+            if set(data)!={'profile','check_id','contract_fingerprint'}:raise ValueError('Invalid login review.')
+            review=website_review(connection,ProjectActor(row['owner_id']),row['project_id'],data['check_id'])
+            if _snapshot(review)!=data:raise ValueError('Login review changed.')
+            return review
         if isinstance(data,dict) and data.get('profile')=='authorized_login_demo':
             if set(data)!={'profile','scenario','configuration_fingerprint','contract_fingerprint'}:
                 raise ValueError('Invalid queued demo snapshot.')
@@ -113,7 +125,8 @@ class OwnedInteractiveQueue:
         with self.projects._connection() as connection:
             connection.execute('BEGIN IMMEDIATE')
             from adaptive_qa.demo_login_review import SavedDemoLoginReview
-            project_id=review.project_id if isinstance(review,SavedDemoLoginReview) else review.submission.form.project_id
+            from adaptive_qa.website_login import SavedWebsiteLoginReview
+            project_id=review.project_id if isinstance(review,(SavedDemoLoginReview,SavedWebsiteLoginReview)) else review.submission.form.project_id
             snapshot=_snapshot(review)
             current=self._current(connection,dict(review_json=json.dumps(snapshot),owner_id=actor.user_id,
                 project_id=project_id))
@@ -141,6 +154,15 @@ class OwnedInteractiveQueue:
                 or any(c not in '0123456789abcdef' for c in confirmed_fingerprint)
                 or not secrets.compare_digest(confirmed_fingerprint,review.fingerprint())):
             raise ValueError('Confirm this exact demo scenario.')
+        return self._admit_review(actor,review)
+
+    def submit_website_login(self,actor,review,*,confirmed_fingerprint,authorized):
+        from adaptive_qa.website_login import SavedWebsiteLoginReview
+        self.projects._actor(actor)
+        if (not isinstance(review,SavedWebsiteLoginReview) or authorized is not True
+                or not isinstance(confirmed_fingerprint,str)
+                or not secrets.compare_digest(confirmed_fingerprint,review.fingerprint())):
+            raise ValueError('Confirm the inspected website and disposable test-account permission.')
         return self._admit_review(actor,review)
 
     def get(self,actor,project_id,job_id):
@@ -215,6 +237,11 @@ class OwnedInteractiveQueue:
             # Never persist adapter text, references, bodies, screenshots or uncertain success.
             outcome='cancelled' if status=='cancelled' else 'error' if status=='error' else result.status.value
             payload=dict(status=outcome,attempted_submissions=result.attempted_submissions)
+            from adaptive_qa.website_login import SavedWebsiteLoginReview
+            if isinstance(work.review,SavedWebsiteLoginReview):
+                from adaptive_qa.website_login_process import WebsiteLoginResult, validate_result
+                if isinstance(result,WebsiteLoginResult) and outcome==result.status.value:
+                    payload['cases']=validate_result(dict(cases=list(result.cases),attempted_submissions=result.attempted_submissions))['cases']
             from adaptive_qa.demo_login_review import SavedDemoLoginReview
             if isinstance(work.review,SavedDemoLoginReview) and outcome=='error':
                 from adaptive_qa.demo_login_outcome import diagnostic_from_message

@@ -382,6 +382,10 @@ jobs:
           python scripts/check_site_check_ui.py --licensed
       - name: Verify integrated local browser-review reports without target requests
         run: python scripts/check_browser_reviews_ui.py
+      - name: Verify inspected website login on owned TLS fixtures and local UI
+        run: |
+          python scripts/check_website_login.py
+          python scripts/check_website_login.py --ui
       - name: Verify installed licensed browser execution and offline recovery
         env:
           ADAPTIVE_QA_VERIFY_LICENSED_UI: '1'
@@ -415,6 +419,8 @@ jobs:
             artifacts/demo-login/*.png
             artifacts/unified-reports/*.json
             artifacts/unified-reports/*.png
+            artifacts/website-login/*.json
+            artifacts/website-login/*.png
             artifacts/public-submission/*.json
             artifacts/interactive-probe/*.json
           retention-days: 7
