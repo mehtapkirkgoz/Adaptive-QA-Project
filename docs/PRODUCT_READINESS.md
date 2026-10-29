@@ -1,5 +1,16 @@
 # Local product readiness
 
+Owner acceptance, 2026-10-29: the owner reports that the delivered local version
+passed their own test. This accepts the existing bounded local delivery, not an
+unimplemented public service. Their next request is a unified real-use website
+prepared for eventual domain connection. Public versus local execution/data
+placement is awaiting the owner's choice; do not silently move customer results
+or credentials to a central service. The automatic continuation was explicitly
+paused immediately before this request and remains paused.
+
+Earlier statements below that owner acceptance is pending are historical delivery
+checkpoints. Follow the new explicit release request without reopening Sprint 10.
+
 The current delivery is the bounded single-device local-first edition. It does
 not claim automatic AI execution of every function on arbitrary websites, an
 unbreakable offline free limit, general customer deployment or public hosting.

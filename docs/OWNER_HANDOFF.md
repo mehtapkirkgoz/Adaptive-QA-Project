@@ -1,5 +1,11 @@
 # Owner handoff — local edition
 
+The owner accepted their local test on 2026-10-29 and requested the next unified
+real-use release, aiming to leave domain acquisition/connection for last. The
+execution/data location must be selected before public deployment is implemented.
+The required local-review decision below has therefore been satisfied; public
+service acceptance and activation have not been granted by that local test.
+
 The main workspace is http://127.0.0.1:8766/. Use its Reports link to select the
 seven existing browser reviews, filter statuses and read evidence on the same
 page. Automatic URL checks appear above them. Browser observations are labelled
