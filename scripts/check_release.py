@@ -245,6 +245,14 @@ stage('complete')
                 raise ValueError('Installed integrated browser-review evidence is incomplete.')
             reviews_output=ROOT/'artifacts/unified-reports';reviews_output.mkdir(parents=True,exist_ok=True)
             (reviews_output/'installed.json').write_text(json.dumps(reviews,indent=2)+'\n',encoding='utf-8')
+            subprocess.run([sys.executable,str(ROOT/'scripts/check_hosted_ui.py')],cwd=temporary,
+                env=browser_environment,check=True,timeout=90)
+            hosted=json.loads((Path(temporary)/'artifacts/hosted/installed-ui.json').read_text(encoding='utf-8'))
+            if (not hosted.get('installed_wheel') or not hosted.get('owner_isolation')
+                    or not hosted.get('secure_cookies') or hosted.get('external_requests')):
+                raise ValueError('Installed hosted workspace evidence is incomplete.')
+            hosted_output=ROOT/'artifacts/hosted';hosted_output.mkdir(parents=True,exist_ok=True)
+            (hosted_output/'installed-ui.json').write_text(json.dumps(hosted,indent=2)+'\n',encoding='utf-8')
             for mode in ('worker','ui'):
                 subprocess.run([sys.executable,str(ROOT/'scripts/check_website_login.py')]+(['--ui'] if mode=='ui' else []),
                     cwd=temporary,env=browser_environment,check=True,timeout=120)

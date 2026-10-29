@@ -49,6 +49,7 @@ function App() {
   const [simpleAvailable, setSimpleAvailable] = useState(false);
   const [freeEdition, setFreeEdition] = useState(false);
   const [licensedEdition, setLicensedEdition] = useState(false);
+  const [hostedEdition,setHostedEdition]=useState(false);
   const [signedIn, setSignedIn] = useState(false), [checking, setChecking] = useState(true);
   const [busy, setBusy] = useState(false), [error, setError] = useState(''), [notice, setNotice] = useState('');
   const [projects, setProjects] = useState<Project[]>([]), [offset, setOffset] = useState(0);
@@ -90,6 +91,7 @@ function App() {
     setProjects(data.projects); setOffset(page); return data.projects;
   }
   useEffect(() => {let alive = true;
+    void api<{edition:string}>('/api/runtime').then(data=>{if(alive)setHostedEdition(data.edition==='hosted');}).catch(()=>{});
     (async () => {try {const session = await api<{edition?: string; simple_site_checks?: boolean}>('/api/auth/me');
       if (alive) {setSimpleAvailable(session.simple_site_checks === true); setFreeEdition(session.edition === 'free'); setLicensedEdition(session.edition === 'professional');}
       const data = await api<{projects: Project[]}>('/api/projects');
@@ -112,7 +114,7 @@ function App() {
     const email = String(data.get('email')), password = String(data.get('password'));
     form.reset();
     void perform(async () => {await api('/api/auth/login', 'POST', {email, password});
-      const session = await api<{edition?: string; simple_site_checks?: boolean}>('/api/auth/me'); setLicensedEdition(session.edition === 'professional'); setSimpleAvailable(session.simple_site_checks === true);
+      const session = await api<{edition?: string; simple_site_checks?: boolean}>('/api/auth/me'); setHostedEdition(session.edition==='hosted');setLicensedEdition(session.edition === 'professional'); setSimpleAvailable(session.simple_site_checks === true);
       setSignedIn(true); await load();});
   }
   function create(event: FormEvent<HTMLFormElement>) {
@@ -233,16 +235,16 @@ function App() {
       </details>
     </>}
   </div>;
-  if (signedIn && simpleAvailable) return <SiteCheck feedback={<>{error && <p role="alert" className="message error">{error}</p>}{notice && <p role="status" className="message success">{notice}</p>}</>} onSignOut={!freeEdition ? () => {void perform(async () => {await api('/api/auth/logout','POST',{});clear();});} : undefined} edition={freeEdition ? 'FREE · LOCAL' : 'LICENSED · LOCAL'} demoProjectId={selected?.project_id ?? projects[0]?.project_id} request={workspaceRequest} tools={localTools} hasUnsavedOptions={unsaved} onCheckCreated={pid => {setSelected(null);setSettings(null);void perform(async () => {const items=await load();const project=items.find(item=>item.project_id===pid);if(project) await choose(project);});}} onOptionsOpen={pid => {void perform(async () => {const items=await load();const project=items.find(item=>item.project_id===pid) ?? items[0];if(project && (!selected || selected.project_id!==project.project_id)) await choose(project, true);}, true);}}/>;
+  if (signedIn && simpleAvailable) return <SiteCheck feedback={<>{error && <p role="alert" className="message error">{error}</p>}{notice && <p role="status" className="message success">{notice}</p>}</>} onSignOut={!freeEdition ? () => {void perform(async () => {await api('/api/auth/logout','POST',{});clear();});} : undefined} edition={hostedEdition ? 'SERVER' : freeEdition ? 'FREE · LOCAL' : 'LICENSED · LOCAL'} demoProjectId={selected?.project_id ?? projects[0]?.project_id} request={workspaceRequest} tools={localTools} hasUnsavedOptions={unsaved} onCheckCreated={pid => {setSelected(null);setSettings(null);void perform(async () => {const items=await load();const project=items.find(item=>item.project_id===pid);if(project) await choose(project);});}} onOptionsOpen={pid => {void perform(async () => {const items=await load();const project=items.find(item=>item.project_id===pid) ?? items[0];if(project && (!selected || selected.project_id!==project.project_id)) await choose(project, true);}, true);}}/>;
   return <div className="shell">
     <aside><a className="brand" href="/" aria-label="Adaptive QA home"><span className="mark">AQ</span> Adaptive QA</a>
       <p className="eyebrow">WORKSPACE</p><div className="nav-item">Projects <span aria-hidden="true">●</span></div>
-      <div className="sidebar-note"><span className="dot"/> Local workspace<p>Configure with confidence.<br/>Keep every project in scope.</p></div>
+      <div className="sidebar-note"><span className="dot"/> {hostedEdition ? 'Server workspace' : 'Local workspace'}<p>Configure with confidence.<br/>Keep every project in scope.</p></div>
     </aside>
-    <div className="workspace"><header><span>Workspace <span className="slash">/</span> Projects</span><div className="header-actions"><span className="badge">{freeEdition ? 'FREE · LOCAL' : 'LOCAL'}</span>
+    <div className="workspace"><header><span>Workspace <span className="slash">/</span> Projects</span><div className="header-actions"><span className="badge">{hostedEdition ? 'SERVER' : freeEdition ? 'FREE · LOCAL' : 'LOCAL'}</span>
       {signedIn && !freeEdition && <button className="quiet" disabled={busy} onClick={() => void perform(async () => {await api('/api/auth/logout', 'POST', {}); clear();})}>Sign out</button>}</div></header>
       <main><div className="page-title"><div><p className="eyebrow">ADAPTIVE TESTING</p><h1>{signedIn ? 'Project workspace' : 'Welcome to your workspace'}</h1>
-        <p className="subtitle">{signedIn ? 'Manage your projects and define what is in scope.' : freeEdition ? 'Reopen your account-free local workspace.' : 'Sign in to manage your QA projects.'}</p></div><span className="step">LOCAL WORKSPACE</span></div>
+        <p className="subtitle">{signedIn ? 'Manage your projects and define what is in scope.' : freeEdition ? 'Reopen your account-free local workspace.' : 'Sign in to manage your QA projects.'}</p></div><span className="step">{hostedEdition ? 'SERVER WORKSPACE' : 'LOCAL WORKSPACE'}</span></div>
         {error && <div role="alert" className="message error">{error}</div>}
         {notice && <div role="status" className="message success">{notice}</div>}
         {checking ? <p role="status">Checking your session…</p> : !signedIn && freeEdition ? <section className="card login" aria-label="Reopen local workspace">
@@ -251,7 +253,7 @@ function App() {
         </section> : !signedIn ? <section className="card login"><p className="eyebrow">YOUR ACCOUNT</p><h2>Sign in</h2>
           <form onSubmit={login}><fieldset disabled={busy}><label>Email<input name="email" type="email" autoComplete="username" required maxLength={254}/></label>
             <label>Password<input name="password" type="password" autoComplete="current-password" required/></label>
-            <button className="primary" type="submit">{busy ? 'Signing in…' : 'Sign in'}</button></fieldset></form><p className="hint">Use the account created by your local workspace administrator.</p></section>
+            <button className="primary" type="submit">{busy ? 'Signing in…' : 'Sign in'}</button></fieldset></form><p className="hint">Use the account provided by your workspace administrator.</p></section>
         : projectTools}
       </main><footer>ADAPTIVE QA <span>Controlled scope. Clear evidence.</span></footer>
     </div></div>;

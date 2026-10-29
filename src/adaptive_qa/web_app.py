@@ -53,12 +53,19 @@ def _object(body, fields, *, optional=()):
     return data
 
 
-def create_app(store: AuthStore, *, port=8765, projects=None, ui_directory=None):
+def create_app(store: AuthStore, *, port=8765, projects=None, ui_directory=None, hosted_origin=None):
     """Trusted composition root. Bind the server to 127.0.0.1 only."""
     if type(port) is not int or not 1024 <= port <= 65535:
         raise ValueError('A local unprivileged port is required.')
     authority = f'127.0.0.1:{port}'
     origin = f'http://{authority}'
+    hosted=getattr(store,'hosted',False)
+    if hosted_origin is not None:
+        from adaptive_qa.hosted import HostedOrigin
+        if not hosted or not isinstance(hosted_origin,HostedOrigin):raise ValueError('Explicit hosted profile required.')
+        authority,origin=hosted_origin.authority,hosted_origin.origin
+    elif hosted:
+        raise ValueError('Hosted profile requires a canonical HTTPS origin.')
     site_checks = None
     demo_logins = None
     website_logins = None
@@ -72,6 +79,9 @@ def create_app(store: AuthStore, *, port=8765, projects=None, ui_directory=None)
         if website_logins is not None:
             await run_in_threadpool(website_logins.shutdown)
     app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None, lifespan=lifespan)
+    @app.get('/api/runtime')
+    def runtime_profile():
+        return {'edition':'hosted' if hosted else 'local','test_data_location':'server' if hosted else 'local'}
     projects = projects if projects is not None else ProjectStore(store.database.with_name('projects.sqlite'))
     discovery = DashboardDiscoveryQueue(projects)
     runs = DashboardRunQueue(projects)
@@ -207,10 +217,10 @@ def create_app(store: AuthStore, *, port=8765, projects=None, ui_directory=None)
     def public_project(project):
         return {'project_id': project.project_id, 'name': project.name}
 
-    if not (getattr(store, 'local_free', False) or getattr(store, 'local_licensed', False)):
+    if not (getattr(store, 'local_free', False) or getattr(store, 'local_licensed', False) or hosted):
         register_organization_routes(app, organizations, organization_projects, actor, _object, store)
 
-    if getattr(store, 'local_free', False) or getattr(store, 'local_licensed', False):
+    if getattr(store, 'local_free', False) or getattr(store, 'local_licensed', False) or hosted:
         from adaptive_qa.browser_reviews import BrowserReviews
         browser_reviews = BrowserReviews(projects)
 
@@ -219,7 +229,7 @@ def create_app(store: AuthStore, *, port=8765, projects=None, ui_directory=None)
             return {'reviews': browser_reviews.list(actor(request))}
 
         from adaptive_qa.site_check import SiteChecks, SiteCheckBusy
-        site_checks = SiteChecks(projects, free=getattr(store, 'local_free', False))
+        site_checks = SiteChecks(projects, free=getattr(store, 'local_free', False) or hosted)
 
         @app.exception_handler(SiteCheckBusy)
         async def site_check_busy(request, error):
@@ -291,7 +301,7 @@ def create_app(store: AuthStore, *, port=8765, projects=None, ui_directory=None)
             fixture_id=data['fixture_id'], completion=completion, timeout_seconds=data.get('timeout_seconds', 15))
         return review.public()
 
-    if getattr(store, 'local_free', False) or getattr(store, 'local_licensed', False):
+    if getattr(store, 'local_free', False) or getattr(store, 'local_licensed', False) or hosted:
         from adaptive_qa.interactive_queue import OwnedInteractiveQueue
         interactive = OwnedInteractiveQueue(projects)
         from adaptive_qa.demo_login_service import DemoLoginService
@@ -512,7 +522,7 @@ def create_app(store: AuthStore, *, port=8765, projects=None, ui_directory=None)
         for name, value, hidden in ((SESSION_COOKIE, grant.token.value, True),
                                     (CSRF_COOKIE, grant.csrf_token.value, False)):
             response.set_cookie(name, value, max_age=store.session_seconds,
-                                httponly=hidden, samesite='strict', secure=False, path='/')
+                                httponly=hidden, samesite='strict', secure=hosted, path='/')
         return response
 
     if getattr(store, 'local_licensed', False):
@@ -559,7 +569,7 @@ def create_app(store: AuthStore, *, port=8765, projects=None, ui_directory=None)
             actor = store.actor_for_session(request.cookies.get(SESSION_COOKIE))
         except AuthenticationError:
             return JSONResponse({'detail': 'Authentication failed.'}, status_code=401)
-        return JSONResponse({'user_id': actor.user_id, **({'edition': 'professional', 'simple_site_checks': True} if getattr(store, 'local_licensed', False) else {})})
+        return JSONResponse({'user_id': actor.user_id, **({'edition':'hosted','simple_site_checks':True,'account_required':True,'test_data_location':'server'} if hosted else {'edition': 'professional', 'simple_site_checks': True} if getattr(store, 'local_licensed', False) else {})})
 
     @app.post('/api/auth/logout')
     def logout(request: Request):
@@ -572,7 +582,7 @@ def create_app(store: AuthStore, *, port=8765, projects=None, ui_directory=None)
         response = JSONResponse({'logged_out': True})
         for name in (SESSION_COOKIE, CSRF_COOKIE):
             response.delete_cookie(name, path='/', samesite='strict',
-                                   httponly=name == SESSION_COOKIE)
+                                   httponly=name == SESSION_COOKIE,secure=hosted)
         return response
 
     class Boundary:
@@ -593,6 +603,7 @@ def create_app(store: AuthStore, *, port=8765, projects=None, ui_directory=None)
                         (b'x-content-type-options', b'nosniff'),
                         (b'content-security-policy', b"default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'"),
                         (b'referrer-policy', b'no-referrer')]
+                    if hosted:message['headers'].append((b'strict-transport-security',b'max-age=31536000'))
                 await send(message)
             async def deny(status):
                 await JSONResponse({'detail': 'Request rejected.'}, status_code=status)(scope, receive, secured_send)
@@ -613,6 +624,10 @@ def create_app(store: AuthStore, *, port=8765, projects=None, ui_directory=None)
                     or any(k.lower().startswith(b'x-forwarded-') or k.lower() == b'forwarded' for k, _ in headers)):
                 await deny(400)
                 return
+            if hosted:
+                from adaptive_qa.hosted import hosted_route
+                if not hosted_route(scope['method'],scope['path']):
+                    await deny(404);return
             if scope['method'] not in ('GET', 'HEAD'):
                 if values(b'origin') != [origin.encode()]:
                     await deny(403)

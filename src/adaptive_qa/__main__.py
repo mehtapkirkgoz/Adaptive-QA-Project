@@ -15,8 +15,14 @@ def main() -> None:
     configure_local(commands)
     from adaptive_qa.deployment_cli import configure_parser as configure_deployment
     configure_deployment(commands)
+    from adaptive_qa.hosted_cli import configure_parser as configure_hosted
+    configure_hosted(commands)
     args = parser.parse_args()
-    if args.command == 'dashboard':
+    if args.command == 'hosted':
+        from adaptive_qa.hosted_cli import run
+        try:run(args)
+        except ValueError as error:parser.exit(2,f'{error}\n')
+    elif args.command == 'dashboard':
         from adaptive_qa.dashboard_cli import run
         try:
             run(args)

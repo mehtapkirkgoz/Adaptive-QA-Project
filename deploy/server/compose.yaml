@@ -1,0 +1,36 @@
+services:
+  app:
+    build:
+      context: ../..
+      dockerfile: deploy/server/Dockerfile
+    command: ["hosted", "serve", "--public-origin", "${PUBLIC_ORIGIN:?Set the canonical HTTPS origin}"]
+    init: true
+    restart: unless-stopped
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true", "seccomp=./seccomp_profile.json"]
+    shm_size: 512mb
+    mem_limit: 2g
+    cpus: 2
+    pids_limit: 256
+    tmpfs: ["/tmp:rw,nosuid,nodev,size=512m,mode=1777"]
+    volumes: ["qa_data:/data"]
+    networks: [private]
+  proxy:
+    image: caddy:2
+    restart: unless-stopped
+    environment:
+      PUBLIC_ORIGIN: ${PUBLIC_ORIGIN:?Set the canonical HTTPS origin}
+    ports: ["80:80", "443:443"]
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks: [private]
+    depends_on: [app]
+networks:
+  private:
+volumes:
+  qa_data:
+  caddy_data:
+  caddy_config:

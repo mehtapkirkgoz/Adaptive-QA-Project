@@ -45,6 +45,7 @@ const accessReasons: Record<string,string> = {
   inspection_unavailable: 'No usable page could be inspected. Check the final HTTPS address, website availability and access requirements.'};
 
 export function SiteCheck({request, tools, feedback, onOptionsOpen, onCheckCreated, hasUnsavedOptions, edition, onSignOut, demoProjectId}: Props) {
+  const hosted=edition==='SERVER';
   const [url, setUrl] = useState(''), [check, setCheck] = useState<Check | null>(null);
   const [history, setHistory] = useState<Check[]>([]), [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false), [error, setError] = useState('');
@@ -97,14 +98,14 @@ export function SiteCheck({request, tools, feedback, onOptionsOpen, onCheckCreat
           <input id="site-url" type="url" required maxLength={512} placeholder="https://example.com" value={url}
             disabled={busy || active(check)} onChange={event => setUrl(event.target.value)}/>
           <button className="primary" type="submit" disabled={loading || busy || active(check) || hasUnsavedOptions}>{busy ? 'Starting…' : active(check) ? 'Checking…' : 'Test website'}</button></div>
-        <p className="hint">Read-only checks. No sign-in, form submissions or data changes. Results stay on this computer.</p>
+        <p className="hint">Read-only checks. Optional login tests appear below when a login is found. {hosted?'Tests run on the server; results are stored in your server account.':'Results stay on this computer.'}</p>
       </form>
       {hasUnsavedOptions && <p className="message">Save your option edits before starting a check. Your draft has not been applied.</p>}
       <ol className="site-check-steps"><li>1 · Enter a URL</li><li>2 · Automatic checks</li><li>3 · Review results</li></ol>
     </section>
     {feedback}
     {error && <p role="alert" className="message error">{error}</p>}
-    {loading && <p role="status">Opening your local workspace…</p>}
+    {loading && <p role="status">Opening your {hosted?'server':'local'} workspace…</p>}
     {check && <section className="card site-check-results" aria-label="Website check results">
       <div className="section-label"><div><h2 aria-live="polite">{stages[outcomeStatus(check)] ?? 'Waiting for the check'}</h2><p className="site-check-url">{check.url}</p></div>
         {active(check) && <button disabled={busy || check.status === 'cancelling'} onClick={async () => {
@@ -133,13 +134,13 @@ export function SiteCheck({request, tools, feedback, onOptionsOpen, onCheckCreat
     {check&&!active(check)&&<WebsiteLoginPanel key={check.check_id} checkId={check.check_id} projectId={check.project_id}
       login={check.login} disabled={hasUnsavedOptions||busy} request={request}/>}
     <BrowserReviewPanel request={request}/>
-    <DemoLoginPanel projectId={check?.project_id ?? demoProjectId} request={request} hasUnsavedChanges={hasUnsavedOptions} onProjectCreated={onCheckCreated}/>
-    <details className="workspace-options" open={location.hash === '#advanced' ? true : undefined} onToggle={event => {if (event.currentTarget.open) onOptionsOpen(check?.project_id);}}>
+    {!hosted&&<DemoLoginPanel projectId={check?.project_id ?? demoProjectId} request={request} hasUnsavedChanges={hasUnsavedOptions} onProjectCreated={onCheckCreated}/>}
+    {!hosted&&<details className="workspace-options" open={location.hash === '#advanced' ? true : undefined} onToggle={event => {if (event.currentTarget.open) onOptionsOpen(check?.project_id);}}>
       <summary><strong>Test options</strong><span>Optional saved sites, API and database settings</span></summary>
       <p className="hint">A URL is enough for the automatic read-only check. Use these options only when you need a specific project or an explicit API/database contract. Saving settings does not start a test.</p>
       <fieldset disabled={busy || active(check)}>{tools}</fieldset>
-    </details>
+    </details>}
     {history.length > 1 && <section className="site-check-history"><h2>Previous checks</h2>{history.slice(1).map(item => <button key={item.check_id} disabled={active(check) || busy}
       onClick={() => {serial.current += 1; setCheck(item); setUrl(item.url); setHistory(previous => [item, ...previous.filter(row => row.check_id !== item.check_id)]);}}>{item.url}<span>{stages[outcomeStatus(item)] ?? item.status}</span></button>)}</section>}
-    </main><footer>ADAPTIVE QA <span>Local workspace · Clear results</span></footer></div>;
+    </main><footer>ADAPTIVE QA <span>{hosted?'Server':'Local'} workspace · Clear results</span></footer></div>;
 }

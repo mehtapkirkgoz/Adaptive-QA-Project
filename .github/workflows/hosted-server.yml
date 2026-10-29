@@ -1,0 +1,24 @@
+name: Hosted server package
+on:
+  push:
+    paths: ['deploy/server/**', 'src/**', 'frontend/**', 'requirements.lock.txt', 'scripts/check_hosted_container.py', '.github/workflows/hosted-server.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  container:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v5
+      - name: Build the separate non-root server package
+        run: docker build -f deploy/server/Dockerfile -t adaptive-qa-server:ci .
+      - name: Prove sandbox, owned HTTPS proxy, session isolation and durable data
+        run: python3 scripts/check_hosted_container.py
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: hosted-server-evidence
+          path: artifacts/hosted/*.json
+          if-no-files-found: warn
+          retention-days: 7

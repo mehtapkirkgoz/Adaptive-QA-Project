@@ -107,7 +107,9 @@ class SiteChecks:
                         secret_references={}, form_mappings=[])
         self.projects._actor(actor)
         validate_settings(OwnedProject('0'*32, actor.user_id, (parsed.hostname or 'Site check')[:100]), settings)
-        configured_discovery(settings)
+        profile,_=configured_discovery(settings)
+        if getattr(self.projects,'hosted',False) and profile!='public_https':
+            raise ValueError('The server edition accepts public HTTPS targets only.')
         if not self.lock.acquire(blocking=False):
             raise SiteCheckBusy('Another site check is active.')
         try:

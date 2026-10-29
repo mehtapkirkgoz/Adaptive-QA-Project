@@ -1,0 +1,12 @@
+.git
+.venv
+artifacts
+frontend/node_modules
+frontend/dist*
+**/__pycache__
+**/*.sqlite*
+**/.env*
+**/*.pem
+**/*.key
+tests
+.codex

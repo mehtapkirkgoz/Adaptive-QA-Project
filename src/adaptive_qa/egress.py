@@ -5,6 +5,7 @@ import select
 import socket
 import time
 import math
+import os
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from ipaddress import ip_address
 from threading import Lock, Thread
@@ -227,6 +228,7 @@ class EgressProxy:
 def chromium_proxy_options(proxy_url: str) -> dict:
     """Route Chromium HTTP(S) traffic through the fixed proxy, including loopback."""
     return {
+        **({'chromium_sandbox':True} if os.environ.get('ADAPTIVE_QA_HOSTED_SANDBOX')=='1' else {}),
         "proxy": {"server": proxy_url, "bypass": "<-loopback>"},
         "args": ["--disable-quic", "--disable-http2",
                  "--force-webrtc-ip-handling-policy=disable_non_proxied_udp"],
