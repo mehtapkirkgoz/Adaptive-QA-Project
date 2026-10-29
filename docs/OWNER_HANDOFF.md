@@ -2,7 +2,10 @@
 
 The owner accepted their local test on 2026-10-29 and requested the next unified
 real-use release, aiming to leave domain acquisition/connection for last. The
-execution/data location must be selected before public deployment is implemented.
+owner subsequently selected server-side execution and confirmed no hosting exists.
+The separate authenticated package is documented in
+[the server installation guide](../deploy/server/README.md). Hosting provisioning,
+domain/DNS, first-account creation and host-specific HTTPS acceptance remain.
 The required local-review decision below has therefore been satisfied; public
 service acceptance and activation have not been granted by that local test.
 
